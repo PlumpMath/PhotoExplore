@@ -1,0 +1,342 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release2|Win32">
+      <Configuration>Release2</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release2|x64">
+      <Configuration>Release2</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{C4ED0178-746A-4805-B7A1-93D3BB6C63F5}</ProjectGuid>
+    <RootNamespace>LeapSDLImageBrowser</RootNamespace>
+    <ProjectName>LeapImageBrowser</ProjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release2|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>MultiByte</CharacterSet>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release2|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release2|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release2|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <IncludePath>C:\lib\freetype-2.3.5-1-bin\include\freetype2;C:\lib\freetype-2.3.5-1-bin\include;C:\lib\json_spirit_v4.06\json_spirit\;D:\lib\cef_binary_3.1453.1255_windows;C:\lib\glew-1.9.0_x86_32\include;C:\lib\glfw-2.7.8.bin.WIN32\include;C:\lib\LeapSDK\include;D:\lib\opencv\build\include;D:\lib\boost_1_53_0;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release2|Win32'">
+    <IncludePath>C:\lib\SDL-1.2.15\include;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>D:\lib\cef_binary_3.1453.1255_windows;C:\lib\glew-1.9.0\include;C:\lib\glfw-2.7.8.bin.WIN64\include;C:\lib\LeapSDK\include;D:\lib\opencv\build\include;D:\lib\boost_1_53_0;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release2|x64'">
+    <IncludePath>C:\lib\glew-1.9.0\include;C:\lib\glfw-2.7.8.bin.WIN64\include;C:\lib\LeapSDK\include;D:\lib\opencv\build\include;D:\lib\boost_1_53_0;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LibraryPath>C:\lib\freetype-2.3.5-1-bin\lib;C:\lib\json_spirit_v4.06\Debug;D:\lib\cef_binary_3.1453.1255_windows\out\Debug\lib;D:\lib\boost_1_53_0\build_x86_32\lib;C:\lib\glew-1.9.0_x86_32\lib;C:\lib\glfw-2.7.8.bin.WIN32\lib-msvc100;C:\lib\LeapSDK\lib\x86;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release2|Win32'">
+    <LibraryPath>C:\lib\SDL-1.2.15\lib\x86;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LibraryPath>D:\lib\cef_binary_3.1453.1255_windows\out\Debug\lib;D:\lib\boost_1_53_0\build_x64\lib;C:\lib\glew-1.9.0\lib;C:\lib\glfw-2.7.8.bin.WIN64\lib-msvc110;C:\lib\LeapSDK\lib\x64;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release2|x64'">
+    <LibraryPath>D:\lib\boost_1_53_0\stage\lib;C:\lib\glew-1.9.0\lib;C:\lib\glfw-2.7.8.bin.WIN64\lib-msvc110;C:\lib\LeapSDK\lib\x64;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IncludePath>C:\lib\glew-1.9.0\include;C:\lib\glfw-2.7.8.bin.WIN64\include;C:\lib\LeapSDK\include;D:\lib\opencv\build\include;D:\lib\boost_1_53_0;$(IncludePath)</IncludePath>
+    <LibraryPath>D:\lib\boost_1_53_0\stage\lib;C:\lib\glew-1.9.0\lib;C:\lib\glfw-2.7.8.bin.WIN64\lib-msvc110;C:\lib\LeapSDK\lib\x64;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <IncludePath>C:\lib\freetype-2.3.5-1-bin\include\freetype2;C:\lib\freetype-2.3.5-1-bin\include;C:\lib\json_spirit_v4.06\json_spirit\;D:\lib\cef_binary_3.1453.1255_windows;C:\lib\glew-1.9.0_x86_32\include;C:\lib\glfw-2.7.8.bin.WIN32\include;C:\lib\LeapSDK\include;D:\lib\opencv\build\include;D:\lib\boost_1_53_0;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\lib\freetype-2.3.5-1-bin\lib;C:\lib\json_spirit_v4.06\Release;D:\lib\cef_binary_3.1453.1255_windows\out\Release\lib;D:\lib\boost_1_53_0\build_x86_32\lib;C:\lib\glew-1.9.0_x86_32\lib;C:\lib\glfw-2.7.8.bin.WIN32\lib-msvc100;C:\lib\LeapSDK\lib\x86;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <PreprocessorDefinitions>GLFW_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>freetype.lib;json_spirit_lib.lib;libcef.lib;libcef_dll_wrapper.lib;glu32.lib;opengl32.lib;glew32.lib;GLFWDLL.lib;opencv_core245d.lib;opencv_imgproc245d.lib;opencv_highgui245d.lib;Leapd.lib;opencv_video245d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <SubSystem>Console</SubSystem>
+      <AdditionalLibraryDirectories>C:\lib\json_spirit_v4.06\Debug;C:\lib\glfw-2.7.8.bin.WIN32\lib-msvc100;D:\lib\boost_1_53_0\build_x86_32\lib;D:\lib\cef_binary_3.1453.1255_windows\Debug;D:\lib\cef_binary_3.1453.1255_windows\out\Debug\lib;D:\lib\opencv\build\x86\vc10\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release2|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>SDL.lib;SDLMain.lib;SDL_image.lib;SDL_gfx.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>libcef.lib;glu32.lib;opengl32.lib;glew32.lib;GLFWDLL.lib;opencv_core245d.lib;opencv_imgproc245d.lib;opencv_highgui245d.lib;Leapd.lib;opencv_video245d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <SubSystem>Console</SubSystem>
+      <AdditionalLibraryDirectories>D:\lib\boost_1_53_0\build_x64\lib;D:\lib\cef_binary_3.1453.1255_windows\Debug;D:\lib\cef_binary_3.1453.1255_windows\out\Debug\lib;D:\lib\opencv\build\x64\vc10\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <LinkStatus>true</LinkStatus>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release2|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>glu32.lib;opengl32.lib;glew32.lib;GLFW.lib;GLFWDLL.lib;opencv_core245d.lib;opencv_imgproc245d.lib;opencv_highgui245d.lib;Leapd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <SubSystem>Console</SubSystem>
+      <AdditionalLibraryDirectories>D:\lib\boost_1_53_0\stage\lib;D:\lib\opencv\build\x64\vc10\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <PreprocessorDefinitions>GLFW_DLL;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>freetype.lib;json_spirit_lib.lib;libcef.lib;libcef_dll_wrapper.lib;glu32.lib;opengl32.lib;glew32.lib;GLFWDLL.lib;opencv_core245.lib;opencv_imgproc245.lib;opencv_highgui245.lib;Leap.lib;opencv_video245.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\lib\LeapSDK\lib\x86;C:\lib\json_spirit_v4.06\Release;C:\lib\glfw-2.7.8.bin.WIN32\lib-msvc100;D:\lib\boost_1_53_0\build_x86_32\lib;D:\lib\cef_binary_3.1453.1255_windows\Release;D:\lib\cef_binary_3.1453.1255_windows\out\Release\lib;D:\lib\opencv\build\x86\vc10\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <BasicRuntimeChecks>
+      </BasicRuntimeChecks>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalLibraryDirectories>D:\lib\boost_1_53_0\stage\lib;D:\lib\opencv\build\x64\vc10\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glu32.lib;opengl32.lib;glew32.lib;GLFWDLL.lib;opencv_core245.lib;opencv_imgproc245.lib;opencv_highgui245.lib;Leap.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <SubSystem>Console</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="AlbumDetailView.cpp" />
+    <ClCompile Include="AlbumPanel.cpp" />
+    <ClCompile Include="Animation.cpp" />
+    <ClCompile Include="Button.cpp" />
+    <ClCompile Include="FastSeekBar.cpp" />
+    <ClCompile Include="GlobalConfig.cpp" />
+    <ClCompile Include="ContentPanel.cpp" />
+    <ClCompile Include="CustomGrid.cpp" />
+    <ClCompile Include="DynamicGrid.cpp" />
+    <ClCompile Include="FacebookFriendListView.cpp" />
+    <ClCompile Include="FacebookIntroView.cpp" />
+    <ClCompile Include="DataViewGenerator.cpp" />
+    <ClCompile Include="FacebookBrowser.cpp" />
+    <ClCompile Include="FBNode.cpp" />
+    <ClCompile Include="FixedAspectGrid.cpp" />
+    <ClCompile Include="FlyWheel.cpp" />
+    <ClCompile Include="FrameView.cpp" />
+    <ClCompile Include="FriendDetailView.cpp" />
+    <ClCompile Include="FriendPanel.cpp" />
+    <ClCompile Include="FriendPhotoLinkedView.cpp" />
+    <ClCompile Include="HandModel.cpp" />
+    <ClCompile Include="HandRotationGestureDetector.cpp" />
+    <ClCompile Include="ImageDetailView.cpp" />
+    <ClCompile Include="ImageManager.cpp" />
+    <ClCompile Include="LeapDebug.cpp" />
+    <ClCompile Include="LeapElement.cpp" />
+    <ClCompile Include="LeapStartScreen.cpp" />
+    <ClCompile Include="LinearLayout.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="MultiResolutionImage.cpp" />
+    <ClCompile Include="PackingGrid.cpp" />
+    <ClCompile Include="Panel.cpp" />
+    <ClCompile Include="PanelBase.cpp" />
+    <ClCompile Include="PanelFactory.cpp" />
+    <ClCompile Include="PointableElementManager.cpp" />
+    <ClCompile Include="RadialMenu.cpp" />
+    <ClCompile Include="RelevantImageView.cpp" />
+    <ClCompile Include="ResourceManager.cpp" />
+    <ClCompile Include="ScrollingView.cpp" />
+    <ClCompile Include="SeekVisual.cpp" />
+    <ClCompile Include="TextPanel.cpp" />
+    <ClCompile Include="TextureLoadTask.cpp" />
+    <ClCompile Include="TextureManager.cpp" />
+    <ClCompile Include="TexturePanel.cpp" />
+    <ClCompile Include="TexturePool.cpp" />
+    <ClCompile Include="TypographyManager.cpp" />
+    <ClCompile Include="UniformGrid.cpp" />
+    <ClCompile Include="View.cpp" />
+    <ClCompile Include="ViewOrchestrator.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="AlbumDetailView.hpp" />
+    <ClInclude Include="AlbumPanel.hpp" />
+    <ClInclude Include="Animation.h" />
+    <ClInclude Include="Button.hpp" />
+    <ClInclude Include="Cefalopod.h" />
+    <ClInclude Include="CefDownloadClient.h" />
+    <ClInclude Include="CefFileBrowser.h" />
+    <ClInclude Include="FakeDataSource.hpp" />
+    <ClInclude Include="FastSeekBar.hpp" />
+    <ClInclude Include="GlobalConfig.hpp" />
+    <ClInclude Include="ContentPanel.hpp" />
+    <ClInclude Include="CustomGrid.hpp" />
+    <ClInclude Include="DynamicGrid.hpp" />
+    <ClInclude Include="FacebookFriendListView.hpp" />
+    <ClInclude Include="FacebookIntroView.hpp" />
+    <ClInclude Include="DataViewGenerator.hpp" />
+    <ClInclude Include="FacebookBrowser.hpp" />
+    <ClInclude Include="FacebookLoader.h" />
+    <ClInclude Include="FBNode.h" />
+    <ClInclude Include="FBNodeExtractor.h" />
+    <ClInclude Include="FileManager.h" />
+    <ClInclude Include="FileNode.h" />
+    <ClInclude Include="FixedAspectGrid.hpp" />
+    <ClInclude Include="Flywheel.h" />
+    <ClInclude Include="FrameView.hpp" />
+    <ClInclude Include="FriendDetailView.hpp" />
+    <ClInclude Include="FriendPanel.hpp" />
+    <ClInclude Include="FriendPhotoLinkedView.hpp" />
+    <ClInclude Include="GLImport.h" />
+    <ClInclude Include="GraphicContext.hpp" />
+    <ClInclude Include="HandModel.h" />
+    <ClInclude Include="HandRotationGestureDetector.h" />
+    <ClInclude Include="ImageDetailView.hpp" />
+    <ClInclude Include="ImageLoadingURLClient.h" />
+    <ClInclude Include="ImageManager.h" />
+    <ClInclude Include="LeapElement.hpp" />
+    <ClInclude Include="LightFriendPanel.hpp" />
+    <ClInclude Include="LinearLayout.hpp" />
+    <ClInclude Include="PackingGrid.hpp" />
+    <ClInclude Include="PanelFactory.hpp" />
+    <ClInclude Include="RadialMenu.hpp" />
+    <ClInclude Include="RelevantImageView.hpp" />
+    <ClInclude Include="ScrollingView.hpp" />
+    <ClInclude Include="SeekVisual.hpp" />
+    <ClInclude Include="ShakeGestureDetector.hpp" />
+    <ClInclude Include="ViewGroup.hpp" />
+    <ClInclude Include="ViewOrchestrator.hpp" />
+    <ClInclude Include="UniformGrid.hpp" />
+    <ClInclude Include="View.hpp" />
+    <ClInclude Include="LeapStartScreen.h" />
+    <ClInclude Include="PanelBase.h" />
+    <ClInclude Include="LeapDebug.h" />
+    <ClInclude Include="LeapHelper.h" />
+    <ClInclude Include="NodeBase.h" />
+    <ClInclude Include="Panel.h" />
+    <ClInclude Include="PointableElementManager.h" />
+    <ClInclude Include="ResourceManager.h" />
+    <ClInclude Include="ResourceManagerTypes.h" />
+    <ClInclude Include="SDLTimer.h" />
+    <ClInclude Include="TextPanel.h" />
+    <ClInclude Include="TexturePanel.h" />
+    <ClInclude Include="TextureManager.h" />
+    <ClInclude Include="TexturePool.h" />
+    <ClInclude Include="Types.h" />
+    <ClInclude Include="TypographyManager.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="BlurFragmentShader.glsl" />
+    <None Include="HBlurVertexShader.glsl" />
+    <None Include="VBlurVertexShader.glsl" />
+    <None Include="postproc.f.glsl" />
+    <None Include="postproc.v.glsl" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

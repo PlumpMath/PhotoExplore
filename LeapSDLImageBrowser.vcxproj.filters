@@ -1,0 +1,425 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Header Files\LeapUtil">
+      <UniqueIdentifier>{72092afe-b6bf-449c-8c1a-b735b8d48807}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Panel">
+      <UniqueIdentifier>{a7e30d5c-627e-429d-8a95-042dc6868d3e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\DataModel">
+      <UniqueIdentifier>{1a6e09f7-225c-47b0-ac3a-91aa6ffe792d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\ResourceManager">
+      <UniqueIdentifier>{14d63e50-e8d1-403e-aad6-e7c18573348a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\ResourceManager">
+      <UniqueIdentifier>{d0377c49-c2a6-424a-9b7a-291e33dc7e24}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\NewPanel">
+      <UniqueIdentifier>{9515a40d-79a7-42de-9126-7fb53beac6a1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\DataView">
+      <UniqueIdentifier>{51ef1e19-48d4-450a-9067-5ce9f6adcdae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\NewPanel">
+      <UniqueIdentifier>{a75ae9da-fb21-4974-bd8c-fdc9b430f9f2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\DataModel">
+      <UniqueIdentifier>{bca1e698-7b92-4b8c-9305-8cc38469db63}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\EventHandling">
+      <UniqueIdentifier>{8765feaa-6021-4fd9-aef2-fd830e1ed789}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\NewPanel\DataViews">
+      <UniqueIdentifier>{01e731d4-84be-473d-a54d-84f52d322fd0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\NewPanel\DataPanels">
+      <UniqueIdentifier>{cf00d988-b744-4aef-a748-4b49639e83af}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\NewPanel\GridLayouts">
+      <UniqueIdentifier>{a38a090f-403d-4dc6-8c39-b038abd8cc88}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\NewPanel\GridLayouts">
+      <UniqueIdentifier>{fb2a2b60-7dd2-483a-b955-9a1af90d9566}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\LeapUtil">
+      <UniqueIdentifier>{1f247fc1-9e98-488f-a362-e2e15b1f9667}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Panel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FlyWheel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Animation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PointableElementManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LeapDebug.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PanelBase.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TexturePanel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LeapStartScreen.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ResourceManager.cpp">
+      <Filter>Source Files\ResourceManager</Filter>
+    </ClCompile>
+    <ClCompile Include="TextPanel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DataViewGenerator.cpp">
+      <Filter>Source Files\DataView</Filter>
+    </ClCompile>
+    <ClCompile Include="ViewOrchestrator.cpp">
+      <Filter>Source Files\NewPanel</Filter>
+    </ClCompile>
+    <ClCompile Include="FBNode.cpp">
+      <Filter>Source Files\DataModel</Filter>
+    </ClCompile>
+    <ClCompile Include="UniformGrid.cpp">
+      <Filter>Source Files\NewPanel</Filter>
+    </ClCompile>
+    <ClCompile Include="TextureManager.cpp">
+      <Filter>Source Files\ResourceManager</Filter>
+    </ClCompile>
+    <ClCompile Include="ScrollingView.cpp">
+      <Filter>Source Files\NewPanel</Filter>
+    </ClCompile>
+    <ClCompile Include="SeekVisual.cpp">
+      <Filter>Source Files\NewPanel</Filter>
+    </ClCompile>
+    <ClCompile Include="FacebookBrowser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FacebookIntroView.cpp">
+      <Filter>Source Files\NewPanel</Filter>
+    </ClCompile>
+    <ClCompile Include="FacebookFriendListView.cpp">
+      <Filter>Source Files\NewPanel</Filter>
+    </ClCompile>
+    <ClCompile Include="DynamicGrid.cpp">
+      <Filter>Source Files\NewPanel</Filter>
+    </ClCompile>
+    <ClCompile Include="FriendPanel.cpp">
+      <Filter>Source Files\NewPanel</Filter>
+    </ClCompile>
+    <ClCompile Include="PackingGrid.cpp">
+      <Filter>Source Files\NewPanel</Filter>
+    </ClCompile>
+    <ClCompile Include="ContentPanel.cpp">
+      <Filter>Source Files\NewPanel</Filter>
+    </ClCompile>
+    <ClCompile Include="CustomGrid.cpp">
+      <Filter>Source Files\NewPanel</Filter>
+    </ClCompile>
+    <ClCompile Include="Button.cpp">
+      <Filter>Source Files\NewPanel</Filter>
+    </ClCompile>
+    <ClCompile Include="FriendDetailView.cpp">
+      <Filter>Source Files\NewPanel</Filter>
+    </ClCompile>
+    <ClCompile Include="View.cpp">
+      <Filter>Source Files\NewPanel</Filter>
+    </ClCompile>
+    <ClCompile Include="AlbumPanel.cpp">
+      <Filter>Source Files\NewPanel</Filter>
+    </ClCompile>
+    <ClCompile Include="AlbumDetailView.cpp">
+      <Filter>Source Files\NewPanel</Filter>
+    </ClCompile>
+    <ClCompile Include="PanelFactory.cpp">
+      <Filter>Source Files\NewPanel</Filter>
+    </ClCompile>
+    <ClCompile Include="ImageDetailView.cpp">
+      <Filter>Source Files\NewPanel</Filter>
+    </ClCompile>
+    <ClCompile Include="RelevantImageView.cpp">
+      <Filter>Source Files\NewPanel</Filter>
+    </ClCompile>
+    <ClCompile Include="FrameView.cpp">
+      <Filter>Source Files\NewPanel</Filter>
+    </ClCompile>
+    <ClCompile Include="FriendPhotoLinkedView.cpp">
+      <Filter>Source Files\NewPanel</Filter>
+    </ClCompile>
+    <ClCompile Include="ImageManager.cpp">
+      <Filter>Source Files\ResourceManager</Filter>
+    </ClCompile>
+    <ClCompile Include="FixedAspectGrid.cpp">
+      <Filter>Source Files\NewPanel\GridLayouts</Filter>
+    </ClCompile>
+    <ClCompile Include="TextureLoadTask.cpp">
+      <Filter>Source Files\ResourceManager</Filter>
+    </ClCompile>
+    <ClCompile Include="LeapElement.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GlobalConfig.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TypographyManager.cpp">
+      <Filter>Source Files\ResourceManager</Filter>
+    </ClCompile>
+    <ClCompile Include="HandModel.cpp">
+      <Filter>Source Files\LeapUtil</Filter>
+    </ClCompile>
+    <ClCompile Include="RadialMenu.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="HandRotationGestureDetector.cpp">
+      <Filter>Source Files\LeapUtil</Filter>
+    </ClCompile>
+    <ClCompile Include="FastSeekBar.cpp">
+      <Filter>Source Files\NewPanel</Filter>
+    </ClCompile>
+    <ClCompile Include="MultiResolutionImage.cpp">
+      <Filter>Source Files\ResourceManager</Filter>
+    </ClCompile>
+    <ClCompile Include="LinearLayout.cpp">
+      <Filter>Source Files\NewPanel</Filter>
+    </ClCompile>
+    <ClCompile Include="TexturePool.cpp">
+      <Filter>Source Files\ResourceManager</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Types.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SDLTimer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Flywheel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Animation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="HandModel.h">
+      <Filter>Header Files\LeapUtil</Filter>
+    </ClInclude>
+    <ClInclude Include="HandRotationGestureDetector.h">
+      <Filter>Header Files\LeapUtil</Filter>
+    </ClInclude>
+    <ClInclude Include="LeapDebug.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LeapHelper.h">
+      <Filter>Header Files\LeapUtil</Filter>
+    </ClInclude>
+    <ClInclude Include="FileManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ImageLoadingURLClient.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FacebookLoader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Panel.h">
+      <Filter>Header Files\Panel</Filter>
+    </ClInclude>
+    <ClInclude Include="FileNode.h">
+      <Filter>Header Files\DataModel</Filter>
+    </ClInclude>
+    <ClInclude Include="FBNode.h">
+      <Filter>Header Files\DataModel</Filter>
+    </ClInclude>
+    <ClInclude Include="NodeBase.h">
+      <Filter>Header Files\DataModel</Filter>
+    </ClInclude>
+    <ClInclude Include="PanelBase.h">
+      <Filter>Header Files\Panel</Filter>
+    </ClInclude>
+    <ClInclude Include="TexturePanel.h">
+      <Filter>Header Files\Panel</Filter>
+    </ClInclude>
+    <ClInclude Include="TextPanel.h">
+      <Filter>Header Files\Panel</Filter>
+    </ClInclude>
+    <ClInclude Include="LeapStartScreen.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Cefalopod.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CefFileBrowser.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CefDownloadClient.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ResourceManager.h">
+      <Filter>Header Files\ResourceManager</Filter>
+    </ClInclude>
+    <ClInclude Include="ResourceManagerTypes.h">
+      <Filter>Header Files\ResourceManager</Filter>
+    </ClInclude>
+    <ClInclude Include="DataViewGenerator.hpp">
+      <Filter>Header Files\NewPanel</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureManager.h">
+      <Filter>Header Files\ResourceManager</Filter>
+    </ClInclude>
+    <ClInclude Include="ImageManager.h">
+      <Filter>Header Files\ResourceManager</Filter>
+    </ClInclude>
+    <ClInclude Include="TypographyManager.h">
+      <Filter>Header Files\ResourceManager</Filter>
+    </ClInclude>
+    <ClInclude Include="View.hpp">
+      <Filter>Header Files\NewPanel</Filter>
+    </ClInclude>
+    <ClInclude Include="UniformGrid.hpp">
+      <Filter>Header Files\NewPanel</Filter>
+    </ClInclude>
+    <ClInclude Include="ViewOrchestrator.hpp">
+      <Filter>Header Files\NewPanel</Filter>
+    </ClInclude>
+    <ClInclude Include="FBNodeExtractor.h">
+      <Filter>Header Files\DataModel</Filter>
+    </ClInclude>
+    <ClInclude Include="ScrollingView.hpp">
+      <Filter>Header Files\NewPanel</Filter>
+    </ClInclude>
+    <ClInclude Include="FacebookBrowser.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SeekVisual.hpp">
+      <Filter>Header Files\NewPanel</Filter>
+    </ClInclude>
+    <ClInclude Include="GLImport.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LeapElement.hpp">
+      <Filter>Header Files\EventHandling</Filter>
+    </ClInclude>
+    <ClInclude Include="PointableElementManager.h">
+      <Filter>Header Files\EventHandling</Filter>
+    </ClInclude>
+    <ClInclude Include="ContentPanel.hpp">
+      <Filter>Header Files\NewPanel</Filter>
+    </ClInclude>
+    <ClInclude Include="TexturePool.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Button.hpp">
+      <Filter>Header Files\NewPanel</Filter>
+    </ClInclude>
+    <ClInclude Include="ViewGroup.hpp">
+      <Filter>Header Files\NewPanel</Filter>
+    </ClInclude>
+    <ClInclude Include="PanelFactory.hpp">
+      <Filter>Header Files\NewPanel</Filter>
+    </ClInclude>
+    <ClInclude Include="ImageDetailView.hpp">
+      <Filter>Header Files\NewPanel</Filter>
+    </ClInclude>
+    <ClInclude Include="FrameView.hpp">
+      <Filter>Header Files\NewPanel</Filter>
+    </ClInclude>
+    <ClInclude Include="AlbumDetailView.hpp">
+      <Filter>Header Files\NewPanel\DataViews</Filter>
+    </ClInclude>
+    <ClInclude Include="FacebookFriendListView.hpp">
+      <Filter>Header Files\NewPanel\DataViews</Filter>
+    </ClInclude>
+    <ClInclude Include="FacebookIntroView.hpp">
+      <Filter>Header Files\NewPanel\DataViews</Filter>
+    </ClInclude>
+    <ClInclude Include="FriendDetailView.hpp">
+      <Filter>Header Files\NewPanel\DataViews</Filter>
+    </ClInclude>
+    <ClInclude Include="FriendPhotoLinkedView.hpp">
+      <Filter>Header Files\NewPanel\DataViews</Filter>
+    </ClInclude>
+    <ClInclude Include="RelevantImageView.hpp">
+      <Filter>Header Files\NewPanel\DataViews</Filter>
+    </ClInclude>
+    <ClInclude Include="AlbumPanel.hpp">
+      <Filter>Header Files\NewPanel\DataPanels</Filter>
+    </ClInclude>
+    <ClInclude Include="FriendPanel.hpp">
+      <Filter>Header Files\NewPanel\DataPanels</Filter>
+    </ClInclude>
+    <ClInclude Include="CustomGrid.hpp">
+      <Filter>Header Files\NewPanel\GridLayouts</Filter>
+    </ClInclude>
+    <ClInclude Include="DynamicGrid.hpp">
+      <Filter>Header Files\NewPanel\GridLayouts</Filter>
+    </ClInclude>
+    <ClInclude Include="PackingGrid.hpp">
+      <Filter>Header Files\NewPanel\GridLayouts</Filter>
+    </ClInclude>
+    <ClInclude Include="FixedAspectGrid.hpp">
+      <Filter>Header Files\NewPanel\GridLayouts</Filter>
+    </ClInclude>
+    <ClInclude Include="LinearLayout.hpp">
+      <Filter>Header Files\NewPanel\GridLayouts</Filter>
+    </ClInclude>
+    <ClInclude Include="LightFriendPanel.hpp">
+      <Filter>Header Files\NewPanel\DataPanels</Filter>
+    </ClInclude>
+    <ClInclude Include="ShakeGestureDetector.hpp">
+      <Filter>Header Files\LeapUtil</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphicContext.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GlobalConfig.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RadialMenu.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FastSeekBar.hpp">
+      <Filter>Header Files\NewPanel</Filter>
+    </ClInclude>
+    <ClInclude Include="FakeDataSource.hpp">
+      <Filter>Header Files\DataModel</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="postproc.v.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="postproc.f.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="VBlurVertexShader.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="BlurFragmentShader.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="HBlurVertexShader.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
+</Project>
