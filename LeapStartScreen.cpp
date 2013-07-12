@@ -47,10 +47,14 @@ LeapStartScreen::LeapStartScreen(std::string startDir)
 	updateTimer.start();
 	lastHit = NULL;
 
-	//rootView = new FacebookBrowser(createMockData());
-	//state = FinishedState;
-	init();
-	doPreCheck();
+	if (GlobalConfig::tree()->get<bool>("FakeDataMode.Enable")) {
+		rootView = new FacebookBrowser(createMockData());
+		state = FinishedState;
+	}
+	else {
+		init();
+		doPreCheck();
+	}
 }
 
 void LeapStartScreen::doPreCheck()

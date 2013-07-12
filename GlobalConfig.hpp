@@ -3,6 +3,8 @@
 
 #include <string>
 #include <map>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/json_parser.hpp>
 
 using namespace std;
 
@@ -23,11 +25,9 @@ class GlobalConfig
 	};
 
 public:
-	static GlobalConfig& getInstance()
-	{
-		static GlobalConfig instance;
-		return instance;
-	}
+	static GlobalConfig& getInstance();
+
+	static boost::property_tree::ptree * tree();
 
 private:
 	GlobalConfig();
@@ -35,15 +35,22 @@ private:
 	GlobalConfig(GlobalConfig const&);
 	void operator=(GlobalConfig const&); 
 
-	map<string,ConfigValue> configMap;
+	//map<string,ConfigValue> configMap;
+	boost::property_tree::ptree propertyTree;
+
+	bool propertyFileLoaded;
 
 public:
 	static int PreferredScreenIndex();
+
+	bool isLoaded();
 
 	static std::string TestingToken;
 	static int ScreenWidth,ScreenHeight;	
 	static float SteadyVelocity, SelectCircleMinRadius, MinimumInteractionScreenDistance;
 	static bool LeftHanded,AllowSingleHandInteraction;
+
+	void loadConfigFile(string configFilePath);
 
 	float getFloat(string key);
 	string getString(string key);

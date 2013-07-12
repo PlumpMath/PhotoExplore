@@ -369,18 +369,26 @@ void ImageManager::runLoadThread(ImgTaskQueue::ImageTaskQueue * loadQueue, boost
 			
 			Timer loadTimer;
 			loadTimer.start();
-
-			//cout << "Loading image[" << loadTask.levelOfDetail << "]" << loadTask.imageName << " with priority " << loadTask.priority << "\n";
-			cv::Mat imgMat  = cv::imread(loadTask.imageURI, -1 );
-			//LeapImageOut << "CV Load took " << loadTimer.millis() << " ms @ " << ((imgMat.size().area()*4) / BytesToMB) / loadTimer.seconds() << "MB/s \n";
+			cv::Mat imgMat;
 			
-			//boost::this_thread::sleep(boost::posix_time::milliseconds(1000));
-
-			if (imgMat.data != NULL)
+			try
 			{
-				cv::cvtColor(imgMat, imgMat, CV_BGR2RGBA, 4);
-				loadTask.success = true;
-			}	
+				//cout << "Loading image[" << loadTask.levelOfDetail << "]" << loadTask.imageName << " with priority " << loadTask.priority << "\n";
+				imgMat  = cv::imread(loadTask.imageURI, -1 );
+				//LeapImageOut << "CV Load took " << loadTimer.millis() << " ms @ " << ((imgMat.size().area()*4) / BytesToMB) / loadTimer.seconds() << "MB/s \n";
+				//boost::this_thread::sleep(boost::posix_time::milliseconds(1000));
+				if (imgMat.data != NULL)
+				{
+					cv::cvtColor(imgMat, imgMat, CV_BGR2RGBA, 4);
+					loadTask.success = true;
+				}
+			}
+			catch (std::exception & e)
+			{
+				cout << e.what() << endl;
+			}
+
+		
 		
 			if (loadTask.success)
 			{

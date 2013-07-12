@@ -16,11 +16,11 @@ public:
 	int photoIndex;
 	bool isRunning;
 
-	FakeDataSource()
+	FakeDataSource(string fakeDataPath)
 	{
 		isRunning=false;
 		photoIndex = 0;
-		boost::filesystem::path testPath_mine = boost::filesystem::path("C:\\Users\\Adam\\Pictures\\pixiv-win\\LeapTestImages");
+		boost::filesystem::path testPath_mine = boost::filesystem::path(fakeDataPath);
 		copy(directory_iterator(testPath_mine), directory_iterator(), back_inserter(dirContents));
 	}
 

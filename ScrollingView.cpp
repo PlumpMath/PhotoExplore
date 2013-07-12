@@ -99,12 +99,7 @@ void ScrollingView::draw()
 
 	GraphicsContext::getInstance().setDrawHint("Offset",scrollingFlywheel->getPosition());
 	GraphicsContext::getInstance().setDrawHint("VisibleWidth",lastSize.width);
-	Timer drawTime;
-
-	drawTime.start();
 	content->draw();		
-	if (drawTime.millis() > 10)
-		cout << "Scroll draw took : " << drawTime.millis() << " ms \n";
 	GraphicsContext::getInstance().clearDrawHint("Offset");
 	
 	glMatrixMode(GL_PROJECTION);
@@ -271,9 +266,9 @@ bool ScrollingView::onLeapGesture(const Controller & controller, const Gesture &
 					cancelDir = Vector::right();
 				}
 
-				float scrollBy = 3.5f * (swipe.speed());
-				scrollBy = max<float>(1800,scrollBy);
-				scrollBy = min<float>(3500,scrollBy);
+				float scrollBy = GlobalConfig::tree()->get<float>("ScrollView.ScrollSpeedFactor") * (swipe.speed());
+				scrollBy = max<float>(GlobalConfig::tree()->get<float>("ScrollView.MinScrollDistance"),scrollBy);
+				scrollBy = min<float>(GlobalConfig::tree()->get<float>("ScrollView.MaxScrollDistance"),scrollBy);
 
 				if (positiveCooldown.elapsed() && swipe.direction().angleTo(positiveScroll) < PI/4.0f)
 				{
@@ -291,7 +286,7 @@ bool ScrollingView::onLeapGesture(const Controller & controller, const Gesture &
 					scrollingFlywheel->spinTo(scrollingFlywheel->getPosition() - scrollBy);
 					handled = true;
 				}
-				else if (swipe.direction().angleTo(cancelDir) < PI/4.0f)
+				else if (GlobalConfig::tree()->get<bool>("ScrollView.AllowScrollCancelGesture") && swipe.direction().angleTo(cancelDir) < PI/4.0f)
 				{
 					//negativeCooldown.countdown(0);
 					//positiveCooldown.countdown(0);

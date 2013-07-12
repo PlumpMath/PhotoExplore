@@ -133,7 +133,7 @@ void RadialMenu::show()
 
 void RadialMenu::onGlobalGesture(const Controller & controller, std::string gestureType)
 {
-	if (gestureType.compare("shaking") == 0)
+	if (gestureType.compare("shake") == 0)
 	{
 		this->setVisible(false);
 	}
@@ -185,12 +185,18 @@ bool RadialMenu::checkMenuOpenGesture(const Gesture & gesture)
 	if (gesture.type() == Gesture::Type::TYPE_CIRCLE && gesture.state() == Gesture::STATE_UPDATE)
 	{
 		CircleGesture circle(gesture);
-		if ( (circle.hands().count() == 0 || circle.hands()[0].pointables().count() == 1) && 
-			circle.progress() > 1.1f && circle.durationSeconds() < 1.2f &&
+		if(	(  
+				!GlobalConfig::tree()->get<bool>("Menu.CircleGesture.SinglePointableOnly") || 
+				circle.hands().count() == 0 || circle.hands()[0].pointables().count() == 1
+			) 
+			&& 
+			circle.progress() >  GlobalConfig::tree()->get<float>("Menu.CircleGesture.MinRotations") && 
+			circle.durationSeconds() <  GlobalConfig::tree()->get<float>("Menu.CircleGesture.MaxDuration") &&
 			(circle.normal().angleTo(Leap::Vector::backward()) < (.25f * PI) || 
 			circle.normal().angleTo(Leap::Vector::forward()) < PI/4.0f) && 
-			circle.radius() > GlobalConfig::getInstance().getFloat("MenuCircleRadius") &&
-			circle.radius() < 60.0f)
+			circle.radius() > GlobalConfig::tree()->get<float>("Menu.CircleGesture.MinRadius") &&
+			circle.radius() < GlobalConfig::tree()->get<float>("Menu.CircleGesture.MaxRadius") 
+		)
 		{
 			return true;
 		}	

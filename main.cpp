@@ -33,7 +33,6 @@
 using namespace Leap;
 
 
-
 int GlobalConfig::ScreenWidth = 1920;
 int GlobalConfig::ScreenHeight = 1080;
 float GlobalConfig::SteadyVelocity = 100;
@@ -49,7 +48,7 @@ FBDataSource * FBDataSource::instance = NULL;
 PointableElementManager * PointableElementManager::instance = NULL;
 
 LeapDebug * LeapDebug::instance = NULL;
-
+ 
 //long Timer::frameId = 0;
 TextureManager * TextureManager::instance = NULL;
 
@@ -269,18 +268,22 @@ int WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmd
 	
 	CefMainArgs mainArgs;
 	CefSettings settings;
+
+	GlobalConfig::getInstance().loadConfigFile("config.json");
 	
 	
-//#if defined(_WIN32) 
+#if defined(_WIN32) 
 	settings.multi_threaded_message_loop = true;
-//#endif
+#endif
 	settings.command_line_args_disabled = true;
 
 	CefInitialize(mainArgs, settings, NULL);
 	//CefCookieManager::GetGlobalManager()->SetStoragePath(".",true);
 
-
-	FBDataSource::instance = new FacebookLoader();
+	if (GlobalConfig::tree()->get<bool>("FakeDataMode.Enable")) 
+		FBDataSource::instance = new FakeDataSource(GlobalConfig::tree()->get<string>("FakeDataMode.SourceDataDirectory"));
+	else
+		FBDataSource::instance = new FacebookLoader();
 
     bool * quit = new bool[1];
 	quit[0] = false;
@@ -288,8 +291,7 @@ int WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmd
 	int frameCount = 0, errorCount = 0;
 	long lastFrameId = -1;
 
-	bool isFull = false;
-	std::string startDir = ".";
+	std::string startDir = "."; 
 
 	glfwInit();
 	
@@ -297,12 +299,20 @@ int WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmd
 
 	glfwGetDesktopMode(&vidMode);
 
-	GlobalConfig::ScreenWidth  = vidMode.Width;
-	GlobalConfig::ScreenHeight = vidMode.Height;
+	if (!GlobalConfig::tree()->get<bool>("GraphicsSettings.OverrideResolution"))
+	{
+		GlobalConfig::ScreenWidth  = vidMode.Width;
+		GlobalConfig::ScreenHeight = vidMode.Height;
+	}
+	else
+	{		
+		GlobalConfig::ScreenWidth  = GlobalConfig::tree()->get<int>("GraphicsSettings.OverrideWidth");
+		GlobalConfig::ScreenHeight = GlobalConfig::tree()->get<int>("GraphicsSettings.OverrideHeight");
+	}
 
 	GlobalConfig::getInstance().putValue("FontScale",min<float>(GlobalConfig::ScreenWidth/2560.0f,GlobalConfig::ScreenHeight/1440.0f));
 
-    if(!init(GlobalConfig::ScreenWidth, GlobalConfig::ScreenHeight, isFull)) return 1;
+    if(!init(GlobalConfig::ScreenWidth, GlobalConfig::ScreenHeight, GlobalConfig::tree()->get<bool>("GraphicsSettings.Fullscreen"))) return 1;
 
 	initShaders();
 
@@ -328,8 +338,7 @@ int WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmd
 	delta.start();
 	long frameId = 0;		
 	int sampleCount = 2000;
-
-	
+		
 	
 	GraphicsContext::getInstance().globalActionCallback = [&](string s){ 
 		
@@ -379,7 +388,7 @@ int WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmd
 		frameOut  << "StartScreen = " << itemTimer.millis() << "ms \n";
 		itemTimer.start();
 
-		
+		 
 		if (GraphicsContext::getInstance().BlurRenderEnabled)
 		{
 			//Color bg = Colors::WhiteSmoke;
@@ -467,7 +476,7 @@ int WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmd
 			
 
 			glMatrixMode( GL_MODELVIEW );			
-			//ShakeGestureDetector::getInstance().draw();		
+			ShakeGestureDetector::getInstance().draw();		
 			
 			startScreen->draw();			
 			

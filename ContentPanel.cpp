@@ -15,12 +15,15 @@ ContentPanel::ContentPanel(View * _contentView)
 
 void ContentPanel::drawContent(Vector drawPosition, float drawWidth, float drawHeight)
 {
+	this->setBorderColor(Colors::Transparent);
+	this->setBorderThickness(0);
 	if (contentView != NULL && contentView->isVisible())
 	{
 		if (NudgeAnimationEnabled)
 		{
 			float yNudge =(yAnimation.isRunning()) ? yAnimation.getValue() : 0;
 			float xNudge =(xAnimation.isRunning()) ? xAnimation.getValue() : 0;
+			
 
 			glTranslatef(xNudge,yNudge,0);
 			contentView->draw();

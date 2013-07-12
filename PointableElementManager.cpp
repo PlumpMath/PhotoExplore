@@ -299,7 +299,7 @@ void PointableElementManager::processFrame(const Controller & controller, Frame 
 
 		//Check for hover-click completion
 		Pointable lastFramePointable = controller.frame(1).pointable(testPointable.id());		
-		if (hoverClickState == 1 && hoverClickTimer.seconds() >= GlobalConfig::getInstance().getFloat("HoverClickTime"))
+		if (hoverClickState == 1 && hoverClickTimer.seconds() >= GlobalConfig::tree()->get<float>("Leap.HoverClickTime"))
 		{
 			hoverClickState = 0;
 			hit->elementClicked();
@@ -388,11 +388,14 @@ void PointableElementManager::processFrame(const Controller & controller, Frame 
 
 void PointableElementManager::handleGlobalGestures(const Controller & controller)
 {
+	int nigger = 0;
 	if (globalGestureListenerStack.size() > 0)
 	{
-		if (shakeGestureState == -1)
+		if (!GlobalConfig::tree()->get<bool>("Shake.Disabled"))
 		{
-			if (ShakeGestureDetector::getInstance().shakeGestureOccured())
+			ShakeGesture * latestShake = ShakeGestureDetector::getInstance().getLatestShakeGesture();
+
+			if (latestShake != NULL)
 			{
 				globalGestureListenerStack.top()->onGlobalGesture(controller, "shake");
 				ShakeGestureDetector::getInstance().resetDetector();
@@ -401,8 +404,8 @@ void PointableElementManager::handleGlobalGestures(const Controller & controller
 
 		HandModel * hm = handProcessor->lastModel();
 		Pointable intentPointable = controller.frame().pointable(hm->IntentFinger);
-		if (intentPointable.isValid() && intentPointable.tipVelocity().magnitude() < GlobalConfig::getInstance().getFloat("PointGestureMinVelocity")
-			&& intentPointable.direction().angleTo(Vector::forward()) < Leap::PI/4.0f 
+		if (intentPointable.isValid() && intentPointable.tipVelocity().magnitude() < GlobalConfig::tree()->get<float>("Leap.PointGesture.Trigger.MaxTipVelocity") 
+			&& intentPointable.direction().angleTo(Vector::forward()) < GeomConstants::DegToRad*GlobalConfig::tree()->get<float>("Leap.PointGesture.Trigger.MaxAngleOffsetToZAxis")
 			&& (!intentPointable.hand().isValid() || intentPointable.hand().pointables().count() == 1))
 		{
 			if (pointingGestureState == 0)
@@ -412,10 +415,10 @@ void PointableElementManager::handleGlobalGestures(const Controller & controller
 			}
 			else if (pointingGestureState == 1)
 			{
-				if (intentPointable.tipVelocity().magnitude() < GlobalConfig::getInstance().getFloat("PointGestureMinVelocity") 
-					&& intentPointable.direction().angleTo(Vector::forward()) < Leap::PI/3.0f)
+				if (intentPointable.tipVelocity().magnitude() < GlobalConfig::tree()->get<float>("Leap.PointGesture.Maintain.MaxTipVelocity") 
+					&& intentPointable.direction().angleTo(Vector::forward()) < GeomConstants::DegToRad*GlobalConfig::tree()->get<float>("Leap.PointGesture.Maintain.MaxAngleOffsetToZAxis"))
 				{
-					if (pointingGestureTimer.millis() > 50)
+					if (pointingGestureTimer.millis() > GlobalConfig::tree()->get<float>("Leap.PointGesture.TimeToComplete"))
 					{
 						globalGestureListenerStack.top()->onGlobalGesture(controller, "pointing");
 						pointingGestureState = 0;

@@ -72,20 +72,22 @@ void ImageDetailView::onGlobalGesture(const Controller & controller, std::string
 
 bool ImageDetailView::onLeapGesture(const Controller & controller, const Gesture & gesture)
 {
-	if (gesture.type() == Gesture::Type::TYPE_SWIPE && (gesture.state() == Gesture::State::STATE_UPDATE|| gesture.state() == Gesture::State::STATE_UPDATE))
+	if (GlobalConfig::tree()->get<bool>("FullscreenImageView.AllowSwipeDownExit"))
 	{
-		SwipeGesture swipe(gesture);
-
-		if (swipe.direction().angleTo(Vector::down()) < PI/4.0f)
+		if (gesture.type() == Gesture::Type::TYPE_SWIPE && (gesture.state() == Gesture::State::STATE_UPDATE|| gesture.state() == Gesture::State::STATE_UPDATE))
 		{
-			this->setImagePanel(NULL);
-			PointableElementManager::getInstance()->releaseGlobalGestureFocus(this);
-			this->finishedCallback("");
-			return true;
-		}
+			SwipeGesture swipe(gesture);
+
+			if (swipe.direction().angleTo(Vector::down()) < PI/4.0f)
+			{
+				this->setImagePanel(NULL);
+				PointableElementManager::getInstance()->releaseGlobalGestureFocus(this);
+				this->finishedCallback("");
+				return true;
+			}
+		}	
 	}
-	else
-		return false;
+	return false;
 }
 
 void ImageDetailView::setImageMetaData()
@@ -134,9 +136,10 @@ void ImageDetailView::setImageMetaData()
 			{
 				photoComment->setVisible(true);
 				string comment = imageNode->getAttribute("name");
-				if (comment.length() > GlobalConfig::getInstance().getInt("MaxCommentLength"))
+				int maxLength = GlobalConfig::tree()->get<int>("FullscreenImageView.MaxCommentLength");
+				if (comment.length() > maxLength)
 				{
-					comment = comment.substr(0,GlobalConfig::getInstance().getInt("MaxCommentLength")) + "...";
+					comment = comment.substr(0,maxLength) + "...";
 
 				}
 

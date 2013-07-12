@@ -1,12 +1,34 @@
 #include "GlobalConfig.hpp"
 
 
+
 GlobalConfig::GlobalConfig()
 {
-	putValue("MenuCircleRadius",30.0f);
-	putValue("MaxCommentLength",180);
-	putValue("PointGestureMinVelocity",30.0f);
-	putValue("HoverClickTime",2.0f);
+	propertyFileLoaded = false;
+}
+
+GlobalConfig& GlobalConfig::getInstance()
+{
+	static GlobalConfig instance;
+	return instance;
+}
+
+bool GlobalConfig::isLoaded()
+{
+	return propertyFileLoaded;
+}
+
+
+void GlobalConfig::loadConfigFile(string path)
+{
+	using boost::property_tree::ptree;
+	boost::property_tree::read_json(path,getInstance().propertyTree);
+	propertyFileLoaded = true;
+
+	if (tree()->get<bool>("Leap.PreferLeftHand"))
+	{
+		this->LeftHanded = true;
+	}
 }
 
 int GlobalConfig::PreferredScreenIndex()
@@ -16,30 +38,35 @@ int GlobalConfig::PreferredScreenIndex()
 
 float GlobalConfig::getFloat(string key)
 {
-	auto it = configMap.find(key);
-	if (it != configMap.end())
-		return it->second.floatValue;
-	else
-		return 0;
+	if (!isLoaded())
+		throw new std::exception("uh oh");
+	return propertyTree.get<float>(key,0);
 }
 
 int GlobalConfig::getInt(string key)
 {	
-	auto it = configMap.find(key);
-	if (it != configMap.end())
-		return it->second.intValue;
-	else
-		return 0;
+	if (!isLoaded())
+		throw new std::exception("uh oh");
+	return propertyTree.get<int>(key,0);
 }
 
 void GlobalConfig::putValue(string key, float value)
 {
-	configMap.insert(make_pair(key,ConfigValue(value)));
+	if (!isLoaded())
+		throw new std::exception("uh oh");
+	propertyTree.put(key,value);
 }
 
 void GlobalConfig::putValue(string key, int value)
 {
-	ConfigValue cv(0);
-	cv.intValue = value;
-	configMap.insert(make_pair(key,cv));
+	if (!isLoaded())
+		throw new std::exception("uh oh");
+	propertyTree.put(key,value);
+}
+
+boost::property_tree::ptree * GlobalConfig::tree()
+{
+	if (!getInstance().isLoaded())
+		throw new std::exception("uh oh");
+	return &(getInstance().propertyTree);
 }
