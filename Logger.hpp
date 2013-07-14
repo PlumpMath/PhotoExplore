@@ -3,6 +3,17 @@
 
 #include <iostream>
 #include <fstream>
+#include "SDLTimer.h"
+
+//namespace Severity
+//{
+//	
+//	static char * ERROR = "ERROR";
+//	static char *  WARN = "WARN";
+//	static char *  INFO = "INFO";
+//	static char *  DEBUG = "DEBUG";
+//
+//}
 
 class Logger {
 	
@@ -12,6 +23,7 @@ private:
 
 	Logger()
 	{
+		logTimer.start();
 		logstream.open("photo_explorer.log");
 	}
 
@@ -23,6 +35,8 @@ private:
 
 	Logger(Logger const&);
 	void operator=(Logger const&); 
+
+	Timer logTimer;
 
 public:		
 	std::ofstream logstream;
@@ -37,6 +51,12 @@ public:
 	static void log(std::string tag, std::string message)
 	{
 		getInstance().logstream << "[" << tag << "] - " << message << std::endl;
+	}
+
+	static std::ofstream & stream(std::string tag, const char * severity = "INFO")
+	{
+		getInstance().logstream <<  getInstance().logTimer.seconds() << " : " << severity << "- [" << tag << "] - " << " ";
+		return getInstance().logstream;
 	}
 
 

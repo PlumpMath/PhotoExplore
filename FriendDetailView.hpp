@@ -30,11 +30,13 @@ private:
 
 	ViewGroup * mainLayout;
 
-	int photoLoadCount,photoLoadTarget, albumLoadCount, albumLoadTarget;
+	int photoLoadCount,photoLoadTarget, albumLoadCount, albumLoadTarget, rowCount;
 	ScrollingView * itemScroll;
 	boost::function<void(std::string)> finishedCallback;
 
 	void updateLoading(Vector newPos,cv::Size2f visibleSize, bool priorityOnly);
+
+	float projectedRightBoundary;
 
 public:
 	FriendDetailView();		

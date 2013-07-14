@@ -66,8 +66,7 @@ void LeapDebug::onFrame(const Controller& controller)
 		else
 		{
 			leapNotFocusedPanel->setVisible(true);
-			leapDisconnectedPanel->setVisible(false);
-			
+			leapDisconnectedPanel->setVisible(false);			
 			//leapNotFocusedPanel->layout(Vector(GlobalConfig::ScreenWidth - 500, GlobalConfig::ScreenHeight - 300, 10),cv::Size2f(400,150));
 		}
 	}
@@ -80,123 +79,6 @@ void LeapDebug::onFrame(const Controller& controller)
 
 	lastFrame = frame;
 	static map<int,LeapDebugVisual*> ldv_intent;
-
-	//HandModel * intentModel = handProcessor->lastModel();
-
-	//if (false && intentModel->HandId < 0)
-	//{
-	//	Pointable pointable = frame.pointable(intentModel->IntentFinger);
-	//	if (pointable.isValid())
-	//	{
-	//		Vector screenPoint = LeapHelper::FindScreenPoint(controller,pointable);
-
-	//		if (ldv_intent.find(-2) == ldv_intent.end())
-	//		{	
-	//			LeapDebugVisual * ldv =new LeapDebugVisual(screenPoint,1,LeapDebugVisual::LiveForever,41,Colors::Black.withAlpha(.5f));
-	//			ldv_intent.insert(make_pair(-2,ldv));
-	//			ldv->lineColor = Colors::LimeGreen;
-	//			addDebugVisual(ldv);	
-	//		}
-	//		else
-	//		{
-	//			ldv_intent.find(-2)->second->screenPoint = Point2f(screenPoint.x,screenPoint.y);
-	//		}	
-
-	//		for (auto it = ldv_intent.begin();it != ldv_intent.end();it++)
-	//		{
-	//			if (it->first != -2)
-	//			{
-	//				it->second->wayOfLife = LeapDebugVisual::LiveByTime;
-	//				it->second->timeToLive = 0;
-
-	//				it = ldv_intent.erase(it);
-	//				if (it == ldv_intent.end())
-	//					break;
-	//			}
-	//		}
-	//	}
-	//	else
-	//	{
-	//		//auto it = ldv_intent.find(-2);
-	//		//if (it != ldv_intent.end())
-	//		//{
-	//		//	it->second->wayOfLife = LeapDebugVisual::LiveByTime;
-	//		//	it->second->timeToLive = 0;
-
-	//		//	ldv_intent.erase(it);
-	//		//}
-	//		for (auto it = ldv_intent.begin();it != ldv_intent.end();it++)
-	//		{
-	//			if (!controller.frame().hand(it->first).isValid())
-	//			{
-	//				it->second->wayOfLife = LeapDebugVisual::LiveByTime;
-	//				it->second->timeToLive = 0;
-
-	//				it = ldv_intent.erase(it);
-	//				if (it == ldv_intent.end())
-	//					break;
-	//			}
-	//		}
-	//	}
-	//}
-	//else
-	//{
-	//	for (int h=0;h < frame.hands().count();h++)
-	//	{
-	//		Hand hand = frame.hands()[h];
-	//		HandModel * handModel = handProcessor->lastModel(hand.id());
-
-	//		Color color = Colors::Black;		
-	//		if (frame.hands().count() > 1 && hand.id() == frame.hands().leftmost().id())
-	//			color = Colors::Red;
-	//		else
-	//			break;
-
-	//		color.setAlpha(.5f);
-
-	//		Pointable pointable = hand.pointable(handModel->IntentFinger);
-	//		if (pointable.isValid())
-	//		{
-	//			Vector screenPoint = LeapHelper::FindScreenPoint(controller,pointable);
-
-	//			if (ldv_intent.find(hand.id()) == ldv_intent.end())
-	//			{	
-	//				LeapDebugVisual * ldv =new LeapDebugVisual(screenPoint,1,LeapDebugVisual::LiveForever,41,color);
-	//				ldv_intent.insert(make_pair(hand.id(),ldv));
-	//				ldv->lineColor = Colors::HoloBlueBright;
-	//				addDebugVisual(ldv);	
-	//			}
-	//			else
-	//			{
-	//				ldv_intent.find(hand.id())->second->screenPoint = Point2f(screenPoint.x,screenPoint.y);
-	//			}			
-	//		}
-	//	}
-
-	//	for (auto it = ldv_intent.begin();it != ldv_intent.end();it++)
-	//	{
-	//		if (!controller.frame().hand(it->first).isValid())
-	//		{
-	//			it->second->wayOfLife = LeapDebugVisual::LiveByTime;
-	//			it->second->timeToLive = 0;
-
-	//			it = ldv_intent.erase(it);
-	//			if (it == ldv_intent.end())
-	//				break;
-	//		}
-	//	}
-	//}
-}
-
-void LeapDebug::showValue(string key, double value)
-{	
-	//std::stringstream textStream;		
-	//textStream.precision(2);
-	//textStream.setf(std::ios_base::fixed);
-	//textStream << key;
-	//textStream << " = ";
-	//textStream << value;
-	//LeapImageOut << textStream.str() << '\n';
 }
 
 void LeapDebug::addDebugVisual(LeapDebugVisual * ldv)

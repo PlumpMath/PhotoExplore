@@ -98,7 +98,7 @@ void FacebookIntroView::buttonClicked(LeapElement * element)
 		Panel * p = dynamic_cast<Panel*>(*it);
 
 		if (p != NULL)
-			p->setDataPriority(10);
+			p->setDataPriority(100);
 	}
 	friendPhotoGrid->clearChildren();
 
@@ -107,7 +107,7 @@ void FacebookIntroView::buttonClicked(LeapElement * element)
 		Panel * p = dynamic_cast<Panel*>(*it);
 
 		if (p != NULL)
-			p->setDataPriority(10);
+			p->setDataPriority(100);
 	}
 	myPhotoGrid->clearChildren();
 

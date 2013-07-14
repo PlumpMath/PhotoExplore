@@ -87,9 +87,6 @@
     <ClCompile Include="LeapStartScreen.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ResourceManager.cpp">
-      <Filter>Source Files\ResourceManager</Filter>
-    </ClCompile>
     <ClCompile Include="TextPanel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -104,9 +101,6 @@
     </ClCompile>
     <ClCompile Include="UniformGrid.cpp">
       <Filter>Source Files\NewPanel</Filter>
-    </ClCompile>
-    <ClCompile Include="TextureManager.cpp">
-      <Filter>Source Files\ResourceManager</Filter>
     </ClCompile>
     <ClCompile Include="ScrollingView.cpp">
       <Filter>Source Files\NewPanel</Filter>
@@ -168,9 +162,6 @@
     <ClCompile Include="FriendPhotoLinkedView.cpp">
       <Filter>Source Files\NewPanel</Filter>
     </ClCompile>
-    <ClCompile Include="ImageManager.cpp">
-      <Filter>Source Files\ResourceManager</Filter>
-    </ClCompile>
     <ClCompile Include="FixedAspectGrid.cpp">
       <Filter>Source Files\NewPanel\GridLayouts</Filter>
     </ClCompile>
@@ -198,13 +189,25 @@
     <ClCompile Include="FastSeekBar.cpp">
       <Filter>Source Files\NewPanel</Filter>
     </ClCompile>
-    <ClCompile Include="MultiResolutionImage.cpp">
-      <Filter>Source Files\ResourceManager</Filter>
-    </ClCompile>
     <ClCompile Include="LinearLayout.cpp">
       <Filter>Source Files\NewPanel</Filter>
     </ClCompile>
     <ClCompile Include="TexturePool.cpp">
+      <Filter>Source Files\ResourceManager</Filter>
+    </ClCompile>
+    <ClCompile Include="kiss_fft.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ShakeGestureDetector.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TextureLoader.cpp">
+      <Filter>Source Files\ResourceManager</Filter>
+    </ClCompile>
+    <ClCompile Include="ResourceManager.cpp">
+      <Filter>Source Files\ResourceManager</Filter>
+    </ClCompile>
+    <ClCompile Include="ImageLoader.cpp">
       <Filter>Source Files\ResourceManager</Filter>
     </ClCompile>
   </ItemGroup>
@@ -284,12 +287,6 @@
     <ClInclude Include="DataViewGenerator.hpp">
       <Filter>Header Files\NewPanel</Filter>
     </ClInclude>
-    <ClInclude Include="TextureManager.h">
-      <Filter>Header Files\ResourceManager</Filter>
-    </ClInclude>
-    <ClInclude Include="ImageManager.h">
-      <Filter>Header Files\ResourceManager</Filter>
-    </ClInclude>
     <ClInclude Include="TypographyManager.h">
       <Filter>Header Files\ResourceManager</Filter>
     </ClInclude>
@@ -325,9 +322,6 @@
     </ClInclude>
     <ClInclude Include="ContentPanel.hpp">
       <Filter>Header Files\NewPanel</Filter>
-    </ClInclude>
-    <ClInclude Include="TexturePool.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Button.hpp">
       <Filter>Header Files\NewPanel</Filter>
@@ -403,6 +397,27 @@
     </ClInclude>
     <ClInclude Include="FakeDataSource.hpp">
       <Filter>Header Files\DataModel</Filter>
+    </ClInclude>
+    <ClInclude Include="_kiss_fft_guts.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureLoader.hpp">
+      <Filter>Header Files\ResourceManager</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureLoadTask.hpp">
+      <Filter>Header Files\ResourceManager</Filter>
+    </ClInclude>
+    <ClInclude Include="TexturePool.h">
+      <Filter>Header Files\ResourceManager</Filter>
+    </ClInclude>
+    <ClInclude Include="PixelBufferPool.hpp">
+      <Filter>Header Files\ResourceManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Logger.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ImageLoader.hpp">
+      <Filter>Header Files\ResourceManager</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

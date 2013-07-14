@@ -184,13 +184,21 @@ void ImageLoader::runLoadThread(ImgTaskQueue::ImageTaskQueue * loadQueue, boost:
 				//boost::this_thread::sleep(boost::posix_time::milliseconds(1000));
 				if (imgMat.data != NULL)
 				{
-					cv::cvtColor(imgMat, imgMat, CV_BGR2RGBA, 4);
-					loadTask.success = true;
+					if (imgMat.size().area() > GlobalConfig::tree()->get<int>("ResourceCache.MaxImageSize") * BytesToMB)
+					{
+						Logger::stream("ImageLoader","ERROR") << "Image " << loadTask.imageURI << " is too big " << endl;
+						imgMat.release();
+					}
+					else
+					{
+						cv::cvtColor(imgMat, imgMat, CV_BGR2RGBA, 4);
+						loadTask.success = true;
+					}
 				}
 			}
 			catch (std::exception & e)
 			{
-				cout << e.what() << endl;
+				Logger::stream("ImageLoader","ERROR") << "Exception loading image: " << e.what() << endl;
 			}
 			
 		
@@ -245,6 +253,9 @@ void ImageLoader::runLoadThread(ImgTaskQueue::ImageTaskQueue * loadQueue, boost:
 			}
 			else
 			{
+				if (imgMat.data != NULL)
+					imgMat.release();
+
 				ImageLoader::getInstance().resourceChangedCallback(loadTask.resourceId, ResourceState::ImageLoadError,cv::Mat());
 			}
 		
@@ -280,7 +291,7 @@ void ImageLoader::handleCompletedTask(ImgTaskQueue::ImageLoadTask loadTask, vect
 		else
 		{
 			//cout << "URL = " << "Image data = " << std::string((const char * )dataVector.data()) << "\n";
-			cout << "Invalid image file: " << loadTask.resourceId << "\n";;
+			Logger::stream("ImageLoader","ERROR") << "Invalid image file: " << loadTask.resourceId << endl;		
 		}
 
 		loadQueueMutex.lock();
@@ -292,11 +303,9 @@ void ImageLoader::handleCompletedTask(ImgTaskQueue::ImageLoadTask loadTask, vect
 
 	}
 	catch (std::exception & e)
-	{
-		cout << "Exception while decoding image: " << e.what() << endl;
-		
-			if (!resourceChangedCallback.empty())
-				resourceChangedCallback(loadTask.resourceId,ResourceState::ImageLoadError,cv::Mat());
+	{		
+		Logger::stream("ImageLoader","ERROR") << "Exception decoding image: " << e.what() << endl;				
+		resourceChangedCallback(loadTask.resourceId,ResourceState::ImageLoadError,cv::Mat());
 	}
 }
 

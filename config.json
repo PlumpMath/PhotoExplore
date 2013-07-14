@@ -15,8 +15,14 @@
 	},
 	"ResourceCache" : 
 	{
-		"TextureCacheSize" : 512, //Megabytes
-		"ImageCount" : 600
+		"TextureCacheSize" : 512, 		//Megabytes
+		"ImageCacheSize" : 512, 			//Megabytes		
+		"MaxImageSize" : 10,					//Megabytes
+		"CacheGCFrequency" : 5000 ,//milliseconds		
+		"FullCacheGCFrequency" : 2000, //milliseconds
+		"TextureCacheGCCollectRatio" : 0.8,
+		"ImageCacheGCCollectRatio" : 0.8,
+		"DebugLogging" : false
 	},
 	"FakeDataMode" : 
 	{
@@ -122,6 +128,11 @@
 		"MaxScrollDistance" : 3200, //Max number of pixels to scroll in a single swipe
 		"MinScrollDistance" : 2500, //Min number of pixels to scroll in a single swipe
 		"ScrollSpeedFactor" : 2.5 //Ratio of swipe gesture speed to scrolling distance
+	},
+	"FriendDetailView" :
+	{ 
+		"ScrollAheadTime" : 0.6 ,//Seconds
+		"RowCount" : 3
 	},
 	"Strings" : 
 	{

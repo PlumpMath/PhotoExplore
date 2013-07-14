@@ -17,6 +17,7 @@
 
 #include "ResourceManagerTypes.h"
 #include <opencv2/opencv.hpp>
+#include "SDLTimer.h"
 
 
 struct IdIndex{};
@@ -78,10 +79,16 @@ private:
 
 	float textureLoadThreshold, imageLoadThreshold;
 
+	long currentTextureCacheSize, currentImageCacheSize;
+
 	void updateImageState(ResourceData * data, bool load);	
 	void updateTextureState(ResourceData * data, bool load);
 
 	void updateImageResource(string resourceId, int statusCode, cv::Mat imgMat);
+
+	float calculateResourceSize(ResourceData * data);
+
+	Timer cacheCleanupTimer;
 
 public:
 		

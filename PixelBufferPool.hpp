@@ -2,7 +2,7 @@
 #define LEAPIMAGE_RESOURCE_MANAGER_PIXEL_BUFFER_POOL_HPP_
 
 #include "GLImport.h"
-#include <queue>
+#include <list>
 
 class PixelBufferPool {
 	
@@ -15,7 +15,7 @@ private:
 	PixelBufferPool(PixelBufferPool const&);
 	void operator=(PixelBufferPool const&); 
 		
-	std::queue<GLuint> bufferQueue;
+	std::list<GLuint> bufferQueue;
 
 public:
 	static PixelBufferPool& getInstance()
@@ -28,14 +28,16 @@ public:
 	{
 		if (bufferQueue.empty())
 			return NULL;
-		GLuint NIGGER_FUCKING_SHIT_FUCKING_DICK_SHIT_NIGGGER_NIGGER_NIGGER_NIGGER_NIGGER = bufferQueue.front();
-		bufferQueue.pop();
-		return NIGGER_FUCKING_SHIT_FUCKING_DICK_SHIT_NIGGGER_NIGGER_NIGGER_NIGGER_NIGGER;
+
+		GLuint pbo = bufferQueue.front();
+		bufferQueue.pop_front();
+		return pbo;
 	}
 	
 	void freeBuffer(GLuint buffer)
 	{
-		bufferQueue.push(buffer);
+		if (std::find(bufferQueue.begin(), bufferQueue.end(),buffer) == bufferQueue.end())
+			bufferQueue.push_back(buffer);
 	}
 
 	void initBuffers(int bufferCount)
@@ -45,7 +47,7 @@ public:
 
 		for (int i=0;i<bufferCount;i++)
 		{
-			bufferQueue.push(pboIds[i]);
+			bufferQueue.push_back(pboIds[i]);
 		}
 
 		GLenum errorCode = glGetError();
@@ -64,7 +66,7 @@ public:
 		while (!bufferQueue.empty())
 		{
 			glDeleteBuffersARB(1,&bufferQueue.front());
-			bufferQueue.pop();
+			bufferQueue.pop_front();
 		}
 	}
 
