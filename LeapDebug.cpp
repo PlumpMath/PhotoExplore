@@ -7,10 +7,10 @@ LeapDebug::LeapDebug(HandProcessor * handProcessor)
 	backgroundColor.setAlpha(.5);
 	this->handProcessor = handProcessor;
 	leapDisconnectedPanel = new TextPanel();
-	leapDisconnectedPanel->setLayoutParams(LayoutParams(cv::Size2f(400,150)));
-	leapDisconnectedPanel->setText("Leap disconnected");
+	leapDisconnectedPanel->setLayoutParams(LayoutParams(cv::Size2f(400,200)));
+	leapDisconnectedPanel->setText(GlobalConfig::tree()->get<string>("Strings.LeapOverlay.DisconnectedMessage"));
 	leapDisconnectedPanel->setTextColor(Colors::White);
-	leapDisconnectedPanel->setTextSize(10);
+	leapDisconnectedPanel->setTextSize(8);
 	leapDisconnectedPanel->setBackgroundColor(Colors::DarkRed.withAlpha(.7f));
 
 	leapDisconnectedPanel->setPosition(Vector(GlobalConfig::ScreenWidth - 450, GlobalConfig::ScreenHeight - 100, 1));
@@ -18,10 +18,10 @@ LeapDebug::LeapDebug(HandProcessor * handProcessor)
 
 
 	leapNotFocusedPanel = new TextPanel();
-	leapNotFocusedPanel->setLayoutParams(LayoutParams(cv::Size2f(400,150)));
-	leapNotFocusedPanel->setText("Leap not focused");
+	leapNotFocusedPanel->setLayoutParams(LayoutParams(cv::Size2f(400,200)));
+	leapNotFocusedPanel->setText(GlobalConfig::tree()->get<string>("Strings.LeapOverlay.NotFocusedMessage"));
 	leapNotFocusedPanel->setTextColor(Colors::White);
-	leapNotFocusedPanel->setTextSize(10);
+	leapNotFocusedPanel->setTextSize(8);
 	leapNotFocusedPanel->setPosition(Vector(GlobalConfig::ScreenWidth - 450, GlobalConfig::ScreenHeight - 100, 1));
 	leapNotFocusedPanel->layout(Vector(GlobalConfig::ScreenWidth - 500, GlobalConfig::ScreenHeight - 300, 10),cv::Size2f(400,150));
 	leapNotFocusedPanel->setBackgroundColor(Colors::LeapGreen.withAlpha(.7f));

@@ -1,11 +1,9 @@
 #ifndef RESOURCE_MANAGER_H_
 #define RESOURCE_MANAGER_H_
 
-#include "ImageManager.h"
-#include "TextureManager.h"
-#include "ResourceManagerTypes.h"
 
 #include <set>
+#include <queue>
 
 #include <boost/multi_index_container.hpp>
 #include <boost/multi_index/member.hpp>
@@ -15,38 +13,40 @@
 #include <boost/multi_index/mem_fun.hpp>
 #include <boost/multi_index/hashed_index.hpp>
 
+#include <boost/thread/mutex.hpp>
+
+#include "ResourceManagerTypes.h"
+#include <opencv2/opencv.hpp>
+
 
 struct IdIndex{};
 
+using namespace std;
 
-struct Resource
+
+struct CachedResource
 {
-	set<IResourceWatcher*> callbacks;
-	LevelOfDetail requestedDetail;
+	ResourceData * Data;
+
 	string resourceId;
 
-	float priority;
-
-	//string resourceURI;
-	//cv::Size2f resourceSize;
-
-	string getResourceId() const
+	CachedResource(ResourceData * _data) :
+		Data(_data),		
+		resourceId(_data->resourceId)
 	{
-		return resourceId;
 	}
-
 };
 
 
 typedef boost::multi_index_container
 	<
-		Resource,
+		CachedResource,
 		boost::multi_index::indexed_by
 		<
 			boost::multi_index::hashed_unique
 			<
 				boost::multi_index::tag<IdIndex>,
-				boost::multi_index::const_mem_fun<Resource,string,&Resource::getResourceId>
+				boost::multi_index::member<CachedResource,string,&CachedResource::resourceId>
 			>
 		>
 	> ResourceCache;
@@ -55,41 +55,47 @@ typedef boost::multi_index_container
 
 class ResourceManager {
 
-private:
-	ImageManager * imgMan;
-	TextureManager * tMan;
-	
+private:	
 	ResourceManager();
-	static ResourceManager * instance;
+	ResourceManager(ResourceManager const&);
+	void operator=(ResourceManager const&); 
 
-	PendingTaskQueue textureOverflowQueue;
 	ResourceCache resourceCache;
-
-	Resource * insertResource(string resourceId, LevelOfDetail levelOfDetail, float loadPriority, IResourceWatcher * loadCallback);
-	//Resource * insertResource(FBNode * resourceNode, LevelOfDetail levelOfDetail, float loadPriority, IResourceWatcher * loadCallback);
-
 	bool resourcesChanged;
-
-	queue<Resource*> modifiedResources;
+	//queue<Resource*> modifiedResources;
 	boost::mutex resourceMutex;
 
+	boost::mutex updateTaskMutex;
+	queue<boost::function<void()> > updateThreadTasks;
+	
+
+	float maxTextureLoadPriority;
+	float maxImageLoadPriority;
+
+	void cleanupCache();
+	
+	void textureLoaded(ResourceData * data, GLuint textureId, int taskStatus);
+
+	float textureLoadThreshold, imageLoadThreshold;
+
+	void updateImageState(ResourceData * data, bool load);	
+	void updateTextureState(ResourceData * data, bool load);
+
+	void updateImageResource(string resourceId, int statusCode, cv::Mat imgMat);
+
 public:
+		
+	static ResourceManager& getInstance()
+	{
+		static ResourceManager instance; 
+		return instance;
+	}
+	
 
-	void textureResourceChanged(string resourceId, LevelOfDetail levelOfDetail, GLuint glTextureId);
-	void imageResourceChanged(string resourceId, MultiResolutionImage * affectedImage);
-
-
-	static ResourceManager * getInstance();
-
-	void loadTextResource(TextDefinition textDefinition, _PriorityType loadPriority, IResourceWatcher * resourceOwner); 
-	Resource * loadResource(string resourceId, LevelOfDetail _levelOfDetail, _PriorityType loadPriority, IResourceWatcher * resourceOwner); 
-	void releaseTextResource(TextDefinition textDefinition, IResourceWatcher * resourceOwner);
-	void releaseResource(string resourceId, LevelOfDetail _levelOfDetail, IResourceWatcher * resourceOwner); 
-
-	bool getResourceDimensions(string resourceId, LevelOfDetail _levelOfDetail, cv::Size2i & imageSize);
-
-	void updateResource(Resource * resource);
-	void updateResource(string resourceId, LevelOfDetail _levelOfDetail);
+	ResourceData * loadResource(string resourceId, string imageURI, float priority, IResourceWatcher * watcher);	
+	ResourceData * loadResource(string resourceId, cv::Mat & image, float priority, IResourceWatcher * watcher);
+	
+	void updateResource(ResourceData * resource);
 
 	void update();
 

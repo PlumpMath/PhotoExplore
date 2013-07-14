@@ -1,8 +1,9 @@
 #include "TexturePool.h"
+#include "GlobalConfig.hpp"
 
-TexturePool::TexturePool(int size)
+TexturePool::TexturePool()
 {
-	initPool(size);
+	initPool(GlobalConfig::tree()->get<int>("TextureLoading.InitialTextureCount"));
 }
 
 void TexturePool::releaseAll()
@@ -29,6 +30,7 @@ GLuint TexturePool::getTexture(int requiredSize)
 {
 	GLuint textId;
 
+	//GlobalConfig::tree()->get<int>("TextureLoading.InitialTextureCount"))
 	if (textureQueue.size() == 0)
 	{
 		glGenTextures(1,&textId);

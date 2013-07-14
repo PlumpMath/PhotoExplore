@@ -65,7 +65,9 @@ public:
 					FBNode * n2 = new FBNode(ss2.str());
 					n2->setNodeType("photos");
 
-					ImageManager::getInstance()->setImageRelevance(ss2.str(),16,1,10,this->dirContents.at(photoIndex%dirContents.size()).string(), cv::Size2i(500,500));
+					n2->Edges.insert(Edge("fake_uri",this->dirContents.at(photoIndex%dirContents.size()).string()));
+					n2->Edges.insert(Edge("fake_uri_high",""));
+
 					this->photoIndex++;
 
 					parent->Edges.insert(Edge("photos",n2));

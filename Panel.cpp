@@ -265,54 +265,57 @@ void Panel::setDetailLevel(int levelOfDetail)
 		string imageURI = "";
 		cv::Size2i imageSize;
 
-		if (levelOfDetail == LevelOfDetail_Types::Full)
+		Facebook::FBNode * fbNode = (Facebook::FBNode*)node;
+
+		if (GlobalConfig::tree()->get<bool>("FakeDataMode.Enable"))
 		{
-			Facebook::FBNode * fbNode = (Facebook::FBNode*)node;
-
-			auto res = fbNode->Edges.find("images");
-			if (res != fbNode->Edges.end())
-			{
-				vector<json_spirit::Value> objectArray = res->JsonValue.get_array();				
-
-				auto it = std::find_if(objectArray.begin(),objectArray.end(),[](json_spirit::Value item) -> bool {					
-					return json_spirit::find_value(item.get_obj(),"source").get_str().find("_o.jpg") != string::npos;
-				});
-
-				if (it != objectArray.end())
-				{
-					//	json_spirit::Object obj = objectArray.at(0).get_obj();
-					//	imageURI = json_spirit::find_value(obj,"source").get_str();		
-					//	imageSize.width = json_spirit::find_value(obj,"width").get_int();		
-					//	imageSize.height = json_spirit::find_value(obj,"height").get_int();		
-					//}
-					//else
-					//{
-					imageSize.width = json_spirit::find_value(it->get_obj(),"width").get_int();		
-					imageSize.height = json_spirit::find_value(it->get_obj(),"height").get_int();		
-					imageURI =  json_spirit::find_value(it->get_obj(),"source").get_str();
-
-					ImageManager::getInstance()->setImageRelevance(node->getURI(),currentDetailLevel,dataPriority,2,imageURI,imageSize);
-					currentResource = ResourceManager::getInstance()->loadResource(node->getURI(),currentDetailLevel,dataPriority,this);
-
-					textureWidth = imageSize.width;
-					textureHeight = imageSize.height;
-				}
-
-				//cout << "Extracted hi-res imageURI! It's :" << imageURI << endl;
-			}
-
+			if (levelOfDetail == LevelOfDetail_Types::Full)
+				imageURI = fbNode->Edges.find("fake_uri_high")->Value;
+			
+			if (imageURI.size() == 0)
+				imageURI = fbNode->Edges.find("fake_uri")->Value;
 		}
 		else
 		{
-			currentResource = ResourceManager::getInstance()->loadResource(node->getURI(),currentDetailLevel,dataPriority,this);
-
-			cv::Size2i size;
-			if (ResourceManager::getInstance()->getResourceDimensions(node->getURI(),currentDetailLevel,size))
+			if (levelOfDetail == LevelOfDetail_Types::Full)
 			{
-				textureWidth = size.width;
-				textureHeight = size.height;
+				auto res = fbNode->Edges.find("images");
+				if (res != fbNode->Edges.end())
+				{
+					vector<json_spirit::Value> objectArray = res->JsonValue.get_array();				
+
+					auto it = std::find_if(objectArray.begin(),objectArray.end(),[](json_spirit::Value item) -> bool {					
+						return json_spirit::find_value(item.get_obj(),"source").get_str().find("_o.jpg") != string::npos;
+					});
+
+					if (it != objectArray.end())
+					{
+						imageSize.width = json_spirit::find_value(it->get_obj(),"width").get_int();		
+						imageSize.height = json_spirit::find_value(it->get_obj(),"height").get_int();	
+
+						imageURI =  json_spirit::find_value(it->get_obj(),"source").get_str();
+
+						textureWidth = imageSize.width;
+						textureHeight = imageSize.height;
+					}
+				}
+			}
+			
+			if (imageURI.size() == 0)
+			{
+				Facebook::FBNode * fbNode = (Facebook::FBNode*)node;
+				std::stringstream urlStream;
+				urlStream << "https://graph.facebook.com/";
+				urlStream << fbNode->getId() << "/picture?width=600&height=600&";
+				urlStream << "method=get&redirect=true&access_token=" << GlobalConfig::TestingToken;
+
+				imageURI = urlStream.str();			
+				textureWidth = 600;
+				textureHeight = 600;
 			}
 		}
+
+		currentResource = ResourceManager::getInstance().loadResource(node->getURI(),imageURI,dataPriority,this);
 	}	
 }
 
@@ -336,10 +339,17 @@ void Panel::setDataPriority(float dRel)
 		if (currentResource != NULL)
 		{
 			currentResource->priority = dataPriority;
-			ResourceManager::getInstance()->updateResource(currentResource);
+			ResourceManager::getInstance().updateResource(currentResource);
 		}
 		else
-			currentResource = ResourceManager::getInstance()->loadResource(node->getURI(),currentDetailLevel,dataPriority, this);
+		{
+			int tmp = currentDetailLevel;
+			currentDetailLevel = -2;
+
+			setDetailLevel(tmp);
+
+			//currentResource = ResourceManager::getInstance().loadResource(node->getURI(),node->getURI(),dataPriority, this);
+		}
 	}
 	//backgroundColor.setAlpha(max<float>(0,2.0f*(.5f - dRel)));
 	
@@ -365,14 +375,14 @@ void Panel::setVisible(bool visible)
 	this->visible = visible;
 }
 
-void Panel::resourceUpdated(string resourceId, bool loaded)
+void Panel::resourceUpdated(ResourceData * data)
 {
-	if (node != NULL && node->getURI().compare(resourceId) == 0)
+	if (data == NULL)
 	{
-		GLuint tmpId = TextureManager::getInstance()->getLoadedTexture(resourceId,currentDetailLevel, TextureManager::TextureType_Image);
-
-		//if (tmpId == NULL && glTextureId != NULL)
-			//cout << "Received NULL id.URL = " << resourceId << "[" << currentDetailLevel << "] P = " << dataPriority << " \n";
-		glTextureId = tmpId;
+		glTextureId = NULL;
+	}
+	else if (node != NULL)// && node->getURI().compare(data->resourceId) == 0)
+	{
+		glTextureId = data->textureId;
 	}
 }

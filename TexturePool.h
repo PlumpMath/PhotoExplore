@@ -12,11 +12,19 @@ class TexturePool {
 
 private:
 	queue<GLuint> textureQueue;
-	map<GLuint,int> textureUseCount;
 	int poolSize;
-
+	
+	TexturePool(TexturePool const&);
+	void operator=(TexturePool const&); 
+		
 public:
-	TexturePool(int size);
+	static TexturePool& getInstance()
+	{
+		static TexturePool instance; 
+		return instance;
+	}
+	
+	TexturePool();
 	void releaseAll();
 
 	void initPool(int poolSize);

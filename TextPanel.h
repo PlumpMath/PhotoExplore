@@ -6,6 +6,52 @@
 
 #define ARB_TEXT_RESIZE_DURATION 150
 
+
+
+class TextDefinition {
+	
+private:
+	std::string key;
+
+public:	
+	const std::string text;
+	const Color textColor;
+	const float fontSize;
+	const cv::Size2f textWrapSize;
+
+	TextDefinition() : 
+		fontSize(0)
+	{		
+	}
+
+	TextDefinition(TextDefinition & copy) : 
+		text(copy.text),
+		textColor(copy.textColor),
+		fontSize(copy.fontSize),
+		textWrapSize(copy.textWrapSize),
+		key(copy.key)
+	{		
+	}
+
+	TextDefinition(std::string _text, Color _textColor, float _textSize, cv::Size2f _textWrapSize) :
+		text(_text),
+		textColor(_textColor),
+		fontSize(_textSize),
+		textWrapSize(_textWrapSize)
+	{
+		std::stringstream ss;
+		ss << _text << _textColor.idValue() << _textSize << _textWrapSize.width << _textWrapSize.height;
+		key = ss.str();
+	}
+
+public:
+	std::string getKey()
+	{
+		return key;
+	}
+};
+
+
 class TextPanel : public TexturePanel, public IResourceWatcher {
 
 private:
@@ -17,7 +63,9 @@ private:
 	bool textDirty;
 	bool textEnabled;
 
-	TextDefinition * currentDefinition;
+	//TextDefinition * currentDefinition;
+	
+	cv::Mat currentTextImage;
 
 public:
 	TextPanel(string text);
@@ -43,7 +91,7 @@ public:
 
 	void layout(Vector position, cv::Size2f size);
 
-	void resourceUpdated(string resourceId, bool loaded);
+	void resourceUpdated(ResourceData * resourceData);
 };
 
 #endif

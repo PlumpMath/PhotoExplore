@@ -6,22 +6,34 @@
 		"OverrideWidth" : 1280,
 		"OverrideHeight" : 720
 	},
+	"TextureLoading" :
+	{
+		"MaxConcurrentTasks" : 10,
+		"PixelBufferCount" : 4,
+		"InitialTextureCount" : 200,
+		"MaxTextureCount" : 400
+	},
+	"ResourceCache" : 
+	{
+		"TextureCacheSize" : 512, //Megabytes
+		"ImageCount" : 600
+	},
 	"FakeDataMode" : 
 	{
-		"Enable" : false,
-		"SourceDataDirectory" : "C:\\Users\\Adam\\Pictures\\"
+		"Enable" : true,
+		"SourceDataDirectory" : "C:\\Users\\Adam\\Pictures" 
 	},
 	"Shake" : 
 	{	
 		"FFTModes" :
-		[
+		 [
 			{ //Mode 1 - Fast shake
-				"MinSpeedVelocityRatio" : 10.0, //The minimum ratio of tip velocity to tip speed 
-				"AvgMagPeakMagRatio" :  0.15, //Minimum ratio of peak magnitude for specific frequencies relative to total signal magnitude
-				"MinFrequency" : 26.0, //Minimum frequency for this mode
-				"MaxFrequency" : 27.0, //Maximum frequency of this mode				
-				"MinFreq_MinMagnitude" : 5000, //Minimum magnitude at minimum frequency that will trigger detection
-				"MaxFreq_MinMagnitude" : 5000 //Minimum magnitude at maximum frequency that will trigger detection (values between min and max are interpolated)
+				"MinSpeedVelocityRatio" : 12.0, //The minimum ratio of tip velocity to tip speed 
+				"AvgMagPeakMagRatio" :  0.15, //Minimum ratio of peak magnitude for specific frequency relative to total signal magnitude
+				"MinFrequency" : 21.0, //Minimum frequency for this mode
+				"MaxFrequency" : 23.0, //Maximum frequency of this mode				
+				"MinFreq_MinMagnitude" : 800, //Minimum magnitude at minimum frequency that will trigger detection
+				"MaxFreq_MinMagnitude" : 800 //Minimum magnitude at maximum frequency that will trigger detection (values between min and max are interpolated)
 			},
 			{ //Mode 2 - Slow shake
 				"MinSpeedVelocityRatio" : 8.0,
@@ -57,16 +69,16 @@
 			}
 		],
 		"DataLogging" : {
-			"Raw" : true,			//Log raw data to a CSV file 
-			"Results" : true,		//Log processed results to a CSV file
+			"Raw" : false,			//Log raw data to a CSV file 
+			"Results" : false,		//Log processed results to a CSV file
 			"OutputDir" : "."		//Directory to store CSV files in, relative to executable
 		},
-		"DebugDrawing" : true,	 	//Draw debug graphs on screen
+		"DebugDrawing" : false,	 	//Draw debug graphs on screen
 		"SampleCount" : 30,				//Number of samples to analyze at once
 		"CancelDirectional" : true, 	//Ignore movement in the direction the finger is pointing
 		"Disabled" : false, 					//Disable the shake completely (breaks most functionality)
 		"CooldownTime" : 500.0, 		//Time between consecutive shakes (milliseconds)
-		"MinTimeVisible" : 0.5 			//Minimum time a pointable must have been visible in order to be considered in shake detection
+		"MinTimeVisible" : 0.0			//Minimum time a pointable must have been visible in order to be considered in shake detection
 	},
 	"Menu" : 
 	{
@@ -107,8 +119,16 @@
 	"ScrollView" : 
 	{		
 		"AllowScrollCancelGesture" : false,
-		"MaxScrollDistance" : 3200,
-		"MinScrollDistance" : 2500,
+		"MaxScrollDistance" : 3200, //Max number of pixels to scroll in a single swipe
+		"MinScrollDistance" : 2500, //Min number of pixels to scroll in a single swipe
 		"ScrollSpeedFactor" : 2.5 //Ratio of swipe gesture speed to scrolling distance
+	},
+	"Strings" : 
+	{
+		"LeapOverlay"  :
+		{
+			"DisconnectedMessage" : "Leap Motion Controller is disconnected",
+			"NotFocusedMessage" : "Leap Motion Controller is not focused"
+		}		
 	}
 }

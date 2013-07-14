@@ -114,133 +114,133 @@ LeapElement * LeapStartScreen::elementAtPoint(int x, int y, int & elementStateFl
 FBNode * LeapStartScreen::createMockData()
 {
 	FBNode * human = new FBNode("fake");
-	ImageManager::getInstance()->loadMockImage("","");
-
-	vector<path> dirContents;
-	boost::filesystem::path testPath_mine = boost::filesystem::path("C:\\Users\\Adam\\Pictures\\pixiv-win\\LeapTestImages");
-	copy(directory_iterator(testPath_mine), directory_iterator(), back_inserter(dirContents));
-
-	stringstream ss;
-	ss << "fake_MY_ALBUM"; 
-
-	FBNode * n1 = new FBNode(ss.str());
-	n1->setNodeType("albums");
-	human->Edges.insert(Edge("albums",n1));
-
-	int photoIndex = 0;
-	for (int j=0;j<1;j++)
-	{				
-		stringstream ss2;
-		ss2 << "fake_MY_IMG_" << j; 
-
-		FBNode * n2 = new FBNode(ss2.str());
-		n2->setNodeType("photos");
-		n1->Edges.insert(Edge("photos",n2));
-
-		while ((is_directory(dirContents.at(photoIndex)) ||  
-			dirContents.at(photoIndex).extension().string().size() < 3 || (
-			dirContents.at(photoIndex).extension().string().find("jpg") == string::npos && 
-			dirContents.at(photoIndex).extension().string().find("png") == string::npos)
-			) && photoIndex++ < dirContents.size());
-
-
-		if (j < dirContents.size())
-			ImageManager::getInstance()->setImageRelevance(ss2.str(),16,1,0,dirContents.at(photoIndex%dirContents.size()).string(), cv::Size2i(500,500));
-		photoIndex++;
-	}
-
-	int friendCount = 0, friendImageCount = 5, friendAlbumCount = 0;
-	for (int i=0;i<friendCount;i++)
-	{
-		if (photoIndex >= dirContents.size())
-		{
-			cout << "Error! Ran out of fake images." << endl;
-			break;
-		}
-
-		stringstream ss;
-		ss << "fake_Friend " << i;
-		FBNode * n2 = new FBNode(ss.str());
-		n2->setNodeType("friends");
-		human->Edges.insert(Edge("friends", n2));
-
-		n2->Edges.insert(Edge("name",ss.str() + " Name"));
-		bool profileLoaded = false;
-
-		for (int a=0;a<friendAlbumCount+1;a++)
-		{
-			if (photoIndex >= dirContents.size())
-			{
-				cout << "Error! Ran out of fake images." << endl;
-				break;
-			}
-
-			FBNode * n1 = NULL;
-			if (a > 0)			
-			{
-				stringstream ss3;
-				ss3 << ss.str() << " Album " << a;
-				n1 =new FBNode(ss3.str());
-				n1->setNodeType("albums");
-				n2->Edges.insert(Edge("albums",n1));
-			}			
-
-			for (int j=0;j<friendImageCount;j++)
-			{
-				if (photoIndex >= dirContents.size())
-				{
-					cout << "Error! Ran out of fake images." << endl;
-					break;
-				}
-
-
-				stringstream ss2;
-				ss2 << "fake_IMG_" << photoIndex;
-
-				FBNode * n3 = new FBNode(ss2.str());
-				n3->setNodeType("photos");
-
-				n3->Edges.insert(Edge("name",ss2.str() + "-name"));
-
-				if (n1 == NULL)
-					n2->Edges.insert(Edge("photos",n3));
-				else
-					n1->Edges.insert(Edge("photos",n3));
-						
-				
-				while ((is_directory(dirContents.at(photoIndex)) ||  
-						dirContents.at(photoIndex).extension().string().size() < 3 || (
-							dirContents.at(photoIndex).extension().string().find("jpg") == string::npos && 
-							dirContents.at(photoIndex).extension().string().find("png") == string::npos)
-					) && photoIndex++ < dirContents.size());
-
-				if (photoIndex < dirContents.size())
-				{
-					if (a == 0 && j == 0 && !profileLoaded)
-					{
-						profileLoaded = true;
-						j--;
-						ImageManager::getInstance()->setImageRelevance(ss.str(),16,1,0,dirContents.at(photoIndex%dirContents.size()).string(),cv::Size2i(500,500));
-						//ImageManager::getInstance()->loadMockImage(ss.str(),dirContents.at(photoIndex%dirContents.size()).string());
-					}
-					else
-					{
-						ImageManager::getInstance()->setImageRelevance(ss2.str(),16,1,0,dirContents.at(photoIndex%dirContents.size()).string(),cv::Size2i(500,500));
-						//ImageManager::getInstance()->loadMockImage(ss2.str(),dirContents.at(photoIndex%dirContents.size()).string());
-					}
-					
-				}
-				else
-				{
-					cout << "Error! Ran out of fake images." << endl;
-					break;
-				}
-				photoIndex++;
-			}
-		}
-	}
-
+	//ImageLoader::getInstance().loadMockImage("","");
 	return human;
+
+	//vector<path> dirContents;
+	//boost::filesystem::path testPath_mine = boost::filesystem::path("C:\\Users\\Adam\\Pictures\\pixiv-win\\LeapTestImages");
+	//copy(directory_iterator(testPath_mine), directory_iterator(), back_inserter(dirContents));
+
+	//stringstream ss;
+	//ss << "fake_MY_ALBUM"; 
+
+	//FBNode * n1 = new FBNode(ss.str());
+	//n1->setNodeType("albums");
+	//human->Edges.insert(Edge("albums",n1));
+
+	//int photoIndex = 0;
+	//for (int j=0;j<1;j++)
+	//{				
+	//	stringstream ss2;
+	//	ss2 << "fake_MY_IMG_" << j; 
+
+	//	FBNode * n2 = new FBNode(ss2.str());
+	//	n2->setNodeType("photos");
+	//	n1->Edges.insert(Edge("photos",n2));
+
+	//	while ((is_directory(dirContents.at(photoIndex)) ||  
+	//		dirContents.at(photoIndex).extension().string().size() < 3 || (
+	//		dirContents.at(photoIndex).extension().string().find("jpg") == string::npos && 
+	//		dirContents.at(photoIndex).extension().string().find("png") == string::npos)
+	//		) && photoIndex++ < dirContents.size());
+
+
+	//	if (j < dirContents.size())
+	//		ImageLoader::getInstance().setImageRelevance(ss2.str(),16,1,0,dirContents.at(photoIndex%dirContents.size()).string(), cv::Size2i(500,500));
+	//	photoIndex++;
+	//}
+
+	//int friendCount = 0, friendImageCount = 5, friendAlbumCount = 0;
+	//for (int i=0;i<friendCount;i++)
+	//{
+	//	if (photoIndex >= dirContents.size())
+	//	{
+	//		cout << "Error! Ran out of fake images." << endl;
+	//		break;
+	//	}
+
+	//	stringstream ss;
+	//	ss << "fake_Friend " << i;
+	//	FBNode * n2 = new FBNode(ss.str());
+	//	n2->setNodeType("friends");
+	//	human->Edges.insert(Edge("friends", n2));
+
+	//	n2->Edges.insert(Edge("name",ss.str() + " Name"));
+	//	bool profileLoaded = false;
+
+	//	for (int a=0;a<friendAlbumCount+1;a++)
+	//	{
+	//		if (photoIndex >= dirContents.size())
+	//		{
+	//			cout << "Error! Ran out of fake images." << endl;
+	//			break;
+	//		}
+
+	//		FBNode * n1 = NULL;
+	//		if (a > 0)			
+	//		{
+	//			stringstream ss3;
+	//			ss3 << ss.str() << " Album " << a;
+	//			n1 =new FBNode(ss3.str());
+	//			n1->setNodeType("albums");
+	//			n2->Edges.insert(Edge("albums",n1));
+	//		}			
+
+	//		for (int j=0;j<friendImageCount;j++)
+	//		{
+	//			if (photoIndex >= dirContents.size())
+	//			{
+	//				cout << "Error! Ran out of fake images." << endl;
+	//				break;
+	//			}
+
+
+	//			stringstream ss2;
+	//			ss2 << "fake_IMG_" << photoIndex;
+
+	//			FBNode * n3 = new FBNode(ss2.str());
+	//			n3->setNodeType("photos");
+
+	//			n3->Edges.insert(Edge("name",ss2.str() + "-name"));
+
+	//			if (n1 == NULL)
+	//				n2->Edges.insert(Edge("photos",n3));
+	//			else
+	//				n1->Edges.insert(Edge("photos",n3));
+	//					
+	//			
+	//			while ((is_directory(dirContents.at(photoIndex)) ||  
+	//					dirContents.at(photoIndex).extension().string().size() < 3 || (
+	//						dirContents.at(photoIndex).extension().string().find("jpg") == string::npos && 
+	//						dirContents.at(photoIndex).extension().string().find("png") == string::npos)
+	//				) && photoIndex++ < dirContents.size());
+
+	//			if (photoIndex < dirContents.size())
+	//			{
+	//				if (a == 0 && j == 0 && !profileLoaded)
+	//				{
+	//					profileLoaded = true;
+	//					j--;
+	//					ImageLoader::getInstance().setImageRelevance(ss.str(),16,1,0,dirContents.at(photoIndex%dirContents.size()).string(),cv::Size2i(500,500));
+	//					//ImageLoader::getInstance().loadMockImage(ss.str(),dirContents.at(photoIndex%dirContents.size()).string());
+	//				}
+	//				else
+	//				{
+	//					ImageLoader::getInstance().setImageRelevance(ss2.str(),16,1,0,dirContents.at(photoIndex%dirContents.size()).string(),cv::Size2i(500,500));
+	//					//ImageLoader::getInstance().loadMockImage(ss2.str(),dirContents.at(photoIndex%dirContents.size()).string());
+	//				}
+	//				
+	//			}
+	//			else
+	//			{
+	//				cout << "Error! Ran out of fake images." << endl;
+	//				break;
+	//			}
+	//			photoIndex++;
+	//		}
+	//	}
+	//}
+	//return human;
 }
 
 

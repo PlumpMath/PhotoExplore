@@ -9,7 +9,6 @@
 #include "Leap.h"
 #include "PointableElementManager.h"
 #include "LeapDebug.h"
-#include "TextureManager.h"
 #include "LeapListenerImpl.h"
 #include "LeapStartScreen.h"
 
@@ -49,8 +48,6 @@ PointableElementManager * PointableElementManager::instance = NULL;
 
 LeapDebug * LeapDebug::instance = NULL;
  
-//long Timer::frameId = 0;
-TextureManager * TextureManager::instance = NULL;
 
 GLuint fbo[2], fbo_texture[2], rbo_depth[2];
 GLuint vbo_fbo_vertices;
@@ -79,7 +76,7 @@ bool init( int window_width, int window_height, bool isFull)
 			
 	glewExperimental=true;
 	glewInit();
-	LeapImageOut << "PBO support = " << (glewIsSupported("GL_ARB_pixel_buffer_object") ? "true" : "false. This is unexpected! Application may not function at all.") << "\n";
+	//LeapImageOut << "PBO support = " << (glewIsSupported("GL_ARB_pixel_buffer_object") ? "true" : "false. This is unexpected! Application may not function at all.") << "\n";
 		
 	//OpenGL
 	glEnable(GL_LINE_SMOOTH);
@@ -330,9 +327,7 @@ int WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmd
 	});
 
 	GraphicsContext::getInstance().applicationExitCallback = [quit](){ quit[0] = true; };
-
-	TextureManager * tMan = TextureManager::getInstance();
-
+	
 	Timer totalTime;
 	totalTime.start();	
 	delta.start();
@@ -343,13 +338,12 @@ int WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmd
 	GraphicsContext::getInstance().globalActionCallback = [&](string s){ 
 		
 		disposeShaders();
-		tMan->dispose();	
 		glfwCloseWindow();	
 
 		init(GlobalConfig::ScreenWidth, GlobalConfig::ScreenHeight, true);
 
 		initShaders();
-		tMan->initialize();
+		//tMan->initialize();
 	};
 
 	while(!(*quit))
@@ -374,14 +368,8 @@ int WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmd
 		startScreen->onFrame(controller);
 		leapDebug->onFrame(controller);
 		
-		ResourceManager::getInstance()->update();
+		ResourceManager::getInstance().update();
 		frameOut  << "RMan = " << itemTimer.millis() << "ms \n";
-		itemTimer.start();
-		ImageManager::getInstance()->update();
-		frameOut  << "ImgMan = " << itemTimer.millis() << "ms \n";
-		itemTimer.start();
-		tMan->update();					
-		frameOut  << "TextureMan = " << itemTimer.millis() << "ms \n";
 		itemTimer.start();
 
 		startScreen->update(deltaTime);	

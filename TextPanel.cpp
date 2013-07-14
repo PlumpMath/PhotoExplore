@@ -1,9 +1,8 @@
- #include "TextPanel.h"
+#include "TextPanel.h"
+#include "TypographyManager.h"
 
 TextPanel::TextPanel(string text) 
 {
-	currentDefinition = NULL;
-
 	this->text = std::string("");
 	textureScaleMode = ScaleMode::None;
 	textColor = Colors::Black;
@@ -18,8 +17,6 @@ TextPanel::TextPanel(string text)
 
 TextPanel::TextPanel() 
 {
-	currentDefinition = NULL;
-
 	text = std::string("");
 	textureScaleMode = ScaleMode::None;
 	textColor = Colors::Black;
@@ -31,10 +28,19 @@ TextPanel::TextPanel()
 	setAllowSubPixelRendering(false);
 }
 
-void TextPanel::resourceUpdated(string resourceId, bool loaded)
+void TextPanel::resourceUpdated(ResourceData * data)
 {
-	currentTextureId = TextureManager::getInstance()->getLoadedTexture(resourceId,LevelOfDetail_Types::Full, TextureManager::TextureType_Font);
-	
+	if (data != NULL)
+	{
+		if (data->TextureState == ResourceState::TextureLoaded)
+		{
+			currentTextureId = data->textureId;
+			//currentTextImage.release();
+		}		
+	}
+	else
+		currentTextureId = NULL;
+
 	//if (fitToText)
 	//{
 	//	animatePanelSize(textureSize.width + textFitPadding,textureSize.height + textFitPadding,ARB_TEXT_RESIZE_DURATION);
@@ -42,34 +48,40 @@ void TextPanel::resourceUpdated(string resourceId, bool loaded)
 }
 
 
-	void TextPanel::setTextEnabled(bool _textEnabled)
-	{
-		textEnabled = _textEnabled;
-	}
+void TextPanel::setTextEnabled(bool _textEnabled)
+{
+	textEnabled = _textEnabled;
+}
 
-	bool TextPanel::getTextEnabled()
-	{
-		return textEnabled;
-	}
+bool TextPanel::getTextEnabled()
+{
+	return textEnabled;
+}
 
 void TextPanel::reloadText()
 {		
-	if (currentDefinition != NULL)
-	{
-		ResourceManager::getInstance()->releaseTextResource(*currentDefinition,this);
-		delete currentDefinition;
-		currentDefinition = NULL;
-	}
+	//if (currentDefinition != NULL)
+	//{
+	//	//ResourceManager::getInstance().releaseTextResource(*currentDefinition,this);
+	//	delete currentDefinition;
+	//	currentDefinition = NULL;
+	//}
 
 	cv::Size2f textureSize(this->lastSize.width-textFitPadding*2,this->lastSize.height-textFitPadding*2);
-	currentDefinition = new TextDefinition(text, textColor, textSize, textureSize);
-	ResourceManager::getInstance()->loadTextResource((*currentDefinition), 0, this);
+	//TextDefinition * currentDefinition = new 
+	TextDefinition td(text, textColor, textSize, textureSize);
+
+	currentTextImage = TypographyManager::getInstance()->renderText(text,textColor,textSize,textureSize);	
+	if (currentTextImage.data != NULL)
+	{
+		ResourceManager::getInstance().loadResource(td.getKey(),currentTextImage,0,this);
+	}
 	textDirty = false;
 }
 
 void TextPanel::drawContent(Vector drawPosition, float drawWidth, float drawHeight)
 {		
-	if (!textEnabled || (currentTextureId == NULL || !(TextureManager::getInstance()->isTextureLoaded(currentTextureId,TextureManager::TextureType_Font))))
+	if (!textEnabled || currentTextureId == NULL)// || !(TextureManager::getInstance()->isTextureLoaded(currentTextureId,TextureManager::TextureType_Font))))
 		return;
 	//glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 	TexturePanel::drawTexture(currentTextureId,drawPosition,drawWidth,drawHeight);	
@@ -88,7 +100,7 @@ void TextPanel::setText(string _text)
 	//{
 	//	if (currentDefinition != NULL)
 	//	{
-	//		ResourceManager::getInstance()->releaseTextResource(*currentDefinition,this);
+	//		ResourceManager::getInstance().releaseTextResource(*currentDefinition,this);
 	//		delete currentDefinition;
 	//		currentDefinition = NULL;
 	//	}

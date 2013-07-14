@@ -4,4 +4,24 @@
 #include <GL/glew.h>
 #include <GL/glfw.h>
 
+#include <sstream>
+
+#include "Logger.hpp"
+
+class OpenGLHelper {
+
+public:
+	static void LogOpenGLErrors(std::string tag)
+	{
+		int count = 0;
+		GLenum glError;
+		while ((glError = glGetError()) != GL_NO_ERROR)
+		{
+			std::stringstream error;
+			error << "GL ERROR [" << count++ << "] = " << glError;
+			Logger::log(tag,error.str());
+		}
+	}
+};
+
 #endif

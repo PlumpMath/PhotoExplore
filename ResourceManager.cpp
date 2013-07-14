@@ -1,239 +1,289 @@
 #include "ResourceManager.h"
+#include "TextureLoader.hpp"
+#include "ImageLoader.hpp"
+#include "GlobalConfig.hpp"
+#include "TexturePool.h"
 
-ResourceManager * ResourceManager::instance = NULL;
 
 ResourceManager::ResourceManager()
 {
-	tMan = TextureManager::getInstance();
-	tMan->setResourceChangedCallback(boost::bind(&ResourceManager::textureResourceChanged, this, _1,_2,_3));
-	imgMan = ImageManager::getInstance();
-	imgMan->setResourceChangedCallback(boost::bind(&ResourceManager::imageResourceChanged, this, _1,_2));
-	resourcesChanged = false;
+	textureLoadThreshold = 1000;
+	imageLoadThreshold = 1000;
+
+	ImageLoader::getInstance().setResourceChangedCallback([this](string resourceId, int statusCode, cv::Mat imgMat){
+		updateImageResource(resourceId,statusCode,imgMat);
+	});
 }
 
-
-ResourceManager * ResourceManager::getInstance()
+void ResourceManager::updateImageResource(string resourceId, int statusCode, cv::Mat imgMat)
 {
-	if (instance == NULL)
-		instance = new ResourceManager();
+	updateTaskMutex.lock();
+	updateThreadTasks.push([this,resourceId,statusCode,imgMat](){
+		auto resource = resourceCache.get<IdIndex>().find(resourceId);	
 
-	return instance;
+		if (resource != resourceCache.get<IdIndex>().end())
+		{
+			ResourceData * data = resource->Data;
+			data->ImageState = statusCode;
+			data->image = imgMat;
+			updateResource(data);
+		}
+	});
+	updateTaskMutex.unlock();
 }
 
-bool ResourceManager::getResourceDimensions(string resourceId, LevelOfDetail _levelOfDetail, cv::Size2i & imageSize)
+ResourceData * ResourceManager::loadResource(string resourceId, string imageURI, float priority, IResourceWatcher * watcher)
 {
-	MultiResolutionImage * imageInfo = imgMan->loadImage(resourceId,_levelOfDetail);
-	if (imageInfo != NULL && imageInfo->hasMetaData(_levelOfDetail))
-	{
-		imageSize = imageInfo->getImageSize(_levelOfDetail);
-		return true;
-	}
-	else
-		return false;
-}
-
-void ResourceManager::loadTextResource(TextDefinition textDefinition, _PriorityType loadPriority, IResourceWatcher * resourceOwner)
-{
-	cv::Mat textImage = TypographyManager::getInstance()->renderText(textDefinition.text,textDefinition.textColor,textDefinition.fontSize,textDefinition.textWrapSize);
+	auto resource = resourceCache.get<IdIndex>().find(resourceId);	
 	
-	//cv::imwrite("G:\\FontDebug\\"+textDefinition.getKey()+".png",textImage);
+	bool resourceModified = false;
 
-	if (insertResource(textDefinition.getKey(),LevelOfDetail_Types::Full, loadPriority, resourceOwner))	
+	ResourceData * data = NULL;
+	if (resource == resourceCache.get<IdIndex>().end())
 	{
-		cout << "Loading text with key = " << textDefinition.getKey() << endl;
-		tMan->loadTextureFromImage(textDefinition.getKey(),LevelOfDetail_Types::Full,TextureManager::TextureType_Font,loadPriority,textImage);
-	}	
-	else
-	{
-		resourceOwner->resourceUpdated(textDefinition.getKey(),true);
+		data = new ResourceData(resourceId, priority, imageURI);
+		resourceCache.insert(CachedResource(data));
+		data->TextureState = ResourceState::Empty;
+		data->ImageState = ResourceState::Empty;
+		resourceModified = true;
 	}
-}
-
-//void ResourceManager::updateResource(Resource * resource)
-//{
-//	modifiedResources.push(resource);
-//}
-
-
-void ResourceManager::releaseTextResource(TextDefinition textDefinition, IResourceWatcher * resourceOwner)
-{
-	bool update = false;
-
-	auto res = resourceCache.get<IdIndex>().find(textDefinition.getKey());
-	if (res != resourceCache.get<IdIndex>().end())
-	{
-		Resource r = (*res);		
-		if (r.callbacks.count(resourceOwner))
-		{
-			r.callbacks.erase(resourceOwner);
-			update = r.callbacks.size() == 0;
-			if (update)
-				resourceCache.get<IdIndex>().erase(res);
-			else
-				resourceCache.get<IdIndex>().replace(res, r);
-		}
-	}
-
-	if (update)
-	{
-		//cout << "Releasing text with key = " << textDefinition.getKey() << endl;
-		tMan->setTexturePriority(textDefinition.getKey(),LevelOfDetail_Types::Full,TextureManager::TextureType_Font,LowestPriority);
-		//tMan->destroyTexture(textDefinition.getKey(), LevelOfDetail_Types::Full, TextureManager::TextureType_Font);
-	}
-}
-
-
-Resource * ResourceManager::insertResource(string resourceId, LevelOfDetail levelOfDetail, float loadPriority, IResourceWatcher * loadCallback)
-{
-	Resource * updatedResource = NULL;
-
-	auto res = resourceCache.get<IdIndex>().find(resourceId);
-	if (res != resourceCache.get<IdIndex>().end())
-	{
-		Resource r = (*res);		
-
-		if (loadCallback != NULL && r.callbacks.count(loadCallback) == 0)
-		{
-			r.callbacks.insert(loadCallback);
-		}
-		
-		bool update = (r.priority != loadPriority);
-		update = update || (r.requestedDetail != levelOfDetail);
-
-		r.resourceId = resourceId;
-		r.priority = loadPriority;
-		r.requestedDetail = levelOfDetail;		
-		resourceCache.get<IdIndex>().replace(res, r);
-
-		if (update)
-			updatedResource = (Resource*)(&(*res));
-	}
-	else
-	{
-		Resource r = Resource();
-		r.resourceId = resourceId;
-
-		if (loadCallback != NULL)
-			r.callbacks.insert(loadCallback);
-
-		r.priority = loadPriority;
-		r.requestedDetail = levelOfDetail;		
-		resourceCache.insert(r);
-
-		res = resourceCache.get<IdIndex>().find(resourceId);
-		updatedResource = (Resource*)(&(*res));
-	}
-	return updatedResource;
-}
-
-Resource * ResourceManager::loadResource(string resourceId, LevelOfDetail levelOfDetail, _PriorityType loadPriority, IResourceWatcher * loadCallback)
-{
-	Timer time;
-	time.start();
-	Resource * updatedResource = insertResource(resourceId, levelOfDetail, loadPriority, loadCallback);
-	if (updatedResource != NULL)	
+	else 
 	{		
-		modifiedResources.push(updatedResource);
+		data = resource->Data;
+
+		if (data->priority != priority)
+			resourceModified = true;
+
+		data->priority = priority;		
+		resourceCache.get<IdIndex>().replace(resource,CachedResource(data));
 	}
-	return updatedResource;
+
+	data->callbacks.insert(watcher);
+	//if (resourceModified)
+		//updateResource(data);
+
+
+	return data;	
 }
 
 
-void ResourceManager::updateResource(Resource * updatedResource)
+ResourceData * ResourceManager::loadResource(string resourceId, cv::Mat & image, float priority, IResourceWatcher * watcher)
 {
-	modifiedResources.push(updatedResource);
+	auto resource = resourceCache.get<IdIndex>().find(resourceId);	
+	
+	bool resourceModified = false;
+
+	ResourceData * data = NULL;
+	if (resource == resourceCache.get<IdIndex>().end())
+	{
+		data = new ResourceData(resourceId, priority, image);
+		data->TextureState = ResourceState::Empty;
+		data->ImageState = ResourceState::ImageLoaded;
+		resourceCache.insert(CachedResource(data));
+		resourceModified = true;
+	}
+	else 
+	{		
+		data = resource->Data;		
+		//if (data->priority != priority || data->image.size() != image.size())
+		//{
+		resourceModified = true;
+		data->image = image;
+		data->priority = priority;		
+		resourceCache.get<IdIndex>().replace(resource,CachedResource(data));
+		//}
+	}
+		
+
+	data->callbacks.insert(watcher);
+	if (resourceModified)
+		updateResource(data);
+
+
+	return data;	
 }
 
-
-void ResourceManager::releaseResource(string resourceId, LevelOfDetail levelOfDetail, IResourceWatcher * resourceOwner)
+void ResourceManager::updateTextureState(ResourceData * data, bool load)
 {
-	bool update = false;
-
-	auto res = resourceCache.get<IdIndex>().find(resourceId);
-	if (res != resourceCache.get<IdIndex>().end())
+	if (load)
 	{
-		Resource r = (*res);		
-		if (r.callbacks.count(resourceOwner))
+		switch (data->TextureState)
 		{
-			r.callbacks.erase(resourceOwner);
-			resourceCache.get<IdIndex>().replace(res, r);
-			update = r.callbacks.size() == 0;
-		}
-	}
-
-	if (update)
-	{
-		imgMan->setImageRelevance(resourceId,levelOfDetail,LowestPriority,-1);
-		MultiResolutionImage * loadedImage = imgMan->loadImage(resourceId,levelOfDetail);
-		tMan->setTexturePriority(resourceId, levelOfDetail,TextureManager::TextureType_Image, LowestPriority);
-	}
-}
-
-void ResourceManager::textureResourceChanged(string resourceId, LevelOfDetail levelOfDetail, GLuint glTextureId)
-{	
-	//cout << "Locking resource manager for TEX callback\n";
-	//resourceMutex.lock();
-	auto res = resourceCache.get<IdIndex>().find(resourceId);
-	if (res != resourceCache.get<IdIndex>().end())
-	{
-		for (auto callback = res->callbacks.begin(); callback != res->callbacks.end(); callback++)
-		{
-			(*callback)->resourceUpdated(res->getResourceId(),true);
-		}
-	}
-	//else
-	//{
-	//	cout << "Error! Got callback for non-existent texture " << resourceId << "[ " << levelOfDetail << "]\n";
-	//}
-	//resourceMutex.unlock();
-	//cout << "Unlocked resource manager for TEX callback\n";
-}
-
-void ResourceManager::imageResourceChanged(string resourceId, MultiResolutionImage * affectedImage)
-{		
-	//cout << "Locking resource manager for IMG callback\n";
-	//resourceMutex.lock();
-	auto res = resourceCache.get<IdIndex>().find(resourceId);
-	if (res != resourceCache.get<IdIndex>().end())
-	//{
-	//	modifiedResources.push((Resource*)&(*res));	
-	//}
-	//resourceMutex.unlock();
-	//cout << "Unlocked resource manager for IMG callback\n";
-	{
-		if (affectedImage->isValid() && affectedImage->isLoaded(res->requestedDetail))
-		{
-			tMan->setTexturePriority(resourceId,res->requestedDetail,TextureManager::TextureType_Image, res->priority);
-		}
-		else
-		{
-			for (auto callback = res->callbacks.begin(); callback != res->callbacks.end(); callback++)
+		case ResourceState::Empty:
+			if (data->ImageState == ResourceState::ImageLoaded)
 			{
-				(*callback)->resourceUpdated(res->getResourceId(),false);
+				data->TextureState = ResourceState::TextureLoading;
+				TextureLoader::getInstance().loadTextureFromImage(data->resourceId, data->priority, data->image, [this,data](GLuint textureId, int taskStatus){
+					this->textureLoaded(data,textureId,taskStatus);
+				});
 			}
+			break;		
+		case ResourceState::TextureLoading:
+			//TextureLoader::getInstance().updateTask(data->resourceId,data->priority);
+			break;
+		case ResourceState::TextureLoaded:
+			//nothing to do
+			break;
 		}
+	}
+	else
+	{
+		switch (data->TextureState)
+		{
+		case ResourceState::Empty:
+			//nothing to do
+			break;		
+		case ResourceState::TextureLoading:
+			TextureLoader::getInstance().cancelTask(data->resourceId);
+			data->TextureState = ResourceState::Empty;
+			break;
+		case ResourceState::TextureLoaded:
+			TexturePool::getInstance().releaseTexture(data->textureId);
+			data->TextureState = ResourceState::Empty;
+			break;
+		}
+	}
+}
+
+void ResourceManager::updateImageState(ResourceData * data, bool load)
+{
+	if (load)
+	{
+		switch(data->ImageState)
+		{
+		case ResourceState::Empty:
+			data->ImageState = ResourceState::ImageLoading;
+			ImageLoader::getInstance().startLoadingImage(data->resourceId,data->imageURI,(data->imageURI.find("http") == string::npos) ? 0 : 2,data->priority);
+			break;
+			
+		case ResourceState::ImageLoadError:
+			cout << "Error!" << endl;
+		case ResourceState::ImageLoaded:
+			//nothing to do
+			break;
+		case ResourceState::ImageLoading:		
+			//ImageLoader::getInstance().updateTask(data->resourceId,data->priority);			
+			break;
+		}
+	}
+	else
+	{
+		switch(data->ImageState)
+		{
+		case ResourceState::ImageLoadError:
+		case ResourceState::Empty:			
+			//nothing to do
+			break;
+		case ResourceState::ImageLoaded:
+			data->image.release();
+			data->ImageState = ResourceState::Empty;
+			break;
+		case ResourceState::ImageLoading:		
+			ImageLoader::getInstance().cancelTask(data->resourceId);			
+			data->ImageState = ResourceState::Empty;
+			break;
+		}
+	}
+
+}
+
+void ResourceManager::updateResource(ResourceData * data)
+{	
+	updateImageState(data, data->priority < imageLoadThreshold);
+	updateTextureState(data, data->priority < textureLoadThreshold);
+}
+
+int compareResourcePriority(const void * a, const void * b) 
+{
+	ResourceData * r1 = (ResourceData*)a;
+	ResourceData * r2 = (ResourceData*)b;
+	if ( r1->priority <  r2->priority ) return -1;
+	if ( r1->priority == r2->priority ) return 0;
+	if ( r1->priority >  r2->priority ) return 1;
+}
+
+
+void ResourceManager::cleanupCache()
+{
+	int textureCacheSizeBytes = GlobalConfig::tree()->get<int>("ResourceCache.TextureCacheSize") * BytesToMB;
+	int imageLimit = GlobalConfig::tree()->get<int>("ResourceCache.ImageCount");
+
+
+	//if (size > textureLimit || size > imageLimit)
+	{
+		int size = resourceCache.size();
+		//ResourceData ** resources = new ResourceData*[size];
+
+		vector<ResourceData*> rVector;
+
+		int i=0;
+		for (auto cache = resourceCache.get<IdIndex>().begin(); cache != resourceCache.get<IdIndex>().end(); cache++)
+		{
+			rVector.push_back(cache->Data);
+			//resources[i++] = cache->Data;
+		}
+
+		//std::qsort(resources,size,sizeof(resources[0]),compareResourcePriority);
+
+		std::sort(rVector.begin(),rVector.end(),[](ResourceData * r1, ResourceData * r2) {
+			return r1->priority > r2->priority;
+		});
+
+		for (int i=0; i<size;i++)
+		{
+			ResourceData * data = rVector.at(i);
+						
+			int dataSize = 160000; //200x200 px @ 4bpp
+			
+			if (data->image.data != NULL)
+				dataSize = data->image.size().area() * 4;
+
+			textureCacheSizeBytes -= dataSize;
+
+			updateImageState(data,imageLimit-- > 0);
+			//updateTextureState(data,textureCacheSizeBytes > 0);
+
+			if (imageLimit == 0)
+				imageLoadThreshold = data->priority;
+
+			if (textureCacheSizeBytes <= 0) 
+				textureLoadThreshold = data->priority;
+		}
+
+		//delete resources;
 	}
 }
 
 void ResourceManager::update()
 {
-	//cout << "Locking resource manager\n";
-	//resourceMutex.lock();
-	int updateCount = 10;
-	Timer updateTimer;
-	updateTimer.start();
-	while(!modifiedResources.empty() && (updateTimer.millis() < 2 || updateCount-- > 0))
-	{		
-		Resource * r = modifiedResources.front();
-		modifiedResources.pop();
+	ImageLoader::getInstance().update();
 
-		imgMan->setImageRelevance(r->getResourceId(),r->requestedDetail,r->priority,-1);
+	updateTaskMutex.lock();
+	while (!updateThreadTasks.empty())
+	{
+		updateThreadTasks.front()();
+		updateThreadTasks.pop();
+	}
+	updateTaskMutex.unlock();
 
-		MultiResolutionImage * loadedImage = imgMan->loadImage(r->resourceId,r->requestedDetail);
-		
-		if (loadedImage == NULL || loadedImage->isValid()) 
-			tMan->setTexturePriority(r->resourceId, r->requestedDetail, TextureManager::TextureType_Image, r->priority);
-	}	
-	//resourceMutex.unlock();
-	//cout << "Unlocking Resource Manager"<<endl;
+	TextureLoader::getInstance().update();
+
+	cleanupCache();
+}
+
+void ResourceManager::textureLoaded(ResourceData * data, GLuint textureId, int taskStatus)
+{
+
+	if (taskStatus > 0)
+		data->TextureState = ResourceState::TextureLoaded;
+	else
+		data->TextureState = ResourceState::Empty;				
+
+	data->textureId = textureId;
+	
+	data->TextureState = ResourceState::TextureLoaded;
+	for (auto it = data->callbacks.begin(); it != data->callbacks.end(); it++)
+	{
+		(*it)->resourceUpdated(data);
+	}
 }

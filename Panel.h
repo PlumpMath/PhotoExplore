@@ -18,7 +18,7 @@ private:
 	
 	TextPanel * textPanel;
 
-	Resource * currentResource;
+	ResourceData * currentResource;
 
 	//_ResourceLoadCallbackType resourceCallback;
 
@@ -52,7 +52,7 @@ public:
 	
 	void elementTapped(ScreenTapGesture tapGesture);
 
-	void resourceUpdated(string resourceId, bool loaded);
+	void resourceUpdated(ResourceData * data);
 
 	void drawPanel(Vector drawPosition, float drawWidth, float drawHeight);
 

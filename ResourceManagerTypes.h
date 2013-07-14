@@ -3,62 +3,74 @@
 
 #include <boost/function.hpp>
 #include <opencv2/opencv.hpp>
+#include "GLImport.h"
 
 typedef float _PriorityType;
 typedef int ResourceType;
 typedef int LevelOfDetail;
 
+using namespace std;
 
 #define LowestPriority 100
 
+struct ResourceData;
 
 struct IResourceWatcher {
 
-	virtual void resourceUpdated(std::string resourceId, bool loaded) = 0;
+	virtual void resourceUpdated(ResourceData * data) = 0;
 
 };
 
-class TextDefinition {
+
+namespace ResourceState
+{
+	const static int ImageLoading = 1;
+	const static int ImageLoaded = 2;
+	const static int ImageLoadError = -1;
+
+	const static int TextureLoading = 1;
+	const static int TextureLoaded = 2;
+	const static int TextureLoadError = -1;
+
+	const static int Empty = 0;
+}
+
+struct ResourceData
+{	
+	const string resourceId, imageURI;
+	float priority;
+	cv::Mat image;	
+	GLuint textureId;	
+	set<IResourceWatcher*> callbacks;	
+
+	int ImageState;
+	int TextureState;
+
+	ResourceData(string _resourceId, float _priority, string _imageURI) :
+		resourceId(_resourceId),
+		priority(_priority),
+		imageURI(_imageURI)
+	{
+
+	}
 	
-private:
-	std::string key;
-
-public:	
-	const std::string text;
-	const Color textColor;
-	const float fontSize;
-	const cv::Size2f textWrapSize;
-
-	TextDefinition() : 
-		fontSize(0)
-	{		
-	}
-
-	TextDefinition(TextDefinition & copy) : 
-		text(copy.text),
-		textColor(copy.textColor),
-		fontSize(copy.fontSize),
-		textWrapSize(copy.textWrapSize),
-		key(copy.key)
-	{		
-	}
-
-	TextDefinition(std::string _text, Color _textColor, float _textSize, cv::Size2f _textWrapSize) :
-		text(_text),
-		textColor(_textColor),
-		fontSize(_textSize),
-		textWrapSize(_textWrapSize)
+	ResourceData(string _resourceId, float _priority, cv::Mat & _image) :
+		resourceId(_resourceId),
+		priority(_priority),
+		image(_image)
 	{
-		std::stringstream ss;
-		ss << _text << _textColor.idValue() << _textSize << _textWrapSize.width << _textWrapSize.height;
-		key = ss.str();
+
 	}
 
-public:
-	std::string getKey()
+	ResourceData(string _resourceId, float _priority, cv::Mat & _image, GLuint _textureId) :
+		resourceId(_resourceId),
+		priority(_priority),
+		image(_image),
+		textureId(_textureId)
 	{
-		return key;
+
 	}
+		
 };
 
 
