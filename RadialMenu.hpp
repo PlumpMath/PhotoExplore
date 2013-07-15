@@ -61,8 +61,8 @@ public:
 
 	float getZValue();
 
-	void setVisible(bool visible);
 	void show();
+	void dismiss();
 	
 	void draw();
 

@@ -14,6 +14,8 @@ FriendDetailView::FriendDetailView()
 	photoLoadCount = albumLoadCount = 0;
 	albumLoadTarget = photoLoadTarget = 0;
 
+	lastUpdatePos = 1000;
+
 	rowCount = GlobalConfig::tree()->get<int>("FriendDetailView.RowCount");
 
 	mainLayout = new CustomGrid(gridDefinition);	
@@ -22,11 +24,6 @@ FriendDetailView::FriendDetailView()
 
 	mainLayout->addChild(itemScroll);
 
-	itemScroll->visibleRectChangedListener = [this](Vector newPos,cv::Size2f visibleSize){
-		
-		//this->updateLoading(newPos,visibleSize,false);
-	};
-	
 	imageDetailView = new ImageDetailView();
 	imageDetailView->setVisible(false);
 	imageDetailView->setFinishedCallback([this](string a){
@@ -61,57 +58,121 @@ FriendDetailView::FriendDetailView()
 }
 
 
-void FriendDetailView::updateLoading(Vector newPos,cv::Size2f visibleSize, bool updatePriorityOnly)
+void FriendDetailView::loadItems(int albums, int photos)
 {
-	float leftBound = -newPos.x;
-	float rightBound = -newPos.x + visibleSize.width;
+	int requestedAlbums = activeNode->loadState["albums"].requestedCount;
+	int requestedPhotos = activeNode->loadState["photos"].requestedCount;
+	
+	stringstream loadstr;
+	loadstr << activeNode->getId() << "?fields=";
+	if (albums > requestedAlbums)
+	{
+		activeNode->loadState["albums"].requestedCount = albums;
+		loadstr << "albums.offset(" << requestedAlbums << ").limit(" << albums << ").fields(id,name)";
+	}
+	
+	if (photos > requestedPhotos)
+	{
+		activeNode->loadState["photos"].requestedCount = photos;
+		if (albums > requestedAlbums)loadstr << ",";
+		loadstr << "photos.offset(" << requestedPhotos << ").limit(" << photos << ").fields(id,name,images)";
+	}
+
+	FriendDetailView * v = this;
+	FBDataSource::instance->loadField(activeNode,loadstr.str(),"",[v](FBNode * _node){
+			
+		FriendDetailView * v2 = v;
+		v->postTask([v2,_node](){
+			
+			if (v2->activeNode == _node)
+				v2->updateLoading();
+		});
+	});
+}
+
+
+
+void FriendDetailView::updateLoading()
+{
+	float scrollPosition = itemScroll->getFlyWheel()->getPosition();
+	cv::Size2f visibleSize = itemScroll->getMeasuredSize();
+
+	lastUpdatePos = -scrollPosition;
+
+	float leftBound = -scrollPosition;
+	float rightBound = -scrollPosition + visibleSize.width;
 
 	float itemWidth = 400;
 		
 	cv::Size2f s = imageGroup->getMeasuredSize();
+	Timer loadingTimer;
+	loadingTimer.start();
 
-	if (!updatePriorityOnly)
+	int loadMore = 0;
+	float remainingPixels =  currentRightBoundary - rightBound;
+	if (remainingPixels < (itemWidth * 1.0f))
 	{
-		float remainingPixels =  projectedRightBoundary - rightBound;
-		if (remainingPixels < (itemWidth * 1.0f))
+		loadMore = rowCount * 2;
+		if (remainingPixels < 0)
+			loadMore += ceilf(-remainingPixels/itemWidth)*rowCount;
+
+		int itemCount = imageGroup->getChildren()->size() + loadMore;
+
+		int availablePhotos = activeNode->Edges.get<EdgeTypeIndex>().count("photos");
+		int availableAlbums = activeNode->Edges.get<EdgeTypeIndex>().count("albums");
+
+		//if (itemCount > (availableAlbums + availablePhotos))
+		auto photoNodes = activeNode->Edges.get<EdgeTypeIndex>().equal_range("photos");
+		auto albumNodes = activeNode->Edges.get<EdgeTypeIndex>().equal_range("albums");
+		
+		while (items.size() < itemCount)
 		{
-			bool load = false;
-					
-			int loadMore = rowCount * 2;
-			if (remainingPixels < 0)
-				loadMore += ceilf(-remainingPixels/itemWidth)*rowCount;
-
-			NodeQuerySpec querySpec(2);		
-
-			projectedRightBoundary =  (itemWidth * ceilf((float)loadMore/(float)rowCount)) + projectedRightBoundary;						
-			Logger::stream("FriendDetailView","INFO") << "RightBound=" << rightBound << " RightProj = " << projectedRightBoundary << " LoadMore= " << loadMore << " remainingPixels=" << remainingPixels << endl;
-			
-			if (albumLoadCount + loadMore > albumLoadTarget)
+			bool loaded = false;
+			if (photoNodes.first != photoNodes.second)
 			{
-				albumLoadTarget = albumLoadCount+loadMore;
-				load = true;
-				querySpec.layers[0].insert(make_pair("albums",SelectionConfig(albumLoadTarget,albumLoadCount,true)));
-				querySpec.layers[1].insert(make_pair("photos",SelectionConfig(4,0,false)));
+				addNode(photoNodes.first->Node);
+				photoNodes.first++;
+				loaded = true;
 			}
 
-			if (photoLoadCount + loadMore > photoLoadTarget)
+			if (albumNodes.first != albumNodes.second)
 			{
-				photoLoadTarget = photoLoadCount+loadMore;
-				load = true;
-				querySpec.layers[0].insert(make_pair("photos",SelectionConfig(photoLoadTarget,photoLoadCount,true)));
+				addNode(albumNodes.first->Node);
+				albumNodes.first++;
+				loaded = true;
 			}
 
-			if (load)
+			if (!loaded)
 			{
-				bool loadStarted;
-				viewChanged(1,DataViewGenerator::getInstance()->getDataView(activeNode,querySpec,[this](vector<FBNode*> & viewData){ this->viewChanged(1,viewData);},loadStarted));	
-				if (loadStarted)
+				int loadAlbums = 0, loadPhotos = 0;
+				if (!activeNode->edgeLimitReached("albums"))
 				{
+					loadAlbums = 25 + availableAlbums;
+				}
 
-				}		
+				if (!activeNode->edgeLimitReached("photos"))
+				{
+					loadPhotos = 25 + availablePhotos;
+				}
+
+				if (loadAlbums > 0 || loadPhotos > 0)
+				{
+					loadItems(loadAlbums,loadPhotos);
+					itemScroll->setDrawLoadingIndicator(2,Colors::HoloBlueBright);
+				}
+				else
+					itemScroll->setDrawLoadingIndicator(1,Colors::DarkRed);
+
+				break;
 			}
-		}
+		}						
+		//Logger::stream("FriendDetailView","INFO") << "RightBound=" << rightBound << " RightProj = " << projectedRightBoundary << " LoadMore= " << loadMore << " remainingPixels=" << remainingPixels << endl;
 	}
+
+	if (loadingTimer.millis() > 0)
+		Logger::stream("FriendDetailView","TIME") << "Count = " << imageGroup->getChildren()->size() << ". Item loading: " << loadingTimer.millis() << " ms" << endl;
+
+	loadingTimer.start();
 	
 	float peakPriority = (itemScroll->getMeasuredSize().width*.5f) - itemScroll->getFlyWheel()->getPosition();
 	peakPriority -= itemScroll->getFlyWheel()->getVelocity() * GlobalConfig::tree()->get<float>("FriendDetailView.ScrollAheadTime");
@@ -133,6 +194,9 @@ void FriendDetailView::updateLoading(Vector newPos,cv::Size2f visibleSize, bool 
 			ap->setChildDataPriority(targetPriority);
 		}
 	}
+	
+	if (loadingTimer.millis() > 0)
+		Logger::stream("FriendDetailView","TIME")  << "Count = " << imageGroup->getChildren()->size() << ". Priority assignment: " << loadingTimer.millis() << " ms" << endl;
 }
 
 bool FriendDetailView::onLeapGesture(const Controller & controller, const Gesture & gesture)
@@ -157,7 +221,8 @@ void FriendDetailView::show(FBNode * root)
 {	
 	topView = mainLayout;
 	topView->setVisible(true);
-	projectedRightBoundary= 0;
+	currentRightBoundary= 0;
+	items.clear();
 		
 	PointableElementManager::getInstance()->requestGlobalGestureFocus(this);
 	
@@ -184,8 +249,6 @@ void FriendDetailView::show(FBNode * root)
 	
 	imageGroup->clearChildren();
 	albumLoadTarget = albumLoadCount = photoLoadCount = photoLoadTarget = 0;
-	
-	//updateLoading(Vector(),cv::Size2f(3000,1000),false);
 }
 
 void FriendDetailView::albumPanelClicked(FBNode * clicked)
@@ -245,12 +308,11 @@ void FriendDetailView::onGlobalGesture(const Controller & controller, std::strin
 	}
 }
 
-void FriendDetailView::viewChanged(int offset, vector<FBNode*> & viewData)
+void FriendDetailView::addNode(FBNode * node)
 {
-	Logger::stream("FriendDetailView","INFO") << "Adding " << viewData.size() << " items " << endl;
-	for (auto it = viewData.begin(); it != viewData.end(); it++)
+	if (items.count(node->getId()) == 0)
 	{
-		FBNode * node = (*it);
+		items.insert(make_pair(node->getId(),node));
 		View * item = ViewOrchestrator::getInstance()->requestView(node->getId(),this);
 
 		if (item == NULL)
@@ -282,7 +344,7 @@ void FriendDetailView::viewChanged(int offset, vector<FBNode*> & viewData)
 				p->setClickable(true);
 				p->setLayoutParams(LayoutParams(cv::Size2f(),cv::Vec4f(5,5,5,5)));
 				item->elementClickedCallback = [this,p](LeapElement * clicked){
-					
+
 					this->itemScroll->getFlyWheel()->impartVelocity(0);
 					this->imageDetailView->setImagePanel(p);
 					this->imageDetailView->setVisible(true);						
@@ -313,24 +375,16 @@ void FriendDetailView::viewChanged(int offset, vector<FBNode*> & viewData)
 					albumLoadCount++;
 			}
 		}
+		layoutDirty = true;		
+		float itemWidth = 400;
+		if (!imageGroup->getChildren()->empty())
+		{
+			itemWidth = imageGroup->getChildren()->at(0)->getMeasuredSize().width;
+			if (itemWidth == 0)
+				itemWidth = 400;
+		}
+		currentRightBoundary =  (itemWidth * ceilf((float)(imageGroup->getChildren()->size())/(float)rowCount));		
 	}
-
-	float itemWidth = 400;
-	if (!imageGroup->getChildren()->empty())
-	{
-		itemWidth = imageGroup->getChildren()->at(0)->getMeasuredSize().width;
-		if (itemWidth == 0)
-			itemWidth = 400;
-	}
-
-	currentRightBoundary = (float)(albumLoadCount + photoLoadCount) * itemWidth/3.0f;
-	projectedRightBoundary = max<float>(projectedRightBoundary,currentRightBoundary);
-	Logger::stream("FriendDetailView","INFO") << "Current imageGroup size : " << currentRightBoundary << endl;
-
-	//double pos = itemScroll->getFlyWheel()->getPosition();
-	//updateLoading(Vector((float)pos,0,0),itemScroll->getMeasuredSize(),true);
-
-	layoutDirty = true;
 }
 
 void FriendDetailView::layout(Vector position, cv::Size2f size)
@@ -346,12 +400,14 @@ void FriendDetailView::layout(Vector position, cv::Size2f size)
 }
 
 void FriendDetailView::update()
-{
+{	
 	ViewGroup::update();
 
-	double pos = itemScroll->getFlyWheel()->getPosition();
-	imageDetailView->notifyOffsetChanged(Vector((float)pos,0,0));
-	updateLoading(Vector((float)pos,0,0),itemScroll->getMeasuredSize(),false);
+	float pos = (float)itemScroll->getFlyWheel()->getPosition();
+	imageDetailView->notifyOffsetChanged(Vector(pos,0,0));
+	
+	if (abs(lastUpdatePos - (-pos)) > 50)
+		updateLoading();
 }
 
 void FriendDetailView::onFrame(const Controller & controller)

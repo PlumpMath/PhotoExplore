@@ -60,22 +60,21 @@ bool TextPanel::getTextEnabled()
 
 void TextPanel::reloadText()
 {		
-	//if (currentDefinition != NULL)
-	//{
-	//	//ResourceManager::getInstance().releaseTextResource(*currentDefinition,this);
-	//	delete currentDefinition;
-	//	currentDefinition = NULL;
-	//}
-
 	cv::Size2f textureSize(this->lastSize.width-textFitPadding*2,this->lastSize.height-textFitPadding*2);
-	//TextDefinition * currentDefinition = new 
 	TextDefinition td(text, textColor, textSize, textureSize);
 
-	currentTextImage = TypographyManager::getInstance()->renderText(text,textColor,textSize,textureSize);	
-	if (currentTextImage.data != NULL)
+	ResourceData * textResource = ResourceManager::getInstance().watchResource(td.getKey(),this);	
+	if (textResource == NULL)
 	{
-		ResourceManager::getInstance().loadResource(td.getKey(),currentTextImage,0,this);
+		currentTextImage = TypographyManager::getInstance()->renderText(text,textColor,textSize,textureSize);	
+		if (currentTextImage.data != NULL)
+		{
+			ResourceManager::getInstance().loadResource(td.getKey(),currentTextImage,-1,this);
+		}
 	}
+	else if (textResource->TextureState == ResourceState::TextureLoaded)
+		currentTextureId = textResource->textureId;
+
 	textDirty = false;
 }
 

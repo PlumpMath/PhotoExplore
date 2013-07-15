@@ -49,6 +49,9 @@ int TextureLoadTask::getState()
 
 void TextureLoadTask::cancel()
 {	
+	//if (textureInfo.textureId != NULL)
+	//	TexturePool::getInstance().releaseTexture(textureInfo.textureId);
+
 	state = Error;
 	cleanup();
 }
@@ -65,7 +68,8 @@ void TextureLoadTask::update()
 		initializeTexture();
 		break;
 	case LoadingBuffer:
-		copyMemoryToBuffer();
+		//copyMemoryToBuffer();
+		copyMemoryToBuffer_TM_update();
 		break;
 	case BufferLoaded:
 		copyBufferToTexture();	
@@ -117,10 +121,12 @@ void TextureLoadTask::initializeTexture()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glBindTexture(GL_TEXTURE_2D, NULL);
 		
-	//Logger::stream("TextureLoadTask","INFO") << "Initialized texture. TexID = " << textureInfo.textureId << " W= " << textureInfo.width << " H = " << textureInfo.height << endl;;
 	OpenGLHelper::LogOpenGLErrors("TextureLoadTask-initializeTexture");
 
 	//LeapDebug::out << "[" << Timer::frameId << "] Initialized TEX[" << textureInfo.textureId << "] in " << initTimer.millis() << "ms \n";
+
+	if (initTimer.millis() > 2)
+		Logger::stream("TextureLoadTask","INFO") << "Initialized texture. Took " << initTimer.millis() << " ms. TexID = " << textureInfo.textureId << " W= " << textureInfo.width << " H = " << textureInfo.height << endl;
 
 	dataLoaded = 0;
 	copyMemoryToBuffer_TM_start();
@@ -140,7 +146,8 @@ void TextureLoadTask::copyBufferToTexture()
 	glBindBufferARB(GL_PIXEL_UNPACK_BUFFER_ARB,NULL);
 
 	
-	//Logger::stream("TextureLoadTask","INFO") << "Copied to texture. TexID = " << textureInfo.textureId << endl;
+	if (timer.millis() > 2)
+		Logger::stream("TextureLoadTask","INFO") << "Copied to texture. TexID = " << textureInfo.textureId << " Took " << timer.millis() << " ms" << endl;
 	
 	state  = Waiting;
 }
@@ -167,7 +174,10 @@ void TextureLoadTask::copyMemoryToBuffer_TM_update()
 		state = BufferLoaded;
 		OpenGLHelper::LogOpenGLErrors("TextureLoadTask-copyMemoryToBuffer_TM_update");
 	}
-	//if (memTimer.millis() > 2)
+	if (memTimer.millis() > 2)
+		Logger::stream("TextureLoadTask","INFO") << "TimeMultiplexed update took " << memTimer.millis() << " ms " << endl;
+
+
 	//LeapDebug::out  << "[" << Timer::frameId << "] - TEX["<< textureInfo.textureId << "] from MEM to PBO[" << sourceBuffer << "]  in " << memTimer.millis() << "ms, @ " << ((loadCount/1048576)/memTimer.seconds()) << " MB/s \n";	
 }
 
@@ -192,10 +202,11 @@ void TextureLoadTask::copyMemoryToBuffer_TM_start()
 	}
 	else
 	{
-		//Logger::stream("TextureLoadTask","ERROR") << "copyMemoryToBuffer_TM_start - Couldn't access pixel buffer. ID = " << sourceBuffer << endl;
+		Logger::stream("TextureLoadTask","ERROR") << "copyMemoryToBuffer_TM_start - Couldn't access pixel buffer. ID = " << sourceBuffer << endl;
 		cancel();
 	}
-	//LeapDebug::out  << "[" << Timer::frameId << "] Prepared to copy TEX["<< textureInfo.textureId << "] from MEM to PBO[" << sourceBuffer << "] in " << memTimer.millis() << "ms \n";
+	if (memTimer.millis() > 2)
+		Logger::stream("TextureLoadTask","TIME") << "Initialized buffer in " << memTimer.millis() << " ms" << endl;
 }
 
 

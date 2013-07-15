@@ -38,7 +38,10 @@ LeapDebug::LeapDebug(HandProcessor * handProcessor)
 	Color labelColor = Colors::White;
 	auto labels = GlobalConfig::tree()->get_child("Tutorial.Labels");
 
-	Color backgroundColor = Colors::SteelBlue.withAlpha(.4f);
+	auto colorConfig = GlobalConfig::tree()->get_child("Tutorial.Background");
+	Color backgroundColor = Color(colorConfig.get<int>("R"),colorConfig.get<int>("G"),colorConfig.get<int>("B"),colorConfig.get<int>("A"));
+
+	float tutorialTextSize = labels.get<float>("FontSize");
 
 	ImagePanel  * shakeGesturePanel_img = new ImagePanel(p.get<string>("ShakeGesture"));
 	shakeGesturePanel_img->setBackgroundColor(backgroundColor);
@@ -46,7 +49,7 @@ LeapDebug::LeapDebug(HandProcessor * handProcessor)
 	TextPanel  * shakeGesturePanel_text = new TextPanel(labels.get<string>("ShakeGesture"));
 	shakeGesturePanel_text->setTextColor(labelColor);
 	shakeGesturePanel_text->setBackgroundColor(backgroundColor);
-	shakeGesturePanel_text->setTextSize(8);
+	shakeGesturePanel_text->setTextSize(tutorialTextSize);
 	
 	ImagePanel  * swipeGesturePanel_img = new ImagePanel(p.get<string>("SwipeGesture"));
 	swipeGesturePanel_img->setBackgroundColor(backgroundColor);
@@ -54,6 +57,7 @@ LeapDebug::LeapDebug(HandProcessor * handProcessor)
 	TextPanel  * swipeGesturePanel_text = new TextPanel(labels.get<string>("SwipeGesture"));
 	swipeGesturePanel_text->setTextColor(labelColor);
 	swipeGesturePanel_text->setBackgroundColor(backgroundColor);
+	swipeGesturePanel_text->setTextSize(tutorialTextSize);
 
 	ImagePanel  * pointGesturePanel_img = new ImagePanel(p.get<string>("PointGesture"));
 	pointGesturePanel_img->setBackgroundColor(backgroundColor);
@@ -61,7 +65,7 @@ LeapDebug::LeapDebug(HandProcessor * handProcessor)
 	TextPanel  * pointGesturePanel_text = new TextPanel(labels.get<string>("PointGesture"));
 	pointGesturePanel_text->setTextColor(labelColor);
 	pointGesturePanel_text->setBackgroundColor(backgroundColor);
-	pointGesturePanel_text->setTextSize(8);
+	pointGesturePanel_text->setTextSize(tutorialTextSize);
 
 	ImagePanel  * pointStopGesturePanel_img = new ImagePanel(p.get<string>("PointStopGesture"));
 	pointStopGesturePanel_img->setBackgroundColor(backgroundColor);
@@ -69,6 +73,8 @@ LeapDebug::LeapDebug(HandProcessor * handProcessor)
 	TextPanel  * pointStopGesturePanel_text = new TextPanel(labels.get<string>("PointStopGesture"));
 	pointStopGesturePanel_text->setTextColor(labelColor);
 	pointStopGesturePanel_text->setBackgroundColor(backgroundColor);
+	pointStopGesturePanel_text->setTextSize(tutorialTextSize);
+
 
 	ImagePanel  * stretchGesturePanel_img = new ImagePanel(p.get<string>("StretchGesture"));
 	stretchGesturePanel_img->setBackgroundColor(backgroundColor);
@@ -76,6 +82,8 @@ LeapDebug::LeapDebug(HandProcessor * handProcessor)
 	TextPanel  * stretchGesturePanel_text = new TextPanel(labels.get<string>("StretchGesture"));
 	stretchGesturePanel_text->setTextColor(labelColor);
 	stretchGesturePanel_text->setBackgroundColor(backgroundColor);
+	stretchGesturePanel_text->setTextSize(tutorialTextSize);
+
 			
 	vector<RowDefinition> gridDefinition;	
 	gridDefinition.push_back(RowDefinition(.6f));

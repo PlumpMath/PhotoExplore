@@ -12,12 +12,9 @@ AlbumDetailView::AlbumDetailView()
 	gridDefinition[1].ColumnWidths.push_back(1);
 	mainLayout = new CustomGrid(gridDefinition);
 		
+	rowCount = GlobalConfig::tree()->get<int>("AlbumDetailView.RowCount");
 	imageGroup = new FixedAspectGrid(cv::Size2i(0,2),true);
 	itemScroll = new ScrollingView(imageGroup);
-	itemScroll->visibleRectChangedListener = [this](Vector newPos,cv::Size2f visibleSize){
-		
-		this->updateLoading(newPos,visibleSize,false);
-	};
 
 	mainLayout->addChild(itemScroll);
 
@@ -50,84 +47,185 @@ AlbumDetailView::AlbumDetailView()
 	addChild(imageDetailView);
 	addChild(radialMenu);
 
-	lastPosUpdate = 0;
+	lastUpdatePos = 1000;
 	avgItemWidth = 400;
 	albumName = NULL;
 }
 
 
-void AlbumDetailView::updateLoading(Vector newPos,cv::Size2f visibleSize, bool updatePriorityOnly)
+
+void AlbumDetailView::loadItems(int photos)
 {
-	float leftBound = -newPos.x;
-	float rightBound = -newPos.x + visibleSize.width;
-		
-	cv::Size2f s = imageGroup->getMeasuredSize();
-
-	lastPosUpdate = newPos.x;
+	int requestedPhotos = activeNode->loadState["photos"].requestedCount;
 	
-	if (!updatePriorityOnly)
-	{
-		float newDataPixels = rightBound - s.width;
-		if (newDataPixels > 0)
-		{
-			bool load = false;
-			NodeQuerySpec querySpec(2);				
-		
-			float itemWidth = 300;//s.width / (imageGroup->getChildren()->size() / 3.0f);
-			int loadMore = 2*(newDataPixels/itemWidth);
-			if (photoLoadCount + loadMore > photoLoadTarget)
-			{
-				photoLoadTarget = photoLoadCount+loadMore;
-				//cout << "Loading photos from " << "photoLoadCount" << " to " << photoLoadTarget << endl;
-				load = true;
-				querySpec.layers[0].insert(make_pair("photos",SelectionConfig(photoLoadTarget,photoLoadCount,true)));
-			}
+	stringstream loadstr;
+	loadstr << activeNode->getId() << "?fields=";
 
-			bool isLoading = false;
-			if (load)
-				viewChanged(DataViewGenerator::getInstance()->getDataView(activeNode,querySpec,[this](vector<FBNode*> & viewData){ this->viewChanged(viewData);},isLoading));	
-			if (isLoading)
-				itemScroll->setDrawLoadingIndicator(true,true);
-		}
+	if (photos > requestedPhotos)
+	{
+		activeNode->loadState["photos"].requestedCount = photos;
+		loadstr << "photos.offset(" << requestedPhotos << ").limit(" << photos << ").fields(id,name,images)";
 	}
 
+	AlbumDetailView * v = this;
+	FBDataSource::instance->loadField(activeNode,loadstr.str(),"",[v](FBNode * _node){
+			
+		AlbumDetailView * v2= v;
+		v->postTask([v2,_node](){
+			
+			if (v2->activeNode == _node)
+				v2->updateLoading();
+		});
+		v->updateTaskMutex.unlock();
+	});
+}
+
+
+
+void AlbumDetailView::updateLoading()
+{
+	float scrollPosition = itemScroll->getFlyWheel()->getPosition();
+	cv::Size2f visibleSize = itemScroll->getMeasuredSize();
+
+	lastUpdatePos = -scrollPosition;
+
+	float leftBound = -scrollPosition;
+	float rightBound = -scrollPosition + visibleSize.width;
+
+	float itemWidth = 400;
+		
+	cv::Size2f s = imageGroup->getMeasuredSize();
+	Timer loadingTimer;
+	loadingTimer.start();
+
+	int loadMore = 0;
+	float remainingPixels =  currentRightBoundary - rightBound;
+	if (remainingPixels < (itemWidth * 1.0f))
+	{
+		loadMore = rowCount * 2;
+		if (remainingPixels < 0)
+			loadMore += ceilf(-remainingPixels/itemWidth)*rowCount;
+
+		int itemCount = imageGroup->getChildren()->size() + loadMore;
+
+		int availablePhotos = activeNode->Edges.get<EdgeTypeIndex>().count("photos");
+
+		auto photoNodes = activeNode->Edges.get<EdgeTypeIndex>().equal_range("photos");
+		
+		while (items.size() < itemCount)
+		{
+			if (photoNodes.first != photoNodes.second)
+			{
+				addNode(photoNodes.first->Node);
+				photoNodes.first++;
+			} else 
+			{
+				if (!activeNode->edgeLimitReached("photos"))
+				{
+					int loadPhotos =  GlobalConfig::tree()->get<int>("AlbumDetailView.PhotosPerRequest") + availablePhotos;	
+					loadItems(loadPhotos);
+					itemScroll->setDrawLoadingIndicator(2,Colors::HoloBlueBright);
+				}
+				else
+					itemScroll->setDrawLoadingIndicator(1,Colors::DarkRed);
+
+				break;
+			}
+		}						
+	}
+	
+	loadingTimer.start();
+	
+	float peakPriority = (itemScroll->getMeasuredSize().width*.5f) - itemScroll->getFlyWheel()->getPosition();
+	peakPriority -= itemScroll->getFlyWheel()->getVelocity() * GlobalConfig::tree()->get<float>("AlbumDetailView.ScrollAheadTime");
+	
 	for (auto it = imageGroup->getChildren()->begin(); it != imageGroup->getChildren()->end();it++)
 	{
 		PanelBase * imagePanel = (PanelBase*)(*it);
 		float targetPriority;
-		float leftDist = leftBound - (imagePanel->getPosition().x + imagePanel->getWidth());
-		float rightDist = imagePanel->getPosition().x - rightBound;
 
-		if (itemScroll->getFlyWheel()->getVelocity() < 0)
-		{				
-			if (leftDist > 2000)
-			{
-				targetPriority = leftDist/4000.0f;
-			}
-			else if (rightDist < 2000)
-				targetPriority = 0;
-			else
-				targetPriority = rightDist/4000.0f;
+		float distance = abs((imagePanel->getPosition().x + imagePanel->getWidth()/2.0f) - peakPriority);
 
-		}
-		else
-		{
-			if (rightDist > 2000)
-			{
-				targetPriority = rightDist/4000.0f;
-			}
-			else if (leftDist < 2000)
-				targetPriority = 0;
-			else
-				targetPriority = leftDist/4000.0f;
-
-		}
+		targetPriority = min<float>(10,distance/1000.0f);
 
 		if (dynamic_cast<Panel*>(imagePanel) != NULL)
-			((Panel*)imagePanel)->setDataPriority(targetPriority);			
-	}
+			((Panel*)imagePanel)->setDataPriority(targetPriority);	
+	}	
 }
 
+//
+//void AlbumDetailView::updateLoading(Vector newPos,cv::Size2f visibleSize, bool updatePriorityOnly)
+//{
+//	float leftBound = -newPos.x;
+//	float rightBound = -newPos.x + visibleSize.width;
+//		
+//	cv::Size2f s = imageGroup->getMeasuredSize();
+//
+//	lastPosUpdate = newPos.x;
+//	
+//	if (!updatePriorityOnly)
+//	{
+//		float newDataPixels = rightBound - s.width;
+//		if (newDataPixels > 0)
+//		{
+//			bool load = false;
+//			NodeQuerySpec querySpec(2);				
+//		
+//			float itemWidth = 300;//s.width / (imageGroup->getChildren()->size() / 3.0f);
+//			int loadMore = 2*(newDataPixels/itemWidth);
+//			if (photoLoadCount + loadMore > photoLoadTarget)
+//			{
+//				photoLoadTarget = photoLoadCount+loadMore;
+//				//cout << "Loading photos from " << "photoLoadCount" << " to " << photoLoadTarget << endl;
+//				load = true;
+//				querySpec.layers[0].insert(make_pair("photos",SelectionConfig(photoLoadTarget,photoLoadCount,true)));
+//			}
+//
+//			bool isLoading = false;
+//			if (load)
+//				viewChanged(DataViewGenerator::getInstance()->getDataView(activeNode,querySpec,[this](vector<FBNode*> & viewData){ this->viewChanged(viewData);},isLoading));	
+//			//if (isLoading)
+//				//itemScroll->setDrawLoadingIndicator();
+//		}
+//	}
+//
+//	for (auto it = imageGroup->getChildren()->begin(); it != imageGroup->getChildren()->end();it++)
+//	{
+//		PanelBase * imagePanel = (PanelBase*)(*it);
+//		float targetPriority;
+//		float leftDist = leftBound - (imagePanel->getPosition().x + imagePanel->getWidth());
+//		float rightDist = imagePanel->getPosition().x - rightBound;
+//
+//		if (itemScroll->getFlyWheel()->getVelocity() < 0)
+//		{				
+//			if (leftDist > 2000)
+//			{
+//				targetPriority = leftDist/4000.0f;
+//			}
+//			else if (rightDist < 2000)
+//				targetPriority = 0;
+//			else
+//				targetPriority = rightDist/4000.0f;
+//
+//		}
+//		else
+//		{
+//			if (rightDist > 2000)
+//			{
+//				targetPriority = rightDist/4000.0f;
+//			}
+//			else if (leftDist < 2000)
+//				targetPriority = 0;
+//			else
+//				targetPriority = leftDist/4000.0f;
+//
+//		}
+//
+//		if (dynamic_cast<Panel*>(imagePanel) != NULL)
+//			((Panel*)imagePanel)->setDataPriority(targetPriority);			
+//	}
+//}
+//
 
 //void AlbumDetailView::updateLoading(Vector newPos,cv::Size2f visibleSize, bool updatePriorityOnly)
 //{
@@ -231,11 +329,11 @@ void AlbumDetailView::show(FBNode * node)
 		ViewOrchestrator::getInstance()->registerView(node->getId() + "/name",albumName,this);
 	}
 
-	photoLoadCount = photoLoadTarget = 0;
+	items.clear();
 	imageGroup->clearChildren();
 	mainLayout->getChildren()->insert(mainLayout->getChildren()->begin(),albumName);
 
-	updateLoading(Vector(),cv::Size2f(3000,0), false);
+	updateLoading();
 }
 
 FBNode * AlbumDetailView::getNode()
@@ -243,46 +341,38 @@ FBNode * AlbumDetailView::getNode()
 	return activeNode;
 }
 
-void AlbumDetailView::viewChanged(vector<FBNode*> & viewData)
+void AlbumDetailView::addNode(FBNode * node)
 {
-	//itemScroll->setDrawLoadingIndicator(false,false);
-	for (auto it = viewData.begin(); it != viewData.end(); it++)
+	if (items.count(node->getId()) == 0)
 	{
-		FBNode * node = (*it);
-		if (node->getNodeType().compare("photos") == 0)
-		{		
-			View * v= ViewOrchestrator::getInstance()->requestView(node->getId(), this);
+		View * v= ViewOrchestrator::getInstance()->requestView(node->getId(), this);
 
-			Panel * item = NULL;
-			if (v == NULL)
-			{
-				item = new Panel(0,0);
-				item->setNode(node);
-				//item->setDataPriority(0);
-				ViewOrchestrator::getInstance()->registerView(node->getId(),item, this);
-			}
-			else
-			{
-				item = dynamic_cast<Panel*>(v);
-			}
-
-			item->setLayoutParams(LayoutParams(cv::Size2f(),cv::Vec4f(5,5,5,5)));
-			item->setClickable(true);
-			item->setVisible(true);
-			
-			item->elementClickedCallback = [this,item](LeapElement * clicked){
-				this->imageDetailView->setImagePanel(item);										
-				imageDetailView->setVisible(true);
-				this->itemScroll->getFlyWheel()->impartVelocity(0);
-				PointableElementManager::getInstance()->requestGlobalGestureFocus(this->imageDetailView);
-				this->layoutDirty = true;			
-			};
-
-			if (imageGroup->addChild(item))
-				photoLoadCount++;
+		Panel * item = NULL;
+		if (v == NULL)
+		{
+			item = new Panel(0,0);
+			item->setNode(node);
+			ViewOrchestrator::getInstance()->registerView(node->getId(),item, this);
 		}
-	}	
-	layoutDirty = true;
+		else
+		{
+			item = dynamic_cast<Panel*>(v);
+		}
+
+		item->setLayoutParams(LayoutParams(cv::Size2f(),cv::Vec4f(5,5,5,5)));
+		item->setClickable(true);
+		item->setVisible(true);
+
+		item->elementClickedCallback = [this,item](LeapElement * clicked){
+			this->imageDetailView->setImagePanel(item);										
+			imageDetailView->setVisible(true);
+			this->itemScroll->getFlyWheel()->impartVelocity(0);
+			PointableElementManager::getInstance()->requestGlobalGestureFocus(this->imageDetailView);
+			this->layoutDirty = true;			
+		};
+
+		layoutDirty = true;
+	}
 }
 
 void AlbumDetailView::layout(Vector position, cv::Size2f size)
@@ -298,9 +388,6 @@ void AlbumDetailView::layout(Vector position, cv::Size2f size)
 	{
 		radialMenu->layout(position,size);
 		mainLayout->layout(position,size);
-		
-		double pos = itemScroll->getFlyWheel()->getPosition();
-		updateLoading(Vector((float)pos,0,0),itemScroll->getMeasuredSize(),false);
 	}
 	layoutDirty = false;
 
@@ -314,8 +401,8 @@ void AlbumDetailView::update()
 	double pos = itemScroll->getFlyWheel()->getPosition();
 	imageDetailView->notifyOffsetChanged(Vector((float)pos,0,0));
 	
-	if (abs(pos - lastPosUpdate) > 1000)
-		updateLoading(Vector((float)pos,0,0),itemScroll->getMeasuredSize(), false);
+	if (abs(pos - lastUpdatePos) > 100)
+		updateLoading();
 
 }
 

@@ -127,7 +127,7 @@ void RadialMenu::itemClicked(string id)
 {
 	if (ItemClickedCallback(id))
 	{
-		this->setVisible(false);
+		dismiss();
 	}	
 }
 
@@ -135,31 +135,34 @@ void RadialMenu::layout(Vector pos, cv::Size2f size)
 {
 	this->lastPosition = pos;
 	this->lastSize = size;
-	
-	//float layoutRadius = size.height *.35f;
-	float layoutHeight;
-	if (!visible)
-		layoutHeight = 10;
-	else
-		layoutHeight = size.height*.12f;
 
-	//float angle = (Leap::PI/2.0)*.6f;
-	cv::Size2f childSize = cv::Size2f(size.width * .4f,layoutHeight);
+	if (state == MenuState_DisplayFull)
+	{
+		float layoutHeight;
+		if (!visible)
+			layoutHeight = 10;
+		else
+			layoutHeight = size.height*.12f;
 
-	Vector center = pos+Vector(size.width*.5f,size.height*.5f,0);
-	float offset = -1;
-	float spacing = childSize.height*1.2f;
+		cv::Size2f childSize = cv::Size2f(size.width * .4f,layoutHeight);
 
-	for (auto it = children.begin(); it != children.end(); it++)
-	{			
-		(*it)->layout(center + Vector(-childSize.width/2.0f,offset*spacing,0),childSize);
-		offset += 1.0f;
+		Vector center = pos+Vector(size.width*.5f,size.height*.5f,0);
+		float offset = -1;
+		float spacing = childSize.height*1.2f;
+
+		for (auto it = children.begin(); it != children.end(); it++)
+		{			
+			(*it)->layout(center + Vector(-childSize.width/2.0f,offset*spacing,0),childSize);
+			offset += 1.0f;
+		}
+		rootView->layout(pos,size);
 	}
-
-	cv::Size2f menuButtonSize = cv::Size2f(size.width*.15f,size.height*.1f);
-	menuLaunchButton->layout(Vector(size.width - menuButtonSize.width,size.height - menuButtonSize.height,10) + pos,menuButtonSize);
-
-	rootView->layout(pos,size);
+	else if (state == MenuState_ButtonOnly) 
+	{
+		cv::Size2f menuButtonSize = cv::Size2f(size.width*.15f,size.height*.1f);
+		menuLaunchButton->layout(Vector(size.width - menuButtonSize.width,size.height - menuButtonSize.height,10) + pos,menuButtonSize);
+	}
+	this->layoutDirty = false;
 }
 
 void RadialMenu::show()
@@ -167,6 +170,16 @@ void RadialMenu::show()
 	state = MenuState_DisplayFull;
 	PointableElementManager::getInstance()->requestGlobalGestureFocus(this);
 	GraphicsContext::getInstance().setBlurEnabled(true);
+	menuLaunchButton->setVisible(false);
+	layout(lastPosition,lastSize);
+}
+
+void RadialMenu::dismiss()
+{
+	state = MenuState_ButtonOnly;
+	PointableElementManager::getInstance()->releaseGlobalGestureFocus(this);
+	GraphicsContext::getInstance().setBlurEnabled(false);	
+	menuLaunchButton->setVisible(true);
 	layout(lastPosition,lastSize);
 }
 
@@ -174,15 +187,14 @@ void RadialMenu::onGlobalGesture(const Controller & controller, std::string gest
 {
 	if (gestureType.compare("shake") == 0)
 	{
-		state = MenuState_ButtonOnly;
-		PointableElementManager::getInstance()->releaseGlobalGestureFocus(this);
-		GraphicsContext::getInstance().setBlurEnabled(false);		
+		dismiss();
 	}
 }
 
 bool RadialMenu::onLeapGesture(const Controller & controller, const Gesture & gesture)
 {
-	if (gesture.type() == Gesture::Type::TYPE_SWIPE && (gesture.state() == Gesture::State::STATE_UPDATE|| gesture.state() == Gesture::State::STATE_UPDATE))
+	if (GlobalConfig::tree()->get<bool>("Menu.AllowSwipeDownExit") && 
+		(gesture.type() == Gesture::Type::TYPE_SWIPE && (gesture.state() == Gesture::State::STATE_UPDATE|| gesture.state() == Gesture::State::STATE_UPDATE)))
 	{
 		SwipeGesture swipe(gesture);
 
@@ -199,11 +211,6 @@ void RadialMenu::getTutorialDescriptor(vector<string> & tutorial)
 {
 	tutorial.push_back("shake");
 	tutorial.push_back("point");
-}
-
-void RadialMenu::setVisible(bool _visible)
-{
-	View::setVisible(_visible);
 }
 
 void RadialMenu::draw()
@@ -223,7 +230,6 @@ void RadialMenu::draw()
 	{
 		menuLaunchButton->draw();
 	}
-
 
 }
 

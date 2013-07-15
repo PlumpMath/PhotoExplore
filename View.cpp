@@ -34,6 +34,15 @@ void View::measure(cv::Size2f & size)
 
 void View::update()
 {
+	
+	updateTaskMutex.lock();
+	while (!updateThreadTasks.empty())
+	{
+		updateThreadTasks.front()();
+		updateThreadTasks.pop();
+	}
+	updateTaskMutex.unlock();
+
 	if (layoutDirty)
 	{
 		if (lastSize.width != 0 && lastSize.height != 0)
@@ -62,6 +71,13 @@ cv::Size2f View::getMeasuredSize()
 Leap::Vector View::getLastPosition()
 {
 	return this->lastPosition;
+}
+
+void View::postTask(boost::function<void()> task)
+{
+	updateTaskMutex.lock();
+	updateThreadTasks.push(task);
+	updateTaskMutex.unlock();
 }
 
 //ViewGroup implementation

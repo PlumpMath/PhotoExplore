@@ -27,6 +27,8 @@ private:
 	cv::Size2f lastContentSize;
 
 	void drawLoadIndicator(float offset, float thickness);
+	Color loadIndicatorColor;
+	int loadIndicatorMode;
 
 public:	
 	const static ScrollOrientation Horizontal = 2;
@@ -56,7 +58,7 @@ public:
 	bool onLeapGesture(const Controller & controller, const Gesture & gesture);	
 	void onGlobalGesture(const Controller & controller, std::string gestureType);
 
-	void setDrawLoadingIndicator(bool negative, bool positive);
+	void setDrawLoadingIndicator(int mode, Color indicatorColor);
 
 };
 

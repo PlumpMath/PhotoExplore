@@ -19,12 +19,18 @@ private:
 
 	ScrollingView * itemScroll;
 
-	void updateLoading(Vector newPos, cv::Size2f newSize);
-	int friendLoadCount, friendLoadTarget;
+	int rowCount;
+	float currentRightBoundary,lastUpdatePos;
 
 	FBNode * activeNode;
 
 	RadialMenu * radialMenu;
+
+	void loadItems(int friends);
+	void updateLoading();
+	void addNode(FBNode * node);
+
+	map<string,FBNode*> items;
 
 public:
 	FacebookFriendListView();
@@ -37,6 +43,7 @@ public:
 
 	void onFrame(const Controller & controller);
 	void layout(Vector position, cv::Size2f size);		
+	void update();
 
 	void onGlobalGesture(const Controller & controller, std::string gestureType);
 	bool onLeapGesture(const Controller & controller, const Gesture & gesture);

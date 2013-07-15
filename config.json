@@ -6,9 +6,13 @@
 		"OverrideWidth" : 1280,
 		"OverrideHeight" : 720
 	},
+	"Cef" : 
+	{
+		"PersistentCookiesEnabled" : false
+	},
 	"TextureLoading" :
 	{
-		"MaxConcurrentTasks" : 10,
+		"MaxConcurrentTasks" : 2,
 		"PixelBufferCount" : 4,
 		"InitialTextureCount" : 200,
 		"MaxTextureCount" : 400
@@ -26,8 +30,10 @@
 	},
 	"FakeDataMode" : 
 	{
-		"Enable" : false,
-		"SourceDataDirectory" : "C:\\Users\\Adam\\Pictures" 
+		"Enable" : true,
+		"SourceDataDirectory" : "C:\\Users\\Adam\\Pictures\\pixiv-win\\LeapTestImages" ,
+		"RequestDelay" : 2000 ,//ms
+		"MaxPhotos" : 100
 	},
 	"Shake" : 
 	{	
@@ -134,7 +140,21 @@
 	"FriendDetailView" :
 	{ 
 		"ScrollAheadTime" : 0.6 ,//Seconds
-		"RowCount" : 3
+		"RowCount" : 3,
+		"PhotosPerRequest" :  25,
+		"AlbumsPerRequest" : 25
+	},
+	"AlbumDetailView" :
+	{
+		"ScrollAheadTime" : 0.6 ,//Seconds
+		"RowCount" : 2,
+		"PhotosPerRequest" : 25
+	},
+	"FriendListView" :
+	{
+		"ScrollAheadTime" : 0.6 ,//Seconds
+		"RowCount" : 2,
+		"FriendsPerRequest" : 25
 	},
 	"Tutorial" :
 	{
@@ -156,11 +176,19 @@
 		},
 		"Labels" :
 		{
+			"FontSize" : 7.0,
 			"SwipeGesture" : "Swipe Left/Right",
 			"PointGesture" : "Hover or tap to select",
 			"PointStopGesture" : "Point to stop",
 			"ShakeGesture" : "Shake to go back",
 			"StretchGesture" : "Use two fingers to stretch the image"
+		},
+		"Background" : 
+		{
+			"R" : 200,
+			"G" : 200,
+			"B" : 200,
+			"A" : 150
 		}
 	},
 	"Strings" : 

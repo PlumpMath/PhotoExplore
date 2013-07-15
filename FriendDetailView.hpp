@@ -34,9 +34,17 @@ private:
 	ScrollingView * itemScroll;
 	boost::function<void(std::string)> finishedCallback;
 
-	void updateLoading(Vector newPos,cv::Size2f visibleSize, bool priorityOnly);
+	void updateLoading();
+	void addNode(FBNode * node);
 
 	float projectedRightBoundary,currentRightBoundary;
+	float lastUpdatePos;
+
+	map<string,FBNode*> items;
+	void loadItems(int albums, int photos);
+	
+
+	
 
 public:
 	FriendDetailView();		

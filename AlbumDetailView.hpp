@@ -23,12 +23,18 @@ private:
 	ViewGroup * mainLayout;
 	ScrollingView * itemScroll;
 
-	void updateLoading(Vector newPos,cv::Size2f visibleSize, bool priorityOnly);
+	void updateLoading();
+	void loadItems(int photos);
 
-	int photoLoadCount, photoLoadTarget;
-	float lastPosUpdate, avgItemWidth;
+	int rowCount;
+	float lastUpdatePos, avgItemWidth;
+	float currentRightBoundary;
 
 	RadialMenu * radialMenu;
+
+	void addNode(FBNode * node);
+
+	map<string,FBNode*> items;
 
 public:
 	AlbumDetailView();		

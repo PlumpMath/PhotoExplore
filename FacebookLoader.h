@@ -5,6 +5,8 @@
 #include "Types.h"
 #include "LeapHelper.h"
 
+#include <boost/function.hpp>
+
 #include <map>
 
 #ifndef FACEBOOK_LOADER_H_
@@ -184,6 +186,7 @@ public:
 	FBNode * callbackNode;
 	string objectQuery;
 	string edgeType;
+	boost::function<void(FBNode*)> onComplete;
 
 	JSONDownloadTask(string objectQuery, FBNode * callbackNode) 
 	{
@@ -217,6 +220,10 @@ public:
 			callbackNode->addJSON(edgeType,obj);
 		}
 		taskComplete = true;
+
+		if (!onComplete.empty())
+			onComplete(callbackNode);
+
 		//this->Release();
 	}
 
@@ -252,16 +259,18 @@ public:
 
 	void load(FBNode * parent, string objectId, string edge)
 	{
-		CefRefPtr<JSONDownloadTask> newTask = new JSONDownloadTask(objectId,edge,parent);
-		newTask->AddRef();
-		CefTaskRunner::GetForThread(TID_IO).get()->PostTask(newTask.get());
+		throw std::exception("Not implemented!");
+		//CefRefPtr<JSONDownloadTask> newTask = new JSONDownloadTask(objectId,edge,parent);
+		//newTask->AddRef();
+		//CefTaskRunner::GetForThread(TID_IO).get()->PostTask(newTask.get());
 	}
 
-	void loadField(FBNode * parent, string nodeQuery, string interpretAs)
+	void loadField(FBNode * parent, string nodeQuery, string interpretAs, boost::function<void(FBNode*)> loadCompleteCallback)
 	{
 		//cout << "Loading node fields " << nodeQuery << "\n";
 
 		CefRefPtr<JSONDownloadTask> newTask = new JSONDownloadTask(nodeQuery,parent);
+		newTask->onComplete = loadCompleteCallback;
 		newTask->edgeType = interpretAs;
 		
 		CefTaskRunner::GetForThread(TID_IO).get()->PostTask(newTask.get());		

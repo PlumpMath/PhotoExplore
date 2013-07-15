@@ -2,10 +2,14 @@
 #define LEAPIMAGE_LAYOUT_HPP_
 
 #include <vector>
+#include <queue>
 
 #include <Leap.h>
 #include <opencv2/opencv.hpp>
 #include "PointableElementManager.h"
+#include <boost/thread/mutex.hpp>
+#include <boost/function.hpp>
+
 
 using namespace Leap;
 using namespace std;
@@ -56,6 +60,9 @@ protected:
 	Leap::Vector lastPosition;
 	cv::Size2f lastSize, desiredSize;
 	LayoutParams layoutParams;
+	
+	boost::mutex updateTaskMutex;
+	std::queue<boost::function<void()> > updateThreadTasks;
 
 public:
 	View();
@@ -73,6 +80,8 @@ public:
 	
 	virtual void layout(Vector position, cv::Size2f size) = 0;
 	virtual void draw() = 0;
+
+	void postTask(boost::function<void()> task);
 
 	cv::Size2f getMeasuredSize();
 	Leap::Vector getLastPosition();

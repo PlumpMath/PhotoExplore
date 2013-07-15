@@ -12,14 +12,13 @@ FacebookFriendListView::FacebookFriendListView()
 	gridDefinition[1].ColumnWidths.push_back(1);
 	mainLayout = new CustomGrid(gridDefinition);
 
-	friendGroup = new FixedAspectGrid(cv::Size2i(0,3),1.6f, true);
+	int rowCount = GlobalConfig::tree()->get<int>("FriendListView.RowCount");
+
+	friendGroup = new FixedAspectGrid(cv::Size2i(0,rowCount),1.6f, true);
 	((FixedAspectGrid*)friendGroup)->setInteriorMarginsOnly(true);
 		
 	itemScroll = new ScrollingView(friendGroup);
-	itemScroll->visibleRectChangedListener = [this](Vector newPos, cv::Size2f newSize){
-		this->updateLoading(newPos,newSize);
-	};
-		
+
 	mainLayout->addChild(new TextPanel(""));
 	mainLayout->addChild(itemScroll);
 
@@ -43,25 +42,28 @@ FacebookFriendListView::FacebookFriendListView()
 	addChild(mainLayout);
 	addChild(radialMenu);
 
+
 }
 
 void FacebookFriendListView::show(FBNode * root)
 {	
 	PointableElementManager::getInstance()->requestGlobalGestureFocus(this);
-
+	
+	lastUpdatePos = 1000;
+	items.clear();
 	friendGroup->clearChildren();
 	activeNode = root;
-	friendLoadCount = friendLoadTarget = 0;
-	updateLoading(Vector(),cv::Size2f(3000,0));
+	updateLoading();
 }
 
-void FacebookFriendListView::friendViewLoaded(FBNode * node, vector<FBNode*> & viewData)
+void FacebookFriendListView::addNode(FBNode * node)//, vector<FBNode*> & viewData)
 {
-	if (viewData.size() > 0)
+	if (items.count(node->getId()) == 0)
 	{
+		items.insert(make_pair(node->getId(),node));
+
 		View * item = ViewOrchestrator::getInstance()->requestView(node->getId(), this);
 
-		//cout << "Adding friend node " << node->getId() << endl;
 		if (item == NULL)
 		{
 			item = new FriendPanel(cv::Size2f(600,400));					
@@ -75,99 +77,198 @@ void FacebookFriendListView::friendViewLoaded(FBNode * node, vector<FBNode*> & v
 		item->setVisible(true);
 		((FriendPanel*)item)->show(node);
 
-		if (friendGroup->addChild(item))
-			friendLoadCount++;
+		friendGroup->addChild(item);
 	}
 }
 
 
-void FacebookFriendListView::viewChanged(vector<FBNode*> & viewData)
+
+void FacebookFriendListView::loadItems(int friends)
 {
-	itemScroll->setDrawLoadingIndicator(false,false);
-	for (auto it = viewData.begin(); it != viewData.end(); it++)
+	int requestedFriends = activeNode->loadState["friends"].requestedCount;
+	
+	stringstream loadstr;
+	loadstr << activeNode->getId() << "?fields=";
+
+	if (friends > requestedFriends)
 	{
-		FBNode * node = (*it);
-		if (node->getNodeType().compare(NodeType::FacebookFriend) == 0)
-		{	
-			FBNode * node = (*it);
-			NodeQuerySpec friendConfig(2,3);
-			friendConfig.layers[0].insert(make_pair("photos",SelectionConfig(2)));
-			friendConfig.layers[0].insert(make_pair("albums",SelectionConfig(4,0,false)));
-			friendConfig.layers[1].insert(make_pair("photos",SelectionConfig(1)));
-			bool isLoading;
-			friendViewLoaded(node,DataViewGenerator::getInstance()->getDataView(node,friendConfig,[this,node](vector<FBNode*> & photoData){ this->friendViewLoaded(node,photoData);},isLoading));	
-		}
+		activeNode->loadState["friends"].requestedCount = friends;
+		loadstr << "friends.offset(" << requestedFriends << ").limit(" << friends << ").fields(id,name)";
 	}
-	layoutDirty = true;
+
+	FacebookFriendListView * v = this;
+	FBDataSource::instance->loadField(activeNode,loadstr.str(),"",[v](FBNode * _node){
+			
+		FacebookFriendListView * v2= v;
+		v->postTask([v2,_node](){
+			
+			if (v2->activeNode == _node)
+				v2->updateLoading();
+		});
+		v->updateTaskMutex.unlock();
+	});
 }
 
-void FacebookFriendListView::updateLoading(Vector newPos,cv::Size2f visibleSize)
-{
-	float leftBound = -newPos.x;
-	float rightBound = -newPos.x + visibleSize.width;
-		
 
+
+void FacebookFriendListView::updateLoading()
+{
+	float scrollPosition = itemScroll->getFlyWheel()->getPosition();
+	cv::Size2f visibleSize = itemScroll->getMeasuredSize();
+
+	lastUpdatePos = -scrollPosition;
+
+	float leftBound = -scrollPosition;
+	float rightBound = -scrollPosition + visibleSize.width;
+
+	float itemWidth = 400;
+		
 	cv::Size2f s = friendGroup->getMeasuredSize();
-	float newDataPixels = rightBound - s.width;
-	if (newDataPixels > 0)
+	Timer loadingTimer;
+	loadingTimer.start();
+
+	int loadMore = 0;
+	float remainingPixels =  currentRightBoundary - rightBound;
+	if (remainingPixels < (itemWidth * 1.0f))
 	{
-		bool load = false;
-		NodeQuerySpec querySpec(2);				
+		loadMore = rowCount * 2;
+		if (remainingPixels < 0)
+			loadMore += ceilf(-remainingPixels/itemWidth)*rowCount;
+
+		int itemCount = friendGroup->getChildren()->size() + loadMore;
+
+		int availableFriends = activeNode->Edges.get<EdgeTypeIndex>().count("friends");
+
+		auto friendNodes = activeNode->Edges.get<EdgeTypeIndex>().equal_range("friends");
 		
-		float itemWidth = 400.0f;
-		int loadMore = 3 * (newDataPixels/itemWidth);
-		if (friendLoadCount + loadMore > friendLoadTarget)
+		while (items.size() < itemCount)
 		{
-			friendLoadTarget = friendLoadCount+loadMore;
-			//cout << "Loading friends to " << friendLoadTarget << endl;
-			load = true;
-			querySpec.layers[0].insert(make_pair("friends",SelectionConfig(friendLoadTarget,friendLoadCount,true)));
-		}
+			if (friendNodes .first != friendNodes .second)
+			{
+				addNode(friendNodes .first->Node);
+				friendNodes .first++;
+			} else 
+			{
+				if (!activeNode->edgeLimitReached("photos"))
+				{
+					int loadFriends =  GlobalConfig::tree()->get<int>("FriendListView.FriendsPerRequest") + availableFriends;	
+					loadItems(loadFriends);
+					itemScroll->setDrawLoadingIndicator(2,Colors::HoloBlueBright);
+				}
+				else
+					itemScroll->setDrawLoadingIndicator(1,Colors::DarkRed);
 
-		bool isLoading = false;
-		if (load)
-			viewChanged(DataViewGenerator::getInstance()->getDataView(activeNode,querySpec,[this](vector<FBNode*> & viewData){ this->viewChanged(viewData);},isLoading));	
-
-		if (isLoading)
-			itemScroll->setDrawLoadingIndicator(true,false);
+				break;
+			}
+		}						
 	}
-
+	
+	loadingTimer.start();
+	
+	float peakPriority = (itemScroll->getMeasuredSize().width*.5f) - itemScroll->getFlyWheel()->getPosition();
+	peakPriority -= itemScroll->getFlyWheel()->getVelocity() * GlobalConfig::tree()->get<float>("FriendListView.ScrollAheadTime");
+	
 	for (auto it = friendGroup->getChildren()->begin(); it != friendGroup->getChildren()->end();it++)
 	{
 		PanelBase * imagePanel = (PanelBase*)(*it);
 		float targetPriority;
-		float leftDist = leftBound - (imagePanel->getPosition().x + imagePanel->getWidth());
-		float rightDist = imagePanel->getPosition().x - rightBound;
 
-		if (itemScroll->getFlyWheel()->getVelocity() < 0)
-		{				
-			if (leftDist > 2000)
-			{
-				targetPriority = leftDist/4000.0f;
-			}
-			else if (rightDist < 2000)
-				targetPriority = 0;
-			else
-				targetPriority = rightDist/4000.0f;
+		float distance = abs((imagePanel->getPosition().x + imagePanel->getWidth()/2.0f) - peakPriority);
 
-		}
-		else
-		{
-			if (rightDist > 2000)
-			{
-				targetPriority = rightDist/4000.0f;
-			}
-			else if (leftDist < 2000)
-				targetPriority = 0;
-			else
-				targetPriority = leftDist/4000.0f;
-
-		}
+		targetPriority = min<float>(10,distance/1000.0f);
 
 		if (dynamic_cast<FriendPanel*>(imagePanel) != NULL)
-			((FriendPanel*)imagePanel)->setDataPriority(targetPriority);			
-	}
+			((FriendPanel*)imagePanel)->setDataPriority(targetPriority);	
+	}	
 }
+
+//void FacebookFriendListView::viewChanged(vector<FBNode*> & viewData)
+//{
+//	//itemScroll->setDrawLoadingIndicator(false,false);
+//	for (auto it = viewData.begin(); it != viewData.end(); it++)
+//	{
+//		FBNode * node = (*it);
+//		if (node->getNodeType().compare(NodeType::FacebookFriend) == 0)
+//		{	
+//			FBNode * node = (*it);
+//			NodeQuerySpec friendConfig(2,3);
+//			friendConfig.layers[0].insert(make_pair("photos",SelectionConfig(2)));
+//			friendConfig.layers[0].insert(make_pair("albums",SelectionConfig(4,0,false)));
+//			friendConfig.layers[1].insert(make_pair("photos",SelectionConfig(1)));
+//			bool isLoading;
+//			friendViewLoaded(node,DataViewGenerator::getInstance()->getDataView(node,friendConfig,[this,node](vector<FBNode*> & photoData){ this->friendViewLoaded(node,photoData);},isLoading));	
+//		}
+//	}
+//	layoutDirty = true;
+//}
+//
+//void FacebookFriendListView::updateLoading(Vector newPos,cv::Size2f visibleSize)
+//{
+//	float leftBound = -newPos.x;
+//	float rightBound = -newPos.x + visibleSize.width;
+//		
+//
+//	cv::Size2f s = friendGroup->getMeasuredSize();
+//	float newDataPixels = rightBound - s.width;
+//	if (newDataPixels > 0)
+//	{
+//		bool load = false;
+//		NodeQuerySpec querySpec(2);				
+//		
+//		float itemWidth = 400.0f;
+//		int loadMore = 3 * (newDataPixels/itemWidth);
+//		if (friendLoadCount + loadMore > friendLoadTarget)
+//		{
+//			friendLoadTarget = friendLoadCount+loadMore;
+//			//cout << "Loading friends to " << friendLoadTarget << endl;
+//			load = true;
+//			querySpec.layers[0].insert(make_pair("friends",SelectionConfig(friendLoadTarget,friendLoadCount,true)));
+//		}
+//
+//		bool isLoading = false;
+//		if (load)
+//			viewChanged(DataViewGenerator::getInstance()->getDataView(activeNode,querySpec,[this](vector<FBNode*> & viewData){ this->viewChanged(viewData);},isLoading));	
+//
+//		//if (isLoading)
+//		//	itemScroll->setDrawLoadingIndicator(true,false);
+//	}
+//
+//	for (auto it = friendGroup->getChildren()->begin(); it != friendGroup->getChildren()->end();it++)
+//	{
+//		PanelBase * imagePanel = (PanelBase*)(*it);
+//		float targetPriority;
+//		float leftDist = leftBound - (imagePanel->getPosition().x + imagePanel->getWidth());
+//		float rightDist = imagePanel->getPosition().x - rightBound;
+//
+//		if (itemScroll->getFlyWheel()->getVelocity() < 0)
+//		{				
+//			if (leftDist > 2000)
+//			{
+//				targetPriority = leftDist/4000.0f;
+//			}
+//			else if (rightDist < 2000)
+//				targetPriority = 0;
+//			else
+//				targetPriority = rightDist/4000.0f;
+//
+//		}
+//		else
+//		{
+//			if (rightDist > 2000)
+//			{
+//				targetPriority = rightDist/4000.0f;
+//			}
+//			else if (leftDist < 2000)
+//				targetPriority = 0;
+//			else
+//				targetPriority = leftDist/4000.0f;
+//
+//		}
+//
+//		if (dynamic_cast<FriendPanel*>(imagePanel) != NULL)
+//			((FriendPanel*)imagePanel)->setDataPriority(targetPriority);			
+//	}
+//}
 
 void FacebookFriendListView::friendPanelClicked(FriendPanel * panel, FBNode * clicked)
 {	
@@ -203,10 +304,17 @@ void FacebookFriendListView::layout(Vector position, cv::Size2f size)
 		radialMenu->layout(position,size);
 		mainLayout->layout(position,size);
 	}
-	updateLoading(Vector(-itemScroll->getFlyWheel()->getPosition(),0,0),itemScroll->getMeasuredSize());
 	layoutDirty = false;
 }
 
+void FacebookFriendListView::update()
+{
+	ViewGroup::update();
+		
+	double pos = itemScroll->getFlyWheel()->getPosition();
+	if (abs(lastUpdatePos - (-pos)) > 100)
+		updateLoading();
+}
 
 void FacebookFriendListView::onFrame(const Controller & controller)
 {	

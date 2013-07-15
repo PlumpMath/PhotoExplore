@@ -96,19 +96,15 @@ LeapElement * LeapStartScreen::elementAtPoint(int x, int y, int & elementStateFl
 	{
 		((FacebookBrowser*)rootView)->elementAtPoint(x,y,elementStateFlags);
 	}
-	else // if (state == StartState)
-	{
-		//LeapElement * hit = logoutButton->elementAtPoint(x,y);
-		//if (hit == NULL)
-		//{
-		LeapElement * hit = facebookLoginButton->elementAtPoint(x,y,elementStateFlags);
-		if (hit == NULL)
-		{
-			return mainLayout->elementAtPoint(x,y,elementStateFlags);
-		}
-		return hit;
-		//}
-		//return hit;
+	else 
+	{		
+		LeapElement * hit = radialMenu->elementAtPoint(x,y,elementStateFlags);
+		if (hit != NULL)return hit;
+
+		hit = facebookLoginButton->elementAtPoint(x,y,elementStateFlags);
+		if (hit != NULL)return hit;
+		
+		return mainLayout->elementAtPoint(x,y,elementStateFlags);		
 	} 
 }
 
@@ -282,18 +278,25 @@ void LeapStartScreen::init()
 
 	FixedAspectGrid * floatLayout = new FixedAspectGrid(cv::Size2i(0,6),1.0f);
 	floatLayout->setLayoutParams(cv::Size2f(GlobalConfig::ScreenWidth*2,GlobalConfig::ScreenHeight));
+
+	int itemCount = (int)(((float)GlobalConfig::ScreenWidth/(GlobalConfig::ScreenHeight/6.0f))*2.0f*6.0f);
 		
 	std::srand(10);
-	for (int i =0; i < (GlobalConfig::ScreenWidth/(GlobalConfig::ScreenHeight/6.0f))*2*6;i++)
+	for (int i =0; i < itemCount;i++)
 	{
 		FloatingPanel * fp = new FloatingPanel(100,100,Vector());
 
-		fp->setBackgroundColor(Colors::White);
-
 		if (std::rand() % 5 == 0)
+		{
 			fp->setBackgroundColor(Colors::LightSteelBlue);
+			fp->setBorderColor(Colors::White);
+		}
+		else
+		{
+			fp->setBackgroundColor(Colors::White);
+			fp->setBorderColor(Colors::LightSteelBlue);
+		}
 
-		fp->setBorderColor(Colors::LightSteelBlue);
 		fp->setBorderThickness(.6f);
 		fp->NudgeAnimationEnabled = true;
 

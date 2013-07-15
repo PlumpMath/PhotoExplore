@@ -14,6 +14,8 @@
 #include <boost/multi_index/composite_key.hpp>
 #include <boost/multi_index/mem_fun.hpp>
 
+#include <boost/function.hpp>
+
 
 using namespace std;
 
@@ -24,7 +26,7 @@ namespace Facebook {
 	class FBDataSource {
 
 	public:
-		virtual void loadField(FBNode * parent, string nodeQuery, string interpretAs = "") = 0;
+		virtual void loadField(FBNode * parent, string nodeQuery, string interpretAs, boost::function<void(FBNode*)> loadCompleteCallback) = 0;
 		virtual void load(FBNode * parent, string id, string edge) = 0;
 		virtual void loadQuery(FBNode * parent, string nodeQuery, string interpretAs) = 0;
 		static FBDataSource * instance;

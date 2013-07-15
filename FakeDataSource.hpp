@@ -5,6 +5,8 @@
 #include "FBNode.h"
 #include "Types.h"
 #include <boost/thread.hpp>
+#include <boost/thread/mutex.hpp>
+
 
 using namespace Facebook;
 using namespace boost::filesystem;
@@ -15,6 +17,8 @@ public:
 	vector<path> dirContents;
 	int photoIndex;
 	bool isRunning;
+	boost::mutex taskMutex;
+	std::queue<boost::function<void()> > taskQueue;
 
 	FakeDataSource(string fakeDataPath)
 	{
@@ -22,43 +26,70 @@ public:
 		photoIndex = 0;
 		boost::filesystem::path testPath_mine = boost::filesystem::path(fakeDataPath);
 		copy(directory_iterator(testPath_mine), directory_iterator(), back_inserter(dirContents));
+		
+		new boost::thread([this](){
+			runThread(&taskMutex,&taskQueue);
+		});
 	}
 
-	void loadField(FBNode * parent, string nodeQuery, string interpretAs)
+	static void runThread(boost::mutex * taskMutex, std::queue<boost::function<void()> > * taskQueue)
 	{
+		while (true)
+		{
+			taskMutex->lock();
+			if (!taskQueue->empty())
+			{
+				auto x = taskQueue->front();
+				taskQueue->pop();
+				taskMutex->unlock();
+				x();
+			}
+			else
+			{
+				taskMutex->unlock();
+				boost::this_thread::sleep(boost::posix_time::milliseconds(10));
+			}
+		}
+	}
 
+	void loadField(FBNode * parent, string nodeQuery, string interpretAs, boost::function<void(FBNode*)> callback)
+	{
 		int photoPos = nodeQuery.find("photos");
+		parent->loadState["albums"].hasReachedEnd = true;
+		parent->loadState["friends"].hasReachedEnd = true;
 		if (photoPos != string::npos)
 		{
 			int limitPos = nodeQuery.find("limit(",photoPos);
 			if (limitPos == string::npos)
 			{
-				cout << "no limit! = " + nodeQuery << endl;
-				return;
+				throw new std::exception("Needs limit");
 			}
 			int limitEnd = nodeQuery.find(")",limitPos);
 			int limit = (int)atoi(nodeQuery.substr(limitPos+6,(limitPos+6)- limitEnd).c_str());
-			
-			cout << "limit is: " << limit << " from : " << nodeQuery << endl;
 
-			new boost::thread([parent,this, limit](){
-				
-				while (this->isRunning) 
-					boost::this_thread::sleep(boost::posix_time::milliseconds(10));
+			int offsetPos = nodeQuery.find("offset(",photoPos);
+			if (offsetPos == string::npos)
+			{
+				throw new std::exception("Needs offset");
+			}
+			int offsetEnd = nodeQuery.find(")",offsetPos);
+			int offset = (int)atoi(nodeQuery.substr(offsetPos+7,(offsetPos+7)- offsetEnd).c_str());
 
-				this->isRunning = true;
-				
-				boost::this_thread::sleep(boost::posix_time::milliseconds(300));
+
+			taskMutex.lock();
+			taskQueue.push([this,limit,parent,callback](){
+
+				boost::this_thread::sleep(boost::posix_time::milliseconds(GlobalConfig::tree()->get<int>("FakeDataMode.RequestDelay")));
 				for (int i=0;i<limit;i++)
 				{
-					
+
 					while ((is_directory(this->dirContents.at(photoIndex%dirContents.size())) ||  
 						this->dirContents.at(photoIndex%dirContents.size()).extension().string().size() < 3 || (
 						this->dirContents.at(photoIndex%dirContents.size()).extension().string().find("jpg") == string::npos && 
 						this->dirContents.at(photoIndex%dirContents.size()).extension().string().find("png") == string::npos)
 						)) photoIndex++;
-					
-					
+
+
 					stringstream ss2;
 					ss2 << "fake_IMG_" << this->photoIndex;
 
@@ -71,13 +102,19 @@ public:
 					this->photoIndex++;
 
 					parent->Edges.insert(Edge("photos",n2));
-					parent->childrenChanged();
+					//parent->childrenChanged();
+
+					if (photoIndex >= GlobalConfig::tree()->get<int>("FakeDataMode.MaxPhotos"))
+						parent->loadState["photos"].hasReachedEnd = true;
+
+					callback(parent);
 				}
-				this->isRunning = false;
 			});
+			taskMutex.unlock();
+
 		}
 	}
-	
+
 
 
 

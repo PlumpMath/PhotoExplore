@@ -92,10 +92,7 @@ void ScrollingView::draw()
 	
 	glMatrixMode(GL_MODELVIEW);
 
-	//if (drawNegativeLoad)
-	//	drawLoadIndicator(0,50);
-	//if (drawPositiveLoad)
-	//	drawLoadIndicator(lastContentSize.width - 50,50);
+	drawLoadIndicator(lastContentSize.width - 50,50);
 
 	GraphicsContext::getInstance().setDrawHint("Offset",scrollingFlywheel->getPosition());
 	GraphicsContext::getInstance().setDrawHint("VisibleWidth",lastSize.width);
@@ -147,57 +144,64 @@ void ScrollingView::drawLoadIndicator(float offset, float thickness)
 	//Color loadColor = Colors::LightGreen;
 	//loadColor.setAlpha(bgAlpha);
 	//
-	
-	float drawWidth = thickness;
-	float drawHeight = lastSize.height;
-	
-	glBindTexture( GL_TEXTURE_2D, NULL);	
-	Color loadColor = Colors::HoloBlueLight.withAlpha(.5f);
-	glColor4fv(loadColor.getFloat());
 
-	float z1 = lastPosition.z + 1;
+	if (loadIndicatorMode >= 1)
+	{
+		float drawWidth = thickness;
+		float drawHeight = lastSize.height;
 
-	glVertex3f(offset,0,z1);
-	glVertex3f(offset+thickness,0,z1);
-	glVertex3f(offset+thickness,drawHeight,z1);
-	glVertex3f(offset,drawHeight,z1);
+		glBindTexture( GL_TEXTURE_2D, NULL);	
+		glColor4fv(loadIndicatorColor.withAlpha(.4f).getFloat());
 
-	for (int i = 0;i<3;i++)
-	{		
-		float angle = loadAnimTimer.seconds()/4.0 + ((float)(i*i)/10);
-
-		float x1,x2,x3,x4;
-		float angle2 = fmod(angle,2);
-
-
-		x2 = x1 = ((angle2*.5f) * drawWidth) + offset;
-
-		float lineWidth =  10.0f * (.5f + sin(angle*GeomConstants::PI_F));
-
-		x4 = x3 = min<float>(x1 + lineWidth,offset+drawWidth);
-
-		float y1,y2,y3,y4;
-
-		y4 = y1 = 0;
-		y3 = y2 = drawHeight;
-
+		float z1 = lastPosition.z + 1;
 
 		glBegin( GL_QUADS );
-
-		glVertex3f(x1,y1,z1);
-		glVertex3f(x2,y2,z1);
-		glVertex3f(x3,y3,z1);
-		glVertex3f(x4,y4,z1);
-
+		glVertex3f(offset,lastPosition.y,z1);
+		glVertex3f(offset+thickness,lastPosition.y,z1);
+		glVertex3f(offset+thickness,drawHeight+lastPosition.y,z1);
+		glVertex3f(offset,drawHeight+lastPosition.y,z1);
 		glEnd();
+
+		if (loadIndicatorMode == 2)
+		{
+			glColor4fv(loadIndicatorColor.withAlpha(.9f).getFloat());
+			for (int i = 0;i<3;i++)
+			{		
+				float angle = loadAnimTimer.seconds()/4.0 + ((float)(i*i)/10);
+
+				float x1,x2,x3,x4;
+				float angle2 = fmod(angle,2);
+
+
+				x2 = x1 = ((angle2*.5f) * drawWidth) + offset;
+
+				float lineWidth =  10.0f * (.5f + sin(angle*GeomConstants::PI_F));
+
+				x4 = x3 = min<float>(x1 + lineWidth,offset+drawWidth);
+
+				float y1,y2,y3,y4;
+
+				y4 = y1 = lastPosition.y;
+				y3 = y2 = lastPosition.y + drawHeight;
+
+
+				glBegin( GL_QUADS );
+
+				glVertex3f(x1,y1,z1);
+				glVertex3f(x2,y2,z1);
+				glVertex3f(x3,y3,z1);
+				glVertex3f(x4,y4,z1);
+
+				glEnd();
+			}
+		}
 	}
 }
 
-void ScrollingView::setDrawLoadingIndicator(bool _drawPosistive, bool _drawNegative)
+void ScrollingView::setDrawLoadingIndicator(int _mode, Color _indicatorColor)
 {
-	this->drawNegativeLoad = _drawNegative;
-	this->drawPositiveLoad = _drawPosistive;
-
+	loadIndicatorMode = _mode;
+	loadIndicatorColor = _indicatorColor;
 	loadAnimTimer.start();
 }
 

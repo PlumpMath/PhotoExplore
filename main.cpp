@@ -275,7 +275,9 @@ int WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmd
 	settings.command_line_args_disabled = true;
 
 	CefInitialize(mainArgs, settings, NULL);
-	//CefCookieManager::GetGlobalManager()->SetStoragePath(".",true);
+	
+	if (GlobalConfig::tree()->get<bool>("Cef.PersistentCookiesEnabled"))
+		CefCookieManager::GetGlobalManager()->SetStoragePath(".",true);
 
 	if (GlobalConfig::tree()->get<bool>("FakeDataMode.Enable")) 
 		FBDataSource::instance = new FakeDataSource(GlobalConfig::tree()->get<string>("FakeDataMode.SourceDataDirectory"));
@@ -497,9 +499,9 @@ int WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmd
 		
 		if (frameId % 20 && delta.millis() - (1000.0/60.0) > 2)
 		{
-			cout  << "[" << frameId << "] START \n";
-			cout << frameOut.str();
-			cout  << "[" << frameId << "] = " << delta.millis() << "ms \n"; //@ " << totalTime.seconds() << "s \n";
+			Logger::stream("MAIN","TIME") << "[" << frameId << "] START \n";
+			Logger::stream("MAIN","TIME") << frameOut.str();
+			Logger::stream("MAIN","TIME") << "[" << frameId << "] = " << delta.millis() << "ms \n"; //@ " << totalTime.seconds() << "s \n";
 		}
 		frameId++;
     }
