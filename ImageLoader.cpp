@@ -154,20 +154,20 @@ void ImageLoader::runLoadThread(ImgTaskQueue::ImageTaskQueue * loadQueue, boost:
 
 		if (loadTask.imageType == ImgTaskQueue::FacebookImage)
 		{
-			while (maxConcurrentLoads <= 0)
-			{
-				boost::this_thread::sleep(boost::posix_time::milliseconds(100));
-			}
+			//while (maxConcurrentLoads <= 0)
+			//{
+			//	boost::this_thread::sleep(boost::posix_time::milliseconds(100));
+			//}
 		
-			{
-				maxConcurrentLoads--;
+			//{
+				//maxConcurrentLoads--;
 				//cout << "Starting load task: " << loadTask.imageFileName << "\n";
 				CefRefPtr<CefTaskRunner> runner = CefTaskRunner::GetForThread(TID_IO);
 				CefRefPtr<DownloadImageTask> dlTask = new DownloadImageTask(loadTask);
 			
 				if (runner != NULL)
 					runner->PostTask(dlTask.get());
-			}
+			//}
 		}
 		else
 		{

@@ -70,6 +70,7 @@ FacebookIntroView::FacebookIntroView()
 	vector<RadialMenuItem> menuItems;
 	//menuItems.push_back(RadialMenuItem("Fullscreen Mode","full"));
 	menuItems.push_back(RadialMenuItem("Exit Photo Explorer","exit",Colors::DarkRed));
+	menuItems.push_back(RadialMenuItem("Exit and Logout","logout",Colors::DarkRed));
 	menuItems.push_back(RadialMenuItem("Cancel","cancel",Colors::OrangeRed));
 	radialMenu = new RadialMenu(menuItems);
 	radialMenu->ItemClickedCallback = [this](string id) -> bool{
@@ -77,6 +78,10 @@ FacebookIntroView::FacebookIntroView()
 		if (id.compare("exit") == 0)
 		{
 			GraphicsContext::getInstance().invokeApplicationExitCallback();
+		}
+		else if (id.compare("logout") == 0)
+		{
+			GraphicsContext::getInstance().invokeGlobalAction("logout");
 		}
 		else if (id.compare("full") == 0)
 			GraphicsContext::getInstance().invokeGlobalAction("full");

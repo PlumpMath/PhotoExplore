@@ -260,6 +260,20 @@ int initShaders()
 	}
 }
 
+class DeleteCookieTask : public CefTask {
+
+public:
+	void Execute()
+	{		
+		CefCookieManager::GetGlobalManager()->DeleteCookies("","");
+		CefCookieManager::GetGlobalManager()->FlushStore(NULL);
+		GraphicsContext::getInstance().invokeApplicationExitCallback();
+	}
+
+	IMPLEMENT_REFCOUNTING(DeleteCookieTask);
+
+};
+
 int WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmdShow) 
 { // int argc, char* argv[] ){
 	
@@ -340,12 +354,21 @@ int WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmd
 	
 	GraphicsContext::getInstance().globalActionCallback = [&](string s){ 
 		
-		disposeShaders();
-		glfwCloseWindow();	
+		if (s.compare("full") == 0)
+		{
+			//disposeShaders();
+			//glfwCloseWindow();	
 
-		init(GlobalConfig::ScreenWidth, GlobalConfig::ScreenHeight, true);
+			//init(GlobalConfig::ScreenWidth, GlobalConfig::ScreenHeight, true);
 
-		initShaders();
+			//initShaders();
+		}
+		else if (s.compare("logout") == 0)
+		{
+			CefRefPtr<CefTaskRunner> runner = CefTaskRunner::GetForThread(TID_IO);
+			CefRefPtr<DeleteCookieTask> dlTask = new DeleteCookieTask();
+			runner->PostTask(dlTask.get());
+		}
 		//tMan->initialize();
 	};
 

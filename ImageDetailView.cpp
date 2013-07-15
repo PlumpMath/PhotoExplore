@@ -219,6 +219,8 @@ void ImageDetailView::layout(Vector position, cv::Size2f size)
 {
 	if (imagePanel != NULL && size.width > 0 && size.height > 0)
 	{
+		size.height -= 150;
+
 		lastSize = size;
 		lastPosition = position;
 

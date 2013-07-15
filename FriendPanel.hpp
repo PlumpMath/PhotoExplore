@@ -26,7 +26,7 @@ private:
 
 public:
 	FriendPanel(cv::Size2f targetSize);
-	void show(FBNode * node);
+	void show(FBNode * node,boost::function<void()> loadCompleteCallback);
 		
 	void OnPointableEnter(Pointable & pointable);
 	void OnPointableExit(Pointable & pointable);

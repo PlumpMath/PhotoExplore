@@ -229,9 +229,9 @@ void LeapDebug::setTutorialImages(vector<string> names)
 		if (gesture != tutorialPanels.end())
 			tutorialLayout->addChild(gesture->second);
 	}
-	cv::Size2f size = cv::Size2f(300,200);
+	cv::Size2f size = cv::Size2f(300,150);
 	tutorialPanel->measure(size);
-	tutorialPanel->layout(Vector(0,GlobalConfig::ScreenHeight-200,10),size);
+	tutorialPanel->layout(Vector(0,GlobalConfig::ScreenHeight-150,10),size);
 	
 }
 

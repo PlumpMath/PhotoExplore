@@ -12,13 +12,14 @@ FacebookFriendListView::FacebookFriendListView()
 	gridDefinition[1].ColumnWidths.push_back(1);
 	mainLayout = new CustomGrid(gridDefinition);
 
-	int rowCount = GlobalConfig::tree()->get<int>("FriendListView.RowCount");
+	rowCount = GlobalConfig::tree()->get<int>("FriendListView.RowCount");
 
 	friendGroup = new FixedAspectGrid(cv::Size2i(0,rowCount),1.6f, true);
 	((FixedAspectGrid*)friendGroup)->setInteriorMarginsOnly(true);
 		
 	itemScroll = new ScrollingView(friendGroup);
 
+	itemScroll->getFlyWheel()->overrideValue(0);
 	mainLayout->addChild(new TextPanel(""));
 	mainLayout->addChild(itemScroll);
 
@@ -27,14 +28,18 @@ FacebookFriendListView::FacebookFriendListView()
 
 	vector<RadialMenuItem> menuItems;
 	menuItems.push_back(RadialMenuItem("Exit Photo Explorer","exit", Colors::DarkRed));
+	menuItems.push_back(RadialMenuItem("Exit and Logout","logout", Colors::DarkRed));
 	menuItems.push_back(RadialMenuItem("Cancel","cancel",Colors::OrangeRed));
 	radialMenu = new RadialMenu(menuItems);
-	radialMenu->setVisible(false);
 	radialMenu->ItemClickedCallback = [this](string id) -> bool{
 
 		if (id.compare("exit") == 0)
 		{
 			GraphicsContext::getInstance().invokeApplicationExitCallback();
+		}
+		else if (id.compare("logout") == 0)
+		{
+			GraphicsContext::getInstance().invokeGlobalAction("logout");
 		}
 		return true;
 	};
@@ -49,11 +54,12 @@ void FacebookFriendListView::show(FBNode * root)
 {	
 	PointableElementManager::getInstance()->requestGlobalGestureFocus(this);
 	
-	lastUpdatePos = 1000;
+	currentRightBoundary = 0;
+	lastUpdatePos = 100000;
 	items.clear();
 	friendGroup->clearChildren();
 	activeNode = root;
-	updateLoading();
+	//updateLoading();
 }
 
 void FacebookFriendListView::addNode(FBNode * node)//, vector<FBNode*> & viewData)
@@ -75,9 +81,15 @@ void FacebookFriendListView::addNode(FBNode * node)//, vector<FBNode*> & viewDat
 		};
 		item->setLayoutParams(LayoutParams(cv::Size2f(600,400),cv::Vec4f(5,5,5,5)));
 		item->setVisible(true);
-		((FriendPanel*)item)->show(node);
+		((FriendPanel*)item)->show(node,[this,item](){
 
-		friendGroup->addChild(item);
+			float itemWidth = 1.6f * (lastSize.height/((float)rowCount));
+			friendGroup->addChild(item);
+			currentRightBoundary =  (itemWidth * ceilf((float)(friendGroup->getChildren()->size())/(float)rowCount));	
+			this->layoutDirty = true;
+		});
+
+		
 	}
 }
 
@@ -104,8 +116,7 @@ void FacebookFriendListView::loadItems(int friends)
 			
 			if (v2->activeNode == _node)
 				v2->updateLoading();
-		});
-		v->updateTaskMutex.unlock();
+		});		
 	});
 }
 
@@ -123,7 +134,7 @@ void FacebookFriendListView::updateLoading()
 
 	float itemWidth = 400;
 		
-	cv::Size2f s = friendGroup->getMeasuredSize();
+	//cv::Size2f s = friendGroup->getMeasusredSize();
 	Timer loadingTimer;
 	loadingTimer.start();
 
@@ -284,7 +295,9 @@ void FacebookFriendListView::friendPanelClicked(FriendPanel * panel, FBNode * cl
 	friendDetail->setFinishedCallback([panel,clicked,this](string tag){
 		this->friendDetail->setVisible(false);
 		this->mainLayout->setVisible(true);
-		this->show(this->activeNode);
+		this->layoutDirty = true;
+		panel->show(clicked,[](){});
+		//this->show(this->activeNode);
 	});
 
 	friendDetail->setVisible(true);

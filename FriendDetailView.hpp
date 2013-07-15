@@ -30,7 +30,7 @@ private:
 
 	ViewGroup * mainLayout;
 
-	int photoLoadCount,photoLoadTarget, albumLoadCount, albumLoadTarget, rowCount;
+	int rowCount;
 	ScrollingView * itemScroll;
 	boost::function<void(std::string)> finishedCallback;
 

@@ -79,6 +79,7 @@ RadialMenu::RadialMenu(vector<RadialMenuItem> & items)
 			this->show();
 		}
 	};
+	((ImagePanel*)menuLaunchButton)->setBackgroundColor(Colors::HoloBlueDark.withAlpha(.5f));
 
 	setItems(items);
 
@@ -112,9 +113,16 @@ void RadialMenu::setItems(vector<RadialMenuItem> & items)
 }
 
 
-LeapElement * RadialMenu::elementAtPoint(int x, int y, int & state)
+LeapElement * RadialMenu::elementAtPoint(int x, int y, int & _state)
 {
-	return ViewGroup::elementAtPoint(x,y,state);
+	if (state == MenuState_DisplayFull)
+	{
+		return ViewGroup::elementAtPoint(x,y,_state);
+	}
+	else
+	{
+		return menuLaunchButton->elementAtPoint(x,y,_state);
+	}
 }
 
 
@@ -159,7 +167,7 @@ void RadialMenu::layout(Vector pos, cv::Size2f size)
 	}
 	else if (state == MenuState_ButtonOnly) 
 	{
-		cv::Size2f menuButtonSize = cv::Size2f(size.width*.15f,size.height*.1f);
+		cv::Size2f menuButtonSize = cv::Size2f(size.width*.15f,size.height*.12f);
 		menuLaunchButton->layout(Vector(size.width - menuButtonSize.width,size.height - menuButtonSize.height,10) + pos,menuButtonSize);
 	}
 	this->layoutDirty = false;

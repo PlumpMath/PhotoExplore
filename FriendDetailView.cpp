@@ -11,11 +11,6 @@ FriendDetailView::FriendDetailView()
 	gridDefinition[0].ColumnWidths.push_back(1);
 	gridDefinition[1].ColumnWidths.push_back(1);
 
-	photoLoadCount = albumLoadCount = 0;
-	albumLoadTarget = photoLoadTarget = 0;
-
-	lastUpdatePos = 1000;
-
 	rowCount = GlobalConfig::tree()->get<int>("FriendDetailView.RowCount");
 
 	mainLayout = new CustomGrid(gridDefinition);	
@@ -43,6 +38,7 @@ FriendDetailView::FriendDetailView()
 
 	vector<RadialMenuItem> menuItems;
 	menuItems.push_back(RadialMenuItem("Exit Photo Explorer","exit",Colors::DarkRed));	
+	menuItems.push_back(RadialMenuItem("Exit and Logout","logout",Colors::DarkRed));	
 	menuItems.push_back(RadialMenuItem("Cancel","cancel",Colors::OrangeRed));
 	radialMenu = new RadialMenu(menuItems);
 	radialMenu->ItemClickedCallback = [this](string id) -> bool{
@@ -51,6 +47,8 @@ FriendDetailView::FriendDetailView()
 		{
 			GraphicsContext::getInstance().invokeApplicationExitCallback();
 		}
+		else 
+			GraphicsContext::getInstance().invokeGlobalAction(id);
 		return true;
 	};
 	projectedRightBoundary= 0;
@@ -158,9 +156,10 @@ void FriendDetailView::updateLoading()
 				if (loadAlbums > 0 || loadPhotos > 0)
 				{
 					loadItems(loadAlbums,loadPhotos);
-					itemScroll->setDrawLoadingIndicator(2,Colors::HoloBlueBright);
+					if (imageGroup->getMeasuredSize().width > itemScroll->getMeasuredSize().width)
+						itemScroll->setDrawLoadingIndicator(2,Colors::HoloBlueBright);
 				}
-				else
+				else  if (imageGroup->getMeasuredSize().width > itemScroll->getMeasuredSize().width)				
 					itemScroll->setDrawLoadingIndicator(1,Colors::DarkRed);
 
 				break;
@@ -222,7 +221,9 @@ void FriendDetailView::show(FBNode * root)
 	topView = mainLayout;
 	topView->setVisible(true);
 	currentRightBoundary= 0;
-	items.clear();
+	items.clear();	
+	lastUpdatePos = 1000;
+
 		
 	PointableElementManager::getInstance()->requestGlobalGestureFocus(this);
 	
@@ -248,7 +249,6 @@ void FriendDetailView::show(FBNode * root)
 	mainLayout->getChildren()->insert(mainLayout->getChildren()->begin(),friendNameHeading);
 	
 	imageGroup->clearChildren();
-	albumLoadTarget = albumLoadCount = photoLoadCount = photoLoadTarget = 0;
 }
 
 void FriendDetailView::albumPanelClicked(FBNode * clicked)
@@ -352,12 +352,7 @@ void FriendDetailView::addNode(FBNode * node)
 					this->layoutDirty = true;
 					PointableElementManager::getInstance()->requestGlobalGestureFocus(this->imageDetailView);							
 				};
-
-				int c1 = imageGroup->getChildren()->size();
 				imageGroup->addChild(item);		
-
-				if (c1 != imageGroup->getChildren()->size())
-					photoLoadCount++;
 
 			}
 			else if (node->getNodeType().compare(NodeType::FacebookAlbum) == 0)
@@ -368,11 +363,7 @@ void FriendDetailView::addNode(FBNode * node)
 					this->albumPanelClicked(node);
 				};
 
-				//item->setLayoutParams(cv::Size2f(500,450));
-				int c1 = imageGroup->getChildren()->size();
 				imageGroup->addChild(item);		
-				if (c1 != imageGroup->getChildren()->size())
-					albumLoadCount++;
 			}
 		}
 		layoutDirty = true;		

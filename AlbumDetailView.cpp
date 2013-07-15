@@ -13,7 +13,7 @@ AlbumDetailView::AlbumDetailView()
 	mainLayout = new CustomGrid(gridDefinition);
 		
 	rowCount = GlobalConfig::tree()->get<int>("AlbumDetailView.RowCount");
-	imageGroup = new FixedAspectGrid(cv::Size2i(0,2),true);
+	imageGroup = new FixedAspectGrid(cv::Size2i(0,rowCount),1.0f,true);
 	itemScroll = new ScrollingView(imageGroup);
 
 	mainLayout->addChild(itemScroll);
@@ -29,14 +29,18 @@ AlbumDetailView::AlbumDetailView()
 	vector<RadialMenuItem> menuItems;
 	//menuItems.push_back(RadialMenuItem("Fullscreen Mode","full"));
 	menuItems.push_back(RadialMenuItem("Exit Photo Explorer","exit", Colors::DarkRed));
+	menuItems.push_back(RadialMenuItem("Exit and Logout","logout", Colors::DarkRed));
 	menuItems.push_back(RadialMenuItem("Cancel","cancel",Colors::OrangeRed));
 	radialMenu = new RadialMenu(menuItems);
-	radialMenu->setVisible(false);
 	radialMenu->ItemClickedCallback = [this](string id) -> bool{
 
 		if (id.compare("exit") == 0)
 		{
 			GraphicsContext::getInstance().invokeApplicationExitCallback();
+		}
+		else if (id.compare("logout") == 0)
+		{
+			GraphicsContext::getInstance().invokeGlobalAction("logout");
 		}
 		else if (id.compare("full") == 0)
 			GraphicsContext::getInstance().invokeGlobalAction("full");
@@ -76,7 +80,6 @@ void AlbumDetailView::loadItems(int photos)
 			if (v2->activeNode == _node)
 				v2->updateLoading();
 		});
-		v->updateTaskMutex.unlock();
 	});
 }
 
@@ -92,7 +95,7 @@ void AlbumDetailView::updateLoading()
 	float leftBound = -scrollPosition;
 	float rightBound = -scrollPosition + visibleSize.width;
 
-	float itemWidth = 400;
+	float itemWidth = 1.0f * (lastSize.height/((float)rowCount));
 		
 	cv::Size2f s = imageGroup->getMeasuredSize();
 	Timer loadingTimer;
@@ -124,10 +127,14 @@ void AlbumDetailView::updateLoading()
 				{
 					int loadPhotos =  GlobalConfig::tree()->get<int>("AlbumDetailView.PhotosPerRequest") + availablePhotos;	
 					loadItems(loadPhotos);
-					itemScroll->setDrawLoadingIndicator(2,Colors::HoloBlueBright);
+					if (imageGroup->getMeasuredSize().width > itemScroll->getMeasuredSize().width)
+						itemScroll->setDrawLoadingIndicator(2,Colors::HoloBlueBright);
 				}
 				else
-					itemScroll->setDrawLoadingIndicator(1,Colors::DarkRed);
+				{
+					if (imageGroup->getMeasuredSize().width > itemScroll->getMeasuredSize().width)
+						itemScroll->setDrawLoadingIndicator(1,Colors::DarkRed);
+				}
 
 				break;
 			}
@@ -316,6 +323,9 @@ void AlbumDetailView::show(FBNode * node)
 	PointableElementManager::getInstance()->requestGlobalGestureFocus(this);
 	activeNode = node;
 	mainLayout->remove(albumName);
+	currentRightBoundary = 0;
+	
+	lastUpdatePos = 1000;
 	
 	View * item = ViewOrchestrator::getInstance()->requestView(node->getId() + "/name",this);
 	if (item != NULL)
@@ -332,8 +342,6 @@ void AlbumDetailView::show(FBNode * node)
 	items.clear();
 	imageGroup->clearChildren();
 	mainLayout->getChildren()->insert(mainLayout->getChildren()->begin(),albumName);
-
-	updateLoading();
 }
 
 FBNode * AlbumDetailView::getNode()
@@ -345,6 +353,7 @@ void AlbumDetailView::addNode(FBNode * node)
 {
 	if (items.count(node->getId()) == 0)
 	{
+		items.insert(make_pair(node->getId(),node));
 		View * v= ViewOrchestrator::getInstance()->requestView(node->getId(), this);
 
 		Panel * item = NULL;
@@ -371,6 +380,10 @@ void AlbumDetailView::addNode(FBNode * node)
 			this->layoutDirty = true;			
 		};
 
+		imageGroup->addChild(item);
+		
+		float itemWidth = 1.0f * (lastSize.height/((float)rowCount));
+		currentRightBoundary =  (itemWidth * ceilf((float)(imageGroup->getChildren()->size())/(float)rowCount));	
 		layoutDirty = true;
 	}
 }

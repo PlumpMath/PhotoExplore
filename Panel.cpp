@@ -174,47 +174,57 @@ void Panel::drawContent(Vector drawPosition, float drawWidth, float drawHeight)
 	}		
 	else
 	{	
-		if (currentResource == NULL)
-		{
-			loadAnimationColor = Colors::Green;
-			return;
-		}
-			
-		switch (currentResource->ImageState)
-		{		
-		case ResourceState::Empty:
-			loadAnimationColor = Colors::Purple;
-			break;
-		case ResourceState::ImageLoading:
-			loadAnimationColor = Colors::Blue;
-			break;
-		case ResourceState::ImageLoaded:
-			loadAnimationColor = Colors::LimeGreen;
-			break;
-		case ResourceState::ImageLoadError:
-			loadAnimationColor = Colors::Red;
-			break;
-		}
-
-		drawLoadTimer(drawPosition,drawWidth,drawHeight/2.0f);
-
-		switch (currentResource->TextureState)
-		{		
-		case ResourceState::Empty:
-			loadAnimationColor = Colors::Magenta;
-			break;
-		case ResourceState::TextureLoading:
-			loadAnimationColor = Colors::HoloBlueBright;
-			break;
-		case ResourceState::TextureLoaded:
-			loadAnimationColor = Colors::DarkGreen;
-			break;
-		case ResourceState::TextureLoadError:
-			loadAnimationColor = Colors::OrangeRed;
-			break;
-		}
 		
-		drawLoadTimer(drawPosition + Vector(0,drawHeight/2.0f,0),drawWidth,drawHeight/2.0f);
+		if (GlobalConfig::tree()->get<bool>("Panel.DebugLoading"))
+		{
+			if (currentResource == NULL)
+			{
+				loadAnimationColor = Colors::Green;
+				return;
+			}
+			
+			switch (currentResource->ImageState)
+			{		
+			case ResourceState::Empty:
+				loadAnimationColor = Colors::Purple;
+				break;
+			case ResourceState::ImageLoading:
+				loadAnimationColor = Colors::Blue;
+				break;
+			case ResourceState::ImageLoaded:
+				loadAnimationColor = Colors::LimeGreen;
+				break;
+			case ResourceState::ImageLoadError:
+				loadAnimationColor = Colors::Red;
+				break;
+			}
+
+			drawLoadTimer(drawPosition,drawWidth,drawHeight/2.0f);
+
+			switch (currentResource->TextureState)
+			{		
+			case ResourceState::Empty:
+				loadAnimationColor = Colors::Magenta;
+				break;
+			case ResourceState::TextureLoading:
+				loadAnimationColor = Colors::HoloBlueBright;
+				break;
+			case ResourceState::TextureLoaded:
+				loadAnimationColor = Colors::DarkGreen;
+				break;
+			case ResourceState::TextureLoadError:
+				loadAnimationColor = Colors::OrangeRed;
+				break;
+			}
+			
+
+			drawLoadTimer(drawPosition + Vector(0,drawHeight/2.0f,0),drawWidth,drawHeight/2.0f);
+		}
+		else
+		{
+			loadAnimationColor = Colors::DimGray.withAlpha(.3f);
+			drawLoadTimer(drawPosition,drawWidth,drawHeight);
+		}
 	}
 
 	//if (textPanel != NULL)
@@ -230,7 +240,10 @@ void Panel::drawPanel(Vector drawPosition, float drawWidth, float drawHeight)
 	
 	Color t = getBackgroundColor();
 	setBackgroundColor(Colors::HoloBlueBright); //.withAlpha(max<float>(0,2.0f*(.5f - dataPriority))));
-	drawBackground(drawPosition,drawWidth*.1f,drawHeight*(min<float>(1.0f,dataPriority*.1f)));
+
+	if (GlobalConfig::tree()->get<bool>("Panel.DebugPriority"))
+		drawBackground(drawPosition,drawWidth*.1f,drawHeight*(min<float>(1.0f,dataPriority*.1f)));
+
 	setBackgroundColor(t);
 }
 

@@ -42,7 +42,7 @@ void FriendPanel::setDataPriority(float _dataPriority)
 
 
 
-void FriendPanel::show(FBNode * _node)
+void FriendPanel::show(FBNode * _node, boost::function<void()> loadCompleteCallback)
 {	
 	this->node = _node;
 	
@@ -85,9 +85,18 @@ void FriendPanel::show(FBNode * _node)
 
 
 	bool isLoading;
-	viewChanged("",DataViewGenerator::getInstance()->getDataView(node,friendConfig,[this](vector<FBNode*> & data){
+	vector<FBNode*> dataView = DataViewGenerator::getInstance()->getDataView(node,friendConfig,[this,loadCompleteCallback](vector<FBNode*> & data){
 		this->viewChanged("",data);
-	},isLoading));
+		if (data.size() > 0)
+			loadCompleteCallback();
+	},isLoading);
+
+	if (dataView.size() > 0)
+	{
+		loadCompleteCallback();
+		viewChanged("",dataView);
+	}
+
 }
 
 void FriendPanel::OnPointableEnter(Pointable & pointable)

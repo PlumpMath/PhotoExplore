@@ -6,9 +6,14 @@
 		"OverrideWidth" : 1280,
 		"OverrideHeight" : 720
 	},
+	"Panel" :
+	{
+		"DebugLoading" : true,
+		"DebugPriority" : false
+	},
 	"Cef" : 
 	{
-		"PersistentCookiesEnabled" : false
+		"PersistentCookiesEnabled" : true
 	},
 	"TextureLoading" :
 	{
@@ -30,10 +35,10 @@
 	},
 	"FakeDataMode" : 
 	{
-		"Enable" : true,
+		"Enable" : false,
 		"SourceDataDirectory" : "C:\\Users\\Adam\\Pictures\\pixiv-win\\LeapTestImages" ,
-		"RequestDelay" : 2000 ,//ms
-		"MaxPhotos" : 100
+		"RequestDelay" : 300 ,//ms
+		"MaxPhotos" : 300
 	},
 	"Shake" : 
 	{	
@@ -140,21 +145,21 @@
 	"FriendDetailView" :
 	{ 
 		"ScrollAheadTime" : 0.6 ,//Seconds
-		"RowCount" : 3,
-		"PhotosPerRequest" :  25,
-		"AlbumsPerRequest" : 25
+		"RowCount" : 2,
+		"PhotosPerRequest" :  10,
+		"AlbumsPerRequest" : 10
 	},
 	"AlbumDetailView" :
 	{
 		"ScrollAheadTime" : 0.6 ,//Seconds
 		"RowCount" : 2,
-		"PhotosPerRequest" : 25
+		"PhotosPerRequest" : 10
 	},
 	"FriendListView" :
 	{
 		"ScrollAheadTime" : 0.6 ,//Seconds
-		"RowCount" : 2,
-		"FriendsPerRequest" : 25
+		"RowCount" : 3,
+		"FriendsPerRequest" : 15
 	},
 	"Tutorial" :
 	{
