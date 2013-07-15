@@ -26,7 +26,7 @@
 	},
 	"FakeDataMode" : 
 	{
-		"Enable" : true,
+		"Enable" : false,
 		"SourceDataDirectory" : "C:\\Users\\Adam\\Pictures" 
 	},
 	"Shake" : 
@@ -90,13 +90,15 @@
 	{
 		"CircleGesture" : 
 		{
+			"Enabled" : false,
 			"SinglePointableOnly" : true,
 			"MaxRadius" : 60,
 			"MinRadius" : 30,
 			"MinRotations" : 1.1,
 			"MaxDuration" : 1.0
 		},
-		"AllowSwipeDownExit" : false
+		"AllowSwipeDownExit" : false,
+		"OpenMenuImage" : "Images/MenuIcon.png"
 	},
 	"Leap" : 
 	{
@@ -133,6 +135,33 @@
 	{ 
 		"ScrollAheadTime" : 0.6 ,//Seconds
 		"RowCount" : 3
+	},
+	"Tutorial" :
+	{
+		"RightHandImages" :
+		{
+			"SwipeGesture" : "tutorial/swipe_gesture_right.png",
+			"PointGesture" : "tutorial/point_gesture_right.png",
+			"PointStopGesture" : "tutorial/point_gesture_right.png",
+			"ShakeGesture" : "tutorial/shake_gesture_right.png",
+			"StretchGesture" : "tutorial/stretch_gesture.png"
+		},
+		"LeftHandImages" :
+		{
+			"SwipeGesture" : "tutorial/swipe_gesture_left.png",
+			"PointGesture" : "tutorial/point_gesture_left.png",
+			"PointStopGesture" : "tutorial/point_gesture_left.png",
+			"ShakeGesture" : "tutorial/shake_gesture_left.png",
+			"StretchGesture" : "tutorial/stretch_gesture.png"
+		},
+		"Labels" :
+		{
+			"SwipeGesture" : "Swipe Left/Right",
+			"PointGesture" : "Hover or tap to select",
+			"PointStopGesture" : "Point to stop",
+			"ShakeGesture" : "Shake to go back",
+			"StretchGesture" : "Use two fingers to stretch the image"
+		}
 	},
 	"Strings" : 
 	{

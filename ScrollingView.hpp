@@ -12,7 +12,7 @@
 
 typedef int ScrollOrientation;
 
-class ScrollingView : public View, public GlobalGestureListener {
+class ScrollingView : public View {
 
 private:
 	View * content;

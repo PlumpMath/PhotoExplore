@@ -25,6 +25,8 @@
 #include "CefFileBrowser.h"
 #include "Cefalopod.h"
 
+#include "ScrollingView.hpp"
+
 #ifndef LEAP_START_SCREEN_H_
 #define LEAP_START_SCREEN_H_
 
@@ -85,7 +87,6 @@ private:
 	TextPanel * facebookLoginButton;
 	Button * logoutButton;
 	CustomGrid * mainLayout;
-	vector<PanelBase*> panelList;	
 	View * rootView; 
 	RadialMenu * radialMenu;
 	TextPanel * statusPanel;
@@ -101,12 +102,13 @@ private:
 	CefRefPtr<Cefalopod> facebookClient,facebookPreCheckClient;
 
 	//Members
-	FBNode * createMockData();
 	void deleteCookies();
 	
 	Timer updateTimer;
 
 	boost::function<void()> finishedCallback;
+
+	ScrollingView * floatingPanelsView;
 
 public:
 	LeapStartScreen(std::string startDir);
@@ -124,6 +126,7 @@ public:
 	
 	bool onLeapGesture(const Controller & controller, const Gesture & gesture);
 	void onGlobalGesture(const Controller & controller, std::string gestureType);
+	void getTutorialDescriptor(vector<string> & tutorial);
 
 	void setFinishedCallback(boost::function<void()> finishedCallback);
 

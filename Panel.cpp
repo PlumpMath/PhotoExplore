@@ -365,11 +365,11 @@ void Panel::setDetailLevel(int levelOfDetail)
 }
 
 void Panel::setDataPriority(float dRel)
-{
-	node->setDataPriority(dRel);	
+{	
 	if (dataPriority != dRel)
 	{
 		dataPriority = dRel;
+		node->setDataPriority(dRel);
 		//stringstream ss;
 		//ss << std::setprecision(1) << dRel;
 		//if (textPanel == NULL)

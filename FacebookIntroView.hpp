@@ -42,7 +42,7 @@ public:
 
 	void onGlobalGesture(const Controller & controller, std::string gestureType);
 	bool onLeapGesture(const Controller & controller, const Gesture & gesture);
-	//void update();
+	void getTutorialDescriptor(vector<string> & tutorial);
 };
 
 

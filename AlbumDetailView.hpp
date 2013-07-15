@@ -48,6 +48,8 @@ public:
 	bool onLeapGesture(const Controller & controller, const Gesture & gesture);
 
 	void viewOwnershipChanged(View * view, ViewOwner * newOwner);
+
+	void getTutorialDescriptor(vector<string> & tutorial);
 };
 
 

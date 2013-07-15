@@ -118,8 +118,6 @@ void AlbumPanel::viewChanged(string viewIdentifier, vector<FBNode*> & viewData)
 	}
 
 	((UniformGrid*)albumGroup)->resize(calculatePanelSize(albumGroup->getChildren()->size()));
-	
-
 
 	layoutDirty = true;
 }
@@ -127,12 +125,15 @@ void AlbumPanel::viewChanged(string viewIdentifier, vector<FBNode*> & viewData)
 
 void AlbumPanel::setChildDataPriority(float dataPriority)
 {
-	currentDataPriority = dataPriority;
-
-	for (auto it = albumGroup->getChildren()->begin(); it != albumGroup->getChildren()->end();it++)
+	if (currentDataPriority != dataPriority)
 	{
-		Panel * imagePanel = dynamic_cast<Panel*>(*it);
-		if (imagePanel != NULL)
-			imagePanel->setDataPriority(dataPriority);
+		currentDataPriority = dataPriority;
+
+		for (auto it = albumGroup->getChildren()->begin(); it != albumGroup->getChildren()->end();it++)
+		{
+			Panel * imagePanel = dynamic_cast<Panel*>(*it);
+			if (imagePanel != NULL)
+				imagePanel->setDataPriority(dataPriority);
+		}
 	}
 }

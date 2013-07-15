@@ -5,6 +5,8 @@
 #include "FixedAspectGrid.hpp"
 #include "UniformGrid.hpp"
 #include "CustomGrid.hpp"
+#include "LeapDebug.h"
+#include "ImagePanel.hpp"
 
 RadialMenu::RadialMenu(vector<RadialMenuItem> & items)
 {		
@@ -60,9 +62,27 @@ RadialMenu::RadialMenu(vector<RadialMenuItem> & items)
 	rootView->addChild(helpPanel_4);
 	rootView->addChild(helpPanel_6);
 
+	menuLaunchButton = new ImagePanel(GlobalConfig::tree()->get<string>("Menu.OpenMenuImage"));
+	//	("Menu");
+	//menuLaunchButton->setBackgroundColor(Colors::SteelBlue);	
+	//menuLaunchButton->setTextColor(Colors::White);
+	//menuLaunchButton->setTextSize(10);
+
+	
 	addChild(rootView);
+	addChild(menuLaunchButton);
+
+	menuLaunchButton->elementClickedCallback = [this](LeapElement * clicked){
+
+		if (this->state == MenuState_ButtonOnly)
+		{
+			this->show();
+		}
+	};
 
 	setItems(items);
+
+	state = MenuState_ButtonOnly;
 }
 
 void RadialMenu::setItems(vector<RadialMenuItem> & items)
@@ -86,8 +106,21 @@ void RadialMenu::setItems(vector<RadialMenuItem> & items)
 			this->itemClicked(itemId);
 		};
 		addChild(item);
-	}
+	}	
+	addChild(menuLaunchButton);
 	layoutDirty = true;
+}
+
+
+LeapElement * RadialMenu::elementAtPoint(int x, int y, int & state)
+{
+	return ViewGroup::elementAtPoint(x,y,state);
+}
+
+
+float RadialMenu::getZValue()
+{
+	return 100.0f;
 }
 
 void RadialMenu::itemClicked(string id)
@@ -123,19 +156,27 @@ void RadialMenu::layout(Vector pos, cv::Size2f size)
 		offset += 1.0f;
 	}
 
+	cv::Size2f menuButtonSize = cv::Size2f(size.width*.15f,size.height*.1f);
+	menuLaunchButton->layout(Vector(size.width - menuButtonSize.width,size.height - menuButtonSize.height,10) + pos,menuButtonSize);
+
 	rootView->layout(pos,size);
 }
 
 void RadialMenu::show()
 {
-	this->setVisible(true);
+	state = MenuState_DisplayFull;
+	PointableElementManager::getInstance()->requestGlobalGestureFocus(this);
+	GraphicsContext::getInstance().setBlurEnabled(true);
+	layout(lastPosition,lastSize);
 }
 
 void RadialMenu::onGlobalGesture(const Controller & controller, std::string gestureType)
 {
 	if (gestureType.compare("shake") == 0)
 	{
-		this->setVisible(false);
+		state = MenuState_ButtonOnly;
+		PointableElementManager::getInstance()->releaseGlobalGestureFocus(this);
+		GraphicsContext::getInstance().setBlurEnabled(false);		
 	}
 }
 
@@ -154,35 +195,43 @@ bool RadialMenu::onLeapGesture(const Controller & controller, const Gesture & ge
 	return false;
 }
 
+void RadialMenu::getTutorialDescriptor(vector<string> & tutorial)
+{
+	tutorial.push_back("shake");
+	tutorial.push_back("point");
+}
+
 void RadialMenu::setVisible(bool _visible)
 {
-	if (_visible)
-		PointableElementManager::getInstance()->requestGlobalGestureFocus(this);
-	else		
-		PointableElementManager::getInstance()->releaseGlobalGestureFocus(this);
-	GraphicsContext::getInstance().setBlurEnabled(_visible);
 	View::setVisible(_visible);
-	layout(lastPosition,lastSize);
 }
 
 void RadialMenu::draw()
 {
-
-	if (!GraphicsContext::getInstance().IsBlurCurrentPass)
-	{		
-		ViewGroup::draw();				
-	}
-	else
+	if (state == MenuState_DisplayFull)
 	{
-		GraphicsContext::getInstance().requestClearDraw([this](){this->draw();});
+		if (!GraphicsContext::getInstance().IsBlurCurrentPass)
+		{		
+			ViewGroup::draw();				
+		}
+		else
+		{
+			GraphicsContext::getInstance().requestClearDraw([this](){this->draw();});
+		}
 	}
+	else if (state == MenuState_ButtonOnly) 
+	{
+		menuLaunchButton->draw();
+	}
+
 
 }
 
 
 bool RadialMenu::checkMenuOpenGesture(const Gesture & gesture)
 {
-	if (gesture.type() == Gesture::Type::TYPE_CIRCLE && gesture.state() == Gesture::STATE_UPDATE)
+	if (GlobalConfig::tree()->get<bool>("Menu.CircleGesture.Enabled") && 
+		gesture.type() == Gesture::Type::TYPE_CIRCLE && gesture.state() == Gesture::STATE_UPDATE)
 	{
 		CircleGesture circle(gesture);
 		if(	(  

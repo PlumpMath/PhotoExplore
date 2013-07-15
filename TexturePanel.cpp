@@ -5,6 +5,7 @@ TexturePanel::TexturePanel()
 {
 	currentTextureId = NULL;
 	allowSubPixelRendering = true;
+	textureScaleMode = ScaleMode::Fit;
 }
 
 

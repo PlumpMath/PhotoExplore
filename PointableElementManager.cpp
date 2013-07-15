@@ -436,11 +436,24 @@ void PointableElementManager::handleGlobalGestures(const Controller & controller
 void PointableElementManager::requestGlobalGestureFocus(GlobalGestureListener * globalListener)
 {
 	if (globalGestureListenerStack.empty() || globalGestureListenerStack.top() != globalListener)
+	{
 		globalGestureListenerStack.push(globalListener);
+		vector<string> tutorial;
+		globalListener->getTutorialDescriptor(tutorial);
+		LeapDebug::instance->setTutorialImages(tutorial);
+	}
 }
 
 void PointableElementManager::releaseGlobalGestureFocus(GlobalGestureListener * globalListener)
 {
 	if (globalGestureListenerStack.size() > 0 && globalGestureListenerStack.top() == globalListener)
+	{
 		globalGestureListenerStack.pop();
+		if (globalGestureListenerStack.size() > 0)
+		{
+			vector<string> tutorial;
+			globalGestureListenerStack.top()->getTutorialDescriptor(tutorial);
+			LeapDebug::instance->setTutorialImages(tutorial);
+		}
+	}
 }

@@ -306,6 +306,7 @@ int WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmd
 		GlobalConfig::ScreenWidth  = GlobalConfig::tree()->get<int>("GraphicsSettings.OverrideWidth");
 		GlobalConfig::ScreenHeight = GlobalConfig::tree()->get<int>("GraphicsSettings.OverrideHeight");
 	}
+	GlobalConfig::ScreenHeight -= 90;
 
 	GlobalConfig::getInstance().putValue("FontScale",min<float>(GlobalConfig::ScreenWidth/2560.0f,GlobalConfig::ScreenHeight/1440.0f));
 

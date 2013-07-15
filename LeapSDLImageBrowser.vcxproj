@@ -236,6 +236,7 @@
     <ClCompile Include="HandRotationGestureDetector.cpp" />
     <ClCompile Include="ImageDetailView.cpp" />
     <ClCompile Include="ImageLoader.cpp" />
+    <ClCompile Include="ImagePanel.cpp" />
     <ClCompile Include="kiss_fft.c" />
     <ClCompile Include="LeapDebug.cpp" />
     <ClCompile Include="LeapElement.cpp" />
@@ -264,6 +265,7 @@
     <ClCompile Include="ViewOrchestrator.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AbsoluteLayout.hpp" />
     <ClInclude Include="AlbumDetailView.hpp" />
     <ClInclude Include="AlbumPanel.hpp" />
     <ClInclude Include="Animation.h" />
@@ -299,6 +301,7 @@
     <ClInclude Include="ImageDetailView.hpp" />
     <ClInclude Include="ImageLoadingURLClient.h" />
     <ClInclude Include="ImageLoader.hpp" />
+    <ClInclude Include="ImagePanel.hpp" />
     <ClInclude Include="LeapElement.hpp" />
     <ClInclude Include="LightFriendPanel.hpp" />
     <ClInclude Include="LinearLayout.hpp" />

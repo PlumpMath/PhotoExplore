@@ -36,7 +36,7 @@ private:
 
 	void updateLoading(Vector newPos,cv::Size2f visibleSize, bool priorityOnly);
 
-	float projectedRightBoundary;
+	float projectedRightBoundary,currentRightBoundary;
 
 public:
 	FriendDetailView();		
@@ -56,6 +56,7 @@ public:
 
 	void onGlobalGesture(const Controller & controller, std::string gestureType);
 	bool onLeapGesture(const Controller & controller, const Gesture & gesture);
+	void getTutorialDescriptor(vector<string> & tutorial);
 
 	void viewOwnershipChanged(View * view, ViewOwner * newOwner);
 

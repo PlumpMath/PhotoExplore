@@ -1,5 +1,8 @@
 #include "LeapDebug.h"
-
+#include "FixedAspectGrid.hpp"
+#include "ContentPanel.hpp"
+#include "CustomGrid.hpp"
+#include "ImagePanel.hpp"
 
 LeapDebug::LeapDebug(HandProcessor * handProcessor)
 {
@@ -25,6 +28,101 @@ LeapDebug::LeapDebug(HandProcessor * handProcessor)
 	leapNotFocusedPanel->setPosition(Vector(GlobalConfig::ScreenWidth - 450, GlobalConfig::ScreenHeight - 100, 1));
 	leapNotFocusedPanel->layout(Vector(GlobalConfig::ScreenWidth - 500, GlobalConfig::ScreenHeight - 300, 10),cv::Size2f(400,150));
 	leapNotFocusedPanel->setBackgroundColor(Colors::LeapGreen.withAlpha(.7f));
+
+	auto p = GlobalConfig::tree()->get_child("Tutorial.RightHandImages");
+
+	if (GlobalConfig::tree()->get<bool>("Leap.PreferLeftHand"))
+		p = GlobalConfig::tree()->get_child("Tutorial.LeftHandImages");
+
+	
+	Color labelColor = Colors::White;
+	auto labels = GlobalConfig::tree()->get_child("Tutorial.Labels");
+
+	Color backgroundColor = Colors::SteelBlue.withAlpha(.4f);
+
+	ImagePanel  * shakeGesturePanel_img = new ImagePanel(p.get<string>("ShakeGesture"));
+	shakeGesturePanel_img->setBackgroundColor(backgroundColor);
+
+	TextPanel  * shakeGesturePanel_text = new TextPanel(labels.get<string>("ShakeGesture"));
+	shakeGesturePanel_text->setTextColor(labelColor);
+	shakeGesturePanel_text->setBackgroundColor(backgroundColor);
+	shakeGesturePanel_text->setTextSize(8);
+	
+	ImagePanel  * swipeGesturePanel_img = new ImagePanel(p.get<string>("SwipeGesture"));
+	swipeGesturePanel_img->setBackgroundColor(backgroundColor);
+
+	TextPanel  * swipeGesturePanel_text = new TextPanel(labels.get<string>("SwipeGesture"));
+	swipeGesturePanel_text->setTextColor(labelColor);
+	swipeGesturePanel_text->setBackgroundColor(backgroundColor);
+
+	ImagePanel  * pointGesturePanel_img = new ImagePanel(p.get<string>("PointGesture"));
+	pointGesturePanel_img->setBackgroundColor(backgroundColor);
+
+	TextPanel  * pointGesturePanel_text = new TextPanel(labels.get<string>("PointGesture"));
+	pointGesturePanel_text->setTextColor(labelColor);
+	pointGesturePanel_text->setBackgroundColor(backgroundColor);
+	pointGesturePanel_text->setTextSize(8);
+
+	ImagePanel  * pointStopGesturePanel_img = new ImagePanel(p.get<string>("PointStopGesture"));
+	pointStopGesturePanel_img->setBackgroundColor(backgroundColor);
+
+	TextPanel  * pointStopGesturePanel_text = new TextPanel(labels.get<string>("PointStopGesture"));
+	pointStopGesturePanel_text->setTextColor(labelColor);
+	pointStopGesturePanel_text->setBackgroundColor(backgroundColor);
+
+	ImagePanel  * stretchGesturePanel_img = new ImagePanel(p.get<string>("StretchGesture"));
+	stretchGesturePanel_img->setBackgroundColor(backgroundColor);
+
+	TextPanel  * stretchGesturePanel_text = new TextPanel(labels.get<string>("StretchGesture"));
+	stretchGesturePanel_text->setTextColor(labelColor);
+	stretchGesturePanel_text->setBackgroundColor(backgroundColor);
+			
+	vector<RowDefinition> gridDefinition;	
+	gridDefinition.push_back(RowDefinition(.6f));
+	gridDefinition.push_back(RowDefinition(.4f));
+	gridDefinition[0].ColumnWidths.push_back(1);
+	gridDefinition[1].ColumnWidths.push_back(1);
+
+	CustomGrid * cg1 = new CustomGrid(gridDefinition);
+	cg1->addChild(shakeGesturePanel_img);
+	cg1->addChild(shakeGesturePanel_text);
+		
+	CustomGrid * cg2 = new CustomGrid(gridDefinition);
+	cg2->addChild(swipeGesturePanel_img);
+	cg2->addChild(swipeGesturePanel_text);
+		
+	CustomGrid * cg3 = new CustomGrid(gridDefinition);
+	cg3->addChild(pointGesturePanel_img);
+	cg3->addChild(pointGesturePanel_text);
+	
+	CustomGrid * cg4 = new CustomGrid(gridDefinition);
+	cg4->addChild(pointStopGesturePanel_img);
+	cg4->addChild(pointStopGesturePanel_text);
+		
+	CustomGrid * cg5 = new CustomGrid(gridDefinition);
+	cg5->addChild(stretchGesturePanel_img);
+	cg5->addChild(stretchGesturePanel_text);
+	
+	tutorialPanels.insert(make_pair("shake",cg1));	
+	tutorialPanels.insert(make_pair("swipe",cg2));	
+	tutorialPanels.insert(make_pair("point",cg3));	
+	tutorialPanels.insert(make_pair("point_stop",cg4));	
+	tutorialPanels.insert(make_pair("stretch",cg5));	
+
+	tutorialLayout = new FixedAspectGrid(cv::Size2f(0,1),1.33f);
+
+	tutorialPanel = new ContentPanel(tutorialLayout);
+	//tutorialPanel->setBackgroundColor(Colors::DimGray.withAlpha(.2f));
+
+	//for (auto it = tutorialPanels.begin(); it != tutorialPanels.end(); it++)
+	//{
+	//	it->second->layout(Vector(-300,GlobalConfig::ScreenHeight-200,10),cv::Size2f(100,1));
+	//	//tutorialLayout->addChild(it->second);
+	//}
+		
+	cv::Size2f size = cv::Size2f(300,200);
+	tutorialLayout->measure(size);
+	tutorialLayout->layout(Vector(0,GlobalConfig::ScreenHeight+100,10),size);
 }
 
 
@@ -109,6 +207,26 @@ static void drawHand(Vector handCenter, Hand hand, HandModel * handModel)
 
 }
 
+void LeapDebug::setTutorialImages(vector<string> names)
+{	
+	for (auto it = tutorialPanels.begin(); it != tutorialPanels.end(); it++)
+	{
+		if (std::find(names.begin(),names.end(),it->first) == names.end())
+			it->second->layout(Vector(it->second->getLastPosition().x,GlobalConfig::ScreenHeight+100,10),it->second->getMeasuredSize());
+	}
+	tutorialLayout->clearChildren();
+	for (auto it = names.begin(); it != names.end(); it++)
+	{
+		auto gesture = tutorialPanels.find(*it);
+		if (gesture != tutorialPanels.end())
+			tutorialLayout->addChild(gesture->second);
+	}
+	cv::Size2f size = cv::Size2f(300,200);
+	tutorialPanel->measure(size);
+	tutorialPanel->layout(Vector(0,GlobalConfig::ScreenHeight-200,10),size);
+	
+}
+
 void LeapDebug::draw()
 {
 	glPushMatrix();
@@ -140,7 +258,26 @@ void LeapDebug::draw()
 			delete ldv;
 		}
 	}
-	
+
+	if (tutorialPanel->isVisible())
+	{
+		tutorialLayout->setVisible(false);
+		tutorialPanel->draw();
+		tutorialLayout->setVisible(true);
+
+		for (auto it = tutorialPanels.begin(); it != tutorialPanels.end(); it++)
+		{
+			it->second->draw();
+		}
+	}
+		//tutorialPanel->draw();
+
+	//for (auto it = tutorialPanels.begin(); it != tutorialPanels.end(); it++)
+	//{
+	//	if (it->second->isVisible())
+	//		it->second->draw();
+	//}
+	//
 	//for (int i=0;i<lastFrame.hands().count();i++)
 	//{
 	//	Hand hand = lastFrame.hands()[i];

@@ -265,3 +265,11 @@ bool FacebookFriendListView::onLeapGesture(const Controller & controller, const 
 	}
 	return itemScroll->onLeapGesture(controller, gesture);
 }
+
+void FacebookFriendListView::getTutorialDescriptor(vector<string> & tutorial)
+{	
+	tutorial.push_back("point_stop");
+	tutorial.push_back("swipe");
+	tutorial.push_back("shake");
+}
+

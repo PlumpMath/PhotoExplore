@@ -447,6 +447,14 @@ bool FriendPhotoLinkedView::onLeapGesture(const Controller & controller, const G
 	return photoScroll->onLeapGesture(controller, gesture);
 }
 
+void FriendPhotoLinkedView::getTutorialDescriptor(vector<string> & tutorial)
+{
+	tutorial.push_back("swipe");
+	tutorial.push_back("shake");
+	tutorial.push_back("point_stop");
+}
+
+
 void FriendPhotoLinkedView::viewOwnershipChanged(View * view, ViewOwner * newOwner)
 {
 	;

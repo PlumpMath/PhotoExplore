@@ -7,6 +7,7 @@
 #include "HandModel.h"
 #include <sstream>
 #include "TextPanel.h"
+#include "ContentPanel.hpp"
 
 
 #ifndef LeapDebug_H
@@ -111,6 +112,10 @@ private:
 
 	bool isControllerConnected, isControllerFocused;
 
+	map<string,View*> tutorialPanels;
+	ViewGroup * tutorialLayout;
+	ContentPanel * tutorialPanel;
+
 public:
 	LeapDebug(HandProcessor * handProcessor);
 
@@ -118,6 +123,8 @@ public:
 	void draw();
 	void showValue(string key, double value);	
 	void addDebugVisual(LeapDebugVisual * ldv);
+
+	void setTutorialImages(vector<string> names);
 
 	static LeapDebug * instance;
 };

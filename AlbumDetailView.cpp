@@ -243,42 +243,6 @@ FBNode * AlbumDetailView::getNode()
 	return activeNode;
 }
 
-void AlbumDetailView::onGlobalGesture(const Controller & controller, std::string gestureType)
-{
-	if (gestureType.compare("shake") == 0)
-	{
-		float targetPriority = 10;
-		for (auto it = imageGroup->getChildren()->begin(); it != imageGroup->getChildren()->end();it++)
-		{		
-			Panel * imagePanel = (Panel*)*it;	
-			imagePanel->setDataPriority(targetPriority);	
-		}
-
-		imageDetailView->setVisible(false);
-
-		PointableElementManager::getInstance()->releaseGlobalGestureFocus(this);
-
-		layoutDirty = true;
-		if (!finishedCallback.empty())
-			finishedCallback("album_detail");
-	} 
-	else if (gestureType.compare("pointing") == 0)
-	{
-		itemScroll->getFlyWheel()->impartVelocity(0);
-	}
-}
-
-bool AlbumDetailView::onLeapGesture(const Controller & controller, const Gesture & gesture)
-{
-	if (radialMenu->checkMenuOpenGesture(gesture))
-	{
-		itemScroll->getFlyWheel()->impartVelocity(0);
-		radialMenu->show();
-		return true;
-	}
-	return itemScroll->onLeapGesture(controller, gesture);
-}
-
 void AlbumDetailView::viewChanged(vector<FBNode*> & viewData)
 {
 	//itemScroll->setDrawLoadingIndicator(false,false);
@@ -376,6 +340,51 @@ void AlbumDetailView::onFrame(const Controller & controller)
 			}	
 		}
 	}
+}
+
+
+
+void AlbumDetailView::onGlobalGesture(const Controller & controller, std::string gestureType)
+{
+	if (gestureType.compare("shake") == 0)
+	{
+		float targetPriority = 10;
+		for (auto it = imageGroup->getChildren()->begin(); it != imageGroup->getChildren()->end();it++)
+		{		
+			Panel * imagePanel = (Panel*)*it;	
+			imagePanel->setDataPriority(targetPriority);	
+		}
+
+		imageDetailView->setVisible(false);
+
+		PointableElementManager::getInstance()->releaseGlobalGestureFocus(this);
+
+		layoutDirty = true;
+		if (!finishedCallback.empty())
+			finishedCallback("album_detail");
+	} 
+	else if (gestureType.compare("pointing") == 0)
+	{
+		itemScroll->getFlyWheel()->impartVelocity(0);
+	}
+}
+
+bool AlbumDetailView::onLeapGesture(const Controller & controller, const Gesture & gesture)
+{
+	if (radialMenu->checkMenuOpenGesture(gesture))
+	{
+		itemScroll->getFlyWheel()->impartVelocity(0);
+		radialMenu->show();
+		return true;
+	}
+	return itemScroll->onLeapGesture(controller, gesture);
+}
+
+void AlbumDetailView::getTutorialDescriptor(vector<string> & tutorial)
+{
+	tutorial.push_back("shake");
+	tutorial.push_back("point_stop");
+	tutorial.push_back("swipe");
 }
 
 void AlbumDetailView::setFinishedCallback(const boost::function<void(std::string)> & callback)

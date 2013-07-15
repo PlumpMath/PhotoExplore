@@ -49,7 +49,7 @@ View * ContentPanel::getContentView()
 
 void ContentPanel::measure(cv::Size2f & measuredSize)
 {
-	measuredSize = desiredSize;
+	this->contentView->measure(measuredSize);
 }
 
 void ContentPanel::layout(Vector layoutPosition, cv::Size2f layoutSize)

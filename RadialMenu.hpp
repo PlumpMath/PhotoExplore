@@ -4,6 +4,7 @@
 #include <vector>
 #include "View.hpp"
 #include <Leap.h>
+#include "Button.hpp"
 
 
 struct RadialMenuItem {
@@ -35,8 +36,15 @@ private:
 
 	ViewGroup * rootView, * buttonView;
 	void itemClicked(string id);
+
+	int state;
+
+	View * menuLaunchButton;
 	
-public:	
+public:		
+	const static int MenuState_ButtonOnly = 0;
+	const static int MenuState_DisplayFull= 1;
+
 	vector<RadialMenuItem> items;
 
 	RadialMenu(vector<RadialMenuItem> & items);
@@ -46,9 +54,12 @@ public:
 	void setItems(vector<RadialMenuItem> & items);
 
 	bool onLeapGesture(const Controller & controller, const Gesture & gesture);
-	void onGlobalGesture(const Controller & controller, std::string gestureType);
+	void onGlobalGesture(const Controller & controller, std::string gestureType);	
+	void getTutorialDescriptor(vector<string> & tutorial);
 
 	void layout(Vector pos, cv::Size2f size);
+
+	float getZValue();
 
 	void setVisible(bool visible);
 	void show();
@@ -56,6 +67,8 @@ public:
 	void draw();
 
 	bool checkMenuOpenGesture(const Gesture & circle);
+
+	LeapElement * elementAtPoint(int x, int y, int & state);
 
 
 };

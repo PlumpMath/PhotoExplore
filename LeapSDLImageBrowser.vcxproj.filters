@@ -58,12 +58,12 @@
     <Filter Include="Source Files\LeapUtil">
       <UniqueIdentifier>{1f247fc1-9e98-488f-a362-e2e15b1f9667}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Panel">
+      <UniqueIdentifier>{c7382cd2-038d-497c-a022-a66627574e4b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Panel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="FlyWheel.cpp">
@@ -78,16 +78,7 @@
     <ClCompile Include="LeapDebug.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="PanelBase.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="TexturePanel.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="LeapStartScreen.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="TextPanel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="DataViewGenerator.cpp">
@@ -209,6 +200,21 @@
     </ClCompile>
     <ClCompile Include="ImageLoader.cpp">
       <Filter>Source Files\ResourceManager</Filter>
+    </ClCompile>
+    <ClCompile Include="ImagePanel.cpp">
+      <Filter>Source Files\Panel</Filter>
+    </ClCompile>
+    <ClCompile Include="TexturePanel.cpp">
+      <Filter>Source Files\Panel</Filter>
+    </ClCompile>
+    <ClCompile Include="TextPanel.cpp">
+      <Filter>Source Files\Panel</Filter>
+    </ClCompile>
+    <ClCompile Include="Panel.cpp">
+      <Filter>Source Files\Panel</Filter>
+    </ClCompile>
+    <ClCompile Include="PanelBase.cpp">
+      <Filter>Source Files\Panel</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -418,6 +424,12 @@
     </ClInclude>
     <ClInclude Include="ImageLoader.hpp">
       <Filter>Header Files\ResourceManager</Filter>
+    </ClInclude>
+    <ClInclude Include="ImagePanel.hpp">
+      <Filter>Header Files\Panel</Filter>
+    </ClInclude>
+    <ClInclude Include="AbsoluteLayout.hpp">
+      <Filter>Header Files\NewPanel</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -3,6 +3,7 @@
 #include "LinearLayout.hpp"
 #include "FixedAspectGrid.hpp"
 #include "GraphicContext.hpp"
+#include "AbsoluteLayout.hpp"
 
 
 #if defined(_WIN32) 
@@ -48,7 +49,7 @@ LeapStartScreen::LeapStartScreen(std::string startDir)
 	lastHit = NULL;
 
 	if (GlobalConfig::tree()->get<bool>("FakeDataMode.Enable")) {
-		rootView = new FacebookBrowser(createMockData());
+		rootView = new FacebookBrowser(new FBNode("human"));
 		state = FinishedState;
 	}
 	else {
@@ -111,139 +112,6 @@ LeapElement * LeapStartScreen::elementAtPoint(int x, int y, int & elementStateFl
 	} 
 }
 
-FBNode * LeapStartScreen::createMockData()
-{
-	FBNode * human = new FBNode("fake");
-	//ImageLoader::getInstance().loadMockImage("","");
-	return human;
-
-	//vector<path> dirContents;
-	//boost::filesystem::path testPath_mine = boost::filesystem::path("C:\\Users\\Adam\\Pictures\\pixiv-win\\LeapTestImages");
-	//copy(directory_iterator(testPath_mine), directory_iterator(), back_inserter(dirContents));
-
-	//stringstream ss;
-	//ss << "fake_MY_ALBUM"; 
-
-	//FBNode * n1 = new FBNode(ss.str());
-	//n1->setNodeType("albums");
-	//human->Edges.insert(Edge("albums",n1));
-
-	//int photoIndex = 0;
-	//for (int j=0;j<1;j++)
-	//{				
-	//	stringstream ss2;
-	//	ss2 << "fake_MY_IMG_" << j; 
-
-	//	FBNode * n2 = new FBNode(ss2.str());
-	//	n2->setNodeType("photos");
-	//	n1->Edges.insert(Edge("photos",n2));
-
-	//	while ((is_directory(dirContents.at(photoIndex)) ||  
-	//		dirContents.at(photoIndex).extension().string().size() < 3 || (
-	//		dirContents.at(photoIndex).extension().string().find("jpg") == string::npos && 
-	//		dirContents.at(photoIndex).extension().string().find("png") == string::npos)
-	//		) && photoIndex++ < dirContents.size());
-
-
-	//	if (j < dirContents.size())
-	//		ImageLoader::getInstance().setImageRelevance(ss2.str(),16,1,0,dirContents.at(photoIndex%dirContents.size()).string(), cv::Size2i(500,500));
-	//	photoIndex++;
-	//}
-
-	//int friendCount = 0, friendImageCount = 5, friendAlbumCount = 0;
-	//for (int i=0;i<friendCount;i++)
-	//{
-	//	if (photoIndex >= dirContents.size())
-	//	{
-	//		cout << "Error! Ran out of fake images." << endl;
-	//		break;
-	//	}
-
-	//	stringstream ss;
-	//	ss << "fake_Friend " << i;
-	//	FBNode * n2 = new FBNode(ss.str());
-	//	n2->setNodeType("friends");
-	//	human->Edges.insert(Edge("friends", n2));
-
-	//	n2->Edges.insert(Edge("name",ss.str() + " Name"));
-	//	bool profileLoaded = false;
-
-	//	for (int a=0;a<friendAlbumCount+1;a++)
-	//	{
-	//		if (photoIndex >= dirContents.size())
-	//		{
-	//			cout << "Error! Ran out of fake images." << endl;
-	//			break;
-	//		}
-
-	//		FBNode * n1 = NULL;
-	//		if (a > 0)			
-	//		{
-	//			stringstream ss3;
-	//			ss3 << ss.str() << " Album " << a;
-	//			n1 =new FBNode(ss3.str());
-	//			n1->setNodeType("albums");
-	//			n2->Edges.insert(Edge("albums",n1));
-	//		}			
-
-	//		for (int j=0;j<friendImageCount;j++)
-	//		{
-	//			if (photoIndex >= dirContents.size())
-	//			{
-	//				cout << "Error! Ran out of fake images." << endl;
-	//				break;
-	//			}
-
-
-	//			stringstream ss2;
-	//			ss2 << "fake_IMG_" << photoIndex;
-
-	//			FBNode * n3 = new FBNode(ss2.str());
-	//			n3->setNodeType("photos");
-
-	//			n3->Edges.insert(Edge("name",ss2.str() + "-name"));
-
-	//			if (n1 == NULL)
-	//				n2->Edges.insert(Edge("photos",n3));
-	//			else
-	//				n1->Edges.insert(Edge("photos",n3));
-	//					
-	//			
-	//			while ((is_directory(dirContents.at(photoIndex)) ||  
-	//					dirContents.at(photoIndex).extension().string().size() < 3 || (
-	//						dirContents.at(photoIndex).extension().string().find("jpg") == string::npos && 
-	//						dirContents.at(photoIndex).extension().string().find("png") == string::npos)
-	//				) && photoIndex++ < dirContents.size());
-
-	//			if (photoIndex < dirContents.size())
-	//			{
-	//				if (a == 0 && j == 0 && !profileLoaded)
-	//				{
-	//					profileLoaded = true;
-	//					j--;
-	//					ImageLoader::getInstance().setImageRelevance(ss.str(),16,1,0,dirContents.at(photoIndex%dirContents.size()).string(),cv::Size2i(500,500));
-	//					//ImageLoader::getInstance().loadMockImage(ss.str(),dirContents.at(photoIndex%dirContents.size()).string());
-	//				}
-	//				else
-	//				{
-	//					ImageLoader::getInstance().setImageRelevance(ss2.str(),16,1,0,dirContents.at(photoIndex%dirContents.size()).string(),cv::Size2i(500,500));
-	//					//ImageLoader::getInstance().loadMockImage(ss2.str(),dirContents.at(photoIndex%dirContents.size()).string());
-	//				}
-	//				
-	//			}
-	//			else
-	//			{
-	//				cout << "Error! Ran out of fake images." << endl;
-	//				break;
-	//			}
-	//			photoIndex++;
-	//		}
-	//	}
-	//}
-	//return human;
-}
-
-
 void LeapStartScreen::init()
 {
 	vector<RowDefinition> gridDefinition;
@@ -289,8 +157,6 @@ void LeapStartScreen::init()
 		return true;
 	};
 
-	
-	radialMenu->setVisible(false);
 	radialMenu->layout(Vector(),cv::Size2f(GlobalConfig::ScreenWidth,GlobalConfig::ScreenHeight));
 
 
@@ -376,64 +242,67 @@ void LeapStartScreen::init()
 	//logoutButton->setLayoutParams(LayoutParams(cv::Size2f(600,600),cv::Vec4f(150,50,50,50)));
 
 	
-	TextPanel * helpPanel_1 = new TextPanel("1. Make a quick circle gesture to show the menu");
-	helpPanel_1->setTextSize(8);
-	helpPanel_1->setTextColor(Colors::Black);
-	helpPanel_1->setBackgroundColor(Colors::WhiteSmoke.withAlpha(0));
+	//TextPanel * helpPanel_1 = new TextPanel("1. Make a quick circle gesture to show the menu");
+	//helpPanel_1->setTextSize(8);
+	//helpPanel_1->setTextColor(Colors::Black);
+	//helpPanel_1->setBackgroundColor(Colors::WhiteSmoke.withAlpha(0));
 
-	TextPanel * helpPanel_2 = new TextPanel("2. Swipe left and right with a spread hand to scroll. The cursor will be outlined in orange when a spread hand is detected.");
-	helpPanel_2->setTextSize(8);
-	helpPanel_2->setTextColor(Colors::Black);
-	helpPanel_2->setBackgroundColor(Colors::WhiteSmoke.withAlpha(0));
-	
-	TextPanel * helpPanel_3 = new TextPanel("3. Use a pointed finger to select a photo or a button, and to stop scrolling. The cursor will be outlined in blue when a pointed finger is detected.");
-	helpPanel_3->setTextSize(8);
-	helpPanel_3->setTextColor(Colors::Black);
-	helpPanel_3->setBackgroundColor(Colors::WhiteSmoke.withAlpha(0));
-		
-	TextPanel * helpPanel_4 = new TextPanel("4. Shake your hand or finger to go back");
-	helpPanel_4->setTextSize(8);
-	helpPanel_4->setTextColor(Colors::Black);
-	helpPanel_4->setBackgroundColor(Colors::WhiteSmoke.withAlpha(0));
+	//TextPanel * helpPanel_2 = new TextPanel("2. Swipe left and right with a spread hand to scroll. The cursor will be outlined in orange when a spread hand is detected.");
+	//helpPanel_2->setTextSize(8);
+	//helpPanel_2->setTextColor(Colors::Black);
+	//helpPanel_2->setBackgroundColor(Colors::WhiteSmoke.withAlpha(0));
+	//
+	//TextPanel * helpPanel_3 = new TextPanel("3. Use a pointed finger to select a photo or a button, and to stop scrolling. The cursor will be outlined in blue when a pointed finger is detected.");
+	//helpPanel_3->setTextSize(8);
+	//helpPanel_3->setTextColor(Colors::Black);
+	//helpPanel_3->setBackgroundColor(Colors::WhiteSmoke.withAlpha(0));
+	//	
+	//TextPanel * helpPanel_4 = new TextPanel("4. Shake your hand or finger to go back");
+	//helpPanel_4->setTextSize(8);
+	//helpPanel_4->setTextColor(Colors::Black);
+	//helpPanel_4->setBackgroundColor(Colors::WhiteSmoke.withAlpha(0));
 
-	TextPanel * helpPanel_6 = new TextPanel("5. Point with two hands to stretch selected photos");
-	helpPanel_6->setTextSize(8);
-	helpPanel_6->setTextColor(Colors::Black);
-	helpPanel_6->setBackgroundColor(Colors::WhiteSmoke.withAlpha(0));
+	//TextPanel * helpPanel_6 = new TextPanel("5. Point with two hands to stretch selected photos");
+	//helpPanel_6->setTextSize(8);
+	//helpPanel_6->setTextColor(Colors::Black);
+	//helpPanel_6->setBackgroundColor(Colors::WhiteSmoke.withAlpha(0));
 
-	
-	mainLayout->addChild(helpPanel_1);
-	mainLayout->addChild(helpPanel_2);
-	//mainLayout->addChild(helpPanel_5);
-	mainLayout->addChild(helpPanel_3);
-	mainLayout->addChild(helpPanel_4);
-	mainLayout->addChild(helpPanel_6);
+	//
+	//mainLayout->addChild(helpPanel_1);
+	//mainLayout->addChild(helpPanel_2);
+	////mainLayout->addChild(helpPanel_5);
+	//mainLayout->addChild(helpPanel_3);
+	//mainLayout->addChild(helpPanel_4);
+	//mainLayout->addChild(helpPanel_6);
 	
 	PointableElementManager::getInstance()->registerElement(mainLayout);
 
 	this->layout(Vector(),cv::Size2f(GlobalConfig::ScreenWidth, GlobalConfig::ScreenHeight));
 		
-	float padding = 10;
-	int gridSpace = ((GlobalConfig::ScreenWidth - (padding*2))/10);
-	float floatingPanelWidth = gridSpace;
-	float count =0;
-	for (int x=padding;x<GlobalConfig::ScreenWidth-padding;x += gridSpace)
-	{
-		for (int y=padding;y<GlobalConfig::ScreenHeight-padding;y += gridSpace)
-		{
-			count++;
-			FloatingPanel * fp = new FloatingPanel(floatingPanelWidth-padding,floatingPanelWidth-padding,Vector(x+padding/2.0f,y+padding/2.0f,-1));
 
-			Color cb = Colors::White;
-			cb.setAlpha(1);
-			fp->setBackgroundColor(cb);		
-			fp->setBorderColor(Colors::LightSteelBlue);
-			fp->setBorderThickness(.6f);
-			fp->NudgeAnimationEnabled = true;
-			
-			panelList.push_back(fp);
-		}
+	FixedAspectGrid * floatLayout = new FixedAspectGrid(cv::Size2i(0,6),1.0f);
+	floatLayout->setLayoutParams(cv::Size2f(GlobalConfig::ScreenWidth*2,GlobalConfig::ScreenHeight));
+		
+	std::srand(10);
+	for (int i =0; i < (GlobalConfig::ScreenWidth/(GlobalConfig::ScreenHeight/6.0f))*2*6;i++)
+	{
+		FloatingPanel * fp = new FloatingPanel(100,100,Vector());
+
+		fp->setBackgroundColor(Colors::White);
+
+		if (std::rand() % 5 == 0)
+			fp->setBackgroundColor(Colors::LightSteelBlue);
+
+		fp->setBorderColor(Colors::LightSteelBlue);
+		fp->setBorderThickness(.6f);
+		fp->NudgeAnimationEnabled = true;
+
+		floatLayout->addChild(fp);
 	}	
+	
+	floatingPanelsView = new ScrollingView(floatLayout);
+	floatingPanelsView->layout(Vector(),cv::Size2f(GlobalConfig::ScreenWidth,GlobalConfig::ScreenHeight));
+	floatingPanelsView->getFlyWheel()->overrideValue(-GlobalConfig::ScreenWidth*.5f);
 }	
 
 void FloatingPanel::update(double deltaTime)
@@ -496,14 +365,11 @@ void LeapStartScreen::onFrame(const Controller & controller)
 		Frame frame = controller.frame();
 
 		HandModel * handModel = HandProcessor::LastModel();
-		for (int j=0;j<panelList.size();j++)
-		{			
-			Vector pt = LeapHelper::FindScreenPoint(controller,frame.pointable(handModel->IntentFinger));
-			int flags;
-			LeapElement * e = panelList[j]->elementAtPoint((int)pt.x,(int)pt.y,flags);
-			if (e != NULL)
-				e->OnPointableEnter(frame.pointable(handModel->IntentFinger));
-		}
+		Vector pt = LeapHelper::FindScreenPoint(controller,frame.pointable(handModel->IntentFinger));
+		int flags = 0;
+		LeapElement * element = floatingPanelsView->elementAtPoint((int)pt.x,(int)pt.y,flags);
+		if (element != NULL)
+			element->OnPointableEnter(frame.pointable(handModel->IntentFinger));
 
 	}
 
@@ -572,13 +438,44 @@ bool LeapStartScreen::onLeapGesture(const Controller & controller, const Gesture
 		radialMenu->show();
 		return true;
 	}
-	return false;
+	else
+	{
+		return floatingPanelsView->onLeapGesture(controller,gesture);	
+	}
 }
 
 void LeapStartScreen::onGlobalGesture(const Controller & controller, std::string gestureType)
 {
-	;
+	if (gestureType.compare("shake") == 0)
+	{
+		ViewGroup * panels = (ViewGroup*)floatingPanelsView->getContent();
+		std::random_shuffle(panels->getChildren()->begin(), panels->getChildren()->end());
+
+		floatingPanelsView->layout(Vector(),cv::Size2f(GlobalConfig::ScreenWidth,GlobalConfig::ScreenHeight));
+
+		//float padding = 10;
+		//int gridSpace = ((GlobalConfig::ScreenWidth - (padding*2))/10);
+		//float floatingPanelWidth = gridSpace;
+		//float count =0;
+		//for (int x=padding;x<GlobalConfig::ScreenWidth-padding;x += gridSpace)
+		//{
+		//	for (int y=padding;y<GlobalConfig::ScreenHeight-padding;y += gridSpace)
+		//	{
+		//		panels->getChildren()->at(count++)->layout(Vector(x+padding/2.0f,y+padding/2.0f,-1), cv::Size2f(floatingPanelWidth-padding,floatingPanelWidth-padding));				
+		//	}
+		//}	
+	} 
+	else if (gestureType.compare("pointing") == 0)
+	{
+		floatingPanelsView->getFlyWheel()->impartVelocity(0);
+	}
 }
+
+void LeapStartScreen::getTutorialDescriptor(vector<string> & tutorial)
+{	
+	tutorial.push_back("point");
+}
+
 
 
 void LeapStartScreen::update(double delta)
@@ -597,12 +494,12 @@ void LeapStartScreen::update(double delta)
 			loggedInNode->update();
 
 		View::update();
-		double dT = updateTimer.millis();
-		for (int i=0;i<panelList.size();i++)
-		{
-			panelList.at(i)->update(dT);
-		}
-		updateTimer.start();
+		//double dT = updateTimer.millis();
+		//for (int i=0;i<panelList.size();i++)
+		//{
+		//	panelList.at(i)->update(dT);
+		//}
+		//updateTimer.start();
 
 		//if (fileBrowserCallback.get() != NULL)
 		//{
@@ -728,10 +625,8 @@ void LeapStartScreen::draw()
 		//if (facebookClient != NULL)
 		//	facebookClient->draw();
 				
-		for (int i=0;i<panelList.size();i++)
-		{
-			panelList.at(i)->draw();
-		}
+		floatingPanelsView->draw();
+
 		mainLayout->draw();
 		
 		if (facebookLoginButton->isVisible())

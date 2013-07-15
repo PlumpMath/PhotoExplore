@@ -90,6 +90,12 @@ bool ImageDetailView::onLeapGesture(const Controller & controller, const Gesture
 	return false;
 }
 
+void ImageDetailView::getTutorialDescriptor(vector<string> & tutorial)
+{
+	tutorial.push_back("shake");
+	tutorial.push_back("stretch");	
+}
+
 void ImageDetailView::setImageMetaData()
 {
 	likeButton->setVisible(false);

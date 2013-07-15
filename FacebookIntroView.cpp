@@ -1,6 +1,7 @@
 #include "FacebookIntroView.hpp"
 #include "CustomGrid.hpp"
 #include "GraphicContext.hpp"
+#include "LeapDebug.h"
 
 using namespace cv;
 
@@ -36,7 +37,7 @@ FacebookIntroView::FacebookIntroView()
 	photoButton->elementClickedCallback = boost::bind(&FacebookIntroView::buttonClicked,this,_1);
 	photoButton->setLayoutParams(LayoutParams(cv::Size2f(),cv::Vec4f(50,50,50,50)));
 
-	friendButton= new Button("Photos from my Friends");
+	friendButton= new Button("Photos of my Friends");
 	friendButton->panelId = "friend_button";
 	friendButton->setTextSize(10);
 	friendButton->setTextColor(Colors::White);
@@ -46,7 +47,7 @@ FacebookIntroView::FacebookIntroView()
 	friendButton->elementClickedCallback = boost::bind(&FacebookIntroView::buttonClicked,this,_1);
 	friendButton->setLayoutParams(LayoutParams(cv::Size2f(),cv::Vec4f(50,50,50,50)));
 	
-	friendListButton = new Button("Photos from my Friends");
+	friendListButton = new Button("Photos of my Friends");
 	friendListButton->setTextSize(10);
 	friendListButton->setTextColor(Colors::White);
 	friendListButton->setBackgroundColor(buttonColor);	
@@ -71,7 +72,6 @@ FacebookIntroView::FacebookIntroView()
 	menuItems.push_back(RadialMenuItem("Exit Photo Explorer","exit",Colors::DarkRed));
 	menuItems.push_back(RadialMenuItem("Cancel","cancel",Colors::OrangeRed));
 	radialMenu = new RadialMenu(menuItems);
-	radialMenu->setVisible(false);
 	radialMenu->ItemClickedCallback = [this](string id) -> bool{
 
 		if (id.compare("exit") == 0)
@@ -83,6 +83,7 @@ FacebookIntroView::FacebookIntroView()
 		return true;
 	};
 	addChild(radialMenu);
+
 
 }
 
@@ -139,6 +140,12 @@ bool FacebookIntroView::onLeapGesture(const Controller & controller, const Gestu
 		radialMenu->show();
 	else
 		return false;
+}
+
+
+void FacebookIntroView::getTutorialDescriptor(vector<string> & tutorial)
+{
+	tutorial.push_back("point");
 }
 
 void FacebookIntroView::show(FBNode * node)

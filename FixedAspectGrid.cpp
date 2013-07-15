@@ -49,7 +49,10 @@ void FixedAspectGrid::measure(cv::Size2f & _measuredSize)
 			}
 		}
 
-		_measuredSize.width = (col+1) * cellWidth;
+		if (row != 0)
+			col++;
+
+		_measuredSize.width = col * cellWidth;
 	}
 	else
 	{
