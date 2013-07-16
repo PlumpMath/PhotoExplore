@@ -23,9 +23,7 @@ private:
 	float currentRightBoundary,lastUpdatePos;
 
 	FBNode * activeNode;
-
-	RadialMenu * radialMenu;
-
+	
 	void loadItems(int friends);
 	void updateLoading();
 	void addNode(FBNode * node);

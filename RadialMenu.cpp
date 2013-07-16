@@ -8,70 +8,12 @@
 #include "LeapDebug.h"
 #include "ImagePanel.hpp"
 
+RadialMenu * RadialMenu::instance = NULL;
+
 RadialMenu::RadialMenu(vector<RadialMenuItem> & items)
 {		
-	
-	vector<RowDefinition> gridDefinition;
-	
-	gridDefinition.push_back(RowDefinition(.65f));
-	gridDefinition.push_back(RowDefinition(.05f));
-	gridDefinition.push_back(RowDefinition(.05f));
-	gridDefinition.push_back(RowDefinition(.05f));
-	gridDefinition.push_back(RowDefinition(.05f));
-	gridDefinition.push_back(RowDefinition(.05f));
-
-	gridDefinition[0].ColumnWidths.push_back(1);	
-	gridDefinition[1].ColumnWidths.push_back(1);
-	gridDefinition[2].ColumnWidths.push_back(1);
-	gridDefinition[3].ColumnWidths.push_back(1);
-	gridDefinition[4].ColumnWidths.push_back(1);
-	gridDefinition[5].ColumnWidths.push_back(1);
-	
-	rootView = new CustomGrid(gridDefinition);	
-		
-	TextPanel * helpPanel_1 = new TextPanel("1. Make a quick circle gesture to show the menu");
-	helpPanel_1->setTextSize(8);
-	helpPanel_1->setTextColor(Colors::White);
-	helpPanel_1->setBackgroundColor(Colors::WhiteSmoke.withAlpha(0));
-
-	TextPanel * helpPanel_2 = new TextPanel("2. Swipe left and right with a spread hand to scroll. The cursor will be outlined in orange when a spread hand is detected.");
-	helpPanel_2->setTextSize(8);
-	helpPanel_2->setTextColor(Colors::White);
-	helpPanel_2->setBackgroundColor(Colors::WhiteSmoke.withAlpha(0));
-	
-	TextPanel * helpPanel_3 = new TextPanel("3. Use a pointed finger to select a photo or a button, and to stop scrolling. The cursor will be outlined in blue when a pointed finger is detected.");
-	helpPanel_3->setTextSize(8);
-	helpPanel_3->setTextColor(Colors::White);
-	helpPanel_3->setBackgroundColor(Colors::WhiteSmoke.withAlpha(0));
-		
-	TextPanel * helpPanel_4 = new TextPanel("4. Shake your hand or finger to go back");
-	helpPanel_4->setTextSize(8);
-	helpPanel_4->setTextColor(Colors::White);
-	helpPanel_4->setBackgroundColor(Colors::WhiteSmoke.withAlpha(0));
-
-	TextPanel * helpPanel_6 = new TextPanel("5. Point with two hands to stretch selected photos");
-	helpPanel_6->setTextSize(8);
-	helpPanel_6->setTextColor(Colors::White);
-	helpPanel_6->setBackgroundColor(Colors::WhiteSmoke.withAlpha(0));
-
-	
-	rootView->addChild(new TextPanel(""));
-	rootView->addChild(helpPanel_1);
-	rootView->addChild(helpPanel_2);
-	rootView->addChild(helpPanel_3);
-	rootView->addChild(helpPanel_4);
-	rootView->addChild(helpPanel_6);
-
-	menuLaunchButton = new ImagePanel(GlobalConfig::tree()->get<string>("Menu.OpenMenuImage"));
-	//	("Menu");
-	//menuLaunchButton->setBackgroundColor(Colors::SteelBlue);	
-	//menuLaunchButton->setTextColor(Colors::White);
-	//menuLaunchButton->setTextSize(10);
-
-	
-	addChild(rootView);
+	menuLaunchButton = new ImagePanel(GlobalConfig::tree()->get<string>("Menu.OpenMenuImage"));	
 	addChild(menuLaunchButton);
-
 	menuLaunchButton->elementClickedCallback = [this](LeapElement * clicked){
 
 		if (this->state == MenuState_ButtonOnly)
@@ -79,11 +21,12 @@ RadialMenu::RadialMenu(vector<RadialMenuItem> & items)
 			this->show();
 		}
 	};
-	((ImagePanel*)menuLaunchButton)->setBackgroundColor(Colors::HoloBlueDark.withAlpha(.5f));
+	//((ImagePanel*)menuLaunchButton)->setBackgroundColor(Colors::HoloBlueDark.withAlpha(.5f));
 
 	setItems(items);
 
 	state = MenuState_ButtonOnly;
+	instance = this;
 }
 
 void RadialMenu::setItems(vector<RadialMenuItem> & items)
@@ -92,13 +35,16 @@ void RadialMenu::setItems(vector<RadialMenuItem> & items)
 	for (auto it = items.begin(); it != items.end(); it++)
 	{
 		Button * item = new Button(it->label);
-		item->setTextColor(Colors::White);
+		item->setTextColor(Colors::Black);
+		item->setBackgroundColor(Colors::White);
+		item->setBorderColor(it->buttonColor);
+		item->setBorderThickness(2);
 		Color c = Colors::DarkRed;
 
 		if (it->buttonColor.a != 0)
 			c = it->buttonColor;
 
-		c.setAlpha(.8f);
+		c.setAlpha(.7f);
 		item->setBackgroundColor(c);		
 		item->setTextSize(12);
 		string itemId = it->id;
@@ -163,11 +109,10 @@ void RadialMenu::layout(Vector pos, cv::Size2f size)
 			(*it)->layout(center + Vector(-childSize.width/2.0f,offset*spacing,0),childSize);
 			offset += 1.0f;
 		}
-		rootView->layout(pos,size);
 	}
 	else if (state == MenuState_ButtonOnly) 
 	{
-		cv::Size2f menuButtonSize = cv::Size2f(size.width*.15f,size.height*.12f);
+		cv::Size2f menuButtonSize = cv::Size2f(size.width*.15f,GlobalConfig::tree()->get<float>("Tutorial.Height"));
 		menuLaunchButton->layout(Vector(size.width - menuButtonSize.width,size.height - menuButtonSize.height,10) + pos,menuButtonSize);
 	}
 	this->layoutDirty = false;

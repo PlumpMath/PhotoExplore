@@ -29,9 +29,7 @@ private:
 	int rowCount;
 	float lastUpdatePos, avgItemWidth;
 	float currentRightBoundary;
-
-	RadialMenu * radialMenu;
-
+	
 	void addNode(FBNode * node);
 
 	map<string,FBNode*> items;

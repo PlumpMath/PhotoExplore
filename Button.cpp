@@ -8,6 +8,7 @@ Button::Button(string _text) : TextPanel(_text)
 
 void Button::OnPointableEnter(Pointable & pointable)
 {
+	TextPanel::OnPointableEnter(pointable);
 	this->activePointable = Pointable(pointable);
 	if (activePointable.isValid())
 	{
@@ -17,6 +18,7 @@ void Button::OnPointableEnter(Pointable & pointable)
 
 void Button::OnPointableExit(Pointable & pointable)
 {
+	TextPanel::OnPointableExit(pointable);
 	this->activePointable = Pointable();
 	setPressedScale(1.0f);	
 }

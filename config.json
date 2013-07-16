@@ -1,10 +1,18 @@
 {
+	"Typography" : 
+	{
+		"FontFile" : "Roboto-Light.ttf", //Choose font
+		"FontScaleModifier" : 1.0,
+		"AdjustToScreenHeight" : true,
+		"SubPixelTextRendering" : false
+	},
 	"GraphicsSettings" :
 	{
 		"Fullscreen" : false,
-		"OverrideResolution" : false,
+		"OverrideResolution" : true,
 		"OverrideWidth" : 1280,
-		"OverrideHeight" : 720
+		"OverrideHeight" : 720,
+		"UseIntForNonSubPixelRender" : false
 	},
 	"Panel" :
 	{
@@ -95,7 +103,8 @@
 		"CancelDirectional" : true, 	//Ignore movement in the direction the finger is pointing
 		"Disabled" : false, 					//Disable the shake completely (breaks most functionality)
 		"CooldownTime" : 500.0, 		//Time between consecutive shakes (milliseconds)
-		"MinTimeVisible" : 0.0			//Minimum time a pointable must have been visible in order to be considered in shake detection
+		"MinTimeVisible" : 0.0,		//Minimum time a pointable must have been visible in order to be considered in shake detection
+		"MinimumPointables" : 2
 	},
 	"Menu" : 
 	{
@@ -181,7 +190,8 @@
 		},
 		"Labels" :
 		{
-			"FontSize" : 7.0,
+			"FontSize" : 5.0,
+			"TextPadding" : 5.0,
 			"SwipeGesture" : "Swipe Left/Right",
 			"PointGesture" : "Hover or tap to select",
 			"PointStopGesture" : "Point to stop",
@@ -194,7 +204,10 @@
 			"G" : 200,
 			"B" : 200,
 			"A" : 150
-		}
+		},
+		"AspectRatio" : 1.4,
+		"Height" : 140, //Pixels - ADJUST TUTORIAL HEIGHT
+		"Enabled" : true
 	},
 	"Strings" : 
 	{

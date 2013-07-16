@@ -236,6 +236,13 @@ void ShakeGestureDetector::onFrame(const Controller & controller)
 		{				
 			Pointable p = frame.pointables()[i];
 
+			int minPointables = GlobalConfig::tree()->get<int>("Shake.MinimumPointables");
+			if (minPointables > 1)
+			{
+				if (!p.hand().isValid() || p.hand().pointables().count() < minPointables)
+					continue;
+			}
+			
 			if (p.isValid())// && p.timeVisible() > GlobalConfig::tree()->get<float>("Shake.MinTimeVisible")) // && p.tipVelocity().magnitude() > GlobalConfig::tree()->get("Shake.FFT.TriggerVelocity",20.0f))
 			{
 				float sample;

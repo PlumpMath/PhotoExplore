@@ -16,7 +16,7 @@ void TypographyManager::init()
 		cout << "Error initializing TTF library. Error code = " << error << " \n";
 	} else {
 
-		std::string fontFile = "Roboto-Regular.ttf";
+		std::string fontFile = GlobalConfig::tree()->get<string>("Typography.FontFile");
 
 		error = FT_New_Face( fontLibrary,fontFile.c_str(),0,&fontFace);
 
@@ -36,7 +36,11 @@ cv::Mat TypographyManager::renderText(std::string text, Color textColor, float f
 {
 	if (freetypeInitialized)
 	{
-		return renderTextFreeType(text,64 * ((int)(floor(fontScale * (GlobalConfig::getInstance().getFloat("FontScale"))))),textColor, targetSize.width);
+		float scaleAdjust = GlobalConfig::tree()->get<float>("Typography.FontScaleModifier");
+		if (GlobalConfig::tree()->get<bool>("Typography.AdjustToScreenHeight"))
+			scaleAdjust *= GlobalConfig::ScreenHeight/1440.0f;
+
+		return renderTextFreeType(text,64 * (int)(ceilf(fontScale * scaleAdjust)),textColor, targetSize.width);
 	}
 	else
 	{

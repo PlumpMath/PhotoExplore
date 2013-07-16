@@ -56,7 +56,7 @@ void TexturePanel::drawContent(Vector drawPosition, float drawWidth, float drawH
 
 void TexturePanel::drawTexture(GLuint drawTexId, Vector drawPosition, float drawWidth, float drawHeight)
 {
-
+	static bool useInt = GlobalConfig::tree()->get<bool>("GraphicsSettings.UseIntForNonSubPixelRender");
 
 
 	
@@ -138,8 +138,8 @@ void TexturePanel::drawTexture(GLuint drawTexId, Vector drawPosition, float draw
 
 	float x2 = x1 + drawTextureWidth;
 
-	if (!allowSubPixelRendering)
-		x2 = floorf(x2);
+	//if (!allowSubPixelRendering)
+	//	x2 = floorf(x2);
 
 	float y1 = drawPosition.y - drawTextureHeight/2.0f;
 
@@ -148,25 +148,42 @@ void TexturePanel::drawTexture(GLuint drawTexId, Vector drawPosition, float draw
 
 	float y2 = y1 + drawTextureHeight;
 	
-	if (!allowSubPixelRendering)
-		y2 = floorf(y2);
+	//if (!allowSubPixelRendering)
+	//	y2 = floorf(y2);
 
 	float z1 = drawPosition.z;
 				
 	glColor4f(1,1,1,1);
 	glBegin( GL_QUADS );
 
-		glTexCoord2f(tx1,ty1);
-		glVertex3f(x1,y1,z1); 
+		if (!allowSubPixelRendering && useInt)
+		{			
+			glTexCoord2i(tx1,ty1);
+			glVertex3i((int)x1,(int)y1,(int)z1); 
 
-		glTexCoord2f(tx2,ty1);
-		glVertex3f(x2,y1,z1);
+			glTexCoord2i(tx2,ty1);
+			glVertex3i((int)x2,(int)y1,(int)z1);
 
-		glTexCoord2f(tx2,ty2);
-		glVertex3f(x2,y2,z1);
+			glTexCoord2i(tx2,ty2);
+			glVertex3i((int)x2,(int)y2,(int)z1);
 
-		glTexCoord2f(tx1,ty2);
-		glVertex3f(x1,y2,z1);
+			glTexCoord2i(tx1,ty2);
+			glVertex3i((int)x1,(int)y2,(int)z1);
+		}
+		else
+		{
+			glTexCoord2f(tx1,ty1);
+			glVertex3f(x1,y1,z1); 
+
+			glTexCoord2f(tx2,ty1);
+			glVertex3f(x2,y1,z1);
+
+			glTexCoord2f(tx2,ty2);
+			glVertex3f(x2,y2,z1);
+
+			glTexCoord2f(tx1,ty2);
+			glVertex3f(x1,y2,z1);
+		}
 
 	glEnd();	
 

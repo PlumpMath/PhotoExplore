@@ -26,8 +26,6 @@ private:
 	ImageDetailView * imageDetailView;
 	FBNode * activeNode;
 
-	RadialMenu * radialMenu;
-
 	ViewGroup * mainLayout;
 
 	int rowCount;

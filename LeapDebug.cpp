@@ -43,10 +43,13 @@ LeapDebug::LeapDebug(HandProcessor * handProcessor)
 
 	float tutorialTextSize = labels.get<float>("FontSize");
 
+	float textPadding = labels.get<float>("TextPadding");
+
 	ImagePanel  * shakeGesturePanel_img = new ImagePanel(p.get<string>("ShakeGesture"));
 	shakeGesturePanel_img->setBackgroundColor(backgroundColor);
 
 	TextPanel  * shakeGesturePanel_text = new TextPanel(labels.get<string>("ShakeGesture"));
+	shakeGesturePanel_text->setTextFitPadding(textPadding);
 	shakeGesturePanel_text->setTextColor(labelColor);
 	shakeGesturePanel_text->setBackgroundColor(backgroundColor);
 	shakeGesturePanel_text->setTextSize(tutorialTextSize);
@@ -55,6 +58,7 @@ LeapDebug::LeapDebug(HandProcessor * handProcessor)
 	swipeGesturePanel_img->setBackgroundColor(backgroundColor);
 
 	TextPanel  * swipeGesturePanel_text = new TextPanel(labels.get<string>("SwipeGesture"));
+	swipeGesturePanel_text->setTextFitPadding(textPadding);
 	swipeGesturePanel_text->setTextColor(labelColor);
 	swipeGesturePanel_text->setBackgroundColor(backgroundColor);
 	swipeGesturePanel_text->setTextSize(tutorialTextSize);
@@ -63,14 +67,17 @@ LeapDebug::LeapDebug(HandProcessor * handProcessor)
 	pointGesturePanel_img->setBackgroundColor(backgroundColor);
 
 	TextPanel  * pointGesturePanel_text = new TextPanel(labels.get<string>("PointGesture"));
+	pointGesturePanel_text->setTextFitPadding(textPadding);
 	pointGesturePanel_text->setTextColor(labelColor);
 	pointGesturePanel_text->setBackgroundColor(backgroundColor);
 	pointGesturePanel_text->setTextSize(tutorialTextSize);
+	
 
 	ImagePanel  * pointStopGesturePanel_img = new ImagePanel(p.get<string>("PointStopGesture"));
 	pointStopGesturePanel_img->setBackgroundColor(backgroundColor);
 
 	TextPanel  * pointStopGesturePanel_text = new TextPanel(labels.get<string>("PointStopGesture"));
+	pointStopGesturePanel_text->setTextFitPadding(textPadding);
 	pointStopGesturePanel_text->setTextColor(labelColor);
 	pointStopGesturePanel_text->setBackgroundColor(backgroundColor);
 	pointStopGesturePanel_text->setTextSize(tutorialTextSize);
@@ -80,6 +87,7 @@ LeapDebug::LeapDebug(HandProcessor * handProcessor)
 	stretchGesturePanel_img->setBackgroundColor(backgroundColor);
 
 	TextPanel  * stretchGesturePanel_text = new TextPanel(labels.get<string>("StretchGesture"));
+	stretchGesturePanel_text->setTextFitPadding(textPadding);
 	stretchGesturePanel_text->setTextColor(labelColor);
 	stretchGesturePanel_text->setBackgroundColor(backgroundColor);
 	stretchGesturePanel_text->setTextSize(tutorialTextSize);
@@ -117,7 +125,7 @@ LeapDebug::LeapDebug(HandProcessor * handProcessor)
 	tutorialPanels.insert(make_pair("point_stop",cg4));	
 	tutorialPanels.insert(make_pair("stretch",cg5));	
 
-	tutorialLayout = new FixedAspectGrid(cv::Size2f(0,1),1.33f);
+	tutorialLayout = new FixedAspectGrid(cv::Size2f(0,1),GlobalConfig::tree()->get<float>("Tutorial.AspectRatio"));
 
 	tutorialPanel = new ContentPanel(tutorialLayout);
 	//tutorialPanel->setBackgroundColor(Colors::DimGray.withAlpha(.2f));
@@ -128,7 +136,7 @@ LeapDebug::LeapDebug(HandProcessor * handProcessor)
 	//	//tutorialLayout->addChild(it->second);
 	//}
 		
-	cv::Size2f size = cv::Size2f(300,200);
+	cv::Size2f size = cv::Size2f(300,GlobalConfig::tree()->get<float>("Tutorial.Height"));
 	tutorialLayout->measure(size);
 	tutorialLayout->layout(Vector(0,GlobalConfig::ScreenHeight+100,10),size);
 }
@@ -217,6 +225,9 @@ static void drawHand(Vector handCenter, Hand hand, HandModel * handModel)
 
 void LeapDebug::setTutorialImages(vector<string> names)
 {	
+	if (!GlobalConfig::tree()->get<bool>("Tutorial.Enabled"))
+		names.clear();
+
 	for (auto it = tutorialPanels.begin(); it != tutorialPanels.end(); it++)
 	{
 		if (std::find(names.begin(),names.end(),it->first) == names.end())
@@ -229,9 +240,9 @@ void LeapDebug::setTutorialImages(vector<string> names)
 		if (gesture != tutorialPanels.end())
 			tutorialLayout->addChild(gesture->second);
 	}
-	cv::Size2f size = cv::Size2f(300,150);
+	cv::Size2f size = cv::Size2f(300,GlobalConfig::tree()->get<float>("Tutorial.Height"));
 	tutorialPanel->measure(size);
-	tutorialPanel->layout(Vector(0,GlobalConfig::ScreenHeight-150,10),size);
+	tutorialPanel->layout(Vector(0,GlobalConfig::ScreenHeight-size.height,10),size);
 	
 }
 

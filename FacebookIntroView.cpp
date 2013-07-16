@@ -36,17 +36,7 @@ FacebookIntroView::FacebookIntroView()
 	photoButton->setBorderColor(Colors::HoloBlueBright);
 	photoButton->elementClickedCallback = boost::bind(&FacebookIntroView::buttonClicked,this,_1);
 	photoButton->setLayoutParams(LayoutParams(cv::Size2f(),cv::Vec4f(50,50,50,50)));
-
-	friendButton= new Button("Photos of my Friends");
-	friendButton->panelId = "friend_button";
-	friendButton->setTextSize(10);
-	friendButton->setTextColor(Colors::White);
-	friendButton->setBackgroundColor(buttonColor);	
-	//friendButton->setBorderColor(Colors::HoloBlueBright);
-	friendButton->setBorderThickness(0);
-	friendButton->elementClickedCallback = boost::bind(&FacebookIntroView::buttonClicked,this,_1);
-	friendButton->setLayoutParams(LayoutParams(cv::Size2f(),cv::Vec4f(50,50,50,50)));
-	
+		
 	friendListButton = new Button("Photos of my Friends");
 	friendListButton->setTextSize(10);
 	friendListButton->setTextColor(Colors::White);
@@ -64,32 +54,7 @@ FacebookIntroView::FacebookIntroView()
 	addChild(mainLayout);
 
 	addChild(friendListButton);
-	//addChild(friendButton);
 	addChild(photoButton);
-
-	vector<RadialMenuItem> menuItems;
-	//menuItems.push_back(RadialMenuItem("Fullscreen Mode","full"));
-	menuItems.push_back(RadialMenuItem("Exit Photo Explorer","exit",Colors::DarkRed));
-	menuItems.push_back(RadialMenuItem("Exit and Logout","logout",Colors::DarkRed));
-	menuItems.push_back(RadialMenuItem("Cancel","cancel",Colors::OrangeRed));
-	radialMenu = new RadialMenu(menuItems);
-	radialMenu->ItemClickedCallback = [this](string id) -> bool{
-
-		if (id.compare("exit") == 0)
-		{
-			GraphicsContext::getInstance().invokeApplicationExitCallback();
-		}
-		else if (id.compare("logout") == 0)
-		{
-			GraphicsContext::getInstance().invokeGlobalAction("logout");
-		}
-		else if (id.compare("full") == 0)
-			GraphicsContext::getInstance().invokeGlobalAction("full");
-		return true;
-	};
-	addChild(radialMenu);
-
-
 }
 
 void FacebookIntroView::setFinishedCallback(const boost::function<void(std::string)> & callback)
@@ -122,10 +87,6 @@ void FacebookIntroView::buttonClicked(LeapElement * element)
 	{
 		finishedCallback("my_photos");
 	}
-	else if (element == friendButton)
-	{
-		finishedCallback("friends_view");
-	}
 	else if (element == friendListButton)
 	{
 		finishedCallback("friend_list_view");
@@ -141,10 +102,7 @@ void FacebookIntroView::onGlobalGesture(const Controller & controller, std::stri
 
 bool FacebookIntroView::onLeapGesture(const Controller & controller, const Gesture & gesture)
 {
-	if (radialMenu->checkMenuOpenGesture(gesture))
-		radialMenu->show();
-	else
-		return false;
+	return false;
 }
 
 
@@ -240,7 +198,6 @@ void FacebookIntroView::layout(Leap::Vector position, Size2f size)
 	lastSize = size;
 
 	mainLayout->layout(position,size);
-	radialMenu->layout(position,size);
 
 	cv::Size2f buttonSize = cv::Size2f(size.width * .25f, size.height * .35f);
 	friendListButton->layout(position + Leap::Vector(size.width*.125f, (size.height-buttonSize.height)*.5f,1), buttonSize);

@@ -20,11 +20,9 @@ private:
 	ViewGroup * buttonGrid, * mainLayout;
 	ScrollingView *friendScroll, *photoScroll;
 	
-	Button * photoButton, * friendButton, *friendListButton;
+	Button * photoButton, *friendListButton;
 	
 	boost::function<void(std::string)> finishedCallback;
-
-	RadialMenu * radialMenu;
 
 public:
 	FacebookIntroView();

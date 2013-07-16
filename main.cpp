@@ -369,6 +369,16 @@ int WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmd
 			CefRefPtr<DeleteCookieTask> dlTask = new DeleteCookieTask();
 			runner->PostTask(dlTask.get());
 		}
+		else if (s.compare("exit") == 0)
+		{
+			 quit[0] = true; 
+		}
+		else if (s.compare("hide_tutorial") == 0)
+		{
+			GlobalConfig::tree()->put<bool>("Tutorial.Enabled",false);
+			vector<string> x;
+			LeapDebug::instance->setTutorialImages(x);
+		}
 		//tMan->initialize();
 	};
 

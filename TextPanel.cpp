@@ -3,29 +3,28 @@
 
 TextPanel::TextPanel(string text) 
 {
-	this->text = std::string("");
-	textureScaleMode = ScaleMode::None;
+	init();
+	setText(text);	
+}
+
+TextPanel::TextPanel() 
+{
+	init();
+	textEnabled = false;
+}
+
+void TextPanel::init()
+{
+	
 	textColor = Colors::Black;
 	textSize = 6;
 	textDirty = fitToText = false;
 	currentTextureId = NULL;
 	textFitPadding = 0;
 	textEnabled = true;
-	setText(text);
-	setAllowSubPixelRendering(false);
-}
-
-TextPanel::TextPanel() 
-{
-	text = std::string("");
+	this->text = std::string("");
 	textureScaleMode = ScaleMode::None;
-	textColor = Colors::Black;
-	textSize = 6;
-	currentTextureId = NULL;
-	textDirty = fitToText= false;
-	textEnabled = true;
-	textFitPadding = 0;
-	setAllowSubPixelRendering(false);
+	setAllowSubPixelRendering(GlobalConfig::tree()->get<bool>("Typography.SubPixelTextRendering"));
 }
 
 void TextPanel::resourceUpdated(ResourceData * data)
@@ -83,6 +82,11 @@ void TextPanel::drawContent(Vector drawPosition, float drawWidth, float drawHeig
 	if (!textEnabled || currentTextureId == NULL)// || !(TextureManager::getInstance()->isTextureLoaded(currentTextureId,TextureManager::TextureType_Font))))
 		return;
 	//glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+	
+	//glBindTexture(GL_TEXTURE_2D,currentTextureId);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST); 
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
 	TexturePanel::drawTexture(currentTextureId,drawPosition,drawWidth,drawHeight);	
 	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
@@ -95,16 +99,9 @@ void TextPanel::refresh()
 
 void TextPanel::setText(string _text)
 {
-	//if (_text.size() == 0)
-	//{
-	//	if (currentDefinition != NULL)
-	//	{
-	//		ResourceManager::getInstance().releaseTextResource(*currentDefinition,this);
-	//		delete currentDefinition;
-	//		currentDefinition = NULL;
-	//	}
-	//	currentTextureId = NULL;
-	//}
+	if (_text.length() > 0)
+		textEnabled = true; 
+
 	this->text = _text;	
 	textDirty = true;
 }

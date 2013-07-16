@@ -28,11 +28,6 @@ public:
 	FriendPanel(cv::Size2f targetSize);
 	void show(FBNode * node,boost::function<void()> loadCompleteCallback);
 		
-	void OnPointableEnter(Pointable & pointable);
-	void OnPointableExit(Pointable & pointable);
-	
-	void onFrame(const Controller & controller);
-
 	void viewChanged(string viewIdentifier, vector<FBNode*> & viewData);
 	void viewOwnershipChanged(View * view, ViewOwner * newOwner);
 

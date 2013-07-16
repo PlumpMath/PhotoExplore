@@ -34,7 +34,7 @@ class RadialMenu : public ViewGroup, public GlobalGestureListener {
 
 private:
 
-	ViewGroup * rootView, * buttonView;
+	ViewGroup * buttonView;
 	void itemClicked(string id);
 
 	int state;
@@ -42,6 +42,8 @@ private:
 	View * menuLaunchButton;
 	
 public:		
+	static RadialMenu * instance;
+
 	const static int MenuState_ButtonOnly = 0;
 	const static int MenuState_DisplayFull= 1;
 

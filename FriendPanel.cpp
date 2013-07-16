@@ -17,7 +17,7 @@ FriendPanel::FriendPanel(cv::Size2f targetSize) :
 
 	layoutGroup = new CustomGrid(gridDefinition, false);
 
-	friendViewGroup = new UniformGrid(cv::Size2i(3,1));
+	friendViewGroup = new UniformGrid(cv::Size2i(2,1));
 
 	this->setContentView(layoutGroup);
 
@@ -97,77 +97,6 @@ void FriendPanel::show(FBNode * _node, boost::function<void()> loadCompleteCallb
 		viewChanged("",dataView);
 	}
 
-}
-
-void FriendPanel::OnPointableEnter(Pointable & pointable)
-{
-	PanelBase::OnPointableEnter(pointable);
-	//if (pointable.isValid())
-	//{		
-	//	activePointable = pointable;
-	//	originalSize = cv::Size2f(600,400);
-	//	float sizeScale = 1.5f;
-	//	if (lastSizeScale != sizeScale)
-	//	{
-	//		lastSizeScale = sizeScale;
-	//		cv::Size2f newSize = cv::Size2f(originalSize.width*sizeScale,originalSize.height*sizeScale);
-	//		layout(position-Vector(newSize.width/2.0f,newSize.height/2.0f,0),newSize);
-	//	}
-	//}
-}
-
-
-void FriendPanel::OnPointableExit(Pointable & pointable)
-{
-	PanelBase::OnPointableExit(pointable);
-	//float sizeScale = 1.0f;
-	//if (lastSizeScale != sizeScale)
-	//{
-	//	lastSizeScale = sizeScale;
-	//	cv::Size2f newSize = cv::Size2f(originalSize.width*sizeScale,originalSize.height*sizeScale);
-	//	layout(position-Vector(newSize.width/2.0f,newSize.height/2.0f,0),newSize);
-	//}
-	//activePointable = Pointable();	
-	//setBackgroundColor(Colors::White);
-}
-
-void FriendPanel::onFrame(const Controller & controller)
-{
-	//activePointable = controller.frame().pointable(activePointable.id());
-	//
-	//if (activePointable.isValid())
-	//{
-	//	float sizeScale = 1;
-	//	if (activePointable.touchDistance() < .1f)
-	//		sizeScale = 1.8f;
-	//	else if (activePointable.touchDistance() < .5f)
-	//		sizeScale = 1.4f;
-	//	else if (activePointable.touchDistance() < .9f)
-	//		sizeScale = 1.0f;
-	//	
-	//	originalSize = cv::Size2f(600,400);
-	//	if (lastSizeScale != sizeScale)
-	//	{			
-	//		lastSizeScale = sizeScale;
-	//		cv::Size2f newSize = cv::Size2f(originalSize.width*sizeScale,originalSize.height*sizeScale);
-	//		//animatePanelSize(newSize, 400);
-	//		layout(position-Vector(newSize.width/2.0f,newSize.height/2.0f,0),newSize);
-	//	}
-
-
-
-
-		//float scale = min<float>(1.0f,.5f-activePointable.touchDistance());
-		//if (scale >= 0.0f)
-		//{
-		//	Color newBG = Colors::HoloBlueBright;
-		//	//newBG.r += (1.0f - newBG.r)*(1.0f-scale);
-		//	//newBG.g += (1.0f - newBG.g)*(1.0f-scale);
-		//	//newBG.b += (1.0f - newBG.b)*(1.0f-scale);
-		//	newBG.setAlpha(scale);
-		//	setBackgroundColor(newBG);
-	//}
-	//}
 }
 
 void FriendPanel::viewChanged(string viewIdentifier, vector<FBNode*> & viewData)

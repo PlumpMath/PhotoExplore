@@ -4,7 +4,8 @@
 PanelBase::PanelBase()
 {
 	width = height = 0;
-
+	borderThickness = 0;
+	borderColor = Colors::Transparent;
 	visible = true;
 	NudgeAnimationEnabled = false;
 	BorderSelectionThickness = 0;

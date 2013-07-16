@@ -67,6 +67,8 @@ private:
 	
 	cv::Mat currentTextImage;
 
+	void init();
+
 public:
 	TextPanel(string text);
 	TextPanel();	

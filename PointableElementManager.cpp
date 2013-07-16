@@ -4,6 +4,7 @@
 #include "LeapDebug.h"
 #include "GLImport.h"
 #include "ShakeGestureDetector.hpp"
+#include "RadialMenu.hpp"
 
 PointableElementManager::PointableElementManager()
 {
@@ -255,8 +256,13 @@ void PointableElementManager::processFrame(const Controller & controller, Frame 
 		Screen screen;
 		screenPoint = LeapHelper::FindScreenPoint(controller,testPointable,screen);
 		
-		View * topView = dynamic_cast<View*>(globalGestureListenerStack.top());
-		hit = topView->elementAtPoint((int)screenPoint.x,(int)screenPoint.y,elementStateFlags);
+		hit = RadialMenu::instance->elementAtPoint((int)screenPoint.x,(int)screenPoint.y,elementStateFlags);
+
+		if (hit == NULL)
+		{
+			View * topView = dynamic_cast<View*>(globalGestureListenerStack.top());
+			hit = topView->elementAtPoint((int)screenPoint.x,(int)screenPoint.y,elementStateFlags);
+		}
 
 		if (hit != hitLastFrame)
 		{

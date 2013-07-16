@@ -91,16 +91,17 @@ void LeapStartScreen::shutdown()
 }
 
 LeapElement * LeapStartScreen::elementAtPoint(int x, int y, int & elementStateFlags)
-{
+{	
+	LeapElement * hit = RadialMenu::instance->elementAtPoint(x,y,elementStateFlags);
+	if (hit != NULL)
+		return hit;
+
 	if (state == FinishedState)
 	{
 		((FacebookBrowser*)rootView)->elementAtPoint(x,y,elementStateFlags);
 	}
 	else 
 	{		
-		LeapElement * hit = radialMenu->elementAtPoint(x,y,elementStateFlags);
-		if (hit != NULL)return hit;
-
 		hit = facebookLoginButton->elementAtPoint(x,y,elementStateFlags);
 		if (hit != NULL)return hit;
 		
@@ -115,41 +116,27 @@ void LeapStartScreen::init()
 	gridDefinition.push_back(RowDefinition(.01f));
 	gridDefinition.push_back(RowDefinition(.15f));
 	gridDefinition.push_back(RowDefinition(.05f));
-	gridDefinition.push_back(RowDefinition(.45f));
-	gridDefinition.push_back(RowDefinition(.05f));
-	gridDefinition.push_back(RowDefinition(.05f));
-	gridDefinition.push_back(RowDefinition(.05f));
-	gridDefinition.push_back(RowDefinition(.05f));
-	gridDefinition.push_back(RowDefinition(.05f));
-	//gridDefinition.push_back(RowDefinition(.04f));
+	gridDefinition.push_back(RowDefinition(.50f));
 
 	gridDefinition[0].ColumnWidths.push_back(1);	
 	gridDefinition[1].ColumnWidths.push_back(1);
 	gridDefinition[2].ColumnWidths.push_back(1);
 	gridDefinition[3].ColumnWidths.push_back(1);
-	gridDefinition[4].ColumnWidths.push_back(1);
-	gridDefinition[5].ColumnWidths.push_back(1);
-	gridDefinition[6].ColumnWidths.push_back(1);
-	gridDefinition[7].ColumnWidths.push_back(1);
-	gridDefinition[8].ColumnWidths.push_back(1);
-	//gridDefinition[9].ColumnWidths.push_back(1);
 	
 	mainLayout = new CustomGrid(gridDefinition);	
 	
 	vector<RadialMenuItem> menuItems;
-	//menuItems.push_back(RadialMenuItem("Fullscreen Mode","full"));
-	menuItems.push_back(RadialMenuItem("Exit Photo Explorer","exit",Colors::DarkRed));
-	menuItems.push_back(RadialMenuItem("Cancel","cancel",Colors::OrangeRed));
+	menuItems.push_back(RadialMenuItem("Exit and Logout","logout", Colors::DarkRed));
+	menuItems.push_back(RadialMenuItem("Exit Photo Explorer","exit",Colors::OrangeRed));
+	menuItems.push_back(RadialMenuItem("Hide Tutorial","hide_tutorial", Colors::DarkTurquoise));
+	menuItems.push_back(RadialMenuItem("Cancel","cancel",Colors::SkyBlue));
 	radialMenu = new RadialMenu(menuItems);
 	radialMenu->ItemClickedCallback = [this](string id) -> bool{
 
-		if (id.compare("exit") == 0)
+		if (id.compare("cancel") != 0)
 		{
-			//this->onShakeGesture();
-			this->finishedCallback();
+			GraphicsContext::getInstance().invokeGlobalAction(id);
 		}
-		else if (id.compare("full") == 0)
-			GraphicsContext::getInstance().invokeGlobalAction("full");
 		return true;
 	};
 
@@ -172,104 +159,22 @@ void LeapStartScreen::init()
 	mainLayout->addChild(subTitle);
 	mainLayout->addChild(new TextPanel(""));
 		
-	//ViewGroup * buttonLayout = new LinearLayout(true);//cv::Size2i(0,1),1,true);
-
-
-//	Button * localImageButton = new Button("Local Images");
-//	localImageButton->setBackgroundColor(Colors::HoloBlueBright.withAlpha(.5f));
-//	localImageButton->setBorderThickness(1);
-//	localImageButton->setTextSize(20);
-//	localImageButton->setTextColor(Colors::White);
-//	localImageButton->setLayoutParams(LayoutParams(cv::Size2f(600,600),cv::Vec4f(50,50,50,50)));
-//
-//	localImageButton->elementClickedCallback = [this](LeapElement * element){
-//		if (fileBrowserCallback.get() == NULL)
-//		{
-//			this->rootView = new FacebookBrowser(createMockData());
-//			this->state = FinishedState;
-////			this->fileBrowserCallback = new CefFileBrowser();
-////			CefBrowserSettings browserSettings;
-////			CefWindowInfo info;
-////
-////#if defined(_WIN32) // Windows
-////			vector<HWND> myHandles = getToplevelWindows();
-////			info.SetAsPopup(myHandles.at(0),"Choose Directory");
-////#endif
-////			CefBrowserHost::CreateBrowser(info, fileBrowserCallback.get(), "http://www.google.com", browserSettings);
-//		}
-//	};
 	
-	//facebookLoginButton = new Button("Tap or hover here to Login test test test test long short of cats moew for ioajwdoi 12i09j awodi wi");		
-	facebookLoginButton = new TextPanel("Tap or hover here to Login");		
-	facebookLoginButton->setBackgroundColor(Colors::SteelBlue.withAlpha(.8f));
-	facebookLoginButton->setTextColor(Colors::White);
+	facebookLoginButton = new Button("Start Exploring");		
+	facebookLoginButton->setBackgroundColor(Colors::White); //Colors::SteelBlue.withAlpha(.8f));
+	facebookLoginButton->setTextColor(Colors::Black);
 	facebookLoginButton->setTextFitPadding(20);
-	facebookLoginButton->setTextSize(14);	
+	facebookLoginButton->setTextSize(18);	
+	facebookLoginButton->setBorderThickness(1.0f);
+	facebookLoginButton->setBorderColor(Colors::SteelBlue);	
 	facebookLoginButton->NudgeAnimationEnabled = true;
-	facebookLoginButton->setDrawLoadAnimation(true);
+	//facebookLoginButton->setDrawLoadAnimation(true);
 	facebookLoginButton->loadAnimationColor = Colors::SteelBlue.withAlpha(.3f);
 	facebookLoginButton->elementClickedCallback = [this](LeapElement * element){
 		this->launchBrowser();	
 	};
 	facebookLoginButton->setLayoutParams(LayoutParams(cv::Size2f(600,600),cv::Vec4f(50,50,50,50)));
 
-	//logoutButton = new Button("Logout and Exit");		
-	//logoutButton ->setBackgroundColor(Colors::OrangeRed.withAlpha(.9f));
-	//logoutButton ->setBorderThickness(2);
-	////logoutButton ->setBorderColor(Colors::HoloBlueBright);
-	//logoutButton ->setTextColor(Colors::White);
-	//logoutButton->setTextSize(10);	
-	//logoutButton->setVisible(false);
-	//logoutButton->elementClickedCallback = [this](LeapElement * element){
-	//	this->deleteCookies();
-	//	this->doPreCheck();
-	//	//this->state = StartState;
-	//	//this->facebookLoginButton->setText("Login to Facebook");
-	//	//this->facebookLoginButton->reloadText();
-	//	//this->logoutButton->setVisible(false);
-
-	//	//LeapStartScreen * me = this;
-	//	//facebookLoginButton->elementClickedCallback = [me](LeapElement * element){
-	//	//	me->launchBrowser();
-	//	//	me->state = BrowserOpenState;
-	//	//};
-
-	//};
-	//logoutButton->setLayoutParams(LayoutParams(cv::Size2f(600,600),cv::Vec4f(150,50,50,50)));
-
-	
-	//TextPanel * helpPanel_1 = new TextPanel("1. Make a quick circle gesture to show the menu");
-	//helpPanel_1->setTextSize(8);
-	//helpPanel_1->setTextColor(Colors::Black);
-	//helpPanel_1->setBackgroundColor(Colors::WhiteSmoke.withAlpha(0));
-
-	//TextPanel * helpPanel_2 = new TextPanel("2. Swipe left and right with a spread hand to scroll. The cursor will be outlined in orange when a spread hand is detected.");
-	//helpPanel_2->setTextSize(8);
-	//helpPanel_2->setTextColor(Colors::Black);
-	//helpPanel_2->setBackgroundColor(Colors::WhiteSmoke.withAlpha(0));
-	//
-	//TextPanel * helpPanel_3 = new TextPanel("3. Use a pointed finger to select a photo or a button, and to stop scrolling. The cursor will be outlined in blue when a pointed finger is detected.");
-	//helpPanel_3->setTextSize(8);
-	//helpPanel_3->setTextColor(Colors::Black);
-	//helpPanel_3->setBackgroundColor(Colors::WhiteSmoke.withAlpha(0));
-	//	
-	//TextPanel * helpPanel_4 = new TextPanel("4. Shake your hand or finger to go back");
-	//helpPanel_4->setTextSize(8);
-	//helpPanel_4->setTextColor(Colors::Black);
-	//helpPanel_4->setBackgroundColor(Colors::WhiteSmoke.withAlpha(0));
-
-	//TextPanel * helpPanel_6 = new TextPanel("5. Point with two hands to stretch selected photos");
-	//helpPanel_6->setTextSize(8);
-	//helpPanel_6->setTextColor(Colors::Black);
-	//helpPanel_6->setBackgroundColor(Colors::WhiteSmoke.withAlpha(0));
-
-	//
-	//mainLayout->addChild(helpPanel_1);
-	//mainLayout->addChild(helpPanel_2);
-	////mainLayout->addChild(helpPanel_5);
-	//mainLayout->addChild(helpPanel_3);
-	//mainLayout->addChild(helpPanel_4);
-	//mainLayout->addChild(helpPanel_6);
 	
 	PointableElementManager::getInstance()->registerElement(mainLayout);
 
@@ -279,12 +184,23 @@ void LeapStartScreen::init()
 	FixedAspectGrid * floatLayout = new FixedAspectGrid(cv::Size2i(0,6),1.0f);
 	floatLayout->setLayoutParams(cv::Size2f(GlobalConfig::ScreenWidth*2,GlobalConfig::ScreenHeight));
 
-	int itemCount = (int)(((float)GlobalConfig::ScreenWidth/(GlobalConfig::ScreenHeight/6.0f))*2.0f*6.0f);
+	int itemCount = (int)(((float)GlobalConfig::ScreenWidth/(GlobalConfig::ScreenHeight/6.0f))*1.5f*6.0f);
 		
+	//string panelText = "Photo Explorer";
 	std::srand(10);
+
+	//int letterIndex = 0;
+
 	for (int i =0; i < itemCount;i++)
 	{
-		FloatingPanel * fp = new FloatingPanel(100,100,Vector());
+		PanelBase * fp;
+		//if (letterIndex < panelText.size() && i > (itemCount/24) && i % 6 == 1)
+		//{
+		//	fp = new TextPanel(panelText.substr(letterIndex++,1));
+		//	((TextPanel*)fp)->setTextSize(50.0f);
+		//}
+		//else
+		fp = new FloatingPanel(100,100,Vector());
 
 		if (std::rand() % 5 == 0)
 		{
@@ -387,7 +303,7 @@ void LeapStartScreen::layout(Leap::Vector pos, cv::Size2f size)
 	mainLayout->layout(pos,size);
 
 	cv::Size2f buttonSize = cv::Size2f(size.width*.4f,size.height*.35f);
-	facebookLoginButton->layout(Vector((size.width-buttonSize.width)*.5f,size.height*.25f,0)+pos,buttonSize);
+	facebookLoginButton->layout(Vector((size.width-buttonSize.width)*.5f,size.height*.30f,0)+pos,buttonSize);
 	
 	//buttonSize = cv::Size2f(400,200);
 	//if (logoutButton->isVisible())
@@ -625,21 +541,12 @@ void LeapStartScreen::draw()
 	}
 	else
 	{
-		//if (facebookClient != NULL)
-		//	facebookClient->draw();
-				
 		floatingPanelsView->draw();
-
-		mainLayout->draw();
-		
+		mainLayout->draw();		
 		if (facebookLoginButton->isVisible())
 			facebookLoginButton->draw();
-		
-		//if (logoutButton->isVisible())
-		//	logoutButton->draw();
-		
-		if (radialMenu->isVisible())
-			radialMenu->draw();
 	}
+
+	radialMenu->draw();
 }
 

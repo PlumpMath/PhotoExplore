@@ -35,24 +35,7 @@ FriendDetailView::FriendDetailView()
 	addChild(mainLayout);
 	
 	topView = mainLayout;
-
-	vector<RadialMenuItem> menuItems;
-	menuItems.push_back(RadialMenuItem("Exit Photo Explorer","exit",Colors::DarkRed));	
-	menuItems.push_back(RadialMenuItem("Exit and Logout","logout",Colors::DarkRed));	
-	menuItems.push_back(RadialMenuItem("Cancel","cancel",Colors::OrangeRed));
-	radialMenu = new RadialMenu(menuItems);
-	radialMenu->ItemClickedCallback = [this](string id) -> bool{
-
-		if (id.compare("exit") == 0)
-		{
-			GraphicsContext::getInstance().invokeApplicationExitCallback();
-		}
-		else 
-			GraphicsContext::getInstance().invokeGlobalAction(id);
-		return true;
-	};
 	projectedRightBoundary= 0;
-	addChild(radialMenu);
 }
 
 
@@ -200,12 +183,6 @@ void FriendDetailView::updateLoading()
 
 bool FriendDetailView::onLeapGesture(const Controller & controller, const Gesture & gesture)
 {
-	if (radialMenu->checkMenuOpenGesture(gesture))
-	{
-		itemScroll->getFlyWheel()->impartVelocity(0);
-		radialMenu->show();
-		return true;
-	}
 	return itemScroll->onLeapGesture(controller, gesture);
 }
 
@@ -384,7 +361,6 @@ void FriendDetailView::layout(Vector position, cv::Size2f size)
 	lastPosition = position;
 
 	topView->layout(position,size);	
-	radialMenu->layout(position,size);
 	//updateLoading(Vector((float)pos,0,0),itemScroll->getMeasuredSize(),true);
 	layoutDirty = false;
 	//projectedRightBoundary = imageGroup->getMeasuredSize().width;// - itemScroll->getFlyWheel()->getPosition();
