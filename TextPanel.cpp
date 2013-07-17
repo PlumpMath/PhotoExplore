@@ -117,11 +117,16 @@ void TextPanel::setTextColor(Color textColor)
 	this->textColor = textColor;
 }
 
-void TextPanel::setTextSize(float textSize)
+void TextPanel::setTextSize(float _textSize, bool relative)
 {
 	textDirty = true;
-	this->textSize = textSize;	
+	if (relative)
+		this->textSize = (_textSize * (GlobalConfig::ScreenHeight/1440.0f));
+	else
+		this->textSize = _textSize;	
 }
+
+
 
 void TextPanel::setTextFitMode(bool fitToText)
 {

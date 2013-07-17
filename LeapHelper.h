@@ -14,10 +14,48 @@ using namespace Leap;
 class LeapHelper {
 
 public:
+	static double lowpass(double previous, double input, double alpha)
+	{
+		return alpha * input + (1.0 - alpha) * previous;
+	}
+
 	static double lowpass(double previous, double input, double RC, double dT)
 	{
 		double alpha = dT/(RC + dT);
-		return alpha * input + (1.0 - alpha) * previous;
+		return lowpass(previous,input,alpha);
+	}
+
+	static double cyclicalLowPassFilter(double previousAngle, double measuredAngle, double RC, double dT)
+	{		
+		double alpha = dT/(RC + dT);
+		float result;
+		bool doSpecialCase = abs(measuredAngle - previousAngle) > Leap::PI;
+		if (doSpecialCase && sgn(measuredAngle) < 0 && sgn(previousAngle) > 0)
+		{
+			result = lowpass(previousAngle - (float) (Leap::PI * 2.0f), measuredAngle, alpha);
+			if (result < -Leap::PI)
+				result += (Leap::PI * 2.0f);
+		} else if (doSpecialCase && abs(measuredAngle) > Leap::PI / 2.0f && sgn(measuredAngle) > 0 && sgn(previousAngle) < 0)
+		{
+			result = lowpass(previousAngle + (float) (Leap::PI * 2.0f),measuredAngle, alpha);
+			if (result > Leap::PI)
+				result -=  (Leap::PI * 2.0f);
+		} else
+		{
+			result = lowpass(previousAngle, measuredAngle, alpha);
+		}
+		return result;
+	}
+
+	static Vector angularLowpass(Vector previous, Vector input, double RC, double dT)
+	{
+		Vector result;
+
+		result.x = cyclicalLowPassFilter(previous.x,input.x,RC,dT);		
+		result.y = cyclicalLowPassFilter(previous.y,input.y,RC,dT);		
+		result.z = cyclicalLowPassFilter(previous.z,input.z,RC,dT);
+
+		return result;
 	}
 
 	static Vector FindScreenPoint(const Controller & c, Pointable pointable, bool make2D = !false)

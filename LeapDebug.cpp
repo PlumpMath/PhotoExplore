@@ -35,13 +35,16 @@ LeapDebug::LeapDebug(HandProcessor * handProcessor)
 		p = GlobalConfig::tree()->get_child("Tutorial.LeftHandImages");
 
 	
-	Color labelColor = Colors::White;
 	auto labels = GlobalConfig::tree()->get_child("Tutorial.Labels");
 
-	auto colorConfig = GlobalConfig::tree()->get_child("Tutorial.Background");
-	Color backgroundColor = Color(colorConfig.get<int>("R"),colorConfig.get<int>("G"),colorConfig.get<int>("B"),colorConfig.get<int>("A"));
+	Color backgroundColor = Color(GlobalConfig::tree()->get_child("Tutorial.Background"));
+		
+	Color textBackground = Color(GlobalConfig::tree()->get_child("Tutorial.TextBackground"));
+	Color labelColor = Color(GlobalConfig::tree()->get_child("Tutorial.TextColor"));
+	Color invertedLabelColor = Color(GlobalConfig::tree()->get_child("Tutorial.InvertedTextColor"));
 
-	float tutorialTextSize = labels.get<float>("FontSize");
+
+	float tutorialTextSize = labels.get<float>("FontSize");// / (GlobalConfig::ScreenHeight/1440.0f);
 
 	float textPadding = labels.get<float>("TextPadding");
 
@@ -51,8 +54,14 @@ LeapDebug::LeapDebug(HandProcessor * handProcessor)
 	TextPanel  * shakeGesturePanel_text = new TextPanel(labels.get<string>("ShakeGesture"));
 	shakeGesturePanel_text->setTextFitPadding(textPadding);
 	shakeGesturePanel_text->setTextColor(labelColor);
-	shakeGesturePanel_text->setBackgroundColor(backgroundColor);
-	shakeGesturePanel_text->setTextSize(tutorialTextSize);
+	shakeGesturePanel_text->setBackgroundColor(textBackground);
+	shakeGesturePanel_text->setTextSize(tutorialTextSize,false);
+	
+	TextPanel  * shakeGesturePanel_text_inv = new TextPanel(labels.get<string>("ShakeGesture"));
+	shakeGesturePanel_text_inv->setTextFitPadding(textPadding);
+	shakeGesturePanel_text_inv->setTextColor(invertedLabelColor);
+	shakeGesturePanel_text_inv->setBackgroundColor(textBackground);
+	shakeGesturePanel_text_inv->setTextSize(tutorialTextSize,false);
 	
 	ImagePanel  * swipeGesturePanel_img = new ImagePanel(p.get<string>("SwipeGesture"));
 	swipeGesturePanel_img->setBackgroundColor(backgroundColor);
@@ -60,8 +69,8 @@ LeapDebug::LeapDebug(HandProcessor * handProcessor)
 	TextPanel  * swipeGesturePanel_text = new TextPanel(labels.get<string>("SwipeGesture"));
 	swipeGesturePanel_text->setTextFitPadding(textPadding);
 	swipeGesturePanel_text->setTextColor(labelColor);
-	swipeGesturePanel_text->setBackgroundColor(backgroundColor);
-	swipeGesturePanel_text->setTextSize(tutorialTextSize);
+	swipeGesturePanel_text->setBackgroundColor(textBackground);
+	swipeGesturePanel_text->setTextSize(tutorialTextSize,false);
 
 	ImagePanel  * pointGesturePanel_img = new ImagePanel(p.get<string>("PointGesture"));
 	pointGesturePanel_img->setBackgroundColor(backgroundColor);
@@ -69,8 +78,14 @@ LeapDebug::LeapDebug(HandProcessor * handProcessor)
 	TextPanel  * pointGesturePanel_text = new TextPanel(labels.get<string>("PointGesture"));
 	pointGesturePanel_text->setTextFitPadding(textPadding);
 	pointGesturePanel_text->setTextColor(labelColor);
-	pointGesturePanel_text->setBackgroundColor(backgroundColor);
-	pointGesturePanel_text->setTextSize(tutorialTextSize);
+	pointGesturePanel_text->setBackgroundColor(textBackground);
+	pointGesturePanel_text->setTextSize(tutorialTextSize,false);
+
+	TextPanel  * pointGesturePanel_text_inv = new TextPanel(labels.get<string>("PointGesture"));
+	pointGesturePanel_text_inv->setTextFitPadding(textPadding);
+	pointGesturePanel_text_inv->setTextColor(invertedLabelColor);
+	pointGesturePanel_text_inv->setBackgroundColor(textBackground);
+	pointGesturePanel_text_inv->setTextSize(tutorialTextSize,false);
 	
 
 	ImagePanel  * pointStopGesturePanel_img = new ImagePanel(p.get<string>("PointStopGesture"));
@@ -79,8 +94,8 @@ LeapDebug::LeapDebug(HandProcessor * handProcessor)
 	TextPanel  * pointStopGesturePanel_text = new TextPanel(labels.get<string>("PointStopGesture"));
 	pointStopGesturePanel_text->setTextFitPadding(textPadding);
 	pointStopGesturePanel_text->setTextColor(labelColor);
-	pointStopGesturePanel_text->setBackgroundColor(backgroundColor);
-	pointStopGesturePanel_text->setTextSize(tutorialTextSize);
+	pointStopGesturePanel_text->setBackgroundColor(textBackground);
+	pointStopGesturePanel_text->setTextSize(tutorialTextSize,false);
 
 
 	ImagePanel  * stretchGesturePanel_img = new ImagePanel(p.get<string>("StretchGesture"));
@@ -88,11 +103,11 @@ LeapDebug::LeapDebug(HandProcessor * handProcessor)
 
 	TextPanel  * stretchGesturePanel_text = new TextPanel(labels.get<string>("StretchGesture"));
 	stretchGesturePanel_text->setTextFitPadding(textPadding);
-	stretchGesturePanel_text->setTextColor(labelColor);
-	stretchGesturePanel_text->setBackgroundColor(backgroundColor);
-	stretchGesturePanel_text->setTextSize(tutorialTextSize);
+	stretchGesturePanel_text->setTextColor(invertedLabelColor);
+	stretchGesturePanel_text->setBackgroundColor(textBackground);
+	stretchGesturePanel_text->setTextSize(tutorialTextSize,false);
 
-			
+			 
 	vector<RowDefinition> gridDefinition;	
 	gridDefinition.push_back(RowDefinition(.6f));
 	gridDefinition.push_back(RowDefinition(.4f));
@@ -102,6 +117,12 @@ LeapDebug::LeapDebug(HandProcessor * handProcessor)
 	CustomGrid * cg1 = new CustomGrid(gridDefinition);
 	cg1->addChild(shakeGesturePanel_img);
 	cg1->addChild(shakeGesturePanel_text);
+
+	
+	CustomGrid * cg1_inv = new CustomGrid(gridDefinition);
+	cg1_inv->addChild(shakeGesturePanel_img);
+	cg1_inv->addChild(shakeGesturePanel_text_inv);
+		
 		
 	CustomGrid * cg2 = new CustomGrid(gridDefinition);
 	cg2->addChild(swipeGesturePanel_img);
@@ -110,6 +131,11 @@ LeapDebug::LeapDebug(HandProcessor * handProcessor)
 	CustomGrid * cg3 = new CustomGrid(gridDefinition);
 	cg3->addChild(pointGesturePanel_img);
 	cg3->addChild(pointGesturePanel_text);
+
+	
+	CustomGrid * cg3_inv = new CustomGrid(gridDefinition);
+	cg3_inv->addChild(pointGesturePanel_img);
+	cg3_inv->addChild(pointGesturePanel_text_inv);
 	
 	CustomGrid * cg4 = new CustomGrid(gridDefinition);
 	cg4->addChild(pointStopGesturePanel_img);
@@ -120,8 +146,10 @@ LeapDebug::LeapDebug(HandProcessor * handProcessor)
 	cg5->addChild(stretchGesturePanel_text);
 	
 	tutorialPanels.insert(make_pair("shake",cg1));	
+	tutorialPanels.insert(make_pair("shake_inv",cg1_inv));	
 	tutorialPanels.insert(make_pair("swipe",cg2));	
 	tutorialPanels.insert(make_pair("point",cg3));	
+	tutorialPanels.insert(make_pair("point_inv",cg3_inv));	
 	tutorialPanels.insert(make_pair("point_stop",cg4));	
 	tutorialPanels.insert(make_pair("stretch",cg5));	
 
@@ -235,7 +263,7 @@ void LeapDebug::setTutorialImages(vector<string> names)
 	}
 	tutorialLayout->clearChildren();
 	for (auto it = names.begin(); it != names.end(); it++)
-	{
+	{ 
 		auto gesture = tutorialPanels.find(*it);
 		if (gesture != tutorialPanels.end())
 			tutorialLayout->addChild(gesture->second);

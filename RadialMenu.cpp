@@ -6,13 +6,13 @@
 #include "UniformGrid.hpp"
 #include "CustomGrid.hpp"
 #include "LeapDebug.h"
-#include "ImagePanel.hpp"
+#include "ImageButton.hpp"
 
 RadialMenu * RadialMenu::instance = NULL;
 
 RadialMenu::RadialMenu(vector<RadialMenuItem> & items)
 {		
-	menuLaunchButton = new ImagePanel(GlobalConfig::tree()->get<string>("Menu.OpenMenuImage"));	
+	menuLaunchButton = new ImageButton(GlobalConfig::tree()->get<string>("Menu.OpenMenuImage"),GlobalConfig::tree()->get<string>("Menu.OpenMenuOverlay"));	
 	addChild(menuLaunchButton);
 	menuLaunchButton->elementClickedCallback = [this](LeapElement * clicked){
 
@@ -35,17 +35,14 @@ void RadialMenu::setItems(vector<RadialMenuItem> & items)
 	for (auto it = items.begin(); it != items.end(); it++)
 	{
 		Button * item = new Button(it->label);
-		item->setTextColor(Colors::Black);
-		item->setBackgroundColor(Colors::White);
-		item->setBorderColor(it->buttonColor);
+		item->setBorderColor(it->buttonColor.withAlpha(1.0f));
 		item->setBorderThickness(2);
-		Color c = Colors::DarkRed;
+		item->setBackgroundColor(it->buttonColor.withAlpha(.7f));		
+		
+		if (GlobalConfig::tree()->get<bool>("Menu.WhiteBackground"))
+			item->setBackgroundColor(Colors::White);
 
-		if (it->buttonColor.a != 0)
-			c = it->buttonColor;
-
-		c.setAlpha(.7f);
-		item->setBackgroundColor(c);		
+		item->setTextColor(GlobalConfig::tree()->get_child("Menu.TextColor"));
 		item->setTextSize(12);
 		string itemId = it->id;
 		item->setLayoutParams(LayoutParams(cv::Size2f(400,150),cv::Vec4f(20,20,20,20)));
@@ -98,10 +95,10 @@ void RadialMenu::layout(Vector pos, cv::Size2f size)
 		else
 			layoutHeight = size.height*.12f;
 
-		cv::Size2f childSize = cv::Size2f(size.width * .4f,layoutHeight);
+		cv::Size2f childSize = cv::Size2f(size.width * .25f,layoutHeight);
 
 		Vector center = pos+Vector(size.width*.5f,size.height*.5f,0);
-		float offset = -1;
+		float offset = -2.0f;
 		float spacing = childSize.height*1.2f;
 
 		for (auto it = children.begin(); it != children.end(); it++)
@@ -112,8 +109,13 @@ void RadialMenu::layout(Vector pos, cv::Size2f size)
 	}
 	else if (state == MenuState_ButtonOnly) 
 	{
-		cv::Size2f menuButtonSize = cv::Size2f(size.width*.15f,GlobalConfig::tree()->get<float>("Tutorial.Height"));
-		menuLaunchButton->layout(Vector(size.width - menuButtonSize.width,size.height - menuButtonSize.height,10) + pos,menuButtonSize);
+		float height = GlobalConfig::tree()->get<float>("Menu.Height");
+		cv::Size2f menuButtonSize = cv::Size2f(height-10,height-10);
+		
+		if (GlobalConfig::tree()->get<bool>("Menu.TopRightButton"))
+			menuLaunchButton->layout(Vector(size.width - (menuButtonSize.width + 5),5,10) + pos,menuButtonSize);
+		else
+			menuLaunchButton->layout(Vector((size.width - menuButtonSize.width)+5,(size.height - menuButtonSize.height)+5,10) + pos,menuButtonSize);
 	}
 	this->layoutDirty = false;
 }
@@ -162,8 +164,8 @@ bool RadialMenu::onLeapGesture(const Controller & controller, const Gesture & ge
 
 void RadialMenu::getTutorialDescriptor(vector<string> & tutorial)
 {
-	tutorial.push_back("shake");
-	tutorial.push_back("point");
+	tutorial.push_back("shake_inv");
+	tutorial.push_back("point_inv");
 }
 
 void RadialMenu::draw()

@@ -1,13 +1,11 @@
-#include <cstdio>
+#ifndef LEAPIMAGE_TYPES_H_
+#define LEAPIMAGE_TYPES_H_
 
-#define FAKE_DATA_MODE 1
+#include <cstdio>
+#include <boost/property_tree/ptree.hpp>
 
 #define BytesToMB 1048576.0
 
-//#define LevelOfDetail int
-
-#ifndef TypesH
-#define TypesH
 
 namespace GeomConstants {
 	static const double PI  =3.141592653589793238462;
@@ -21,158 +19,33 @@ template <typename T> int sgn(T val) {
     return (T(0) < val) - (val < T(0));
 }
 
-struct Point2f
-{
-public:
-	Point2f()
-	{
-		x = 0;
-		y = 0;
-	}
-
-	Point2f(float x, float y)
-	{
-		this->x = x;
-		this->y = y;
-	}
-
-
-	float x;
-	float y;
-};
-
-class RectF
-{
-public:
-	RectF()
-	{
-		x= y = w= h = 0;
-	}
-
-
-	float x,y,w,h;
-};
-
-struct Point3f
-{
-public:
-	Point3f()
-	{
-		x = y = z = 0;
-	}
-
-	Point3f(float x, float y, float z)
-	{
-		this->x = x;
-		this->y = y;
-		this->z = z;
-	}
-
-	float x;
-	float y;
-	float z;
-};
-
 
 class Color {
-
-	
-
-private: 
-	float colorArray[4];
-	
+		
 public: 
-	float r,g,b,a;
+	float colorArray[4];
 
-	Color()
-	{
-		r = g = b = a = 0;
-	}
+	Color();
+
+	Color(boost::property_tree::ptree prop);
 	
-	Color(int r, int g, int b, int a)
-	{
-		this->r = r / 255.f;
-		this->g = g  / 255.f;
-		this->b = b / 255.f;
-		this->a = a / 255.f;
+	Color(int r, int g, int b, int a);
+	Color(float * _colorArray);
+	float * getFloat();
 
-		colorArray[0] = this->r;
-		colorArray[1] = this->g;
-		colorArray[2] = this->b;
-		colorArray[3] = this->a;
-	}
+	void setAlpha(float alpha);
 
-	Color(float * _colorArray)
-	{
-		this->r = _colorArray[0];
-		this->g = _colorArray[1];
-		this->b = _colorArray[2];
-		this->a = _colorArray[3];
+	void scaleRGB(float scale);
 
-		for (int i=0;i<4;i++)
-			colorArray[i] = _colorArray[i];
-	}
+	void addRGB(Color c);
 	
-	float * getFloat()
-	{
-		return &colorArray[0];
-	}
+	//int asInteger();
 
+	float idValue();
 
-	void setAlpha(float alpha)
-	{
-		this->a = alpha;
-		colorArray[3] = alpha;
-	}
+	Color withAlpha(float _alpha);
 
-	void scaleRGB(float scale)
-	{
-		for (int i=0;i<3;i++)
-		{
-			colorArray[i] *= scale;
-		}
-	}
-
-	void addRGB(Color c)
-	{
-		for (int i=0;i<3;i++)
-		{
-			colorArray[i] += c.colorArray[i];
-		}
-	}
-	
-	//int asInteger()
-	//{	
-	//	int result = 0;
-	//	for (int i=0;i<3;i++)
-	//	{
-	//		result << 2;
-	//		int comp =  (int)(std::min<float>(255.0f,(255.0f * colorArray[i])));
-	//		result += comp;
-	//	}
-	//	return result;
-	//}
-
-	float idValue()
-	{
-		return (r  + (g + 1) + (b + 2) + (a + 3));
-	}	
-
-	Color withAlpha(float _alpha)
-	{
-		float tmp[4] = {this->r,this->g,this->b,_alpha};
-		return Color(&tmp[0]);
-	}
-
-	static Color fromFloat(float _a, float _r, float _g, float _b)
-	{
-		Color c;
-		c.a = _a;
-		c.r = _r;
-		c.g = _g;
-		c.b = _b;
-		return c;
-	}
+	static Color fromFloat(float _a, float _r, float _g, float _b);
 
 };
 
@@ -210,7 +83,7 @@ namespace ScaleMode
 //OpenCV-compatible .NET Colors
 namespace Colors
 {	
-	COLOR_TYPE UndefinedColor(-1.0,-1.0,-1.0,-1.0);
+	COLOR_TYPE UndefinedColor(-1,-1,-1,-1);
 
 	COLOR_TYPE HoloBlueLight(0x33,0xB5,0xE5,0xFF);
 	COLOR_TYPE HoloBlueBright(0x00,0xDD,0xFF,0xFF);

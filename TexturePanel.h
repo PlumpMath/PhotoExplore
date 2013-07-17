@@ -14,8 +14,9 @@ protected:
 	GLuint currentTextureId;
 	float textureWidth,textureHeight;
 	bool allowSubPixelRendering;
-	
-	
+
+	Color textureTint;
+
 	void drawTexture(GLuint texId, Vector drawPosition, float drawWidth, float drawHeight);
 	
 	virtual void drawContent(Vector drawPosition, float drawWidth, float drawHeight);
@@ -35,6 +36,12 @@ public:
 	bool getAllowSubPixelRendering();
 
 	virtual void getBoundingArea(Vector & position, float & drawWidth, float & drawHeight);
+
+	void setTextureTint(Color textureTint);
+	Color getTextureTint();
+
+	void setTextureAlpha(float textureAlpha);
+	float getTextureAlpha();
 
 
 };

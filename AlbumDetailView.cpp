@@ -2,15 +2,23 @@
 #include "PanelFactory.hpp"
 #include "FixedAspectGrid.hpp"
 #include "GraphicContext.hpp"
+#include "AbsoluteLayout.hpp"
 
 AlbumDetailView::AlbumDetailView()
 {	
-	vector<RowDefinition> gridDefinition;	
-	gridDefinition.push_back(RowDefinition(.1f));
-	gridDefinition.push_back(RowDefinition(.9f));
-	gridDefinition[0].ColumnWidths.push_back(1);
-	gridDefinition[1].ColumnWidths.push_back(1);
-	mainLayout = new CustomGrid(gridDefinition);
+	//vector<RowDefinition> gridDefinition;	
+	//gridDefinition.push_back(RowDefinition(.1f));
+	//gridDefinition.push_back(RowDefinition(.9f));
+	//gridDefinition[0].ColumnWidths.push_back(1);
+	//gridDefinition[1].ColumnWidths.push_back(1);
+	mainLayout = new AbsoluteLayout();
+
+	((AbsoluteLayout*)mainLayout)->layoutCallback = [this](Vector position, cv::Size2f size){
+
+		float menuHeight = GlobalConfig::tree()->get<float>("Menu.Height");
+		albumName->layout(position-Vector(0,menuHeight,0),cv::Size2f(size.width,menuHeight));
+		itemScroll->layout(position,size);
+	};
 		
 	rowCount = GlobalConfig::tree()->get<int>("AlbumDetailView.RowCount");
 	imageGroup = new FixedAspectGrid(cv::Size2i(0,rowCount),1.0f,true);
@@ -47,18 +55,19 @@ void AlbumDetailView::loadItems(int photos)
 	{
 		activeNode->loadState["photos"].requestedCount = photos;
 		loadstr << "photos.offset(" << requestedPhotos << ").limit(" << photos << ").fields(id,name,images)";
-	}
 
-	AlbumDetailView * v = this;
-	FBDataSource::instance->loadField(activeNode,loadstr.str(),"",[v](FBNode * _node){
-			
-		AlbumDetailView * v2= v;
-		v->postTask([v2,_node](){
-			
-			if (v2->activeNode == _node)
-				v2->updateLoading();
+
+		AlbumDetailView * v = this;
+		FBDataSource::instance->loadField(activeNode,loadstr.str(),"",[v](FBNode * _node){
+
+			AlbumDetailView * v2= v;
+			v->postTask([v2,_node](){
+
+				if (v2->activeNode == _node)
+					v2->updateLoading();
+			});
 		});
-	});
+	}
 }
 
 
@@ -106,7 +115,7 @@ void AlbumDetailView::updateLoading()
 					int loadPhotos =  GlobalConfig::tree()->get<int>("AlbumDetailView.PhotosPerRequest") + availablePhotos;	
 					loadItems(loadPhotos);
 					if (imageGroup->getMeasuredSize().width > itemScroll->getMeasuredSize().width)
-						itemScroll->setDrawLoadingIndicator(2,Colors::HoloBlueBright);
+						itemScroll->setDrawLoadingIndicator(2,Colors::SteelBlue);
 				}
 				else
 				{
@@ -152,13 +161,18 @@ void AlbumDetailView::show(FBNode * node)
 	if (item != NULL)
 	{
 		albumName = (TextPanel*)item;
-		PanelFactory::getInstance().setStyle(albumName,TextStyles::Title);
 	}
 	else
 	{
-		albumName = PanelFactory::getInstance().buildTextPanel(node->getAttribute("name"), TextStyles::Title);
+		albumName = new TextPanel(node->getAttribute("name"));
 		ViewOrchestrator::getInstance()->registerView(node->getId() + "/name",albumName,this);
 	}
+
+	boost::property_tree::ptree labelConfig = GlobalConfig::tree()->get_child("AlbumDetailView.Title");
+	albumName->setTextSize(labelConfig.get<float>("FontSize"),true);
+	albumName->setTextFitPadding(labelConfig.get<float>("TextPadding"));
+	albumName->setTextColor(Color(labelConfig.get_child("TextColor")));
+	albumName->setBackgroundColor(Color(labelConfig.get_child("BackgroundColor")));
 
 	items.clear();
 	imageGroup->clearChildren();

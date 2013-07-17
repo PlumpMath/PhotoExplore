@@ -22,10 +22,10 @@ void UniformGrid::layout(Leap::Vector position, cv::Size2f size)
 
 		Leap::Vector childPosition;
 
-		childPosition.x = (iX) * childSize.width;
-		childPosition.y = (iY) * childSize.height;
+		childPosition.x = ((float)iX) * childSize.width;
+		childPosition.y = ((float)iY) * childSize.height;
 
-		childPosition.z = .5;
+		childPosition.z = .5f;
 
 		childPosition += position;
 

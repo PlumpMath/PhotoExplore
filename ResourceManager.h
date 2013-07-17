@@ -79,7 +79,7 @@ private:
 
 	float textureLoadThreshold, imageLoadThreshold;
 
-	long currentTextureCacheSize, currentImageCacheSize;
+	double currentTextureCacheSize, currentImageCacheSize;
 
 	void updateImageState(ResourceData * data, bool load);	
 	void updateTextureState(ResourceData * data, bool load);

@@ -63,6 +63,10 @@ private:
 
 	LeapElement * hitLastFrame;
 
+	int filteredPointable;
+	Vector filteredScreenPoint;
+	Timer filterTimer;
+
 	
 public:
 	static PointableElementManager * getInstance()

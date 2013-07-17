@@ -46,7 +46,7 @@ void FacebookBrowser::childViewFinished(string action)
 		introView->show(rootNode);					
 		topView = introView;
 	}
-	topView->layout(Vector(0,0,0),cv::Size2f(GlobalConfig::ScreenWidth, GlobalConfig::ScreenHeight-GlobalConfig::tree()->get<float>("Tutorial.Height")));
+	topView->layout(Vector(0,GlobalConfig::tree()->get<float>("Menu.Height"),0),cv::Size2f(GlobalConfig::ScreenWidth, GlobalConfig::ScreenHeight-(GlobalConfig::tree()->get<float>("Tutorial.Height")+GlobalConfig::tree()->get<float>("Menu.Height"))));
 }
 
 void FacebookBrowser::onFrame(const Controller & controller)

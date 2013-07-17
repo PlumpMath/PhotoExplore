@@ -251,9 +251,9 @@ float ResourceManager::calculateResourceSize(ResourceData * data)
 
 void ResourceManager::cleanupCache()
 {
-	double textureCacheMaxSize = GlobalConfig::tree()->get<double>("ResourceCache.TextureCacheSize") * BytesToMB;
-	double imageCacheMaxSize = GlobalConfig::tree()->get<double>("ResourceCache.ImageCacheSize")* BytesToMB;
-	
+	static double textureCacheMaxSize = GlobalConfig::tree()->get<double>("ResourceCache.TextureCacheSize") * BytesToMB;
+	static double imageCacheMaxSize = GlobalConfig::tree()->get<double>("ResourceCache.ImageCacheSize")* BytesToMB;
+	static bool debugLogging = GlobalConfig::tree()->get<bool>("ResourceCache.DebugLogging");
 
 	textureCacheMaxSize *= GlobalConfig::tree()->get<double>("ResourceCache.TextureCacheGCCollectRatio");
 	imageCacheMaxSize *= GlobalConfig::tree()->get<double>("ResourceCache.ImageCacheGCCollectRatio");
@@ -267,7 +267,8 @@ void ResourceManager::cleanupCache()
 	vector<ResourceData*> rVector;
 	for (auto cache = resourceCache.get<IdIndex>().begin(); cache != resourceCache.get<IdIndex>().end(); cache++)
 	{
-		rVector.push_back(cache->Data);
+		if (cache->Data->priority >= 0)
+			rVector.push_back(cache->Data);
 		//resources[i++] = cache->Data;
 	}
 
@@ -285,13 +286,13 @@ void ResourceManager::cleanupCache()
 
 	for (int i=0; i<rVector.size();i++)
 	{
-		//string changed = "";
+		string changed = "";
 		ResourceData * data = rVector.at(i);
 		//ResourceData * data = resources[i];
 
 		float resourceSize = calculateResourceSize(data);
 
-		if (data->ImageState == ResourceState::ImageLoaded)
+		if (data->ImageState == ResourceState::ImageLoaded || data->ImageState == ResourceState::ImageLoading)
 		{	
 			if (imgCacheFull || imageCacheSize  + resourceSize >= imageCacheMaxSize)
 			{
@@ -300,9 +301,9 @@ void ResourceManager::cleanupCache()
 				{					
 					imageLoadThreshold = data->priority;
 					imgCacheFull = true;
-					//changed += "[-I!]";
-				}
-					//changed += "[-I]";
+					changed += "X(-I)X";
+				}else if (debugLogging)
+					changed += "(-I)";
 				//Logger::stream("ResourceManager","DEBUG") << "Unloading image for resource " << data->resourceId << " with priority " << data->priority << endl;
 			}
 			else
@@ -310,14 +311,14 @@ void ResourceManager::cleanupCache()
 				imageCacheSize += resourceSize;
 			}
 		}
-		else if (!imgCacheFull && imageCacheSize < imageCacheMaxSize)
+		else if (!imgCacheFull && imageCacheSize  + resourceSize  < imageCacheMaxSize)
 		{ 
-			//changed += "[+I]";
+			if (debugLogging) changed += "(+I)";
 			updateImageState(data,true);
 			imageCacheSize += resourceSize;
 		}
 
-		if (data->TextureState == ResourceState::TextureLoaded)
+		if (data->TextureState == ResourceState::TextureLoaded || data->TextureState == ResourceState::TextureLoading)
 		{				
 			if (textureCacheFull || textureCacheSize + resourceSize >= textureCacheMaxSize)
 			{
@@ -326,10 +327,10 @@ void ResourceManager::cleanupCache()
 				{
 					textureLoadThreshold = data->priority;
 					textureCacheFull = true;
-					//changed += " (-T!)";
+					if (debugLogging) changed += " X(-T)X";
 				}
-				//else
-					//changed += " (-T)";
+				else if (debugLogging)
+					changed += " (-T)";
 				//Logger::stream("ResourceManager","DEBUG") << "Unloading texture for resource " << data->resourceId << " with priority " << data->priority << endl;
 			}
 			else
@@ -337,16 +338,15 @@ void ResourceManager::cleanupCache()
 				textureCacheSize += resourceSize;
 			}
 		}
-		else if (!textureCacheFull && textureCacheSize < textureCacheMaxSize)
+		else if (!textureCacheFull && textureCacheSize  + resourceSize < textureCacheMaxSize)
 		{
 			updateTextureState(data,true);
-			textureCacheSize += resourceSize;
-			//changed = true;
-			//changed += " (+T)";
+			textureCacheSize += resourceSize;			
+			if (debugLogging) changed += " (+T)";
 		}
-
-		//if (GlobalConfig::tree()->get<bool>("ResourceCache.DebugLogging"))
-			//Logger::stream("ResourceManager","DEBUG") << changed << "  IMG[" << data->ImageState << "] TEX[" << data->TextureState << "] \t\t SIZE[" << resourceSize/BytesToMB << "] \t\t P [" << data->priority << "] " << data->resourceId << endl;
+		if (debugLogging)
+			Logger::stream("ResourceManager","DEBUG") << changed << "  IMG[" << data->ImageState << "] TEX[" << data->TextureState << "] \t\t SIZE[" << resourceSize/BytesToMB << "] \t\t P [" << data->priority << "] " << data->resourceId << 
+			" ICache[" << ((double)imageCacheSize/BytesToMB) << "] TCache[" << ((double)textureCacheSize/BytesToMB) << "] " << endl;
 	}	
 	currentTextureCacheSize = textureCacheSize;
 	currentImageCacheSize = imageCacheSize;
@@ -360,7 +360,10 @@ void ResourceManager::cleanupCache()
 }
 
 void ResourceManager::update()
-{
+{	
+	static double textureCacheMaxSize = GlobalConfig::tree()->get<double>("ResourceCache.TextureCacheSize") * BytesToMB;
+	static double imageCacheMaxSize = GlobalConfig::tree()->get<double>("ResourceCache.ImageCacheSize")* BytesToMB;
+
 	Timer updateTimer;
 	updateTimer.start();
 	ImageLoader::getInstance().update();
@@ -386,12 +389,10 @@ void ResourceManager::update()
 	if (updateTimer.millis() > 0)
 		Logger::stream("ResourceManager","TIME") << "TextureLoader update took " << updateTimer.millis() << " ms " << endl;
 	
-	long textureCacheMaxSize = GlobalConfig::tree()->get<int>("ResourceCache.TextureCacheSize") * BytesToMB;
-	long imageCacheMaxSize = GlobalConfig::tree()->get<int>("ResourceCache.ImageCacheSize")* BytesToMB;
 	bool cacheFull = (currentTextureCacheSize >= textureCacheMaxSize || currentImageCacheSize > imageCacheMaxSize);
 
-	if (cacheCleanupTimer.seconds() > GlobalConfig::tree()->get<int>("ResourceCache.CacheGCFrequency") || 
-		(cacheFull && GlobalConfig::tree()->get<int>("ResourceCache.FullCacheGCFrequency")))
+	if (cacheCleanupTimer.millis() > GlobalConfig::tree()->get<double>("ResourceCache.CacheGCFrequency") || 
+		(cacheFull && cacheCleanupTimer.millis() > GlobalConfig::tree()->get<double>("ResourceCache.FullCacheGCFrequency")))
 	{
 		cleanupCache();
 		cacheCleanupTimer.start();

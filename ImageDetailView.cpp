@@ -21,7 +21,7 @@ void ImageDetailView::initButtonBar()
 	Color c = Colors::HoloBlueBright;
 	c.setAlpha(.6f);
 	likeButton = new Button("Like this photo?");
-	likeButton->setBackgroundColor(Colors::DarkBlue);
+	likeButton->setBackgroundColor(Colors::SteelBlue);
 	likeButton->setTextColor(Colors::White);
 	likeButton->setTextSize(8);
 	likeButton->setVisible(false);
@@ -30,7 +30,7 @@ void ImageDetailView::initButtonBar()
 
 	
 	alreadyLikedButton = new Button("You like this.");
-	alreadyLikedButton->setBackgroundColor(Colors::HoloBlueDark);
+	alreadyLikedButton->setBackgroundColor(Colors::SteelBlue);
 	alreadyLikedButton->setTextColor(Colors::White);
 	alreadyLikedButton->setTextSize(8);
 	alreadyLikedButton->setVisible(false);
@@ -44,12 +44,12 @@ void ImageDetailView::initButtonBar()
 	//likeButton->setBorderThickness(1);
 	//likeButton->setBorderColor(Colors::HoloBlueBright);
 
-	photoComment = new Button("");
+	photoComment = new TextPanel("");
 	photoComment->setLayoutParams(LayoutParams(cv::Size2f(400,100),cv::Vec4f(20,20,20,80)));
 	photoComment->setAnimateOnLayout(false);
-	photoComment->setTextColor(Colors::HoloBlueBright);
+	photoComment->setTextColor(GlobalConfig::tree()->get_child("ImageDetailView.Comment.TextColor"));
 	photoComment->setBackgroundColor(Colors::Transparent);
-	photoComment->setTextSize(8);
+	photoComment->setTextSize(GlobalConfig::tree()->get<float>("ImageDetailView.Comment.FontSize"));
 	photoComment->setTextFitPadding(12);
 	photoComment->setEnabled(false);
 	
@@ -72,7 +72,7 @@ void ImageDetailView::onGlobalGesture(const Controller & controller, std::string
 
 bool ImageDetailView::onLeapGesture(const Controller & controller, const Gesture & gesture)
 {
-	if (GlobalConfig::tree()->get<bool>("FullscreenImageView.AllowSwipeDownExit"))
+	if (GlobalConfig::tree()->get<bool>("ImageDetailView.AllowSwipeDownExit"))
 	{
 		if (gesture.type() == Gesture::Type::TYPE_SWIPE && (gesture.state() == Gesture::State::STATE_UPDATE|| gesture.state() == Gesture::State::STATE_UPDATE))
 		{
@@ -92,7 +92,7 @@ bool ImageDetailView::onLeapGesture(const Controller & controller, const Gesture
 
 void ImageDetailView::getTutorialDescriptor(vector<string> & tutorial)
 {
-	tutorial.push_back("shake");
+	tutorial.push_back("shake_inv");
 	tutorial.push_back("stretch");	
 }
 
@@ -107,7 +107,6 @@ void ImageDetailView::setImageMetaData()
 		imageNode = dynamic_cast<Facebook::FBNode*>(imagePanel->getNode());
 		if (imageNode != NULL)
 		{
-			//SELECT like_info FROM photo where album_object_id=10151865693300599 and owner = me()
 			imageNode->setLoadCompleteDelegate([this](){
 
 				if (imageNode->getAttribute("user_likes").compare("1") == 0)
@@ -142,7 +141,7 @@ void ImageDetailView::setImageMetaData()
 			{
 				photoComment->setVisible(true);
 				string comment = imageNode->getAttribute("name");
-				int maxLength = GlobalConfig::tree()->get<int>("FullscreenImageView.MaxCommentLength");
+				int maxLength = GlobalConfig::tree()->get<int>("ImageDetailView.MaxCommentLength");
 				if (comment.length() > maxLength)
 				{
 					comment = comment.substr(0,maxLength) + "...";
@@ -172,6 +171,7 @@ void ImageDetailView::setImagePanel(Panel * _imagePanel)
 		this->imagePanel->setVisible(true);
 		this->imagePanel->setClickable(true);
 		this->imagePanel->setDataPriority(0);
+		this->imagePanel->setFullscreenMode(false);
 		this->imagePanel->setTextureWindow(Vector(),Vector(1,1,1));
 		remove(imagePanel);
 
@@ -196,6 +196,7 @@ void ImageDetailView::setImagePanel(Panel * _imagePanel)
 		this->imagePanel->setFullscreenMode(true);
 		setImageMetaData();
 	}
+	layoutDirty = true;
 }
 
 Panel * ImageDetailView::getImagePanel()
@@ -219,17 +220,20 @@ void ImageDetailView::layout(Vector position, cv::Size2f size)
 {
 	if (imagePanel != NULL && size.width > 0 && size.height > 0)
 	{
-		size.height -= 150;
-
 		lastSize = size;
 		lastPosition = position;
 
-		likeButton->layout(-hostOffset + position + Vector(size.width*.1f,size.height*.82f,1),cv::Size2f(size.width*.15f,size.height*.16f));
-		alreadyLikedButton->layout(-hostOffset + position + Vector(size.width*.1f,size.height*.82f,1),cv::Size2f(size.width*.15f,size.height*.16f));
-		photoComment->layout(-hostOffset + position + Vector(size.width*.3f,size.height*.8f,1),cv::Size2f(size.width*.4f,size.height*.2f));
-
-		imagePanel->fitPanelToBoundary(-hostOffset + position + Vector(size.width*.5f,size.height*.4f,10),size.width,size.height*.8f, false);
+		likeButton->layout(-hostOffset + position + Vector(size.width*.1f,size.height*.82f,10),cv::Size2f(size.width*.15f,size.height*.16f));
+		alreadyLikedButton->layout(-hostOffset + position + Vector(size.width*.1f,size.height*.82f,10),cv::Size2f(size.width*.15f,size.height*.16f));
+		
+		imagePanel->fitPanelToBoundary(-hostOffset + Vector(size.width*.5f,size.height*.5f,5),size.width,size.height*.8f, false);
 	
+		Vector pos;
+		float w1,h1;
+		imagePanel->getBoundingArea(pos,w1,h1);		
+		photoComment->layout(-hostOffset + Vector(size.width*.3f,size.height*.9f,10),cv::Size2f(size.width*.4f,size.height*.2f));
+	
+
 		layoutDirty = false;
 	}
 }
@@ -242,6 +246,8 @@ void ImageDetailView::setVisible(bool _visible)
 
 	if (imagePanel != NULL)
 		imagePanel->setFullscreenMode(isVisible());	
+
+	layoutDirty = true;
 }
 
 
@@ -412,7 +418,7 @@ bool ImageDetailView::handleImageManipulation(const Controller & controller)
 
 					activePanelInteraction.interactingPointables[i] = make_pair(item.first,imgPoint);
 
-					LeapDebug::instance->addDebugVisual(new LeapDebugVisual(Point2f(imgPoint.x,imgPoint.y),1,LeapDebugVisual::LiveByTime,30,Colors::MediumVioletRed));
+					//LeapDebug::instance->addDebugVisual(new LeapDebugVisual(imgPoint,1,LeapDebugVisual::LiveByTime,30,Colors::MediumVioletRed));
 				}
 				else
 				{
@@ -441,12 +447,12 @@ bool ImageDetailView::handleImageManipulation(const Controller & controller)
 					Vector oldCentroid = activePanelInteraction.pointableCentroid;
 					if (oldCentroid.x != 0)
 					{
-						LeapDebug::instance->addDebugVisual(new LeapDebugVisual(Point2f(newImageCentroid.x,newImageCentroid.y),1,LeapDebugVisual::LiveByTime,35,Colors::LightBlue));
+						LeapDebug::instance->addDebugVisual(new LeapDebugVisual(newImageCentroid,1,LeapDebugVisual::LiveByTime,35,Colors::LightBlue));
 
 						newImageCentroid.x = LeapHelper::lowpass(oldCentroid.x,newImageCentroid.x,40,timer.millis());
 						newImageCentroid.y = LeapHelper::lowpass(oldCentroid.y,newImageCentroid.y,40,timer.millis());
 					
-						LeapDebug::instance->addDebugVisual(new LeapDebugVisual(Point2f(newImageCentroid.x,newImageCentroid.y),1,LeapDebugVisual::LiveByTime,40,Colors::Blue));
+						LeapDebug::instance->addDebugVisual(new LeapDebugVisual(newImageCentroid,1,LeapDebugVisual::LiveByTime,40,Colors::Blue));
 
 						activePanelInteraction.translation += (newImageCentroid - oldCentroid);
 					}
@@ -496,6 +502,7 @@ bool ImageDetailView::handleImageManipulation(const Controller & controller)
 		}
 		else
 		{
+			cv::Size2f size = lastSize;
 			activePanelInteraction.panel->setTextureWindow(Vector(),Vector());
 
 			Vector pos;
@@ -503,15 +510,21 @@ bool ImageDetailView::handleImageManipulation(const Controller & controller)
 			activePanelInteraction.panel->getBoundingArea(pos,w1,h1);
 
 			float sc1 = activePanelInteraction.scale.x;
-
-			Vector position = pos;
-			cv::Size2f size = lastSize;// cv::Size2f(w1,h1);//lastSize;
-			//size.width = size.width * activePanelInteraction.scale.x;
-			//size.height = size.height * activePanelInteraction.scale.x;
 			
-			//imagePanel->fitPanelToBoundary(-hostOffset + position + Vector(size.width*.5f,size.height*.5f,10),size.width,size.height, true);
+			if (GlobalConfig::tree()->get<bool>("ImageDetailView.LimitResize"))
+			{
+				float maxHeight = min<float>(activePanelInteraction.panel->getHeight()*sc1,size.height*.95f);
+				float maxWidth = min<float>(activePanelInteraction.panel->getWidth()*sc1,size.width*.95f);
+				sc1 = min<float>(maxHeight/activePanelInteraction.panel->getHeight(),maxWidth/activePanelInteraction.panel->getWidth());
+			}
 
-			activePanelInteraction.panel->setTextureWindow((Vector(size.width*.5f,size.height*.4f,10)-pos)-Vector(w1*sc1*.5f,h1*sc1*.5f,0)-hostOffset,activePanelInteraction.scale);
+			activePanelInteraction.scale.x= sc1;
+
+			activePanelInteraction.panel->setTextureWindow((Vector(size.width*.5f,size.height*.5f,10)-pos)-Vector(w1*sc1*.5f,h1*sc1*.5f,0)-hostOffset,activePanelInteraction.scale);
+			
+			
+			activePanelInteraction.panel->getBoundingArea(pos,w1,h1);
+			photoComment->setPosition(-hostOffset  + Vector(size.width*.3f,pos.y + h1,10));
 		}
 	}
 	return processed;

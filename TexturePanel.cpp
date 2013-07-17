@@ -6,8 +6,29 @@ TexturePanel::TexturePanel()
 	currentTextureId = NULL;
 	allowSubPixelRendering = true;
 	textureScaleMode = ScaleMode::Fit;
+	textureTint = Colors::White;
 }
 
+void TexturePanel::setTextureTint(Color _textureTint)
+{
+	this->textureTint = _textureTint;
+}
+
+Color TexturePanel::getTextureTint()
+{
+	return textureTint;
+}
+
+
+void TexturePanel::setTextureAlpha(float _textureAlpha)
+{
+	this->textureTint.colorArray[3] = _textureAlpha;
+}
+
+float TexturePanel::getTextureAlpha()
+{
+	return textureTint.colorArray[3];
+}
 
 void TexturePanel::setTextureWindow(Vector textureOffset, Vector scaleVector)
 {
@@ -153,7 +174,7 @@ void TexturePanel::drawTexture(GLuint drawTexId, Vector drawPosition, float draw
 
 	float z1 = drawPosition.z;
 				
-	glColor4f(1,1,1,1);
+	glColor4fv(textureTint.getFloat());
 	glBegin( GL_QUADS );
 
 		if (!allowSubPixelRendering && useInt)

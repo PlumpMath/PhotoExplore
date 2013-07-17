@@ -94,7 +94,7 @@ public:
 
 			req->SetMethod(methodName);			
 
-			//cout << "Sending request: " << getTaskURL() << "\n";
+			Logger::stream("FacebookLoader","INFO") << "Sending request: " << getTaskURL() << "\n";
 			CefURLRequest::Create(req,this);	
 		}
 	}
@@ -212,7 +212,7 @@ public:
 
 	void processJSONResult(json_spirit::Value result, string dataString)
 	{		
-		//cout << "Processing JSON result : " << dataString << "\n";
+		Logger::stream("FacebookLoader","INFO") << "Processing JSON result : " << dataString << "\n";
 
 		if (result.type() == json_spirit::obj_type)
 		{
@@ -268,7 +268,7 @@ public:
 	void loadField(FBNode * parent, string nodeQuery, string interpretAs, boost::function<void(FBNode*)> loadCompleteCallback)
 	{
 		//cout << "Loading node fields " << nodeQuery << "\n";
-
+		Logger::stream("FacebookLoader","INFO") << "Sending request: " << nodeQuery << endl;
 		CefRefPtr<JSONDownloadTask> newTask = new JSONDownloadTask(nodeQuery,parent);
 		newTask->onComplete = loadCompleteCallback;
 		newTask->edgeType = interpretAs;

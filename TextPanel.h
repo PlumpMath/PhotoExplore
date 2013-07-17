@@ -84,7 +84,7 @@ public:
 	bool getTextEnabled();
 
 	void setTextColor(Color textColor);
-	void setTextSize(float textSize);
+	void setTextSize(float textSize, bool relative = true);
 	void setTextFitMode(bool fitToText);		
 	bool getTextFitMode();
 	void setTextFitPadding(float textFitPadding);

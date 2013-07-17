@@ -7,9 +7,15 @@ class AbsoluteLayout : public ViewGroup {
 
 public:
 
+	boost::function<void(Vector pos, cv::Size2f size)> layoutCallback;
+
 	void layout(Vector pos, cv::Size2f size)
 	{
-		//do nothing!
+		this->lastPosition = pos;
+		this->lastSize = size;
+
+		if (!layoutCallback.empty())
+			layoutCallback(pos,size);
 	}
 
 };

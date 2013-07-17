@@ -49,6 +49,8 @@ LeapStartScreen::LeapStartScreen(std::string startDir)
 	lastHit = NULL;
 
 	if (GlobalConfig::tree()->get<bool>("FakeDataMode.Enable")) {
+		
+		init();
 		rootView = new FacebookBrowser(new FBNode("human"));
 		state = FinishedState;
 	}
@@ -98,7 +100,7 @@ LeapElement * LeapStartScreen::elementAtPoint(int x, int y, int & elementStateFl
 
 	if (state == FinishedState)
 	{
-		((FacebookBrowser*)rootView)->elementAtPoint(x,y,elementStateFlags);
+		return ((FacebookBrowser*)rootView)->elementAtPoint(x,y,elementStateFlags);
 	}
 	else 
 	{		
@@ -298,7 +300,6 @@ void LeapStartScreen::layout(Leap::Vector pos, cv::Size2f size)
 {
 	this->lastPosition = pos;
 	this->lastSize = size;
-
 
 	mainLayout->layout(pos,size);
 

@@ -1,4 +1,5 @@
 #include "FixedAspectGrid.hpp"
+#include "GraphicContext.hpp"
 
 FixedAspectGrid::FixedAspectGrid(cv::Size2i _gridDimensions, float _cellAspectRatio, bool _columnFirst) :
 	gridDimensions(_gridDimensions),
@@ -119,4 +120,46 @@ void FixedAspectGrid::layout(Vector position, cv::Size2f _size)
 cv::Rect_<int> FixedAspectGrid::getHitRect()
 {
 	return cv::Rect_<int>((int)lastPosition.x,(int)lastPosition.y,(int)lastSize.width,(int)lastSize.height);
+}
+
+void FixedAspectGrid::draw()
+{
+	if (children.size() == 0)
+		return;
+
+	float height = lastSize.height;
+	float cellHeight = height/gridDimensions.height;
+	float cellWidth = cellHeight*cellAspectRatio;
+
+	auto drawIt = children.begin();
+
+	bool found;
+	float visibleWidth = GraphicsContext::getInstance().getDrawHint("VisibleWidth", found);
+	float offset = GraphicsContext::getInstance().getDrawHint("Offset", found);
+
+	if (found)
+	{
+		int advance = ((int)(-offset/cellWidth)) * gridDimensions.height;		
+
+		advance = min<int>(children.size()-1,advance);
+		std::advance(drawIt,advance);
+	}
+
+	for (;drawIt != children.end();drawIt++)
+	{
+		View * child = *drawIt;
+		if (found)
+		{
+			float lastX = child->getLastPosition().x;
+			float lastWidth = child->getMeasuredSize().width;
+
+			if (lastWidth + lastX + offset < 0)
+				continue;
+			else if ((lastX + offset) > visibleWidth)
+				break;
+		}
+
+		if (child->isVisible())
+			child->draw();
+	}
 }

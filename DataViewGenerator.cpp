@@ -39,9 +39,9 @@ void DataViewGenerator::SelectNodes(FBNode * start, const NodeQuerySpec & nodeQu
 				long offset = layer->second.offset;
 				
 				//adam::advance
-				while (offset-- > 0 && edgesOfType.first++ != edgesOfType.second);
+				for (;offset > 0 && edgesOfType.first != edgesOfType.second; offset--,edgesOfType.first++);
 
-				while (edgesOfType.first++ != edgesOfType.second)
+				for(;edgesOfType.first != edgesOfType.second; edgesOfType.first++)
 				{
 					if (visited.count(edgesOfType.first->Node) == 0)
 					{

@@ -1,4 +1,5 @@
 #include "FBNode.h"
+#include "Logger.hpp"
 
 using namespace json_spirit;
 using namespace Facebook;
@@ -223,7 +224,7 @@ void FBNode::startLoad()
 	{
 		string ls = getId()+ "?fields=" + loadString.str();
 		ls.pop_back(); //Remove ending ','
-		//cout << "Loading node to target level: " << ls << endl;
+		Logger::stream("FBNode","INFO") << "Loading node to target level: " << ls << endl;
 		FBDataSource::instance->loadField(this,ls, targetEdge,[](FBNode * node){});
 	}
 }

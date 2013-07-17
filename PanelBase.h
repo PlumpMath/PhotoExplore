@@ -12,7 +12,7 @@
 
 class PanelBase : public View {
 private:	
-	RectF boundingRect;
+	cv::Rect_<float> boundingRect;
 
 	float beforeSelectionBorderThickness;
 

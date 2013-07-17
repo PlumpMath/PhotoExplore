@@ -9,14 +9,14 @@
 	"GraphicsSettings" :
 	{
 		"Fullscreen" : false,
-		"OverrideResolution" : true,
+		"OverrideResolution" : false,
 		"OverrideWidth" : 1280,
 		"OverrideHeight" : 720,
 		"UseIntForNonSubPixelRender" : false
 	},
 	"Panel" :
 	{
-		"DebugLoading" : true,
+		"DebugLoading" : false,
 		"DebugPriority" : false
 	},
 	"Cef" : 
@@ -33,20 +33,22 @@
 	"ResourceCache" : 
 	{
 		"TextureCacheSize" : 512, 		//Megabytes
-		"ImageCacheSize" : 512, 			//Megabytes		
+		"ImageCacheSize" : 768, 			//Megabytes		
 		"MaxImageSize" : 10,					//Megabytes
 		"CacheGCFrequency" : 5000 ,//milliseconds		
 		"FullCacheGCFrequency" : 2000, //milliseconds
 		"TextureCacheGCCollectRatio" : 0.8,
 		"ImageCacheGCCollectRatio" : 0.8,
-		"DebugLogging" : false
+		"DebugLogging" : true
 	},
 	"FakeDataMode" : 
 	{
 		"Enable" : false,
-		"SourceDataDirectory" : "C:\\Users\\Adam\\Pictures\\pixiv-win\\LeapTestImages" ,
-		"RequestDelay" : 300 ,//ms
-		"MaxPhotos" : 300
+		"SourceDataDirectory" : "C:\\Users\\Adam\\Pictures\\pixiv-win" ,
+		"RequestDelay" : 100 ,//ms
+		"MaxPhotos" : 2000,
+		"MaxAlbums" : 40,
+		"MaxFriends" : 1000
 	},
 	"Shake" : 
 	{	
@@ -118,7 +120,18 @@
 			"MaxDuration" : 1.0
 		},
 		"AllowSwipeDownExit" : false,
-		"OpenMenuImage" : "Images/MenuIcon.png"
+		"OpenMenuImage" : "Images/MenuIcon.png",
+		"OpenMenuOverlay" : "Images/MenuIcon_Overlay.png",
+		"TopRightButton" : true,
+		"WhiteBackground" : false,
+		"Height" : 100,
+		"TextColor" : 
+		{
+			"R" : 255,
+			"G" : 255,
+			"B" : 255,
+			"A" : 255
+		}
 	},
 	"Leap" : 
 	{
@@ -137,12 +150,37 @@
 				"MaxAngleOffsetToZAxis" :  60.0		//Degrees		
 			},
 			"TimeToComplete" : 50 //milliseconds
+		},
+		"PointablePositionFilter" : 
+		{
+			"ShowRaw" : false,
+			"Mode" :  "LowpassAngle",
+			"Lowpass" :
+			{
+			"RC" : 10				
+			},
+			"LowpassAngle" :
+			{
+				"RC" : 100			
+			}			
 		}
 	},
-	"FullscreenImageView" :
+	"ImageDetailView" :
 	{
+		"LimitResize" : false,
 		"AllowSwipeDownExit" : false,
-		"MaxCommentLength" : 180
+		"MaxCommentLength" : 180,		
+		"Comment" : 
+		{
+			"FontSize" : 8,
+			"TextColor" : 	
+			{
+				"R" : 255,
+				"G" : 255,
+				"B" : 255,
+				"A" : 150
+			}
+		}
 	},
 	"ScrollView" : 
 	{		
@@ -156,19 +194,80 @@
 		"ScrollAheadTime" : 0.6 ,//Seconds
 		"RowCount" : 2,
 		"PhotosPerRequest" :  10,
-		"AlbumsPerRequest" : 10
+		"AlbumsPerRequest" : 10,
+		"Title" :
+		{
+			"FontSize" : 16,
+			"TextPadding" : 20,
+			"TextColor" : 
+			{
+				"R" : 0,
+				"G" : 0,
+				"B" : 0,
+				"A" : 255
+			},
+			"BackgroundColor" : 
+			{
+				"R" : 255,
+				"G" : 255,
+				"B" : 255,
+				"A" : 0
+			}
+		}
 	},
 	"AlbumDetailView" :
 	{
 		"ScrollAheadTime" : 0.6 ,//Seconds
 		"RowCount" : 2,
-		"PhotosPerRequest" : 10
+		"PhotosPerRequest" : 10,
+		"Title" :
+		{
+			"FontSize" : 16,
+			"TextPadding" : 20,
+			"TextColor" : 
+			{
+				"R" : 0,
+				"G" : 0,
+				"B" : 0,
+				"A" : 255
+			},
+			"BackgroundColor" : 
+			{
+				"R" : 255,
+				"G" : 255,
+				"B" : 255,
+				"A" : 0
+			}
+		}
 	},
 	"FriendListView" :
 	{
 		"ScrollAheadTime" : 0.6 ,//Seconds
 		"RowCount" : 3,
 		"FriendsPerRequest" : 15
+	},
+	"FriendPanel" : 
+	{
+		"NameLabel" :
+		{
+			"RandomizeBackground" : true,
+			"FontSize" : 6,
+			"TextPadding" : 20,
+			"TextColor" : 
+			{
+				"R" : 255,
+				"G" : 255,
+				"B" : 255,
+				"A" : 255
+			},
+			"BackgroundColor" : 
+			{
+				"R" : 70,
+				"G" : 130,
+				"B" : 180,
+				"A" : 255
+			}
+		}
 	},
 	"Tutorial" :
 	{
@@ -190,23 +289,51 @@
 		},
 		"Labels" :
 		{
-			"FontSize" : 5.0,
+			"FontSize" : 3.5,
 			"TextPadding" : 5.0,
 			"SwipeGesture" : "Swipe Left/Right",
 			"PointGesture" : "Hover or tap to select",
 			"PointStopGesture" : "Point to stop",
 			"ShakeGesture" : "Shake to go back",
-			"StretchGesture" : "Use two fingers to stretch the image"
+			"StretchGesture" : "Use two fingers to stretch the image",
+			"Color" : 
+			{
+				"R" : 0,
+				"G" : 0,
+				"B" : 0,
+				"A" : 150
+			}
 		},
 		"Background" : 
 		{
 			"R" : 200,
 			"G" : 200,
 			"B" : 200,
+			"A" : 0
+		},		
+		"TextBackground" : 
+		{
+			"R" : 0,	
+			"G" : 0,
+			"B" : 0,
+			"A" : 0
+		},
+		"TextColor" : 
+		{
+			"R" : 0,
+			"G" : 0,
+			"B" : 0,
+			"A" : 150
+		},
+		"InvertedTextColor" : 
+		{
+			"R" : 255,
+			"G" : 255,
+			"B" : 255,
 			"A" : 150
 		},
 		"AspectRatio" : 1.4,
-		"Height" : 140, //Pixels - ADJUST TUTORIAL HEIGHT
+		"Height" : 100, //Pixels - ADJUST TUTORIAL HEIGHT
 		"Enabled" : true
 	},
 	"Strings" : 

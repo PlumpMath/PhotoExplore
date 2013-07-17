@@ -25,6 +25,8 @@ private:
 	{
 		logTimer.start();
 		logstream.open("photo_explorer.log");
+		logstream.precision(3);
+		logstream.setf(std::ios_base::fixed);
 	}
 
 	~Logger()
@@ -55,7 +57,7 @@ public:
 
 	static std::ofstream & stream(std::string tag, const char * severity = "INFO")
 	{
-		getInstance().logstream <<  getInstance().logTimer.seconds() << " : " << severity << "- [" << tag << "] - " << " ";
+		getInstance().logstream <<  (long)getInstance().logTimer.millis() << " : " << severity << "- [" << tag << "] - " << " ";
 		return getInstance().logstream;
 	}
 

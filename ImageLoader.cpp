@@ -123,6 +123,8 @@ void ImageLoader::update()
 
 void ImageLoader::runLoadThread(ImgTaskQueue::ImageTaskQueue * loadQueue, boost::mutex * loadQueueMutex) 
 {
+	static int maxImageSize = GlobalConfig::tree()->get<int>("ResourceCache.MaxImageSize");
+
 	while (true)
 	{		
 		loadQueueMutex->lock();
@@ -170,98 +172,55 @@ void ImageLoader::runLoadThread(ImgTaskQueue::ImageTaskQueue * loadQueue, boost:
 			//}
 		}
 		else
-		{
-			
+		{			
 			Timer loadTimer;
 			loadTimer.start();
 			cv::Mat imgMat;
 			
 			try
 			{
-				//cout << "Loading image[" << loadTask.levelOfDetail << "]" << loadTask.imageName << " with priority " << loadTask.priority << "\n";
 				imgMat  = cv::imread(loadTask.imageURI, -1 );
-				//LeapImageOut << "CV Load took " << loadTimer.millis() << " ms @ " << ((imgMat.size().area()*4) / BytesToMB) / loadTimer.seconds() << "MB/s \n";
-				//boost::this_thread::sleep(boost::posix_time::milliseconds(1000));
+
 				if (imgMat.data != NULL)
 				{
-					if (imgMat.size().area() > GlobalConfig::tree()->get<int>("ResourceCache.MaxImageSize") * BytesToMB)
+					cv::cvtColor(imgMat, imgMat, CV_BGR2RGBA, 4);
+
+					if (4 * imgMat.size().area() >  maxImageSize * BytesToMB)
 					{
-						Logger::stream("ImageLoader","ERROR") << "Image " << loadTask.imageURI << " is too big " << endl;
+						float scale = (float)(maxImageSize * BytesToMB)/((float)imgMat.size().area()*4.0f);
+						
+						float originalWidth = imgMat.size().width, originalHeight = imgMat.size().height;
+
+						int adjustedWidth = (int)ceil(scale * originalWidth);
+						int adjustedHeight = (int)ceil(scale * originalHeight);
+
+						cv::Size newSize = cv::Size(adjustedWidth,adjustedHeight);
+						cv::Mat resized = cv::Mat(newSize, CV_8UC4);
+						cv::resize(imgMat,resized,newSize,0,0,cv::INTER_AREA);
 						imgMat.release();
+						
+						ImageLoader::getInstance().resourceChangedCallback(loadTask.resourceId, ResourceState::ImageLoaded, resized);
 					}
 					else
 					{
-						cv::cvtColor(imgMat, imgMat, CV_BGR2RGBA, 4);
-						loadTask.success = true;
+						ImageLoader::getInstance().resourceChangedCallback(loadTask.resourceId, ResourceState::ImageLoaded, imgMat);
 					}
 				}
 			}
 			catch (std::exception & e)
 			{
-				Logger::stream("ImageLoader","ERROR") << "Exception loading image: " << e.what() << endl;
-			}
-			
-		
-			if (loadTask.success)
-			{
-				//if (loadTask.levelOfDetail & LevelOfDetail_Types::Preview)
-				//{
-				//	float targetHeight = 512, targetWidth = 512;
-				//	int adjustedWidth, adjustedHeight;
-
-				//	float xScale = targetWidth/((float)imgMat.size().width);
-				//	float yScale = targetHeight/((float)imgMat.size().height);
-
-				//	if (xScale < yScale)	
-				//		xScale = yScale;	
-				//	else 	
-				//		yScale = xScale;
-
-
-				//	float originalWidth = imgMat.size().width, originalHeight = imgMat.size().height;
-
-				//	adjustedWidth = (int)ceil(xScale * originalWidth);
-				//	adjustedHeight = (int)ceil(yScale * originalHeight);
-
-				//	Timer resizeTimer;
-				//	resizeTimer.start();
-
-				//	cv::Size newSize = cv::Size(adjustedWidth,adjustedHeight);
-				//	cv::Mat resized = cv::Mat(newSize, CV_8UC4);
-				//	cv::resize(imgMat,resized,newSize,0,0,cv::INTER_AREA);
-				//	loadTask.loadResults[LevelOfDetail_Types::Preview] = resized;
-
-				//	if (loadTask.levelOfDetail & LevelOfDetail_Types::Full)
-				//	{
-				//		loadTask.loadResults[LevelOfDetail_Types::Full] = imgMat;		
-				//	}
-				//	else
-				//	{
-				//		imgMat.release();			
-
-				//		int * data = new int[2];
-				//		data[0] = (int)originalWidth;
-				//		data[1] = (int)originalHeight;
-				//		loadTask.loadResults[LevelOfDetail_Types::Full] = cv::Mat(1,2,CV_32S,data);
-				//	}
-				//}
-				//else if (loadTask.levelOfDetail & LevelOfDetail_Types::Full)
-				//{
-				//	loadTask.loadResults[LevelOfDetail_Types::Full] = imgMat;		
-				//}				
-				ImageLoader::getInstance().resourceChangedCallback(loadTask.resourceId, ResourceState::ImageLoaded, imgMat);
-			}
-			else
-			{
 				if (imgMat.data != NULL)
 					imgMat.release();
-
+				Logger::stream("ImageLoader","ERROR") << "Exception loading image: " << e.what() << endl;
 				ImageLoader::getInstance().resourceChangedCallback(loadTask.resourceId, ResourceState::ImageLoadError,cv::Mat());
 			}
-		
+							
 			loadQueueMutex->lock();
-			auto it = loadQueue->get<ImgTaskQueue::NameIndex>().find(loadTask.resourceId);
-			loadQueue->get<ImgTaskQueue::NameIndex>().erase(it);
+
+			auto it = loadQueue->get<ImgTaskQueue::NameIndex>().find(loadTask.resourceId);			
+			if (it != loadQueue->get<ImgTaskQueue::NameIndex>().end())
+				loadQueue->get<ImgTaskQueue::NameIndex>().erase(it);
+
 			loadQueueMutex->unlock();			
 		}
 	}
@@ -313,3 +272,49 @@ int ImageLoader::processCompletedTasks(int count)
 {
 	return 1;	
 }
+
+				//if (loadTask.levelOfDetail & LevelOfDetail_Types::Preview)
+				//{
+				//	float targetHeight = 512, targetWidth = 512;
+				//	int adjustedWidth, adjustedHeight;
+
+				//	float xScale = targetWidth/((float)imgMat.size().width);
+				//	float yScale = targetHeight/((float)imgMat.size().height);
+
+				//	if (xScale < yScale)	
+				//		xScale = yScale;	
+				//	else 	
+				//		yScale = xScale;
+
+
+				//	float originalWidth = imgMat.size().width, originalHeight = imgMat.size().height;
+
+				//	adjustedWidth = (int)ceil(xScale * originalWidth);
+				//	adjustedHeight = (int)ceil(yScale * originalHeight);
+
+				//	Timer resizeTimer;
+				//	resizeTimer.start();
+
+				//	cv::Size newSize = cv::Size(adjustedWidth,adjustedHeight);
+				//	cv::Mat resized = cv::Mat(newSize, CV_8UC4);
+				//	cv::resize(imgMat,resized,newSize,0,0,cv::INTER_AREA);
+				//	loadTask.loadResults[LevelOfDetail_Types::Preview] = resized;
+
+				//	if (loadTask.levelOfDetail & LevelOfDetail_Types::Full)
+				//	{
+				//		loadTask.loadResults[LevelOfDetail_Types::Full] = imgMat;		
+				//	}
+				//	else
+				//	{
+				//		imgMat.release();			
+
+				//		int * data = new int[2];
+				//		data[0] = (int)originalWidth;
+				//		data[1] = (int)originalHeight;
+				//		loadTask.loadResults[LevelOfDetail_Types::Full] = cv::Mat(1,2,CV_32S,data);
+				//	}
+				//}
+				//else if (loadTask.levelOfDetail & LevelOfDetail_Types::Full)
+				//{
+				//	loadTask.loadResults[LevelOfDetail_Types::Full] = imgMat;		
+				//}		

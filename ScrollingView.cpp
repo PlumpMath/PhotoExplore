@@ -53,7 +53,7 @@ void ScrollingView::layout(Vector position, cv::Size2f size)
 		cv::Size2f contentSize(-1,size.height);
 		content->measure(contentSize);
 
-		scrollingFlywheel->setMinValue(size.width-contentSize.width);
+		scrollingFlywheel->setMinValue(size.width-(contentSize.width+50));
 		contentSize.height = size.height;
 		
 		lastContentSize = contentSize;
@@ -92,7 +92,7 @@ void ScrollingView::draw()
 	
 	glMatrixMode(GL_MODELVIEW);
 
-	drawLoadIndicator(lastContentSize.width - 50,50);
+	drawLoadIndicator(lastContentSize.width,50);
 
 	GraphicsContext::getInstance().setDrawHint("Offset",scrollingFlywheel->getPosition());
 	GraphicsContext::getInstance().setDrawHint("VisibleWidth",lastSize.width);
@@ -175,7 +175,7 @@ void ScrollingView::drawLoadIndicator(float offset, float thickness)
 
 				x2 = x1 = ((angle2*.5f) * drawWidth) + offset;
 
-				float lineWidth =  10.0f * (.5f + sin(angle*GeomConstants::PI_F));
+				float lineWidth =  1.0f; //10.0f * (.5f + sin(angle*GeomConstants::PI_F));
 
 				x4 = x3 = min<float>(x1 + lineWidth,offset+drawWidth);
 

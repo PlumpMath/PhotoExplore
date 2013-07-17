@@ -317,7 +317,7 @@ void Panel::elementTapped(ScreenTapGesture tap)
 void Panel::setDetailLevel(int levelOfDetail)
 {
 	if (levelOfDetail != currentDetailLevel)
-	{		
+	{
 		currentDetailLevel = levelOfDetail;
 
 		string imageURI = "";
@@ -329,36 +329,38 @@ void Panel::setDetailLevel(int levelOfDetail)
 		{
 			if (levelOfDetail == LevelOfDetail_Types::Full)
 				imageURI = fbNode->Edges.find("fake_uri_high")->Value;
-			
+
 			if (imageURI.size() == 0)
 				imageURI = fbNode->Edges.find("fake_uri")->Value;
 		}
 		else
 		{
-			if (levelOfDetail == LevelOfDetail_Types::Full)
+			string suffix = "_o.jpg";
+			if (levelOfDetail == LevelOfDetail_Types::Preview)
+				suffix = "_n.jpg";
+
+			auto res = fbNode->Edges.find("images");
+			if (res != fbNode->Edges.end())
 			{
-				auto res = fbNode->Edges.find("images");
-				if (res != fbNode->Edges.end())
+				vector<json_spirit::Value> objectArray = res->JsonValue.get_array();				
+
+				auto it = std::find_if(objectArray.begin(),objectArray.end(),[suffix](json_spirit::Value item) -> bool {					
+					return json_spirit::find_value(item.get_obj(),"source").get_str().find(suffix) != string::npos;
+				});
+
+				if (it != objectArray.end())
 				{
-					vector<json_spirit::Value> objectArray = res->JsonValue.get_array();				
+					imageSize.width = json_spirit::find_value(it->get_obj(),"width").get_int();		
+					imageSize.height = json_spirit::find_value(it->get_obj(),"height").get_int();	
 
-					auto it = std::find_if(objectArray.begin(),objectArray.end(),[](json_spirit::Value item) -> bool {					
-						return json_spirit::find_value(item.get_obj(),"source").get_str().find("_o.jpg") != string::npos;
-					});
+					imageURI =  json_spirit::find_value(it->get_obj(),"source").get_str();
 
-					if (it != objectArray.end())
-					{
-						imageSize.width = json_spirit::find_value(it->get_obj(),"width").get_int();		
-						imageSize.height = json_spirit::find_value(it->get_obj(),"height").get_int();	
-
-						imageURI =  json_spirit::find_value(it->get_obj(),"source").get_str();
-
-						textureWidth = imageSize.width;
-						textureHeight = imageSize.height;
-					}
+					textureWidth = imageSize.width;
+					textureHeight = imageSize.height;
 				}
 			}
-			
+
+
 			if (imageURI.size() == 0)
 			{
 				Facebook::FBNode * fbNode = (Facebook::FBNode*)node;
@@ -368,13 +370,15 @@ void Panel::setDetailLevel(int levelOfDetail)
 				urlStream << "method=get&redirect=true&access_token=" << GlobalConfig::TestingToken;
 
 				imageURI = urlStream.str();			
-				textureWidth = 600;
-				textureHeight = 600;
+				//textureWidth = 600;
+				//textureHeight = 600;
 			}
 		}
+		if (currentResource != NULL && currentResource->imageURI.compare(imageURI) != 0 && currentDetailLevel == LevelOfDetail_Types::Full)
+			currentResource->priority = 100;
 
 		currentResource = ResourceManager::getInstance().loadResource(node->getURI(),imageURI,dataPriority,this);
-	}	
+	}
 }
 
 void Panel::setDataPriority(float dRel)
@@ -383,17 +387,6 @@ void Panel::setDataPriority(float dRel)
 	{
 		dataPriority = dRel;
 		node->setDataPriority(dRel);
-		//stringstream ss;
-		//ss << std::setprecision(1) << dRel;
-		//if (textPanel == NULL)
-		//{
-		//	textPanel = new TextPanel(ss.str());
-		//	textPanel->setTextColor(Colors::Red);
-		//	textPanel->setVisible(true);		
-		//}
-		//else
-		//	textPanel->setText(ss.str());
-
 		if (currentResource != NULL)
 		{
 			currentResource->priority = dataPriority;
@@ -403,14 +396,9 @@ void Panel::setDataPriority(float dRel)
 		{
 			int tmp = currentDetailLevel;
 			currentDetailLevel = -2;
-
 			setDetailLevel(tmp);
-
-			//currentResource = ResourceManager::getInstance().loadResource(node->getURI(),node->getURI(),dataPriority, this);
 		}
-	}
-	//backgroundColor.setAlpha(max<float>(0,2.0f*(.5f - dRel)));
-	
+	}	
 }
 
 float Panel::getDataPriority()

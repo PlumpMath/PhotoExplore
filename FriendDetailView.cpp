@@ -1,23 +1,21 @@
 #include "FriendDetailView.hpp"
 #include "FixedAspectGrid.hpp"
 #include "GraphicContext.hpp"
+#include "AbsoluteLayout.hpp"
 
 
 FriendDetailView::FriendDetailView()
 {
-	vector<RowDefinition> gridDefinition;	
-	gridDefinition.push_back(RowDefinition(.1f));
-	gridDefinition.push_back(RowDefinition(.9f));
-	gridDefinition[0].ColumnWidths.push_back(1);
-	gridDefinition[1].ColumnWidths.push_back(1);
 
 	rowCount = GlobalConfig::tree()->get<int>("FriendDetailView.RowCount");
 
-	mainLayout = new CustomGrid(gridDefinition);	
+	mainLayout = new AbsoluteLayout(); //(gridDefinition);	
 	imageGroup = new FixedAspectGrid(cv::Size2i(0,rowCount),true);	
 	itemScroll = new ScrollingView(imageGroup);
+	friendNameHeading = NULL;
 
 	mainLayout->addChild(itemScroll);
+
 
 	imageDetailView = new ImageDetailView();
 	imageDetailView->setVisible(false);
@@ -57,18 +55,19 @@ void FriendDetailView::loadItems(int albums, int photos)
 		activeNode->loadState["photos"].requestedCount = photos;
 		if (albums > requestedAlbums)loadstr << ",";
 		loadstr << "photos.offset(" << requestedPhotos << ").limit(" << photos << ").fields(id,name,images)";
-	}
 
-	FriendDetailView * v = this;
-	FBDataSource::instance->loadField(activeNode,loadstr.str(),"",[v](FBNode * _node){
-			
-		FriendDetailView * v2 = v;
-		v->postTask([v2,_node](){
-			
-			if (v2->activeNode == _node)
-				v2->updateLoading();
+
+		FriendDetailView * v = this;
+		FBDataSource::instance->loadField(activeNode,loadstr.str(),"",[v](FBNode * _node){
+
+			FriendDetailView * v2 = v;
+			v->postTask([v2,_node](){
+
+				if (v2->activeNode == _node)
+					v2->updateLoading();
+			});
 		});
-	});
+	}
 }
 
 
@@ -140,7 +139,7 @@ void FriendDetailView::updateLoading()
 				{
 					loadItems(loadAlbums,loadPhotos);
 					if (imageGroup->getMeasuredSize().width > itemScroll->getMeasuredSize().width)
-						itemScroll->setDrawLoadingIndicator(2,Colors::HoloBlueBright);
+						itemScroll->setDrawLoadingIndicator(2,Colors::SteelBlue);
 				}
 				else  if (imageGroup->getMeasuredSize().width > itemScroll->getMeasuredSize().width)				
 					itemScroll->setDrawLoadingIndicator(1,Colors::DarkRed);
@@ -189,8 +188,8 @@ bool FriendDetailView::onLeapGesture(const Controller & controller, const Gestur
 void FriendDetailView::getTutorialDescriptor(vector<string> & tutorial)
 {
 	tutorial.push_back("shake");
-	tutorial.push_back("swipe");
 	tutorial.push_back("point_stop");
+	tutorial.push_back("swipe");
 }
 
 void FriendDetailView::show(FBNode * root)
@@ -203,7 +202,25 @@ void FriendDetailView::show(FBNode * root)
 
 		
 	PointableElementManager::getInstance()->requestGlobalGestureFocus(this);
-	
+
+	//float menuHeight = GlobalConfig::tree()->get<float>("Menu.Height");
+	//
+	//((AbsoluteLayout*)mainLayout)->layoutCallback = [&menuHeight,this](Vector pos, cv::Size2f size){
+
+	//	if (mainLayout->isVisible())
+	//	{
+	//		if (friendNameHeading != NULL && itemScroll != NULL && imageGroup != NULL)
+	//		{			
+	//			if (menuHeight == 0)
+	//				menuHeight = 100;
+
+	//			friendNameHeading->layout(pos-Vector(0,menuHeight,0),cv::Size2f(size.width,menuHeight));
+	//			itemScroll->measure(size);
+	//			itemScroll->layout(pos,size);
+	//		}
+	//	}
+	//};
+	//
 	itemScroll->getFlyWheel()->overrideValue(0);
 
 	activeNode = root;
@@ -215,16 +232,22 @@ void FriendDetailView::show(FBNode * root)
 		
 	if (item != NULL)
 	{
-		friendNameHeading = (TextPanel*)item;
-		PanelFactory::getInstance().setStyle(friendNameHeading,TextStyles::Title);			
+		friendNameHeading = (TextPanel*)item;	
 	}
 	else
 	{
-		friendNameHeading = PanelFactory::getInstance().buildTextPanel(root->getAttribute("name"),TextStyles::Title);
+		friendNameHeading = new TextPanel(root->getAttribute("name"));
 		ViewOrchestrator::getInstance()->registerView(root->getId() + "/name",friendNameHeading,this);
 	}
-	mainLayout->getChildren()->insert(mainLayout->getChildren()->begin(),friendNameHeading);
 	
+	boost::property_tree::ptree labelConfig = GlobalConfig::tree()->get_child("FriendDetailView.Title");
+	friendNameHeading->setTextSize(labelConfig.get<float>("FontSize"),true);
+	friendNameHeading->setTextFitPadding(labelConfig.get<float>("TextPadding"));
+	friendNameHeading->setTextColor(Color(labelConfig.get_child("TextColor")));
+	friendNameHeading->setBackgroundColor(Color(labelConfig.get_child("BackgroundColor")));
+
+
+	mainLayout->getChildren()->insert(mainLayout->getChildren()->begin(),friendNameHeading);	
 	imageGroup->clearChildren();
 }
 
@@ -360,10 +383,15 @@ void FriendDetailView::layout(Vector position, cv::Size2f size)
 	lastSize = size;
 	lastPosition = position;
 
+	if (topView == mainLayout)
+	{
+		float menuHeight = GlobalConfig::tree()->get<float>("Menu.Height");
+		friendNameHeading->layout(position-Vector(0,menuHeight,0),cv::Size2f(size.width,menuHeight));
+		//itemScroll->measure(size);
+		itemScroll->layout(position,size);
+	}
 	topView->layout(position,size);	
-	//updateLoading(Vector((float)pos,0,0),itemScroll->getMeasuredSize(),true);
 	layoutDirty = false;
-	//projectedRightBoundary = imageGroup->getMeasuredSize().width;// - itemScroll->getFlyWheel()->getPosition();
 }
 
 void FriendDetailView::update()

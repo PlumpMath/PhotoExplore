@@ -103,7 +103,7 @@ void PointableElementManager::processInputEvents()
 
 	if (mouseButtonState[GLFW_MOUSE_BUTTON_1] != mouseState)
 	{
-		mouseButtonState[GLFW_MOUSE_BUTTON_1] = mouseState;
+		mouseButtonState[GLFW_MOUSE_BUTTON_1] = (bool)mouseState;
 		if (hit != NULL && hit->isClickable() && mouseState == GLFW_PRESS)
 		{
 			hit->elementClicked();
@@ -194,6 +194,10 @@ void PointableElementManager::processInputEvents()
 
 void PointableElementManager::processFrame(const Controller & controller, Frame frame)
 {
+	static bool showRawPointable = GlobalConfig::tree()->get<bool>("Leap.PointablePositionFilter.ShowRaw");
+	static bool isLowpass = (GlobalConfig::tree()->get<string>("Leap.PointablePositionFilter.Mode").compare("LowpassAngle") == 0);
+	static double lowpassRC = GlobalConfig::tree()->get<double>("Leap.PointablePositionFilter.LowpassAngle.RC");
+
 	if (frame.id() == lastFrameId || !frame.isValid())
 		return;
 
@@ -234,13 +238,7 @@ void PointableElementManager::processFrame(const Controller & controller, Frame 
 		}
 		
 
-	
-	//Hand hand;
-	//if (GlobalConfig::LeftHanded)
-	//	hand = frame.hands().leftmost();
-	//else
-	//	hand = frame.hands().rightmost();
-	
+		
 	HandModel * hm = handProcessor->lastModel();
 	
 	Pointable testPointable = frame.pointable(hm->IntentFinger);
@@ -248,14 +246,36 @@ void PointableElementManager::processFrame(const Controller & controller, Frame 
 	LeapElement * hit = NULL;
 
 	Hand hand = controller.frame().hand(hm->HandId);
-	
+
+
+		
 	bool canPointableClick = (!hand.isValid() || hand.pointables().count() == 1);
 	int elementStateFlags = 0;
 	if (testPointable.isValid() && globalGestureListenerStack.size() > 0)
 	{
-		Screen screen;
-		screenPoint = LeapHelper::FindScreenPoint(controller,testPointable,screen);
+
+		if (isLowpass)
+		{
+			if (filteredPointable != testPointable.id())
+			{
+				filteredScreenPoint = testPointable.direction();
+				filteredPointable = testPointable.id();
+				filterTimer.start();
+			}
+			else
+			{
+				//filteredScreenPoint.x = LeapHelper::lowpass(filteredScreenPoint.x, screenPoint.x,lowpassRC, filterTimer.millis());
+				//filteredScreenPoint.y = LeapHelper::lowpass(filteredScreenPoint.y, screenPoint.y,lowpassRC, filterTimer.millis());
+				filteredScreenPoint = LeapHelper::angularLowpass(filteredScreenPoint,testPointable.direction(),lowpassRC,filterTimer.millis());
+				filterTimer.start();
+
+				//screenPoint = filteredScreenPoint;
+			}
+		}
 		
+		Screen screen;
+		screenPoint = LeapHelper::FindScreenPoint(controller,testPointable.stabilizedTipPosition(),filteredScreenPoint,screen);
+
 		hit = RadialMenu::instance->elementAtPoint((int)screenPoint.x,(int)screenPoint.y,elementStateFlags);
 
 		if (hit == NULL)
@@ -328,23 +348,33 @@ void PointableElementManager::processFrame(const Controller & controller, Frame 
 	}
 	
 
-	static LeapDebugVisual * ldvHover = NULL, * ldvIntent = NULL, * ldvNonDominant = NULL;
+	static LeapDebugVisual * ldvHover = NULL, * ldvIntent = NULL, * ldvNonDominant = NULL, * ldvRaw = NULL;
 
 	float cursorDimension = (((float)GlobalConfig::ScreenWidth) / 2560.0f) * 41;
 
 	if (ldvHover == NULL)
 	{
-		ldvHover =new LeapDebugVisual(Point2f(screenPoint.x,screenPoint.y),1,LeapDebugVisual::LiveForever,0,Colors::HoloBlueBright);
+		ldvHover =new LeapDebugVisual(screenPoint,1,LeapDebugVisual::LiveForever,0,Colors::HoloBlueBright);
 		ldvHover->depth=11;
 		LeapDebug::instance->addDebugVisual(ldvHover);
 
-		ldvIntent =new LeapDebugVisual(Point2f(screenPoint.x,screenPoint.y),1,LeapDebugVisual::LiveForever,cursorDimension,Colors::Black.withAlpha(.5f));
+		ldvIntent =new LeapDebugVisual(screenPoint,1,LeapDebugVisual::LiveForever,cursorDimension,Colors::Black.withAlpha(.5f));
 		ldvIntent->depth=10;
 		LeapDebug::instance->addDebugVisual(ldvIntent);
 
-		ldvNonDominant = new LeapDebugVisual(Point2f(screenPoint.x,screenPoint.y),1,LeapDebugVisual::LiveForever,0,Colors::DarkGreen.withAlpha(.5f));
+		
+		if (showRawPointable)
+		{
+			ldvRaw =new LeapDebugVisual(screenPoint,1,LeapDebugVisual::LiveForever,cursorDimension,Colors::Red.withAlpha(.5f));
+			ldvRaw->depth=9;
+			LeapDebug::instance->addDebugVisual(ldvRaw);
+		}
+
+		ldvNonDominant = new LeapDebugVisual(screenPoint,1,LeapDebugVisual::LiveForever,0,Colors::DarkGreen.withAlpha(.5f));
 		ldvNonDominant->depth=10;
 		LeapDebug::instance->addDebugVisual(ldvNonDominant);
+
+
 
 	}
 
@@ -374,6 +404,13 @@ void PointableElementManager::processFrame(const Controller & controller, Frame 
 	ldvIntent->screenPoint.y =screenPoint.y;
 	ldvHover->screenPoint.x =screenPoint.x;
 	ldvHover->screenPoint.y =screenPoint.y;
+
+	if (showRawPointable)
+	{
+		Vector rawScreenPoint = LeapHelper::FindScreenPoint(controller,testPointable);
+		ldvRaw->screenPoint.x = rawScreenPoint.x;
+		ldvRaw->screenPoint.y = rawScreenPoint.y;
+	}
 
 	if (hoverClickState == 1)
 	{

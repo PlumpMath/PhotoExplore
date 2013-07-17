@@ -90,9 +90,6 @@
     <ClCompile Include="FBNode.cpp">
       <Filter>Source Files\DataModel</Filter>
     </ClCompile>
-    <ClCompile Include="UniformGrid.cpp">
-      <Filter>Source Files\NewPanel</Filter>
-    </ClCompile>
     <ClCompile Include="ScrollingView.cpp">
       <Filter>Source Files\NewPanel</Filter>
     </ClCompile>
@@ -216,6 +213,18 @@
     <ClCompile Include="PanelBase.cpp">
       <Filter>Source Files\Panel</Filter>
     </ClCompile>
+    <ClCompile Include="Color.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FakeDataSource.cpp">
+      <Filter>Source Files\DataModel</Filter>
+    </ClCompile>
+    <ClCompile Include="UniformGrid.cpp">
+      <Filter>Source Files\NewPanel\GridLayouts</Filter>
+    </ClCompile>
+    <ClCompile Include="ImageButton.cpp">
+      <Filter>Source Files\NewPanel</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Types.h">
@@ -332,9 +341,6 @@
     <ClInclude Include="Button.hpp">
       <Filter>Header Files\NewPanel</Filter>
     </ClInclude>
-    <ClInclude Include="ViewGroup.hpp">
-      <Filter>Header Files\NewPanel</Filter>
-    </ClInclude>
     <ClInclude Include="PanelFactory.hpp">
       <Filter>Header Files\NewPanel</Filter>
     </ClInclude>
@@ -429,6 +435,15 @@
       <Filter>Header Files\Panel</Filter>
     </ClInclude>
     <ClInclude Include="AbsoluteLayout.hpp">
+      <Filter>Header Files\NewPanel</Filter>
+    </ClInclude>
+    <ClInclude Include="DataListView.hpp">
+      <Filter>Header Files\NewPanel</Filter>
+    </ClInclude>
+    <ClInclude Include="EmptyView.hpp">
+      <Filter>Header Files\NewPanel</Filter>
+    </ClInclude>
+    <ClInclude Include="ImageButton.hpp">
       <Filter>Header Files\NewPanel</Filter>
     </ClInclude>
   </ItemGroup>

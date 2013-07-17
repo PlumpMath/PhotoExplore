@@ -23,22 +23,10 @@ public:
 	{
 	}
 
-
-
-	LeapDebugVisual(Point2f screenPoint, Pointable pointable, double size = 20, Color fillColor = Colors::OrangeRed)
+	
+	LeapDebugVisual(Vector _screenPoint, int timeToLive,  int wayOfLife, double size, Color fillColor)
 	{
-		this->screenPoint = screenPoint;
-		this->size = size;
-		this->fillColor = fillColor;
-		this->timeToLive = -1;
-		this->wayOfLife = LiveBySize;
-		this->depth= 10;
-	}
-
-
-	LeapDebugVisual(Vector screenPoint, int timeToLive,  int wayOfLife, double size, Color fillColor)
-	{
-		this->screenPoint = Point2f(screenPoint.x,screenPoint.y);
+		this->screenPoint = _screenPoint;
 		this->size = size;
 		this->fillColor = fillColor;
 		this->timeToLive = timeToLive;
@@ -46,16 +34,6 @@ public:
 		this->depth= 10;
 	}
 
-
-	LeapDebugVisual(Point2f screenPoint, int timeToLive,  int wayOfLife, double size, Color fillColor)
-	{
-		this->screenPoint = screenPoint;
-		this->size = size;
-		this->fillColor = fillColor;
-		this->timeToLive = timeToLive;
-		this->wayOfLife = wayOfLife;
-		this->depth= 10;
-	}
 
 	void iterateLife(int count = 1)
 	{
@@ -85,7 +63,7 @@ public:
 		} 
 	}
 
-	Point2f screenPoint;
+	Leap::Vector screenPoint;
 	Color fillColor,lineColor;
 	double size;
 	int timeToLive, wayOfLife;

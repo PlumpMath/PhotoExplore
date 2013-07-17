@@ -2,6 +2,7 @@
 #include "CustomGrid.hpp"
 #include "GraphicContext.hpp"
 #include "LeapDebug.h"
+#include "EmptyView.hpp"
 
 using namespace cv;
 
@@ -12,8 +13,7 @@ FacebookIntroView::FacebookIntroView()
 
 	myPhotoGrid = new UniformGrid(Size2i(4,4));
 	myPhotoGrid->setLayoutParams(LayoutParams(cv::Size2f(),cv::Vec4f(10,0,0,0)));
-
-	
+		
 	vector<RowDefinition> gridDefinition;	
 	gridDefinition.push_back(RowDefinition(1));	
 	gridDefinition[0].ColumnWidths.push_back(.5f);
@@ -25,34 +25,30 @@ FacebookIntroView::FacebookIntroView()
 	lastPosition = Leap::Vector(0,0,0);
 	lastSize = cv::Size2f(0,0);
 
-	Color buttonColor = Colors::DarkBlue.withAlpha(.9f);
+	Color buttonColor = Colors::SteelBlue;
 
 	photoButton = new Button("My Photos");
 	photoButton->panelId = "my_photo_button";
 	photoButton->setTextSize(12);
 	photoButton->setTextColor(Colors::White);
 	photoButton->setBackgroundColor(buttonColor);
-	photoButton->setBorderThickness(1);
-	photoButton->setBorderColor(Colors::HoloBlueBright);
+	photoButton->setBorderThickness(0);
 	photoButton->elementClickedCallback = boost::bind(&FacebookIntroView::buttonClicked,this,_1);
 	photoButton->setLayoutParams(LayoutParams(cv::Size2f(),cv::Vec4f(50,50,50,50)));
 		
 	friendListButton = new Button("Photos of my Friends");
-	friendListButton->setTextSize(10);
+	friendListButton->setTextSize(12);
 	friendListButton->setTextColor(Colors::White);
 	friendListButton->setBackgroundColor(buttonColor);	
-	//friendListButton->setBorderColor(Colors::HoloBlueBright);
 	friendListButton->setBorderThickness(0);
 	friendListButton->elementClickedCallback = boost::bind(&FacebookIntroView::buttonClicked,this,_1);
 	friendListButton->setLayoutParams(LayoutParams(cv::Size2f(),cv::Vec4f(50,50,50,50)));
-	
-	
+		
 	
 	mainLayout->addChild(friendPhotoGrid);
 	mainLayout->addChild(myPhotoGrid);
 
 	addChild(mainLayout);
-
 	addChild(friendListButton);
 	addChild(photoButton);
 }
@@ -117,29 +113,90 @@ void FacebookIntroView::show(FBNode * node)
 	friendPhotoGrid->clearChildren();
 	myPhotoGrid->clearChildren();
 
-	NodeQuerySpec friendConfig(2);	
-	friendConfig.layers[0].insert(make_pair("friends",SelectionConfig(40)));
-	friendConfig.layers[1].insert(make_pair("photos",SelectionConfig(1)));
 
-	bool isLoading;
-	viewChanged("friend_photos",DataViewGenerator::getInstance()->getDataView(node,friendConfig,[this](vector<FBNode*> & data2){
-		this->viewChanged("friend_photos",data2);},isLoading));
-		
-	NodeQuerySpec myConfig(2);
-	myConfig.layers[0].insert(make_pair("albums",SelectionConfig(10,0,false)));
-	myConfig.layers[0].insert(make_pair("photos",SelectionConfig(5)));
-	myConfig.layers[1].insert(make_pair("photos",SelectionConfig(5)));
-	viewChanged("my_photos",DataViewGenerator::getInstance()->getDataView(node,myConfig,[this](vector<FBNode*> & data1){this->viewChanged("my_photos",data1);},isLoading));
+	
+	vector<FBNode*> localMyFriendList;
+	NodeQuerySpec friendConfig_local(2);	
+	friendConfig_local.layers[0].insert(make_pair("friends",SelectionConfig(40)));
+	friendConfig_local.layers[1].insert(make_pair("photos",SelectionConfig(1)));
+	DataViewGenerator::getInstance()->SelectNodes(node,friendConfig_local,localMyFriendList);
+
+	if (localMyFriendList.size() < 12)
+	{
+		stringstream friendQuery;
+		friendQuery << node->getId() << "?fields=friends.limit(20).fields(id,name,photos.limit(3).fields(id,name,images))";
+
+		FBDataSource::instance->loadField(node,friendQuery.str(),"",[this](FBNode * loaded){
+
+			NodeQuerySpec friendConfig(2);	
+			friendConfig.layers[0].insert(make_pair("friends",SelectionConfig(40)));
+			friendConfig.layers[1].insert(make_pair("photos",SelectionConfig(2)));
+
+			vector<FBNode*> photoList;
+			DataViewGenerator::getInstance()->SelectNodes(loaded,friendConfig,photoList);
+
+			if (photoList.size() > 0)
+			{
+				FacebookIntroView * v = this;
+				postTask([v,photoList](){
+					v->viewChanged("friend_photos",photoList);
+				});
+			}
+		});
+	}
+	else
+	{
+		viewChanged("friend_photos",localMyFriendList);
+	}
+
+
+	vector<FBNode*> localMyPhotoList;
+	NodeQuerySpec myConfig_local(2);
+	myConfig_local.layers[0].insert(make_pair("albums",SelectionConfig(10,0,false)));
+	myConfig_local.layers[0].insert(make_pair("photos",SelectionConfig(5)));
+	myConfig_local.layers[1].insert(make_pair("photos",SelectionConfig(5)));
+
+	DataViewGenerator::getInstance()->SelectNodes(node,myConfig_local,localMyPhotoList);
+
+	if (localMyPhotoList.size() < 12)
+	{
+		stringstream myPhotoQuery;
+		myPhotoQuery << node->getId() << "?fields=photos.limit(5),albums.limit(10).fields(photos.limit(5).fields(id,name,images),id,name)";
+		FBDataSource::instance->loadField(node,myPhotoQuery.str(),"",[this](FBNode * loaded){
+
+			NodeQuerySpec myConfig(2);
+			myConfig.layers[0].insert(make_pair("albums",SelectionConfig(10,0,false)));
+			myConfig.layers[0].insert(make_pair("photos",SelectionConfig(5)));
+			myConfig.layers[1].insert(make_pair("photos",SelectionConfig(5)));
+
+			vector<FBNode*> photoList;
+			DataViewGenerator::getInstance()->SelectNodes(loaded,myConfig,photoList);
+
+			if (photoList.size() > 0)
+			{
+				FacebookIntroView * v = this;
+				postTask([v,photoList](){
+					v->viewChanged("my_photos",photoList);
+				});
+			}
+		});
+	}
+	else
+	{
+		viewChanged("my_photos",localMyPhotoList);
+	}
+
+	//viewChanged("my_photos",DataViewGenerator::getInstance()->getDataView(node,myConfig,[this](vector<FBNode*> & data1){this->viewChanged("my_photos",data1);},isLoading));
 }
 
-void FacebookIntroView::viewChanged(string viewIdentifier, vector<FBNode*> & viewData)
+void FacebookIntroView::viewChanged(string viewIdentifier, vector<FBNode*> viewData)
 {
 	bool friendPhotos = viewIdentifier.compare("friend_photos") == 0;
 
-	//if (friendPhotos)
-	//	friendPhotoGrid->clearChildren();
-	//else
-	//	myPhotoGrid->clearChildren();
+	if (friendPhotos)
+		friendPhotoGrid->clearChildren();
+	else
+		myPhotoGrid->clearChildren();
 
 
 	std::random_shuffle(viewData.begin(),viewData.end());
@@ -147,10 +204,29 @@ void FacebookIntroView::viewChanged(string viewIdentifier, vector<FBNode*> & vie
 	
 	for (auto it = viewData.begin(); it != viewData.end(); it++)
 	{
-		if (friendPhotos && friendPhotoGrid->getChildren()->size() >= 16)
-			break;
-		else if (!friendPhotos && myPhotoGrid->getChildren()->size() >= 16)
-			break;
+		if (friendPhotos)
+		{
+			int size = friendPhotoGrid->getChildren()->size() ;
+			if (size >= 16)
+				break;
+			else if (size == 5 || size == 6 || size == 9 || size == 10)
+			{
+				friendPhotoGrid->addChild(new EmptyView());
+				continue;
+			}
+		}
+		else
+		{
+			int size = myPhotoGrid->getChildren()->size();
+			if (size >= 16)
+				break;
+			else if (size == 5 || size == 6 || size == 9 || size == 10)
+			{
+				myPhotoGrid->addChild(new EmptyView());
+				continue;
+			}
+		}
+
 		
 		FBNode * node = (*it);
 		if (node->getNodeType().compare(NodeType::FacebookImage) == 0)
@@ -163,12 +239,12 @@ void FacebookIntroView::viewChanged(string viewIdentifier, vector<FBNode*> & vie
 				p->setNode(node);
 				p->setVisible(true);
 				item = p;				
-				p->setLayoutParams(LayoutParams(cv::Size2f(500,500)));
 				ViewOrchestrator::getInstance()->registerView(node->getId(),item, NULL);
 			}
 
 			((Panel*)item)->setClickable(false);
 			((Panel*)item)->setDataPriority(0);
+			item->setLayoutParams(LayoutParams(cv::Size2f(),cv::Vec4f(5,5,5,5)));
 			if (friendPhotos)
 			{
  				friendPhotoGrid->addChild(item);
@@ -199,10 +275,16 @@ void FacebookIntroView::layout(Leap::Vector position, Size2f size)
 
 	mainLayout->layout(position,size);
 
-	cv::Size2f buttonSize = cv::Size2f(size.width * .25f, size.height * .35f);
-	friendListButton->layout(position + Leap::Vector(size.width*.125f, (size.height-buttonSize.height)*.5f,1), buttonSize);
-	photoButton->layout(position + Leap::Vector(size.width*.625f,(size.height-buttonSize.height)*.5f,1), buttonSize);
-	//friendListButton->layout(position + Leap::Vector(0,buttonSize.height + (size.height*.4f),1), buttonSize);
+	cv::Size2f gridCellSize = cv::Size2f(size.width * .5f, size.height);
+	gridCellSize.width -= 10;
+	//gridCellSize.height -= 10;
+
+	gridCellSize.height /= 4.0f;
+	gridCellSize.width /= 4.0f;
+
+	cv::Size2f buttonSize = cv::Size2f((gridCellSize.width *2.0f)-10 ,(gridCellSize.height * 2.0f) - 10);
+	friendListButton->layout(position + Leap::Vector(gridCellSize.width + 5, gridCellSize.height+5 ,1), buttonSize);
+	photoButton->layout(position + Leap::Vector(gridCellSize.width + (size.width * .5f) + 15 ,gridCellSize.height+5,1), buttonSize);
 		
 	layoutDirty = false;
 }

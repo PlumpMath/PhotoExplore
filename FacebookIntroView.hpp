@@ -31,7 +31,7 @@ public:
 
 	void show(FBNode * node);
 	
-	void viewChanged(string viewIdentifier, vector<FBNode*> & viewData);
+	void viewChanged(string viewIdentifier, vector<FBNode*> viewData);
 
 	void buttonClicked(LeapElement * clicked);
 

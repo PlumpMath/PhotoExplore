@@ -73,6 +73,9 @@ bool init( int window_width, int window_height, bool isFull)
 	}
 
 	glfwSetWindowTitle("Photo Explorer for Facebook");
+
+	glfwSwapInterval(1);
+
 			
 	glewExperimental=true;
 	glewInit();
@@ -127,7 +130,7 @@ void configureController(const Controller & controller)
 	controller.config().save();	
 	controller.enableGesture(Gesture::Type::TYPE_SWIPE);
 	controller.enableGesture(Gesture::Type::TYPE_SCREEN_TAP);
-	controller.enableGesture(Gesture::Type::TYPE_CIRCLE);
+	controller.enableGesture(Gesture::TYPE_CIRCLE);
 }
 
 GLuint createShader(string filename,GLenum type)
@@ -260,19 +263,75 @@ int initShaders()
 	}
 }
 
+class MyVisitor : public CefCookieVisitor
+{
+public:
+	bool Visit( const CefCookie& cookie, int count, int total, bool& deleteCookie )
+	{
+		deleteCookie = true;
+		//cout << "Cookie[" << count << "]: Value = " << CefString(cookie.value.str).ToString() << " Domain = " << CefString(cookie.path.str).ToString() << "  Path = " << CefString(cookie.path.str).ToString() <<  "\n";
+		return true;
+	}
+
+	IMPLEMENT_REFCOUNTING(MyVisitor);
+};
+
+class Compl : public CefCompletionHandler
+{
+public:
+	void OnComplete()
+	{
+		CefShutdown();
+		
+		GraphicsContext::getInstance().invokeApplicationExitCallback();
+	}
+
+	IMPLEMENT_REFCOUNTING(Compl);
+};
+
 class DeleteCookieTask : public CefTask {
 
 public:
 	void Execute()
 	{		
+		//CefCookieManager::GetGlobalManager()->VisitAllCookies("","");
+		//CefCookieManager::GetGlobalManager()->FlushStore(NULL);		
 		CefCookieManager::GetGlobalManager()->DeleteCookies("","");
-		CefCookieManager::GetGlobalManager()->FlushStore(NULL);
-		GraphicsContext::getInstance().invokeApplicationExitCallback();
+		
+		CefRefPtr<Compl> cc = new Compl();
+
+		CefCookieManager::GetGlobalManager()->FlushStore(cc.get());
+		//try
+		//{
+		//	boost::filesystem::path ck1 = boost::filesystem::path("Cookies");
+		//	boost::filesystem::remove(ck1);
+
+		//	boost::filesystem::path ck2 = boost::filesystem::path("Cookies-journal");
+		//	boost::filesystem::remove(ck2);
+		//}
+		//catch (std::exception & e)
+		//{
+		//	Logger::stream("MAIN","ERROR") << "Couldn't delete cookies: " << e.what() << endl;
+		//}
 	}
 
 	IMPLEMENT_REFCOUNTING(DeleteCookieTask);
 
 };
+
+class ShutdownTask : public CefTask {
+
+public:
+	void Execute()
+	{		
+		CefShutdown();
+		GraphicsContext::getInstance().invokeApplicationExitCallback();
+	}
+
+	IMPLEMENT_REFCOUNTING(ShutdownTask);
+
+};
+
 
 int WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmdShow) 
 { // int argc, char* argv[] ){
@@ -322,7 +381,9 @@ int WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmd
 		GlobalConfig::ScreenWidth  = GlobalConfig::tree()->get<int>("GraphicsSettings.OverrideWidth");
 		GlobalConfig::ScreenHeight = GlobalConfig::tree()->get<int>("GraphicsSettings.OverrideHeight");
 	}
-	GlobalConfig::ScreenHeight -= 90;
+
+	//if (!GlobalConfig::tree()->get<bool>("GraphicsSettings.Fullscreen"))
+	//GlobalConfig::ScreenHeight -= GlobalConfig::tree()->get<float>("Menu.Height");
 
 	GlobalConfig::getInstance().putValue("FontScale",min<float>(GlobalConfig::ScreenWidth/2560.0f,GlobalConfig::ScreenHeight/1440.0f));
 
@@ -365,13 +426,20 @@ int WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmd
 		}
 		else if (s.compare("logout") == 0)
 		{
+
+
+			//CefRefPtr<CefTaskRunner> runner = CefTaskRunner::GetForThread(TID_IO);
+			//CefRefPtr<ShutdownTask> dlTask = new ShutdownTask();
+			//runner->PostTask(dlTask.get());
 			CefRefPtr<CefTaskRunner> runner = CefTaskRunner::GetForThread(TID_IO);
 			CefRefPtr<DeleteCookieTask> dlTask = new DeleteCookieTask();
 			runner->PostTask(dlTask.get());
 		}
 		else if (s.compare("exit") == 0)
 		{
-			 quit[0] = true; 
+			CefRefPtr<CefTaskRunner> runner = CefTaskRunner::GetForThread(TID_IO);
+			CefRefPtr<ShutdownTask> dlTask = new ShutdownTask();
+			runner->PostTask(dlTask.get());
 		}
 		else if (s.compare("hide_tutorial") == 0)
 		{
@@ -542,7 +610,6 @@ int WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmd
 	startScreen->shutdown();
 
     clean_up();
-	//CefShutdown();
 	glfwCloseWindow();
 
 	std::exit(0);

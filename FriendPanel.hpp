@@ -13,7 +13,9 @@
 class FriendPanel : public ContentPanel, public ViewOwner {
 
 private:
-	FBNode * node;
+	FBNode * activeNode;
+	map<string,FBNode*> items;
+
 	ViewGroup * friendViewGroup;
 	ViewGroup * layoutGroup;
 	TextPanel * nameText;
@@ -24,11 +26,13 @@ private:
 	float lastSizeScale, dataPriority;
 	cv::Size2f originalSize;
 
+	void updateLoading();
+	void addNode(FBNode * node);
+
 public:
 	FriendPanel(cv::Size2f targetSize);
 	void show(FBNode * node,boost::function<void()> loadCompleteCallback);
 		
-	void viewChanged(string viewIdentifier, vector<FBNode*> & viewData);
 	void viewOwnershipChanged(View * view, ViewOwner * newOwner);
 
 	void setDataPriority(float dataPriority);

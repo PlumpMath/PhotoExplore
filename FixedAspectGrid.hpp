@@ -29,6 +29,8 @@ public:
 	
 	cv::Rect_<int> getHitRect();
 
+	void draw();
+
 
 };
 

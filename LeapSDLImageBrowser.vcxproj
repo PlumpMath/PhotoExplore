@@ -190,6 +190,7 @@
       <AdditionalDependencies>freetype.lib;json_spirit_lib.lib;libcef.lib;libcef_dll_wrapper.lib;glu32.lib;opengl32.lib;glew32.lib;GLFWDLL.lib;opencv_core245.lib;opencv_imgproc245.lib;opencv_highgui245.lib;Leap.lib;opencv_video245.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>C:\lib\LeapSDK\lib\x86;C:\lib\json_spirit_v4.06\Release;C:\lib\glfw-2.7.8.bin.WIN32\lib-msvc100;C:\lib\boost_1_53_0\build_x86_32\lib;C:\lib\cef_binary_3.1453.1255_windows\Release;C:\lib\cef_binary_3.1453.1255_windows\out\Release\lib;C:\lib\opencv\build\x86\vc10\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <SubSystem>Windows</SubSystem>
+      <LargeAddressAware>true</LargeAddressAware>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -216,6 +217,8 @@
     <ClCompile Include="AlbumPanel.cpp" />
     <ClCompile Include="Animation.cpp" />
     <ClCompile Include="Button.cpp" />
+    <ClCompile Include="Color.cpp" />
+    <ClCompile Include="FakeDataSource.cpp" />
     <ClCompile Include="FastSeekBar.cpp" />
     <ClCompile Include="GlobalConfig.cpp" />
     <ClCompile Include="ContentPanel.cpp" />
@@ -234,6 +237,7 @@
     <ClCompile Include="FriendPhotoLinkedView.cpp" />
     <ClCompile Include="HandModel.cpp" />
     <ClCompile Include="HandRotationGestureDetector.cpp" />
+    <ClCompile Include="ImageButton.cpp" />
     <ClCompile Include="ImageDetailView.cpp" />
     <ClCompile Include="ImageLoader.cpp" />
     <ClCompile Include="ImagePanel.cpp" />
@@ -273,6 +277,8 @@
     <ClInclude Include="Cefalopod.h" />
     <ClInclude Include="CefDownloadClient.h" />
     <ClInclude Include="CefFileBrowser.h" />
+    <ClInclude Include="DataListView.hpp" />
+    <ClInclude Include="EmptyView.hpp" />
     <ClInclude Include="FakeDataSource.hpp" />
     <ClInclude Include="FastSeekBar.hpp" />
     <ClInclude Include="GlobalConfig.hpp" />
@@ -298,6 +304,7 @@
     <ClInclude Include="GraphicContext.hpp" />
     <ClInclude Include="HandModel.h" />
     <ClInclude Include="HandRotationGestureDetector.h" />
+    <ClInclude Include="ImageButton.hpp" />
     <ClInclude Include="ImageDetailView.hpp" />
     <ClInclude Include="ImageLoadingURLClient.h" />
     <ClInclude Include="ImageLoader.hpp" />
@@ -316,7 +323,6 @@
     <ClInclude Include="ShakeGestureDetector.hpp" />
     <ClInclude Include="TextureLoader.hpp" />
     <ClInclude Include="TextureLoadTask.hpp" />
-    <ClInclude Include="ViewGroup.hpp" />
     <ClInclude Include="ViewOrchestrator.hpp" />
     <ClInclude Include="UniformGrid.hpp" />
     <ClInclude Include="View.hpp" />

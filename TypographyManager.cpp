@@ -36,11 +36,11 @@ cv::Mat TypographyManager::renderText(std::string text, Color textColor, float f
 {
 	if (freetypeInitialized)
 	{
-		float scaleAdjust = GlobalConfig::tree()->get<float>("Typography.FontScaleModifier");
-		if (GlobalConfig::tree()->get<bool>("Typography.AdjustToScreenHeight"))
-			scaleAdjust *= GlobalConfig::ScreenHeight/1440.0f;
+		//float scaleAdjust = GlobalConfig::tree()->get<float>("Typography.FontScaleModifier");
+		//if (GlobalConfig::tree()->get<bool>("Typography.AdjustToScreenHeight"))
+		//	scaleAdjust *= GlobalConfig::ScreenHeight/1440.0f;
 
-		return renderTextFreeType(text,64 * (int)(ceilf(fontScale * scaleAdjust)),textColor, targetSize.width);
+		return renderTextFreeType(text,(int)(ceilf(fontScale * 64.0f)),textColor, targetSize.width);
 	}
 	else
 	{
@@ -54,7 +54,7 @@ cv::Mat TypographyManager::renderText(std::string text, Color textColor, float f
 
 		cv::Mat img(textSize.height*1.5f, textSize.width, CV_8UC4, cv::Scalar::all(0));
 
-		cv::putText(img, text, cv::Point2i(0,textSize.height), fontFace, fontScale,cv::Scalar(textColor.r * 255,textColor.g* 255,textColor.b* 255, textColor.a* 255), thickness, CV_AA);
+		cv::putText(img, text, cv::Point2i(0,textSize.height), fontFace, fontScale,cv::Scalar(textColor.colorArray[0] * 255,textColor.colorArray[1] * 255,textColor.colorArray[2] * 255, textColor.colorArray[3] * 255), thickness, CV_AA);
 
 		return img;
 	}
@@ -148,9 +148,9 @@ void TypographyManager::drawBitmapToMatrix(cv::Mat & matrix, FT_Bitmap & glyphBi
 		for (int j=topLeft.x*4;j<matrix.cols*4 && j2 < ((i2+1)*glyphBitmap.pitch);j += 4, j2++)
 		{
 			unsigned char val =  glyphBitmap.buffer[j2];
-			data[j+0] = textColor.r * 255;
-			data[j+1] = textColor.g * 255;
-			data[j+2] = textColor.b * 255;
+			data[j+0] = (unsigned char)(textColor.colorArray[0] * 255.0f);
+			data[j+1] = (unsigned char)(textColor.colorArray[1] * 255.0f);
+			data[j+2] = (unsigned char)(textColor.colorArray[2] * 255.0f);
 			data[j+3] = max<unsigned char>(0,val);
 		}
 	}
