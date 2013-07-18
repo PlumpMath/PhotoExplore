@@ -10,6 +10,7 @@ ScrollingView::ScrollingView(View * contentView, ScrollOrientation _scrollOrient
 	this->scrollOrientation = _scrollOrientation;
 	drawNegativeLoad = drawPositiveLoad = false;
 	hasGestureFocus = false;
+	loadIndicatorMode = 0;
 }
 
 FlyWheel * ScrollingView::getFlyWheel()
@@ -53,7 +54,8 @@ void ScrollingView::layout(Vector position, cv::Size2f size)
 		cv::Size2f contentSize(-1,size.height);
 		content->measure(contentSize);
 
-		scrollingFlywheel->setMinValue(size.width-(contentSize.width+50));
+		double limitOffset = (loadIndicatorMode != 0) ? 50 : 0;
+		scrollingFlywheel->setMinValue(size.width-(contentSize.width+limitOffset));
 		contentSize.height = size.height;
 		
 		lastContentSize = contentSize;

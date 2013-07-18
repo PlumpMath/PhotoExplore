@@ -113,7 +113,7 @@ void FacebookIntroView::show(FBNode * node)
 	friendPhotoGrid->clearChildren();
 	myPhotoGrid->clearChildren();
 
-
+	activeNode = node;
 	
 	vector<FBNode*> localMyFriendList;
 	NodeQuerySpec friendConfig_local(2);	
@@ -124,24 +124,57 @@ void FacebookIntroView::show(FBNode * node)
 	if (localMyFriendList.size() < 12)
 	{
 		stringstream friendQuery;
-		friendQuery << node->getId() << "?fields=friends.limit(20).fields(id,name,photos.limit(3).fields(id,name,images))";
+		friendQuery << node->getId() << "?fields=friends.limit(20).fields(id,name)"; //,photos.limit(3).fields(id,name,images))";
+		
+		FacebookIntroView * v = this;
+		FBDataSource::instance->loadField(node,friendQuery.str(),"",[v](FBNode * loaded){
 
-		FBDataSource::instance->loadField(node,friendQuery.str(),"",[this](FBNode * loaded){
-
-			NodeQuerySpec friendConfig(2);	
-			friendConfig.layers[0].insert(make_pair("friends",SelectionConfig(40)));
-			friendConfig.layers[1].insert(make_pair("photos",SelectionConfig(2)));
-
-			vector<FBNode*> photoList;
-			DataViewGenerator::getInstance()->SelectNodes(loaded,friendConfig,photoList);
-
-			if (photoList.size() > 0)
+			auto fRange = v->activeNode->Edges.get<EdgeTypeIndex>().equal_range("friends");
+			for (; fRange.first != fRange.second; fRange.first++)
 			{
-				FacebookIntroView * v = this;
-				postTask([v,photoList](){
-					v->viewChanged("friend_photos",photoList);
-				});
+				if (fRange.first->Node->Edges.get<EdgeTypeIndex>().count("photos") < 3)
+				{					
+					stringstream load2;
+					load2 << fRange.first->Node->getId() << "?fields=photos.fields(id,name,images).limit(3)";
+
+					FacebookIntroView * v2= v;
+					FBDataSource::instance->loadField(fRange.first->Node,load2.str(),"",[v2](FBNode * nn)
+					{
+						if (v2->friendPhotoGrid->getChildren()->size() < 16)
+						{
+							NodeQuerySpec friendConfig(2);	
+							friendConfig.layers[0].insert(make_pair("friends",SelectionConfig(20)));
+							friendConfig.layers[1].insert(make_pair("photos",SelectionConfig(2)));
+
+							vector<FBNode*> photoList;
+							DataViewGenerator::getInstance()->SelectNodes(v2->activeNode,friendConfig,photoList);
+
+							if (photoList.size() > 12)
+							{
+								FacebookIntroView * v3= v2;
+								v2->postTask([v3,photoList](){
+									v3->viewChanged("friend_photos",photoList);
+								});
+							}
+						}
+					});
+				}
 			}
+
+			//NodeQuerySpec friendConfig(2);	
+			//friendConfig.layers[0].insert(make_pair("friends",SelectionConfig(40)));
+			//friendConfig.layers[1].insert(make_pair("photos",SelectionConfig(2)));
+
+			//vector<FBNode*> photoList;
+			//DataViewGenerator::getInstance()->SelectNodes(loaded,friendConfig,photoList);
+
+			//if (photoList.size() > 0)
+			//{
+			//	FacebookIntroView * v = this;
+			//	postTask([v,photoList](){
+			//		v->viewChanged("friend_photos",photoList);
+			//	});
+			//}
 		});
 	}
 	else

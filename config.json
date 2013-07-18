@@ -1,4 +1,8 @@
 {
+	"Logging" : 
+	{
+		"Enabled" : false
+	},
 	"Typography" : 
 	{
 		"FontFile" : "Roboto-Light.ttf", //Choose font

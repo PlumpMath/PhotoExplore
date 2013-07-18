@@ -276,11 +276,13 @@ public:
 		CefTaskRunner::GetForThread(TID_IO).get()->PostTask(newTask.get());		
 	}
 
-	void loadQuery(FBNode * parent, string nodeQuery, string interpretAs)
+	void loadQuery(FBNode * parent, string nodeQuery, string interpretAs, boost::function<void(FBNode*)> loadCompleteCallback)
 	{
 		//cout << "Loading node fields " << nodeQuery << "\n";
 		CefRefPtr<JSONDownloadTask> newTask = new JSONDownloadTask(nodeQuery,parent);
 		newTask->edgeType = interpretAs;
+		newTask->onComplete = loadCompleteCallback;
+
 		CefTaskRunner::GetForThread(TID_IO).get()->PostTask(newTask.get());
 	}
 

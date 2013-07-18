@@ -4,6 +4,8 @@
 #include <iostream>
 #include <fstream>
 #include "SDLTimer.h"
+#include "GlobalConfig.hpp"
+
 
 //namespace Severity
 //{
@@ -23,15 +25,21 @@ private:
 
 	Logger()
 	{
-		logTimer.start();
-		logstream.open("photo_explorer.log");
-		logstream.precision(3);
-		logstream.setf(std::ios_base::fixed);
+		if (GlobalConfig::tree()->get<bool>("Logging.Enabled"))
+		{
+			logTimer.start();
+			logstream.open("photo_explorer.log");
+			logstream.precision(3);
+			logstream.setf(std::ios_base::fixed);
+		}
 	}
 
 	~Logger()
 	{
-		logstream.close();
+		if (GlobalConfig::tree()->get<bool>("Logging.Enabled"))
+		{
+			logstream.close();
+		}
 	}
 
 

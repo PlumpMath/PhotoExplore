@@ -38,7 +38,7 @@ public:
 
 	void postRequest(string request);
 	void load(FBNode * parent, string objectId, string edge);
-	void loadQuery(FBNode * parent, string nodeQuery, string interpretAs);
+	void loadQuery(FBNode * parent, string nodeQuery, string interpretAs, boost::function<void(FBNode*)> callback);
 
 
 };

@@ -24,6 +24,8 @@ private:
 	
 	boost::function<void(std::string)> finishedCallback;
 
+	FBNode * activeNode;
+
 public:
 	FacebookIntroView();
 	

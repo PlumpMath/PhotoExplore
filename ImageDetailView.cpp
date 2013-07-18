@@ -107,8 +107,15 @@ void ImageDetailView::setImageMetaData()
 		imageNode = dynamic_cast<Facebook::FBNode*>(imagePanel->getNode());
 		if (imageNode != NULL)
 		{
-			imageNode->setLoadCompleteDelegate([this](){
+			likeButton->setVisible(true);
+			likeButton->setDrawLoadAnimation(true);
+			likeButton->setClickable(false);					
 
+			Facebook::FBDataSource::instance->loadQuery(imageNode,"fql?q=SELECT%20like_info%20FROM%20photo%20where%20object_id%3D" + imageNode->getId(),"",[this](FBNode * node){
+				
+				likeButton->setDrawLoadAnimation(false);
+				likeButton->setClickable(true);							
+								
 				if (imageNode->getAttribute("user_likes").compare("1") == 0)
 				{
 					alreadyLikedButton->setVisible(true);
@@ -135,7 +142,6 @@ void ImageDetailView::setImageMetaData()
 				}
 				imageNode->clearLoadCompleteDelegate();
 			});
-			Facebook::FBDataSource::instance->loadQuery(imageNode,"fql?q=SELECT%20like_info%20FROM%20photo%20where%20object_id%3D" + imageNode->getId() + "%20and%20owner%20%3D%20me()","");
 			
 			if (imageNode->getAttribute("name").size() != 0)
 			{

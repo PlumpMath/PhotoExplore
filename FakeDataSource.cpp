@@ -202,6 +202,6 @@ void FakeDataSource::postRequest(string request){
 void FakeDataSource::load(FBNode * parent, string objectId, string edge){
 	cout << "FAKE LOAD NOT IMPLANTED\n";
 }
-void FakeDataSource::loadQuery(FBNode * parent, string nodeQuery, string interpretAs){
+void FakeDataSource::loadQuery(FBNode * parent, string nodeQuery, string interpretAs, boost::function<void(FBNode*)> callback){
 	cout << "FAKE QUERY NOT IMPLANTED\n";
 }
