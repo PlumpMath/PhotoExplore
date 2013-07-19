@@ -103,6 +103,8 @@ void FacebookFriendListView::loadItems(int friends)
 					{
 						FacebookFriendListView * v3= v2;
 						v2->postTask([v3](){
+							
+							v3->itemScroll->setDrawLoadingIndicator(0,Colors::SteelBlue);
 							v3->updateLoading();
 						});	
 					});
@@ -160,10 +162,10 @@ void FacebookFriendListView::updateLoading()
 				{
 					int loadFriends =  GlobalConfig::tree()->get<int>("FriendListView.FriendsPerRequest") + availableFriends;	
 					loadItems(loadFriends);
-					itemScroll->setDrawLoadingIndicator(2,Colors::SteelBlue);
+					itemScroll->setDrawLoadingIndicator(2,Colors::DimGray);
 				}
 				else
-					itemScroll->setDrawLoadingIndicator(1,Colors::SteelBlue);
+					itemScroll->setDrawLoadingIndicator(0,Colors::SteelBlue);
 
 				break;
 			}
@@ -292,8 +294,8 @@ bool FacebookFriendListView::onLeapGesture(const Controller & controller, const 
 
 void FacebookFriendListView::getTutorialDescriptor(vector<string> & tutorial)
 {	
-	tutorial.push_back("shake");
-	tutorial.push_back("point_stop");
 	tutorial.push_back("swipe");
+	tutorial.push_back("point_stop");
+	tutorial.push_back("shake");
 }
 

@@ -14,8 +14,8 @@ TextPanel::TextPanel()
 }
 
 void TextPanel::init()
-{
-	
+{	
+	fontName = "Default";
 	textColor = Colors::Black;
 	textSize = 6;
 	textDirty = fitToText = false;
@@ -24,7 +24,8 @@ void TextPanel::init()
 	textEnabled = true;
 	this->text = std::string("");
 	textureScaleMode = ScaleMode::None;
-	setAllowSubPixelRendering(GlobalConfig::tree()->get<bool>("Typography.SubPixelTextRendering"));
+	setAllowSubPixelRendering(false); //fontDefinition.get<bool>("SubPixelTextRendering"));
+	textAlignment = 1;
 }
 
 void TextPanel::resourceUpdated(ResourceData * data)
@@ -65,7 +66,8 @@ void TextPanel::reloadText()
 	ResourceData * textResource = ResourceManager::getInstance().watchResource(td.getKey(),this);	
 	if (textResource == NULL)
 	{
-		currentTextImage = TypographyManager::getInstance()->renderText(text,textColor,textSize,textureSize);	
+		TextLayoutConfig config(textAlignment,textureSize.width);
+		currentTextImage = TypographyManager::getInstance()->renderText(text,fontName,textColor,textSize,config);	
 		if (currentTextImage.data != NULL)
 		{
 			ResourceManager::getInstance().loadResource(td.getKey(),currentTextImage,-1,this);
@@ -95,6 +97,21 @@ void TextPanel::drawContent(Vector drawPosition, float drawWidth, float drawHeig
 void TextPanel::refresh()
 {
 	reloadText();
+}
+
+void TextPanel::setFontName(string _fontName)
+{
+	this->fontName = _fontName;
+}
+
+string TextPanel::getFontName()
+{
+	return fontName;
+}
+
+void TextPanel::setTextAlignment(int a)
+{
+	this->textAlignment = a;
 }
 
 void TextPanel::setText(string _text)

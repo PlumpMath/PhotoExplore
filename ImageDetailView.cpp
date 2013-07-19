@@ -18,26 +18,33 @@ void ImageDetailView::notifyOffsetChanged(Leap::Vector _offset)
 void ImageDetailView::initButtonBar()
 {
 
-	Color c = Colors::HoloBlueBright;
-	c.setAlpha(.6f);
+	Color likeBackgroundColor = Color(GlobalConfig::tree()->get_child("ImageDetailView.LikeButton.Background"));
+	Color likeTextColor = Color(GlobalConfig::tree()->get_child("ImageDetailView.LikeButton.TextColor"));
+	Color likeBorderColor = Color(GlobalConfig::tree()->get_child("ImageDetailView.LikeButton.BorderColor"));
+	float borderThickness = GlobalConfig::tree()->get<float>("ImageDetailView.LikeButton.BorderThickness");
+	float likeTextSize = GlobalConfig::tree()->get<float>("ImageDetailView.LikeButton.TextSize");
+
 	likeButton = new Button("Like this photo?");
-	likeButton->setBackgroundColor(Colors::SteelBlue);
-	likeButton->setTextColor(Colors::White);
-	likeButton->setTextSize(8);
+	likeButton->setBackgroundColor(likeBackgroundColor);
+	likeButton->setBorderColor(likeBorderColor);
+	likeButton->setTextColor(likeTextColor);
+	likeButton->setBorderThickness(borderThickness);
+	likeButton->setTextSize(likeTextSize);
 	likeButton->setVisible(false);
 	likeButton->setAnimateOnLayout(false);
 	likeButton->setTextFitPadding(6);
 
 	
 	alreadyLikedButton = new Button("You like this.");
-	alreadyLikedButton->setBackgroundColor(Colors::SteelBlue);
-	alreadyLikedButton->setTextColor(Colors::White);
-	alreadyLikedButton->setTextSize(8);
+	alreadyLikedButton->setBackgroundColor(likeBackgroundColor);
+	alreadyLikedButton->setBorderColor(likeBorderColor);
+	alreadyLikedButton->setTextColor(likeTextColor);
+	alreadyLikedButton->setBorderThickness(borderThickness);
+	alreadyLikedButton->setTextSize(likeTextSize);
 	alreadyLikedButton->setVisible(false);
 	alreadyLikedButton->setAnimateOnLayout(false);
 	alreadyLikedButton->setTextFitPadding(6);
 	alreadyLikedButton->setEnabled(false);
-	alreadyLikedButton->setTextFitPadding(6);
 	
 	//likeButton->layout(likeButton->getPosition(),cv::Size2f(250,200));
 
@@ -92,8 +99,8 @@ bool ImageDetailView::onLeapGesture(const Controller & controller, const Gesture
 
 void ImageDetailView::getTutorialDescriptor(vector<string> & tutorial)
 {
-	tutorial.push_back("shake_inv");
 	tutorial.push_back("stretch");	
+	tutorial.push_back("shake_inv");
 }
 
 void ImageDetailView::setImageMetaData()
@@ -229,17 +236,21 @@ void ImageDetailView::layout(Vector position, cv::Size2f size)
 		lastSize = size;
 		lastPosition = position;
 
-		likeButton->layout(-hostOffset + position + Vector(size.width*.1f,size.height*.82f,10),cv::Size2f(size.width*.15f,size.height*.16f));
-		alreadyLikedButton->layout(-hostOffset + position + Vector(size.width*.1f,size.height*.82f,10),cv::Size2f(size.width*.15f,size.height*.16f));
 		
 		imagePanel->fitPanelToBoundary(-hostOffset + Vector(size.width*.5f,size.height*.5f,5),size.width,size.height*.8f, false);
 	
 		Vector pos;
 		float w1,h1;
 		imagePanel->getBoundingArea(pos,w1,h1);		
-		photoComment->layout(-hostOffset + Vector(size.width*.3f,size.height*.9f,10),cv::Size2f(size.width*.4f,size.height*.2f));
-	
+		photoComment->layout(-hostOffset + Vector(size.width*.3f,imagePanel->getPosition().y + imagePanel->getHeight(),10),cv::Size2f(size.width*.4f,size.height*.2f));	
+		
+		float buttonPadding = 50;
+		cv::Size2f buttonSize = cv::Size2f(size.height*.2f,size.height*.15f);
+		Vector buttonPos = Vector(imagePanel->getPosition().x - (buttonSize.width+buttonPadding),imagePanel->getPosition().y + imagePanel->getHeight()*.5f,10);
 
+		likeButton->layout(buttonPos,buttonSize);
+		alreadyLikedButton->layout(buttonPos,buttonSize);
+		
 		layoutDirty = false;
 	}
 }
@@ -293,12 +304,13 @@ static bool isValidInteractionPointable(const Controller & controller, Pointable
 	bool result = false;
 	if (p.isValid())
 	{
-		float dist = LeapHelper::ClosestScreen(controller, p.stabilizedTipPosition()).project(p.stabilizedTipPosition(),false).distanceTo(p.stabilizedTipPosition());
+		return p.touchDistance() < GlobalConfig::tree()->get<float>("ImageDetailView.Resize.MaxTouchDistance");
+		//float dist = LeapHelper::ClosestScreen(controller, p.stabilizedTipPosition()).project(p.stabilizedTipPosition(),false).distanceTo(p.stabilizedTipPosition());
 
-		if (dist < GlobalConfig::MinimumInteractionScreenDistance)
-		{
-			result = true;
-		}
+		//if (dist < GlobalConfig::MinimumInteractionScreenDistance)
+		//{
+		//	result = true;
+		//}
 	}
 	return result;
 }
@@ -360,18 +372,18 @@ static bool getNewPanelInteraction(const Controller & controller, Frame frame, P
 			bool iterationSuccess = false;
 			if (isValidInteractionPointable(controller, interactionPointables[i]) && interactionPointables.at(i).tipVelocity().magnitude() < GlobalConfig::SteadyVelocity)
 			{						
-				Vector imgPoint = LeapHelper::FindScreenPoint(controller,interactionPointables[i]);			
-
-				int flags;
-				if (panel->elementAtPoint((int)imgPoint.x-hostOffset.x,(int)imgPoint.y-hostOffset.y,flags) != NULL)
-				{
-					activePanelInteraction.interactingPointables.push_back(make_pair(interactionPointables[i].id(),imgPoint));		
-					iterationSuccess = true;				
-				}	
-				else
-				{
-					activePanelInteraction.panel = NULL;
-				}
+				Vector imgPoint = LeapHelper::FindScreenPoint(controller,interactionPointables[i]);		
+				
+				//int flags;
+				//if (panel->elementAtPoint((int)imgPoint.x-hostOffset.x,(int)imgPoint.y-hostOffset.y,flags) != NULL)
+				//{
+				activePanelInteraction.interactingPointables.push_back(make_pair(interactionPointables[i].id(),imgPoint));		
+				iterationSuccess = true;				
+				//}	
+				//else
+				//{
+				//	activePanelInteraction.panel = NULL;
+				//}
 			}
 			canStartInteraction = canStartInteraction && iterationSuccess;
 		}
@@ -396,6 +408,18 @@ bool ImageDetailView::handleImageManipulation(const Controller & controller)
 	static Timer timer;
 	PanelBase * panel = imagePanel;
 	bool processed = false;
+	static float cursorDimension = (((float)GlobalConfig::ScreenWidth) / 2560.0f) * 41;
+
+	static LeapDebugVisual * ldv1 = NULL, * ldv2 = NULL;
+	
+	if (ldv1 == NULL)
+	{
+		ldv1 = new LeapDebugVisual(Vector(),1,LeapDebugVisual::LiveForever,0,Colors::MediumVioletRed.withAlpha(.7f));
+		ldv2 = new LeapDebugVisual(Vector(),1,LeapDebugVisual::LiveForever,0,Colors::MediumVioletRed.withAlpha(.7f));
+		
+		LeapDebug::instance->addDebugVisual(ldv1);
+		LeapDebug::instance->addDebugVisual(ldv2);
+	}
 
 	if (panel != NULL)
 	{
@@ -423,8 +447,6 @@ bool ImageDetailView::handleImageManipulation(const Controller & controller)
 					newPoints.push_back(p.stabilizedTipPosition());
 
 					activePanelInteraction.interactingPointables[i] = make_pair(item.first,imgPoint);
-
-					//LeapDebug::instance->addDebugVisual(new LeapDebugVisual(imgPoint,1,LeapDebugVisual::LiveByTime,30,Colors::MediumVioletRed));
 				}
 				else
 				{
@@ -468,6 +490,15 @@ bool ImageDetailView::handleImageManipulation(const Controller & controller)
 
 				if (activePanelInteraction.interactingPointables.size() == 2)
 				{
+					Pointable p1 = controller.frame().pointable(activePanelInteraction.interactingPointables.at(0).first);
+					Pointable p2 = controller.frame().pointable(activePanelInteraction.interactingPointables.at(1).first);
+
+					ldv1->size = min<float>(cursorDimension,cursorDimension * .6f + (cursorDimension * (p1.touchDistance() * .4f)));
+					ldv1->screenPoint = activePanelInteraction.interactingPointables.at(0).second;
+					
+					ldv2->size = min<float>(cursorDimension,cursorDimension * .6f + (cursorDimension * (p2.touchDistance() * .4f)));
+					ldv2->screenPoint = activePanelInteraction.interactingPointables.at(1).second;
+
 					float newDist = 0;
 					for (int i=0;i<size;i++)
 					{
@@ -504,6 +535,8 @@ bool ImageDetailView::handleImageManipulation(const Controller & controller)
 		//Something bad happened, so try and find new pointable to interact with the image
 		if (error)
 		{
+			ldv1->size = 0;
+			ldv2->size = 0;
 			processed = getNewPanelInteraction(controller,frame,panel,activePanelInteraction,hostOffset);
 		}
 		else
@@ -517,10 +550,12 @@ bool ImageDetailView::handleImageManipulation(const Controller & controller)
 
 			float sc1 = activePanelInteraction.scale.x;
 			
-			if (GlobalConfig::tree()->get<bool>("ImageDetailView.LimitResize"))
+			float likeButtonWidth = (size.height*.2f) + 50;
+
+			if (GlobalConfig::tree()->get<bool>("ImageDetailView.Resize.LimitToScreen"))
 			{
-				float maxHeight = min<float>(activePanelInteraction.panel->getHeight()*sc1,size.height*.95f);
-				float maxWidth = min<float>(activePanelInteraction.panel->getWidth()*sc1,size.width*.95f);
+				float maxHeight = min<float>(activePanelInteraction.panel->getHeight()*sc1,size.height);
+				float maxWidth = min<float>(activePanelInteraction.panel->getWidth()*sc1,size.width-(2*likeButtonWidth));
 				sc1 = min<float>(maxHeight/activePanelInteraction.panel->getHeight(),maxWidth/activePanelInteraction.panel->getWidth());
 			}
 
@@ -530,7 +565,13 @@ bool ImageDetailView::handleImageManipulation(const Controller & controller)
 			
 			
 			activePanelInteraction.panel->getBoundingArea(pos,w1,h1);
-			photoComment->setPosition(-hostOffset  + Vector(size.width*.3f,pos.y + h1,10));
+			photoComment->setPosition(-hostOffset + Vector(size.width*.3f,pos.y + h1,10));
+			float buttonPadding = 50;
+			cv::Size2f buttonSize = cv::Size2f(size.height*.2f,size.height*.15f);
+			Vector buttonPos = Vector(pos.x - (buttonSize.width+buttonPadding),pos.y + h1*.5f,10);
+
+			likeButton->setPosition(buttonPos);
+			alreadyLikedButton->setPosition(buttonPos);
 		}
 	}
 	return processed;

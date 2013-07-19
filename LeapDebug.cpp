@@ -48,7 +48,11 @@ LeapDebug::LeapDebug(HandProcessor * handProcessor)
 
 	float textPadding = labels.get<float>("TextPadding");
 
-	ImagePanel  * shakeGesturePanel_img = new ImagePanel(p.get<string>("ShakeGesture"));
+	string fontName = labels.get<string>("FontName");
+
+	cv::Size2f imagePanelSize = cv::Size2f(300,GlobalConfig::tree()->get<float>("Tutorial.Height")*.6f);
+
+	ImagePanel  * shakeGesturePanel_img = new ImagePanel(p.get<string>("ShakeGesture"),imagePanelSize);
 	shakeGesturePanel_img->setBackgroundColor(backgroundColor);
 
 	TextPanel  * shakeGesturePanel_text = new TextPanel(labels.get<string>("ShakeGesture"));
@@ -56,14 +60,16 @@ LeapDebug::LeapDebug(HandProcessor * handProcessor)
 	shakeGesturePanel_text->setTextColor(labelColor);
 	shakeGesturePanel_text->setBackgroundColor(textBackground);
 	shakeGesturePanel_text->setTextSize(tutorialTextSize,false);
+	shakeGesturePanel_text->setFontName(fontName);
 	
 	TextPanel  * shakeGesturePanel_text_inv = new TextPanel(labels.get<string>("ShakeGesture"));
 	shakeGesturePanel_text_inv->setTextFitPadding(textPadding);
 	shakeGesturePanel_text_inv->setTextColor(invertedLabelColor);
 	shakeGesturePanel_text_inv->setBackgroundColor(textBackground);
 	shakeGesturePanel_text_inv->setTextSize(tutorialTextSize,false);
+	shakeGesturePanel_text_inv->setFontName(fontName);
 	
-	ImagePanel  * swipeGesturePanel_img = new ImagePanel(p.get<string>("SwipeGesture"));
+	ImagePanel  * swipeGesturePanel_img = new ImagePanel(p.get<string>("SwipeGesture"),imagePanelSize);
 	swipeGesturePanel_img->setBackgroundColor(backgroundColor);
 
 	TextPanel  * swipeGesturePanel_text = new TextPanel(labels.get<string>("SwipeGesture"));
@@ -71,8 +77,9 @@ LeapDebug::LeapDebug(HandProcessor * handProcessor)
 	swipeGesturePanel_text->setTextColor(labelColor);
 	swipeGesturePanel_text->setBackgroundColor(textBackground);
 	swipeGesturePanel_text->setTextSize(tutorialTextSize,false);
+	swipeGesturePanel_text->setFontName(fontName);
 
-	ImagePanel  * pointGesturePanel_img = new ImagePanel(p.get<string>("PointGesture"));
+	ImagePanel  * pointGesturePanel_img = new ImagePanel(p.get<string>("PointGesture"),imagePanelSize);
 	pointGesturePanel_img->setBackgroundColor(backgroundColor);
 
 	TextPanel  * pointGesturePanel_text = new TextPanel(labels.get<string>("PointGesture"));
@@ -80,15 +87,17 @@ LeapDebug::LeapDebug(HandProcessor * handProcessor)
 	pointGesturePanel_text->setTextColor(labelColor);
 	pointGesturePanel_text->setBackgroundColor(textBackground);
 	pointGesturePanel_text->setTextSize(tutorialTextSize,false);
+	pointGesturePanel_text->setFontName(fontName);
 
 	TextPanel  * pointGesturePanel_text_inv = new TextPanel(labels.get<string>("PointGesture"));
 	pointGesturePanel_text_inv->setTextFitPadding(textPadding);
 	pointGesturePanel_text_inv->setTextColor(invertedLabelColor);
 	pointGesturePanel_text_inv->setBackgroundColor(textBackground);
 	pointGesturePanel_text_inv->setTextSize(tutorialTextSize,false);
-	
+	pointGesturePanel_text_inv->setFontName(fontName);
 
-	ImagePanel  * pointStopGesturePanel_img = new ImagePanel(p.get<string>("PointStopGesture"));
+
+	ImagePanel  * pointStopGesturePanel_img = new ImagePanel(p.get<string>("PointStopGesture"),imagePanelSize);
 	pointStopGesturePanel_img->setBackgroundColor(backgroundColor);
 
 	TextPanel  * pointStopGesturePanel_text = new TextPanel(labels.get<string>("PointStopGesture"));
@@ -96,9 +105,10 @@ LeapDebug::LeapDebug(HandProcessor * handProcessor)
 	pointStopGesturePanel_text->setTextColor(labelColor);
 	pointStopGesturePanel_text->setBackgroundColor(textBackground);
 	pointStopGesturePanel_text->setTextSize(tutorialTextSize,false);
+	pointStopGesturePanel_text->setFontName(fontName);
 
 
-	ImagePanel  * stretchGesturePanel_img = new ImagePanel(p.get<string>("StretchGesture"));
+	ImagePanel  * stretchGesturePanel_img = new ImagePanel(p.get<string>("StretchGesture"),imagePanelSize);
 	stretchGesturePanel_img->setBackgroundColor(backgroundColor);
 
 	TextPanel  * stretchGesturePanel_text = new TextPanel(labels.get<string>("StretchGesture"));
@@ -106,6 +116,7 @@ LeapDebug::LeapDebug(HandProcessor * handProcessor)
 	stretchGesturePanel_text->setTextColor(invertedLabelColor);
 	stretchGesturePanel_text->setBackgroundColor(textBackground);
 	stretchGesturePanel_text->setTextSize(tutorialTextSize,false);
+	stretchGesturePanel_text->setFontName(fontName);
 
 			 
 	vector<RowDefinition> gridDefinition;	
@@ -339,7 +350,7 @@ void LeapDebug::drawPointer(LeapDebugVisual * debugVisual)
 {
 	float drawWidth,drawHeight,x1,x2,y1,y2, z1;
 
-	z1 = debugVisual->depth;
+	z1 = debugVisual->depth + 60;
 		
 	drawHeight = drawWidth = debugVisual->size;	
 

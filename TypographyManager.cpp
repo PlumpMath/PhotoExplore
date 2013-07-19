@@ -2,6 +2,7 @@
 #include "GlobalConfig.hpp"
 #include <iostream>
 #include <fstream>
+#include "Logger.hpp"
 
 TypographyManager * TypographyManager::instance = NULL;
 
@@ -13,34 +14,55 @@ void TypographyManager::init()
 	error = FT_Init_FreeType( &fontLibrary );
 
 	if ( error ) {
-		cout << "Error initializing TTF library. Error code = " << error << " \n";
-	} else {
+		Logger::stream("TypographyManager","ERROR") << "Error initializing TTF library. Error code = " << error << " \n";
+	} else 
+	{
 
-		std::string fontFile = GlobalConfig::tree()->get<string>("Typography.FontFile");
+		auto fontList = GlobalConfig::tree()->get_child("Typography.Fonts");
 
-		error = FT_New_Face( fontLibrary,fontFile.c_str(),0,&fontFace);
+		for (auto fontIt = fontList.begin(); fontIt != fontList.end(); fontIt++)
+		{
+			string name = fontIt->second.get<string>("Name");
+			string fontFile = fontIt->second.get<string>("FontFile");
 
-		if (error == FT_Err_Unknown_File_Format) {
-			cout << "Invalid TTF file format for file: " << fontFile <<  "\n";
-		} else if ( error ) {
-			cout << "Error opening TTF file: " << fontFile << ", Error code = " << error << "\n";
-		} else {
-			freetypeInitialized = true;
+			FT_Face fontFace;
+			error = FT_New_Face( fontLibrary,fontFile.c_str(),0,&fontFace);
+		
+			if (error == FT_Err_Unknown_File_Format) {
+				cout << "Invalid TTF file format for file: " << fontFile <<  "\n";
+			} else if ( error ) {
+				cout << "Error opening TTF file: " << fontFile << ", Error code = " << error << "\n";
+			} else {
+				fontFaceMap.insert(make_pair(name,fontFace));
+			}
 		}
+
+		if (fontFaceMap.size() > 0)
+			freetypeInitialized = true;
 	}
 }
 
 
-
-cv::Mat TypographyManager::renderText(std::string text, Color textColor, float fontScale, cv::Size2f targetSize)
+cv::Mat TypographyManager::renderText(std::string text, string fontName, Color textColor, float fontScale, TextLayoutConfig & config)
 {
 	if (freetypeInitialized)
 	{
-		//float scaleAdjust = GlobalConfig::tree()->get<float>("Typography.FontScaleModifier");
-		//if (GlobalConfig::tree()->get<bool>("Typography.AdjustToScreenHeight"))
-		//	scaleAdjust *= GlobalConfig::ScreenHeight/1440.0f;
+		auto font = fontFaceMap.find(fontName);
+		if (font == fontFaceMap.end())
+			font = fontFaceMap.find("Default");
 
-		return renderTextFreeType(text,(int)(ceilf(fontScale * 64.0f)),textColor, targetSize.width);
+		FT_Face fontFace = font->second;
+
+
+		cv::Mat result = renderTextFreeType(text,fontFace,(int)(ceilf(fontScale * 64.0f)),textColor, config);
+		
+		if (GlobalConfig::tree()->get<bool>("Typography.DebugRendering"))
+		{
+			TextDefinition td(text,textColor,fontScale,cv::Size2f(config.maxLineWidth,0));
+			cv::imwrite(GlobalConfig::tree()->get<string>("Typography.DebugImagePath") + td.getKey() + ".png",result);
+		}
+
+		return result;
 	}
 	else
 	{
@@ -61,10 +83,8 @@ cv::Mat TypographyManager::renderText(std::string text, Color textColor, float f
 }
 
 
-cv::Mat TypographyManager::renderTextFreeType(std::string text, int fontSize, Color textColor, float targetWrapWidth)
+cv::Mat TypographyManager::renderTextFreeType(std::string text, FT_Face fontFace, int fontSize, Color textColor, TextLayoutConfig & config)
 {
-	
-
 
 	int numGlyphs = text.size();
 
@@ -76,15 +96,15 @@ cv::Mat TypographyManager::renderTextFreeType(std::string text, int fontSize, Co
 	FT_Glyph * glyphArray = new FT_Glyph[numGlyphs];
 	cv::Point2i * positionArray = new cv::Point2i[numGlyphs];
 
-	if (targetWrapWidth <= 0)
-		targetWrapWidth = 10000;
+	if (config.maxLineWidth <= 0)
+		config.maxLineWidth = 10000;
 
 
 
 	long lineSpacing = FT_MulFix(fontFace->height, fontFace->size->metrics.y_scale) >> 6;
 	long fontHeight = FT_MulFix(fontFace->height, fontFace->size->metrics.height) >> 6;
-
-	computeGlyphs_wrap(text,positionArray,(int)targetWrapWidth,lineSpacing,glyphArray,numGlyphs);
+	
+	computeGlyphs(text,fontFace,positionArray,lineSpacing,glyphArray,numGlyphs,config);
 	//else
 	//computeGlyphs(text,positionArray,glyphArray,numGlyphs);
 
@@ -93,11 +113,14 @@ cv::Mat TypographyManager::renderTextFreeType(std::string text, int fontSize, Co
 	float stringWidth  = boundingBox.xMax - boundingBox.xMin;
 	float stringHeight = boundingBox.yMax - boundingBox.yMin;
 
-	float targetWidth = stringWidth+3;
+	float targetWidth = config.maxLineWidth;
 	float targetHeight = ceilf((float)stringHeight/(float)lineSpacing)*(float)lineSpacing;
 
-	int start_x = 0;//((targetWidth - stringWidth) / 2.0f);
-	int start_y = lineSpacing; //((targetHeight - stringHeight) / 2.0f) - lineSpacing/2.0f;
+	int start_x = ((config.maxLineWidth-stringWidth)/2)-boundingBox.xMin;
+	if (config.maxLineWidth == 10000)
+		start_x = -boundingBox.xMin;
+
+	int start_y = lineSpacing; 
 	
 	//ofstream fontDebugOut;
 	//fontDebugOut.open("G://FontDebug//FontLog.txt");
@@ -125,7 +148,7 @@ cv::Mat TypographyManager::renderTextFreeType(std::string text, int fontSize, Co
 		{
 			FT_BitmapGlyph bit = (FT_BitmapGlyph)image;
 			//fontDebugOut << "start_y = " << start_y << "," << "pen_y = " << pen.y << "bit->top = " << bit->top << endl;
-			drawBitmapToMatrix(img,bit->bitmap,cv::Point2i(start_x + pen.x, (start_y + pen.y + boundingBox.yMin) - bit->top),textColor);
+			drawBitmapToMatrix(img,bit->bitmap,cv::Point2i(start_x + pen.x + bit->left, (start_y + pen.y + boundingBox.yMin) - bit->top),textColor);
 			FT_Done_Glyph(image);
 		}
 	}
@@ -157,7 +180,7 @@ void TypographyManager::drawBitmapToMatrix(cv::Mat & matrix, FT_Bitmap & glyphBi
 }
 
 
-void TypographyManager::computeGlyphs_wrap(string text, cv::Point2i * pos, int wrapWidth, int lineSpacing, FT_Glyph * glyphs, int & numGlyphs)
+void TypographyManager::computeGlyphs(string text, FT_Face fontFace, cv::Point2i * pos, int lineSpacing, FT_Glyph * glyphs, int & numGlyphs, TextLayoutConfig & config)
 {		
 	FT_GlyphSlot  slot = fontFace->glyph;  
 	FT_UInt       glyph_index;
@@ -181,6 +204,13 @@ void TypographyManager::computeGlyphs_wrap(string text, cv::Point2i * pos, int w
 
 	pen_y = 0;// lineSpacing;
 	int xOffset = 0;
+
+	int wrapWidth = config.maxLineWidth;
+	
+	bool isCentered = config.alignment == TextLayoutConfig::CenterAligned;
+
+
+	int lineStartIndex = 0, lineCount = 0;//, int leftMost = 0;
 
 	//cout << "Glyphs for : " << text << ":  ";
 	for (int n = 0; n < text.size(); n++ )
@@ -214,22 +244,35 @@ void TypographyManager::computeGlyphs_wrap(string text, cv::Point2i * pos, int w
 		{	
 			if (lastSplit > 0 && lastSplit < n-1)
 			{
-				xOffset = pos[lastSplit+1].x;
+				xOffset = pos[lastSplit+1].x; //Everything past here gets moved down
+
+				if (isCentered)
+				{
+					int lastLineOffset = (wrapWidth - xOffset)/2;
+					for (int i = lineStartIndex; i < lastSplit;i++)
+					{
+						pos[i].x += lastLineOffset;
+					}	
+				}
+
 				pen_y += lineSpacing;
 				pen_x -= xOffset;
-
 				for (int i = lastSplit+1; i < n;i++)
 				{
 					pos[i].y += lineSpacing;
 					pos[i].x -= xOffset;
-				}					
+				}		
+				
+				lineStartIndex = lastSplit+1;
 			}
 			else
 			{
 				pen_y += lineSpacing;
 				pen_x = 0;
+				lineStartIndex = n;
 			}		
 			lastSplit = 0;
+			lineCount++;
 		}
 
 		pos[numGlyphs].x = pen_x;
@@ -241,6 +284,23 @@ void TypographyManager::computeGlyphs_wrap(string text, cv::Point2i * pos, int w
 
 		previous = glyph_index;
 		numGlyphs++;
+	}
+
+	if (isCentered && lineCount > 0)
+	{		
+		FT_BBox  glyph_bbox;
+		FT_Glyph_Get_CBox( glyphs[lineStartIndex], ft_glyph_bbox_pixels,&glyph_bbox );
+
+		int xStart = glyph_bbox.xMin;
+		
+		FT_Glyph_Get_CBox( glyphs[numGlyphs-1], ft_glyph_bbox_pixels,&glyph_bbox );
+		
+		int xOffset = (pos[numGlyphs-1].x+glyph_bbox.xMax) - xStart;
+		int lastLineOffset = (wrapWidth - xOffset)/2;		
+		for (int i = lineStartIndex; i < numGlyphs;i++)
+		{
+			pos[i].x += lastLineOffset;
+		}
 	}
 	 //cout << endl;
 
@@ -290,57 +350,3 @@ void TypographyManager::computeGlyphs_wrap(string text, cv::Point2i * pos, int w
 		}
 	}
 
-	void TypographyManager::computeGlyphs(string text, cv::Point2i * pos, FT_Glyph * glyphs, int & numGlyphs)
-	{		
-		FT_GlyphSlot  slot = fontFace->glyph;   /* a small shortcut */
-		FT_UInt       glyph_index;
-		FT_Bool       use_kerning;
-		FT_UInt       previous;
-		int           pen_x, pen_y;
-
-		FT_Error error;
-
-		pen_x = 0;   /* start at (0,0) */
-		pen_y = 0;
-
-		use_kerning = FT_HAS_KERNING( fontFace );
-		previous    = 0;
-		numGlyphs = 0;
-
-		for (int n = 0; n < text.size(); n++ )
-		{
-			/* convert character code to glyph index */
-			glyph_index = FT_Get_Char_Index( fontFace, text.at(n));
-
-			/* retrieve kerning distance and move pen position */
-			if ( use_kerning && previous && glyph_index )
-			{
-				FT_Vector  delta;
-				FT_Get_Kerning( fontFace, previous, glyph_index, FT_KERNING_DEFAULT, &delta );
-				pen_x += delta.x >> 6;
-			}
-
-			/* store current pen position */
-			pos[numGlyphs].x = pen_x;
-			pos[numGlyphs].y = pen_y;
-
-			/* load glyph image into the slot without rendering */
-			error = FT_Load_Glyph( fontFace, glyph_index, FT_LOAD_DEFAULT );
-			if ( error )
-				continue;  /* ignore errors, jump to next glyph */
-
-			/* extract glyph image and store it in our table */
-			error = FT_Get_Glyph( fontFace->glyph, &glyphs[numGlyphs] );
-			if ( error )
-				continue;  /* ignore errors, jump to next glyph */
-
-			/* increment pen position */
-			pen_x += slot->advance.x >> 6;
-
-			/* record current glyph index */
-			previous = glyph_index;
-
-			/* increment number of glyphs */
-			numGlyphs++;
-		}
-	}

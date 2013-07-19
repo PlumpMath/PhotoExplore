@@ -45,6 +45,7 @@ void ScrollingView::measure(cv::Size2f & measuredSize)
 
 void ScrollingView::layout(Vector position, cv::Size2f size)
 {
+	static float loadingBarThickness = GlobalConfig::tree()->get<float>("ScrollView.LoadingBarThickness");
 	lastSize = size;
 	lastPosition = position;
 
@@ -54,7 +55,7 @@ void ScrollingView::layout(Vector position, cv::Size2f size)
 		cv::Size2f contentSize(-1,size.height);
 		content->measure(contentSize);
 
-		double limitOffset = (loadIndicatorMode != 0) ? 50 : 0;
+		double limitOffset = (loadIndicatorMode != 0) ? loadingBarThickness : 0;
 		scrollingFlywheel->setMinValue(size.width-(contentSize.width+limitOffset));
 		contentSize.height = size.height;
 		
@@ -84,6 +85,8 @@ void ScrollingView::update()
 
 void ScrollingView::draw()
 {
+	static float loadingBarThickness = GlobalConfig::tree()->get<float>("ScrollView.LoadingBarThickness");
+
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();	
 
@@ -94,7 +97,7 @@ void ScrollingView::draw()
 	
 	glMatrixMode(GL_MODELVIEW);
 
-	drawLoadIndicator(lastContentSize.width,50);
+	drawLoadIndicator(lastContentSize.width,loadingBarThickness);
 
 	GraphicsContext::getInstance().setDrawHint("Offset",scrollingFlywheel->getPosition());
 	GraphicsContext::getInstance().setDrawHint("VisibleWidth",lastSize.width);
@@ -125,35 +128,35 @@ LeapElement * ScrollingView::elementAtPoint(int x, int y, int & elementStateFlag
 
 void ScrollingView::drawLoadIndicator(float offset, float thickness)
 {
-	//glBindTexture( GL_TEXTURE_2D, NULL);		
 
-	//float beatsPerMinute = 30;
-	//float secondsPerBeat = 60.0f/beatsPerMinute;
-	//float maxAlpha = .5f;
-
-	//float x = fmodf(loadAnimTimer.seconds(),secondsPerBeat);
-	//x /= secondsPerBeat;
-
-	//float bgAlpha = 0;
-
-	//float peak = .6f;
-
-	//if (x < peak)
-	//	bgAlpha = sqrtf(x)/(sqrtf(peak));
-	//else 
-	//	bgAlpha = 1.0f - pow(x-peak,2)/(pow(1.0f-peak,2));
-
-	//Color loadColor = Colors::LightGreen;
-	//loadColor.setAlpha(bgAlpha);
 	//
 
 	if (loadIndicatorMode >= 1)
 	{
+		glBindTexture( GL_TEXTURE_2D, NULL);		
+
+		float beatsPerMinute = 30;
+		float secondsPerBeat = 60.0f/beatsPerMinute;
+		float maxAlpha = .5f;
+
+		float x = fmodf(loadAnimTimer.seconds(),secondsPerBeat);
+		x /= secondsPerBeat;
+
+		float bgAlpha = 0;
+
+		float peak = .6f;
+
+		if (x < peak)
+			bgAlpha = sqrtf(x)/(sqrtf(peak));
+		else 
+			bgAlpha = 1.0f - pow(x-peak,2)/(pow(1.0f-peak,2));
+		
+
 		float drawWidth = thickness;
 		float drawHeight = lastSize.height;
 
 		glBindTexture( GL_TEXTURE_2D, NULL);	
-		glColor4fv(loadIndicatorColor.withAlpha(.4f).getFloat());
+		glColor4fv(loadIndicatorColor.withAlpha(bgAlpha).getFloat());
 
 		float z1 = lastPosition.z + 1;
 
@@ -164,39 +167,39 @@ void ScrollingView::drawLoadIndicator(float offset, float thickness)
 		glVertex3f(offset,drawHeight+lastPosition.y,z1);
 		glEnd();
 
-		if (loadIndicatorMode == 2)
-		{
-			glColor4fv(loadIndicatorColor.withAlpha(.9f).getFloat());
-			for (int i = 0;i<3;i++)
-			{		
-				float angle = loadAnimTimer.seconds()/4.0 + ((float)(i*i)/10);
+		//if (loadIndicatorMode == 2)
+		//{
+		//	glColor4fv(loadIndicatorColor.withAlpha(.9f).getFloat());
+		//	for (int i = 0;i<3;i++)
+		//	{		
+		//		float angle = loadAnimTimer.seconds()/4.0 + ((float)(i*i)/10);
 
-				float x1,x2,x3,x4;
-				float angle2 = fmod(angle,2);
-
-
-				x2 = x1 = ((angle2*.5f) * drawWidth) + offset;
-
-				float lineWidth =  1.0f; //10.0f * (.5f + sin(angle*GeomConstants::PI_F));
-
-				x4 = x3 = min<float>(x1 + lineWidth,offset+drawWidth);
-
-				float y1,y2,y3,y4;
-
-				y4 = y1 = lastPosition.y;
-				y3 = y2 = lastPosition.y + drawHeight;
+		//		float x1,x2,x3,x4;
+		//		float angle2 = fmod(angle,2);
 
 
-				glBegin( GL_QUADS );
+		//		x2 = x1 = ((angle2*.5f) * drawWidth) + offset;
 
-				glVertex3f(x1,y1,z1);
-				glVertex3f(x2,y2,z1);
-				glVertex3f(x3,y3,z1);
-				glVertex3f(x4,y4,z1);
+		//		float lineWidth =  1.0f; //10.0f * (.5f + sin(angle*GeomConstants::PI_F));
 
-				glEnd();
-			}
-		}
+		//		x4 = x3 = min<float>(x1 + lineWidth,offset+drawWidth);
+
+		//		float y1,y2,y3,y4;
+
+		//		y4 = y1 = lastPosition.y;
+		//		y3 = y2 = lastPosition.y + drawHeight;
+
+
+		//		glBegin( GL_QUADS );
+
+		//		glVertex3f(x1,y1,z1);
+		//		glVertex3f(x2,y2,z1);
+		//		glVertex3f(x3,y3,z1);
+		//		glVertex3f(x4,y4,z1);
+
+		//		glEnd();
+		//	}
+		//}
 	}
 }
 

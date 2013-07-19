@@ -61,9 +61,11 @@ void AlbumDetailView::loadItems(int photos)
 
 			AlbumDetailView * v2= v;
 			v->postTask([v2,_node](){
-
 				if (v2->activeNode == _node)
+				{
+					v2->itemScroll->setDrawLoadingIndicator(0,Colors::SteelBlue);
 					v2->updateLoading();
+				}
 			});
 		});
 	}
@@ -114,7 +116,7 @@ void AlbumDetailView::updateLoading()
 					int loadPhotos =  GlobalConfig::tree()->get<int>("AlbumDetailView.PhotosPerRequest") + availablePhotos;	
 					loadItems(loadPhotos);
 					if (imageGroup->getMeasuredSize().width > itemScroll->getMeasuredSize().width)
-						itemScroll->setDrawLoadingIndicator(2,Colors::SteelBlue);
+						itemScroll->setDrawLoadingIndicator(2,Colors::DimGray);
 				}
 				else
 				{
@@ -309,9 +311,9 @@ bool AlbumDetailView::onLeapGesture(const Controller & controller, const Gesture
 
 void AlbumDetailView::getTutorialDescriptor(vector<string> & tutorial)
 {
-	tutorial.push_back("shake");
-	tutorial.push_back("point_stop");
 	tutorial.push_back("swipe");
+	tutorial.push_back("point_stop");
+	tutorial.push_back("shake");
 }
 
 void AlbumDetailView::setFinishedCallback(const boost::function<void(std::string)> & callback)

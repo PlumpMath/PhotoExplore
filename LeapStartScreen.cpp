@@ -128,10 +128,6 @@ void LeapStartScreen::init()
 	mainLayout = new CustomGrid(gridDefinition);	
 	
 	vector<RadialMenuItem> menuItems;
-	menuItems.push_back(RadialMenuItem("Exit and Logout","logout", Colors::DarkRed));
-	menuItems.push_back(RadialMenuItem("Exit Photo Explorer","exit",Colors::OrangeRed));
-	menuItems.push_back(RadialMenuItem("Hide Tutorial","hide_tutorial", Colors::DarkTurquoise));
-	menuItems.push_back(RadialMenuItem("Cancel","cancel",Colors::SkyBlue));
 	radialMenu = new RadialMenu(menuItems);
 	radialMenu->ItemClickedCallback = [this](string id) -> bool{
 
@@ -142,7 +138,7 @@ void LeapStartScreen::init()
 		return true;
 	};
 
-	radialMenu->layout(Vector(),cv::Size2f(GlobalConfig::ScreenWidth,GlobalConfig::ScreenHeight));
+	radialMenu->layout(Vector(0,0,50),cv::Size2f(GlobalConfig::ScreenWidth,GlobalConfig::ScreenHeight));
 
 
 	TextPanel * title = new TextPanel("Photo Explorer");
@@ -162,7 +158,7 @@ void LeapStartScreen::init()
 	mainLayout->addChild(new TextPanel(""));
 		
 	
-	facebookLoginButton = new Button("Start Exploring");		
+	facebookLoginButton = new Button(GlobalConfig::tree()->get<string>("LeapStartScreen.StartButtonText"));		
 	facebookLoginButton->setBackgroundColor(Colors::White); //Colors::SteelBlue.withAlpha(.8f));
 	facebookLoginButton->setTextColor(Colors::Black);
 	facebookLoginButton->setTextFitPadding(20);
@@ -176,6 +172,12 @@ void LeapStartScreen::init()
 		this->launchBrowser();	
 	};
 	facebookLoginButton->setLayoutParams(LayoutParams(cv::Size2f(600,600),cv::Vec4f(50,50,50,50)));
+
+	noticePanel = new TextPanel(GlobalConfig::tree()->get<string>("LeapStartScreen.InternetNotice"));		
+	noticePanel->setTextColor(Colors::White);
+	noticePanel->setBackgroundColor(Colors::SteelBlue);
+	noticePanel->setTextFitPadding(20);
+	noticePanel->setTextSize(7);	
 
 	
 	PointableElementManager::getInstance()->registerElement(mainLayout);
@@ -307,6 +309,9 @@ void LeapStartScreen::layout(Leap::Vector pos, cv::Size2f size)
 
 	cv::Size2f buttonSize = cv::Size2f(size.width*.4f,size.height*.35f);
 	facebookLoginButton->layout(Vector((size.width-buttonSize.width)*.5f,size.height*.30f,0)+pos,buttonSize);
+
+	buttonSize = cv::Size2f(size.width*.3f,size.height*.15f);
+	noticePanel->layout(Vector((size.width-buttonSize.width)*.5f,size.height*.70f,0)+pos,buttonSize);
 	
 	//buttonSize = cv::Size2f(400,200);
 	//if (logoutButton->isVisible())
@@ -320,7 +325,7 @@ void LeapStartScreen::launchBrowser()
 	if (state != BrowserOpenState)
 	{		
 		facebookLoginButton->setDrawLoadAnimation(true);
-		facebookLoginButton->setText("Please login using the browser popup.");
+		facebookLoginButton->setText(GlobalConfig::tree()->get<string>("LeapStartScreen.BrowserLoginPrompt"));
 		facebookLoginButton->reloadText();
 
 		GlobalConfig::TestingToken = "";
@@ -331,15 +336,15 @@ void LeapStartScreen::launchBrowser()
 		CefBrowserSettings browserSettings;
 
 		CefWindowInfo info;
-		//float windowWidth = GlobalConfig::ScreenWidth;
-		//float windowHeight = GlobalConfig::ScreenHeight;
+		float windowWidth = GlobalConfig::ScreenWidth;
+		float windowHeight = GlobalConfig::ScreenHeight;
 
 
 	#if defined(_WIN32) // Windows
 		vector<HWND> myHandles = getToplevelWindows();			
 		info.SetAsPopup(0,"Login");
-		//info.width = 1000;
-		//info.height = 600;
+		info.width = (int)windowWidth;
+		info.height = (int)windowHeight;
 	#else			
 		info.SetAsOffScreen(0);
 	#endif
@@ -547,7 +552,11 @@ void LeapStartScreen::draw()
 		floatingPanelsView->draw();
 		mainLayout->draw();		
 		if (facebookLoginButton->isVisible())
+		{
 			facebookLoginButton->draw();
+			noticePanel->draw();
+		}
+
 	}
 
 	radialMenu->draw();

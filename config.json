@@ -5,13 +5,32 @@
 	},
 	"Typography" : 
 	{
-		"FontFile" : "../Roboto-Light.ttf", //Choose font
-		"FontScaleModifier" : 1.0,
+		"DebugRendering" : false,
+		"DebugImagePath" :  "C:\\Users\\Adam\\Desktop\\FontDebug\\",
+		"SubPixelTextRendering" : false,
 		"AdjustToScreenHeight" : true,
-		"SubPixelTextRendering" : false
+		"Fonts" : 
+		[
+			{
+				"Name" : "Default",
+				"FontFile" : "./Roboto-Light.ttf", 
+				"FontScaleModifier" : 1.0
+			},
+			{
+				"Name" : "Regular",
+				"FontFile" : "./Roboto-Regular.ttf",
+				"FontScaleModifier" : 1.0
+			},
+			{
+				"Name" : "Bold",
+				"FontFile" : "./Roboto-Bold.ttf",
+				"FontScaleModifier" : 1.0
+			}
+		]
 	},
 	"GraphicsSettings" :
 	{
+		"FSAASamples" : 0,
 		"ShaderDirectory" : ".",
 		"Fullscreen" : false,
 		"OverrideResolution" : false,
@@ -39,7 +58,7 @@
 	{
 		"TextureCacheSize" : 512, 		//Megabytes
 		"ImageCacheSize" : 768, 			//Megabytes		
-		"MaxImageSize" : 10,					//Megabytes
+		"MaxImageSize" : 50,					//Megabytes
 		"CacheGCFrequency" : 5000 ,//milliseconds		
 		"FullCacheGCFrequency" : 2000, //milliseconds
 		"TextureCacheGCCollectRatio" : 0.8,
@@ -48,9 +67,9 @@
 	},
 	"FakeDataMode" : 
 	{
-		"Enable" : true,
-		"SourceDataDirectory" : "/Users/adamskubel/Pictures" ,
-		"RequestDelay" : 100 ,//ms
+		"Enable" : false,
+		"SourceDataDirectory" : "C:\\Users\\Adam\\Pictures\\pixiv-win" ,
+		"RequestDelay" : 50 ,//ms
 		"MaxPhotos" : 2000,
 		"MaxAlbums" : 40,
 		"MaxFriends" : 1000
@@ -130,13 +149,29 @@
 		"TopRightButton" : true,
 		"WhiteBackground" : false,
 		"Height" : 100,
-		"TextColor" : 
+		"TextColor" :  {"R" : 240,"G" : 240,"B" : 240,"A" : 255},
+		"PrivacyInfo" : 
 		{
-			"R" : 255,
-			"G" : 255,
-			"B" : 255,
-			"A" : 255
-		}
+			"DialogHeight" : 800,
+			"DialogWidth" : 600,
+			"Text" : "This app does not collect or share private information. Facebook login is handled by an embedded browser; credentials are not stored by this application. Facebook access is used only to display photos and albums from you and your friends, and optionally, to post Likes to photos on your behalf.",
+			"TextColor" :  {"R" : 240,"G" : 240,"B" : 240,"A" : 255},
+			"BackgroundColor" :  {"R" : 20,"G" : 20,"B" : 20,"A" : 220},
+			"BorderColor" :  {"R" : 240,"G" : 240,"B" : 240,"A" : 240},
+			"BorderThickness" : 2,
+			"TextSize" : 6,
+			"TextAlignment" : 0,
+			"TextPadding" : 4,
+			"DismissButton" : 
+			{
+				"Text" : "Back",
+				"TextSize" : 7,
+				"TextColor" :  {"R" : 240,"G" : 240,"B" : 240,"A" : 255},
+				"BackgroundColor" :  {"R" : 30,"G" : 30,"B" : 30,"A" : 240},
+				"BorderColor" :  {"R" : 240,"G" : 240,"B" : 240,"A" : 240},
+				"BorderThickness" : 2
+			}
+		}		
 	},
 	"Leap" : 
 	{
@@ -172,27 +207,40 @@
 	},
 	"ImageDetailView" :
 	{
-		"LimitResize" : false,
+		"Resize" :
+		{
+			"MaxTouchDistance" : 0.9,
+			"LimitToScreen" :true
+		},
 		"AllowSwipeDownExit" : false,
 		"MaxCommentLength" : 180,		
 		"Comment" : 
 		{
 			"FontSize" : 8,
-			"TextColor" : 	
-			{
-				"R" : 255,
-				"G" : 255,
-				"B" : 255,
-				"A" : 150
-			}
-		}
+			"TextColor" : 	{"R" : 240,"G" : 240,"B" : 240,"A" : 150}
+		},
+		"LikeButton" : 
+		{
+			"Background" : { "R" : 0,"G" : 0,"B" : 0,"A" : 0},		
+			"TextColor" : { "R" : 240,"G" : 240,"B" : 240,"A" : 255},		
+			"BorderColor" : { "R" : 240,"G" : 240,"B" : 240,"A" : 255},		
+			"BorderThickness" : 2,
+			"TextSize" : 6
+		}	
 	},
 	"ScrollView" : 
 	{		
+		"LoadingBarThickness" : 0,
 		"AllowScrollCancelGesture" : false,
 		"MaxScrollDistance" : 3200, //Max number of pixels to scroll in a single swipe
 		"MinScrollDistance" : 2500, //Min number of pixels to scroll in a single swipe
 		"ScrollSpeedFactor" : 2.5 //Ratio of swipe gesture speed to scrolling distance
+	},
+	"LeapStartScreen" :
+	{
+		"StartButtonText" : "Login to Facebook to start exploring!",
+		"BrowserLoginPrompt" : "Please login using the browser window",
+		"InternetNotice" : "The above button will open Facebook in a browser window; please login using this window to continue. Note that this application will require an internet connection throughout its use."
 	},
 	"FriendDetailView" :
 	{ 
@@ -294,9 +342,10 @@
 		},
 		"Labels" :
 		{
-			"FontSize" : 3.5,
+			"FontSize" : 4,
+			"FontName" : "Regular",
 			"TextPadding" : 5.0,
-			"SwipeGesture" : "Swipe Left/Right",
+			"SwipeGesture" : "Swipe Left or Right",
 			"PointGesture" : "Hover or tap to select",
 			"PointStopGesture" : "Point to stop",
 			"ShakeGesture" : "Shake to go back",
@@ -309,34 +358,10 @@
 				"A" : 150
 			}
 		},
-		"Background" : 
-		{
-			"R" : 200,
-			"G" : 200,
-			"B" : 200,
-			"A" : 0
-		},		
-		"TextBackground" : 
-		{
-			"R" : 0,	
-			"G" : 0,
-			"B" : 0,
-			"A" : 0
-		},
-		"TextColor" : 
-		{
-			"R" : 0,
-			"G" : 0,
-			"B" : 0,
-			"A" : 150
-		},
-		"InvertedTextColor" : 
-		{
-			"R" : 255,
-			"G" : 255,
-			"B" : 255,
-			"A" : 150
-		},
+		"Background" :  {"R" : 200,"G" : 200,"B" : 200,"A" : 0},		
+		"TextBackground" :     {     "R" : 0,      "G" : 0,     "B" : 0,     "A" : 0    },    
+		"TextColor" :     {     "R" : 0,     "G" : 0,     "B" : 0,     "A" : 255    },    
+		"InvertedTextColor" :     {     "R" : 200,     "G" : 200,     "B" : 200,     "A" : 255    },
 		"AspectRatio" : 1.4,
 		"Height" : 100, //Pixels - ADJUST TUTORIAL HEIGHT
 		"Enabled" : true

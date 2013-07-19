@@ -272,9 +272,9 @@ void Panel::fitPanelToBoundary(Vector targetPosition, float maxWidth, float maxH
 
 	TexturePanel::setTextureWindow(Vector(),Vector(1,1,1));
 
-	if (!fill && (maxWidth > textureWidth || maxHeight > textureHeight))
+	if (!fill)// && (maxWidth < textureWidth || maxHeight < textureHeight))
 	{		
-		setDetailLevel(LevelOfDetail_Types::Full);
+		//setDetailLevel(LevelOfDetail_Types::Full);
 
 		float xScale = maxWidth/textureWidth;
 		float yScale = maxHeight/textureHeight;
@@ -300,7 +300,7 @@ void Panel::fitPanelToBoundary(Vector targetPosition, float maxWidth, float maxH
 	}
 	else
 	{		
-		setDetailLevel(LevelOfDetail_Types::Preview);
+		//setDetailLevel(LevelOfDetail_Types::Preview);
 	}
 			
 	int expandAnimTime = 200, shrinkAnimTime = 200;

@@ -11,7 +11,13 @@
 RadialMenu * RadialMenu::instance = NULL;
 
 RadialMenu::RadialMenu(vector<RadialMenuItem> & items)
-{		
+{			
+	items.push_back(RadialMenuItem("Exit and Logout","logout", Colors::DarkRed));
+	items.push_back(RadialMenuItem("Exit Photo Explorer","exit",Colors::OrangeRed));
+	items.push_back(RadialMenuItem("Hide Tutorial","hide_tutorial", Colors::DarkTurquoise));
+	items.push_back(RadialMenuItem("Privacy Information","show_privacy_info", Colors::DodgerBlue));
+	items.push_back(RadialMenuItem("Back","cancel",Colors::SkyBlue));
+
 	menuLaunchButton = new ImageButton(GlobalConfig::tree()->get<string>("Menu.OpenMenuImage"),GlobalConfig::tree()->get<string>("Menu.OpenMenuOverlay"));	
 	addChild(menuLaunchButton);
 	menuLaunchButton->elementClickedCallback = [this](LeapElement * clicked){
@@ -21,12 +27,58 @@ RadialMenu::RadialMenu(vector<RadialMenuItem> & items)
 			this->show();
 		}
 	};
-	//((ImagePanel*)menuLaunchButton)->setBackgroundColor(Colors::HoloBlueDark.withAlpha(.5f));
 
-	setItems(items);
+	TextPanel * privacyInfoText = new TextPanel(GlobalConfig::tree()->get<string>("Menu.PrivacyInfo.Text"));
+	privacyInfoText->setTextSize(GlobalConfig::tree()->get<float>("Menu.PrivacyInfo.TextSize"));
+	privacyInfoText->setTextColor(Color(GlobalConfig::tree()->get_child("Menu.PrivacyInfo.TextColor")));
+	privacyInfoText->setBackgroundColor(Color(GlobalConfig::tree()->get_child("Menu.PrivacyInfo.BackgroundColor")));
+	privacyInfoText->setBorderColor(Color(GlobalConfig::tree()->get_child("Menu.PrivacyInfo.BorderColor")));
+	privacyInfoText->setBorderThickness(GlobalConfig::tree()->get<float>("Menu.PrivacyInfo.BorderThickness"));
+	privacyInfoText->setTextFitPadding(GlobalConfig::tree()->get<float>("Menu.PrivacyInfo.TextPadding"));
+	privacyInfoText->setTextAlignment(GlobalConfig::tree()->get<int>("Menu.PrivacyInfo.TextAlignment"));
+	privacyInfoText->reloadText();
+
+
+	Button * dismissDialogButton = new Button(GlobalConfig::tree()->get<string>("Menu.PrivacyInfo.DismissButton.Text"));
+	dismissDialogButton->setTextSize(GlobalConfig::tree()->get<float>("Menu.PrivacyInfo.DismissButton.TextSize"));
+	dismissDialogButton->setTextColor(Color(GlobalConfig::tree()->get_child("Menu.PrivacyInfo.DismissButton.TextColor")));
+	dismissDialogButton->setBackgroundColor(Color(GlobalConfig::tree()->get_child("Menu.PrivacyInfo.DismissButton.BackgroundColor")));
+	dismissDialogButton->setBorderColor(Color(GlobalConfig::tree()->get_child("Menu.PrivacyInfo.DismissButton.BorderColor")));
+	dismissDialogButton->setBorderThickness(GlobalConfig::tree()->get<float>("Menu.PrivacyInfo.DismissButton.BorderThickness"));
+	dismissDialogButton->elementClickedCallback = [this](LeapElement * clicked){
+
+		if (this->state == MenuState_ShowingDialog)
+		{
+			this->state = MenuState_DisplayFull;
+			this->layout(lastPosition,lastSize);
+		}
+
+	};
+
+	
+	vector<RowDefinition> gridDefinition;	
+	gridDefinition.push_back(RowDefinition(.8f));
+	gridDefinition.push_back(RowDefinition(.2f));
+	gridDefinition[0].ColumnWidths.push_back(1);
+	gridDefinition[1].ColumnWidths.push_back(1);
+
+	CustomGrid * privacyInfoGrid = new CustomGrid(gridDefinition);
+	((ViewGroup*)privacyInfoGrid)->addChild(privacyInfoText);	
+	((ViewGroup*)privacyInfoGrid)->addChild(dismissDialogButton);
+	
+	privacyInfoBox = privacyInfoGrid; //new ContentPanel(privacyInfoGrid);
+
+	
+	cv::Size2f dialogSize = cv::Size2f(GlobalConfig::tree()->get<float>("Menu.PrivacyInfo.DialogWidth"),GlobalConfig::tree()->get<float>("Menu.PrivacyInfo.DialogHeight"));
+	//((ContentPanel*)privacyInfoBox)->layout(Vector(),dialogSize);
+	privacyInfoBox->setVisible(false);
 
 	state = MenuState_ButtonOnly;
 	instance = this;
+	
+	setItems(items);
+
+	blurWasEnabled = false;
 }
 
 void RadialMenu::setItems(vector<RadialMenuItem> & items)
@@ -51,6 +103,7 @@ void RadialMenu::setItems(vector<RadialMenuItem> & items)
 		};
 		addChild(item);
 	}	
+	addChild(privacyInfoBox);
 	addChild(menuLaunchButton);
 	layoutDirty = true;
 }
@@ -61,6 +114,10 @@ LeapElement * RadialMenu::elementAtPoint(int x, int y, int & _state)
 	if (state == MenuState_DisplayFull)
 	{
 		return ViewGroup::elementAtPoint(x,y,_state);
+	}
+	else if (state == MenuState_ShowingDialog)
+	{
+		return privacyInfoBox->elementAtPoint(x,y,state);
 	}
 	else
 	{
@@ -76,10 +133,57 @@ float RadialMenu::getZValue()
 
 void RadialMenu::itemClicked(string id)
 {
-	if (ItemClickedCallback(id))
+	if (id.compare("cancel") == 0)
 	{
-		dismiss();
-	}	
+		this->dismiss();
+	}
+	else if (id.compare("show_privacy_info") == 0)
+	{
+		state = MenuState_ShowingDialog;
+		privacyInfoBox->setVisible(true);
+		layout(lastPosition,lastSize);
+	}
+	//else if (id.compare("hide_tutorial") == 0)
+	//{
+	//	GlobalConfig::tree()->put<bool>("Tutorial.Enabled",false);
+	//	vector<string> x;
+	//	LeapDebug::instance->setTutorialImages(x);
+
+	//	vector<RadialMenuItem> items;
+	//	items.push_back(RadialMenuItem("Exit and Logout","logout", Colors::DarkRed));
+	//	items.push_back(RadialMenuItem("Exit Photo Explorer","exit",Colors::OrangeRed));
+	//	items.push_back(RadialMenuItem("Show Tutorial","show_tutorial", Colors::DarkTurquoise));
+	//	items.push_back(RadialMenuItem("Privacy Information","show_privacy_info", Colors::DeepSkyBlue));
+	//	items.push_back(RadialMenuItem("Cancel","cancel",Colors::SkyBlue));
+	//	setItems(items);
+	//	layout(lastPosition,lastSize);
+	//}
+	//else if (id.compare("show_tutorial") == 0)
+	//{
+	//	GlobalConfig::tree()->put<bool>("Tutorial.Enabled",true);
+	//	vector<string> x;
+	//	x.push_back("point_inv");
+	//	x.push_back("shake_inv");
+	//	LeapDebug::instance->setTutorialImages(x);
+	//			
+	//	vector<RadialMenuItem> items;
+	//	items.push_back(RadialMenuItem("Exit and Logout","logout", Colors::DarkRed));
+	//	items.push_back(RadialMenuItem("Exit Photo Explorer","exit",Colors::OrangeRed));
+	//	items.push_back(RadialMenuItem("Hide Tutorial","hide_tutorial", Colors::DarkTurquoise));
+	//	items.push_back(RadialMenuItem("Privacy Information","show_privacy_info", Colors::DeepSkyBlue));
+	//	items.push_back(RadialMenuItem("Cancel","cancel",Colors::SkyBlue));
+	//	setItems(items);
+	//	layout(lastPosition,lastSize);
+	//}
+	else
+	{
+		GraphicsContext::getInstance().invokeGlobalAction(id);
+		this->dismiss();
+	}
+	//else if (ItemClickedCallback(id))
+	//{
+	//	dismiss();
+	//}	
 }
 
 void RadialMenu::layout(Vector pos, cv::Size2f size)
@@ -103,9 +207,23 @@ void RadialMenu::layout(Vector pos, cv::Size2f size)
 
 		for (auto it = children.begin(); it != children.end(); it++)
 		{			
+			if ((*it) == privacyInfoBox)
+				continue;
+
 			(*it)->layout(center + Vector(-childSize.width/2.0f,offset*spacing,0),childSize);
 			offset += 1.0f;
 		}
+		
+		cv::Size2f dialogSize = cv::Size2f(GlobalConfig::tree()->get<float>("Menu.PrivacyInfo.DialogWidth"),GlobalConfig::tree()->get<float>("Menu.PrivacyInfo.DialogHeight"));
+
+		privacyInfoBox->layout(pos + Vector((size.width - dialogSize.width)*.5f,size.height*1.2f,0), dialogSize);
+	}
+	else if (state == MenuState_ShowingDialog)
+	{
+		cv::Size2f dialogSize = cv::Size2f(GlobalConfig::tree()->get<float>("Menu.PrivacyInfo.DialogWidth"),GlobalConfig::tree()->get<float>("Menu.PrivacyInfo.DialogHeight"));
+
+		privacyInfoBox->layout(pos + Vector(size.width - dialogSize.width,size.height - dialogSize.height,0)*.5f,dialogSize);
+
 	}
 	else if (state == MenuState_ButtonOnly) 
 	{
@@ -124,6 +242,7 @@ void RadialMenu::show()
 {
 	state = MenuState_DisplayFull;
 	PointableElementManager::getInstance()->requestGlobalGestureFocus(this);
+	blurWasEnabled = GraphicsContext::getInstance().BlurRenderEnabled;
 	GraphicsContext::getInstance().setBlurEnabled(true);
 	menuLaunchButton->setVisible(false);
 	layout(lastPosition,lastSize);
@@ -133,7 +252,8 @@ void RadialMenu::dismiss()
 {
 	state = MenuState_ButtonOnly;
 	PointableElementManager::getInstance()->releaseGlobalGestureFocus(this);
-	GraphicsContext::getInstance().setBlurEnabled(false);	
+	if (!blurWasEnabled)
+		GraphicsContext::getInstance().setBlurEnabled(false);	
 	menuLaunchButton->setVisible(true);
 	layout(lastPosition,lastSize);
 }
@@ -142,7 +262,13 @@ void RadialMenu::onGlobalGesture(const Controller & controller, std::string gest
 {
 	if (gestureType.compare("shake") == 0)
 	{
-		dismiss();
+		if (state == MenuState_ShowingDialog)
+		{
+			state = MenuState_DisplayFull;
+			layout(lastPosition,lastSize);
+		}
+		else
+			dismiss();
 	}
 }
 
@@ -164,28 +290,27 @@ bool RadialMenu::onLeapGesture(const Controller & controller, const Gesture & ge
 
 void RadialMenu::getTutorialDescriptor(vector<string> & tutorial)
 {
-	tutorial.push_back("shake_inv");
 	tutorial.push_back("point_inv");
+	tutorial.push_back("shake_inv");
 }
 
 void RadialMenu::draw()
-{
-	if (state == MenuState_DisplayFull)
-	{
-		if (!GraphicsContext::getInstance().IsBlurCurrentPass)
-		{		
-			ViewGroup::draw();				
-		}
-		else
+{	
+	if (!GraphicsContext::getInstance().IsBlurCurrentPass)
+	{		
+		if (state == MenuState_DisplayFull || state == MenuState_ShowingDialog)
 		{
-			GraphicsContext::getInstance().requestClearDraw([this](){this->draw();});
+			ViewGroup::draw();	
 		}
+		else if (state == MenuState_ButtonOnly) 
+		{
+			menuLaunchButton->draw();
+		}			
 	}
-	else if (state == MenuState_ButtonOnly) 
+	else
 	{
-		menuLaunchButton->draw();
+		GraphicsContext::getInstance().requestClearDraw([this](){this->draw();});
 	}
-
 }
 
 

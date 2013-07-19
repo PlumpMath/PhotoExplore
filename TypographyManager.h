@@ -13,11 +13,73 @@
 
 using namespace std;
 
+class TextDefinition {
+	
+private:
+	std::string key;
+
+public:	
+	const std::string text;
+	const Color textColor;
+	const float fontSize;
+	const cv::Size2f textWrapSize;
+
+	TextDefinition() : 
+		fontSize(0)
+	{		
+	}
+
+	TextDefinition(TextDefinition & copy) : 
+		text(copy.text),
+		textColor(copy.textColor),
+		fontSize(copy.fontSize),
+		textWrapSize(copy.textWrapSize),
+		key(copy.key)
+	{		
+	}
+
+	TextDefinition(std::string _text, Color _textColor, float _textSize, cv::Size2f _textWrapSize) :
+		text(_text),
+		textColor(_textColor),
+		fontSize(_textSize),
+		textWrapSize(_textWrapSize)
+	{
+		std::stringstream ss;
+		ss << _text << _textColor.idValue() << _textSize << _textWrapSize.width << _textWrapSize.height;
+		key = ss.str();
+	}
+
+public:
+	std::string getKey()
+	{
+		return key;
+	}
+};
+
+struct TextLayoutConfig {
+		
+	const static int LeftAligned = 0;
+	const static int CenterAligned = 1;
+	//const static int LeftAligned = 2;
+
+	TextLayoutConfig(int _alignment, float _maxLineWidth) :
+		alignment(_alignment),
+		maxLineWidth(_maxLineWidth)
+	{
+
+	}
+
+	int maxLineWidth;
+	int alignment;
+
+};
+
+
 class TypographyManager {
 
 private:
 	FT_Library fontLibrary;
-	FT_Face fontFace;
+	map<string,FT_Face> fontFaceMap;
 	static TypographyManager * instance;
 	bool freetypeInitialized;
 		
@@ -40,15 +102,14 @@ private:
 	void init();
 
 	void computeBoundingBox(FT_BBox & bbox, FT_Glyph * glyphArray, cv::Point2i * pos, int numGlyphs);
-	void computeGlyphs(string text, cv::Point2i * pos, FT_Glyph * glyphs, int & numGlyphs);
-	void computeGlyphs_wrap(string text, cv::Point2i * pos, int wrapWidth, int fontSize, FT_Glyph * glyphs, int & numGlyphs);
+	void computeGlyphs(string text, FT_Face fontFace, cv::Point2i * pos, int fontSize, FT_Glyph * glyphs, int & numGlyphs, TextLayoutConfig & config);
 	void drawBitmapToMatrix(cv::Mat & matrix, FT_Bitmap & glyphBitmap, cv::Point2i topLeft, Color textColor);
 
-	cv::Mat renderTextFreeType(std::string text, int fontSize, Color textColor, float targetWrapWidth);
+	cv::Mat renderTextFreeType(std::string text, FT_Face fontFace, int fontSize, Color textColor, TextLayoutConfig & config);
 
 public:
 
-	cv::Mat renderText(std::string text, Color textColor, float fontScale, cv::Size2f targetSize);
+	cv::Mat renderText(std::string text, string fontName, Color textColor, float fontScale, TextLayoutConfig & config);
 };
 
 

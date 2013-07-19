@@ -62,9 +62,12 @@ void FriendDetailView::loadItems(int albums, int photos)
 
 			FriendDetailView * v2 = v;
 			v->postTask([v2,_node](){
-
+						
 				if (v2->activeNode == _node)
+				{
+					v2->itemScroll->setDrawLoadingIndicator(0,Colors::Transparent);
 					v2->updateLoading();
+				}
 			});
 		});
 	}
@@ -139,10 +142,10 @@ void FriendDetailView::updateLoading()
 				{
 					loadItems(loadAlbums,loadPhotos);
 					if (imageGroup->getMeasuredSize().width > itemScroll->getMeasuredSize().width)
-						itemScroll->setDrawLoadingIndicator(2,Colors::SteelBlue);
+						itemScroll->setDrawLoadingIndicator(1,Colors::DimGray);
 				}
 				else  if (imageGroup->getMeasuredSize().width > itemScroll->getMeasuredSize().width)				
-					itemScroll->setDrawLoadingIndicator(1,Colors::DarkRed);
+					itemScroll->setDrawLoadingIndicator(0,Colors::DarkRed);
 
 				break;
 			}
@@ -187,9 +190,9 @@ bool FriendDetailView::onLeapGesture(const Controller & controller, const Gestur
 
 void FriendDetailView::getTutorialDescriptor(vector<string> & tutorial)
 {
-	tutorial.push_back("shake");
-	tutorial.push_back("point_stop");
 	tutorial.push_back("swipe");
+	tutorial.push_back("point_stop");
+	tutorial.push_back("shake");
 }
 
 void FriendDetailView::show(FBNode * root)

@@ -12,6 +12,7 @@ private:
 
 public:
 	ImagePanel(string imagePath);
+	ImagePanel(string imagePath, cv::Size2f panelSize);
 	void resourceUpdated(ResourceData * data);
 };
 

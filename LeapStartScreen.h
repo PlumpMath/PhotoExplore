@@ -85,6 +85,7 @@ private:
 
 
 	TextPanel * facebookLoginButton;
+	TextPanel * noticePanel;
 	Button * logoutButton;
 	CustomGrid * mainLayout;
 	View * rootView; 

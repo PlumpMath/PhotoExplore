@@ -60,7 +60,7 @@ public:
 
 	static Vector FindScreenPoint(const Controller & c, Pointable pointable, bool make2D = !false)
 	{
-		Screen screen;
+		Screen screen = c.calibratedScreens()[0];
 		return FindScreenPoint(c, pointable, screen, make2D);
 	}
 
@@ -89,52 +89,59 @@ public:
 
 	static Vector FindNormalizedScreenPoint(const Controller & c, Vector position, Vector direction, Screen & screen)
 	{
-		if (GlobalConfig::PreferredScreenIndex() < 0)
-			screen = c.calibratedScreens().closestScreenHit(position,direction);
-		else
-			screen = c.calibratedScreens()[GlobalConfig::PreferredScreenIndex()];
-
-		return screen.intersect(position,direction, true);
-	}
-
-	static Screen ClosestScreen(const Controller & c, Vector position)
-	{
-		if (GlobalConfig::PreferredScreenIndex() < 0)
-			return c.calibratedScreens().closestScreen(position);
-		else
-			return c.calibratedScreens()[GlobalConfig::PreferredScreenIndex()];
-	}
-
-
-	static Vector FindClosestNormalizedScreenPoint(const Controller & c, Vector position, Screen & screen)
-	{
-		if (GlobalConfig::PreferredScreenIndex() < 0)
-			screen = c.calibratedScreens().closestScreen(position);
-		else
-			screen = c.calibratedScreens()[GlobalConfig::PreferredScreenIndex()];
-
-		return screen.project(position, true);
-	}
-
-
-	static Vector FindClosestScreenPoint(const Controller & c, Vector point, bool make2D = !false)
-	{
-		Screen screen;
-		Vector screenPoint = FindClosestNormalizedScreenPoint(c, point, screen);
-
-		if (make2D)
+		if (GlobalConfig::tree()->get<bool>("Leap.UseLegacyScreenAPI",false))
 		{
-			float x = screen.widthPixels() * screenPoint.x;
-			float y = screen.heightPixels() * (1.0f - screenPoint.y);
-			return Vector(x, y, 0);
+			if (GlobalConfig::PreferredScreenIndex() < 0)
+				screen = c.calibratedScreens().closestScreenHit(position,direction);
+			else
+				screen = c.calibratedScreens()[GlobalConfig::PreferredScreenIndex()];
+					
+			return screen.intersect(position,direction, true);
 		}
 		else
 		{
-			float x = screen.widthPixels() * screenPoint.x;
-			float y = screen.heightPixels() * screenPoint.y;
-			return Vector(x, y, 0);
+			return c.frame().interactionBox().normalizePoint(position);
 		}
 	}
+
+	//static Screen ClosestScreen(const Controller & c, Vector position)
+	//{
+	//	if (GlobalConfig::PreferredScreenIndex() < 0)
+	//		return c.calibratedScreens().closestScreen(position);
+	//	else
+	//		return c.calibratedScreens()[GlobalConfig::PreferredScreenIndex()];
+	//}
+
+
+	//static Vector FindClosestNormalizedScreenPoint(const Controller & c, Vector position, Screen & screen)
+	//{
+	//	if (GlobalConfig::PreferredScreenIndex() < 0)
+	//		screen = c.calibratedScreens().closestScreen(position);
+	//	else
+	//		screen = c.calibratedScreens()[GlobalConfig::PreferredScreenIndex()];
+
+	//	return screen.project(position, true);
+	//}
+
+
+	//static Vector FindClosestScreenPoint(const Controller & c, Vector point, bool make2D = !false)
+	//{
+	//	Screen screen;
+	//	Vector screenPoint = FindClosestNormalizedScreenPoint(c, point, screen);
+
+	//	if (make2D)
+	//	{
+	//		float x = screen.widthPixels() * screenPoint.x;
+	//		float y = screen.heightPixels() * (1.0f - screenPoint.y);
+	//		return Vector(x, y, 0);
+	//	}
+	//	else
+	//	{
+	//		float x = screen.widthPixels() * screenPoint.x;
+	//		float y = screen.heightPixels() * screenPoint.y;
+	//		return Vector(x, y, 0);
+	//	}
+	//}
 
 
 	static Vector GetHandPlaneProjection(Vector point, Hand hand)

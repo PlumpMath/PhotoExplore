@@ -158,40 +158,6 @@ void PointableElementManager::processInputEvents()
 
 }
 
-
-//void PointableElementManager::getRoutingStack(LeapElement * element, stack<LeapElement*> & result)
-//{
-//	while (element->getParent() != NULL)
-//	{
-//		result.push(element->getParent());
-//		element = element->getParent();
-//	}
-//}
-//
-//void PointableElementManager::callEvent(LeapElement * element, Pointable & pointable, int eventType)
-//{
-//	stack<LeapElement*> routingStack;
-//	getRoutingStack(element,routingStack);
-//
-//	while (!routingStack.empty())
-//	{
-//		bool intercepted = false;
-//		switch (eventType)
-//		{
-//		case EnterEvent:
-//			intercepted = routingStack.top()->interceptPointableEnter(element, pointable);
-//			break;
-//		case ExitEvent:
-//			intercepted = routingStack.top()->interceptPointableExit(element,pointable);
-//			break;
-//		}
-//		routingStack.pop();
-//		
-//		if (intercepted)
-//			break;		
-//	}
-//}
-
 void PointableElementManager::processFrame(const Controller & controller, Frame frame)
 {
 	static bool showRawPointable = GlobalConfig::tree()->get<bool>("Leap.PointablePositionFilter.ShowRaw");
@@ -273,7 +239,7 @@ void PointableElementManager::processFrame(const Controller & controller, Frame 
 			}
 		}
 		
-		Screen screen;
+		Screen screen = controller.calibratedScreens()[0];
 		screenPoint = LeapHelper::FindScreenPoint(controller,testPointable.stabilizedTipPosition(),filteredScreenPoint,screen);
 
 		hit = RadialMenu::instance->elementAtPoint((int)screenPoint.x,(int)screenPoint.y,elementStateFlags);
@@ -370,8 +336,9 @@ void PointableElementManager::processFrame(const Controller & controller, Frame 
 			LeapDebug::instance->addDebugVisual(ldvRaw);
 		}
 
-		ldvNonDominant = new LeapDebugVisual(screenPoint,1,LeapDebugVisual::LiveForever,0,Colors::DarkGreen.withAlpha(.5f));
+		ldvNonDominant = new LeapDebugVisual(screenPoint,1,LeapDebugVisual::LiveForever,0,Colors::Black.withAlpha(.5f));
 		ldvNonDominant->depth=10;
+		ldvNonDominant->lineColor = Colors::MediumVioletRed;
 		LeapDebug::instance->addDebugVisual(ldvNonDominant);
 
 

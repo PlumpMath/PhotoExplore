@@ -66,6 +66,9 @@ GLuint attribute_v_coord_postproc[2], uniform_fbo_texture[2], uniformGaussScale[
 
 bool init( int window_width, int window_height, bool isFull)
 {
+
+	glfwOpenWindowHint(GLFW_FSAA_SAMPLES,GlobalConfig::tree()->get<int>("GraphicsSettings.FSAASamples"));
+
 	int handle = glfwOpenWindow(window_width, window_height, 8, 8, 8,8,8,2, (isFull) ? GLFW_FULLSCREEN : GLFW_WINDOW);
 
 	if (handle != GL_TRUE)
@@ -358,10 +361,10 @@ int WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmd
 #endif
 	settings.command_line_args_disabled = true;
 
-	//CefInitialize(mainArgs, settings, NULL);
+	CefInitialize(mainArgs, settings, NULL);
 	
-//	if (GlobalConfig::tree()->get<bool>("Cef.PersistentCookiesEnabled"))
-//		CefCookieManager::GetGlobalManager()->SetStoragePath(".",true);
+	if (GlobalConfig::tree()->get<bool>("Cef.PersistentCookiesEnabled"))
+		CefCookieManager::GetGlobalManager()->SetStoragePath(".",true);
 
 	if (GlobalConfig::tree()->get<bool>("FakeDataMode.Enable")) 
 		FBDataSource::instance = new FakeDataSource(GlobalConfig::tree()->get<string>("FakeDataMode.SourceDataDirectory"));

@@ -1,5 +1,6 @@
 #include "TexturePanel.h"
 #include "ResourceManager.h"
+#include <boost/property_tree/ptree.hpp>
 
 #ifndef TEXT_PANEL_H_
 #define TEXT_PANEL_H_
@@ -8,48 +9,6 @@
 
 
 
-class TextDefinition {
-	
-private:
-	std::string key;
-
-public:	
-	const std::string text;
-	const Color textColor;
-	const float fontSize;
-	const cv::Size2f textWrapSize;
-
-	TextDefinition() : 
-		fontSize(0)
-	{		
-	}
-
-	TextDefinition(TextDefinition & copy) : 
-		text(copy.text),
-		textColor(copy.textColor),
-		fontSize(copy.fontSize),
-		textWrapSize(copy.textWrapSize),
-		key(copy.key)
-	{		
-	}
-
-	TextDefinition(std::string _text, Color _textColor, float _textSize, cv::Size2f _textWrapSize) :
-		text(_text),
-		textColor(_textColor),
-		fontSize(_textSize),
-		textWrapSize(_textWrapSize)
-	{
-		std::stringstream ss;
-		ss << _text << _textColor.idValue() << _textSize << _textWrapSize.width << _textWrapSize.height;
-		key = ss.str();
-	}
-
-public:
-	std::string getKey()
-	{
-		return key;
-	}
-};
 
 
 class TextPanel : public TexturePanel, public IResourceWatcher {
@@ -62,11 +21,12 @@ private:
 	bool fitToText;
 	bool textDirty;
 	bool textEnabled;
+		
+	int textAlignment;
 
-	//TextDefinition * currentDefinition;
-	
 	cv::Mat currentTextImage;
 
+	string fontName;
 	void init();
 
 public:
@@ -90,6 +50,12 @@ public:
 	void setTextFitPadding(float textFitPadding);
 	float getTextFitPadding();
 	void setVisible(bool v);
+
+	int getTextAlignment();
+	void setTextAlignment(int alignment);
+
+	void setFontName(string fontName);
+	string getFontName();
 
 	void layout(Vector position, cv::Size2f size);
 

@@ -40,12 +40,17 @@ private:
 	int state;
 
 	View * menuLaunchButton;
+
+	View * privacyInfoBox;
+
+	bool blurWasEnabled;
 	
 public:		
 	static RadialMenu * instance;
 
 	const static int MenuState_ButtonOnly = 0;
 	const static int MenuState_DisplayFull= 1;
+	const static int MenuState_ShowingDialog = 2;
 
 	vector<RadialMenuItem> items;
 
