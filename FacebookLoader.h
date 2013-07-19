@@ -4,6 +4,7 @@
 #include "FBNode.h"
 #include "Types.h"
 #include "LeapHelper.h"
+#include <exception>
 
 #include <boost/function.hpp>
 
@@ -259,7 +260,8 @@ public:
 
 	void load(FBNode * parent, string objectId, string edge)
 	{
-		throw std::exception("Not implemented!");
+//		std::exception e;// = std::exception("Not implemented!");
+//		e.what
 		//CefRefPtr<JSONDownloadTask> newTask = new JSONDownloadTask(objectId,edge,parent);
 		//newTask->AddRef();
 		//CefTaskRunner::GetForThread(TID_IO).get()->PostTask(newTask.get());

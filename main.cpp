@@ -143,6 +143,9 @@ GLuint createShader(string filename,GLenum type)
     ss << inf.rdbuf();
 	inf.close();
 
+	Logger::stream("MAIN","INFO") << "Compiling shader: " << ss.str() << endl;
+	//fprintf(stderr, "Compiling shader %s\n",ss.str().c_str());
+	
 	string vsStr = ss.str();
 	int vsLength = vsStr.length();
 	const GLchar * vs_char = (const GLchar*)vsStr.c_str();
@@ -204,10 +207,12 @@ int initShaders()
 	glBindBuffer(GL_ARRAY_BUFFER, vbo_fbo_vertices);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(fbo_vertices), fbo_vertices, GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	
+	string shaderDir = GlobalConfig::tree()->get<string>("GraphicsSettings.ShaderDirectory");
 
-	if ((verticalBlur = createShader("VBlurVertexShader.glsl", GL_VERTEX_SHADER))   == 0) return 0;
-	if ((horizontalBlur = createShader("HBlurVertexShader.glsl", GL_VERTEX_SHADER)) == 0) return 0;
-	if ((blurFragment = createShader("BlurFragmentShader.glsl", GL_FRAGMENT_SHADER)) == 0) return 0;
+	if ((verticalBlur = createShader(shaderDir + "/VBlurVertexShader.glsl", GL_VERTEX_SHADER))   == 0) return 0;
+	if ((horizontalBlur = createShader(shaderDir + "/HBlurVertexShader.glsl", GL_VERTEX_SHADER)) == 0) return 0;
+	if ((blurFragment = createShader(shaderDir + "/BlurFragmentShader.glsl", GL_FRAGMENT_SHADER)) == 0) return 0;
 	
 	blurPrograms[0] = glCreateProgram();
 	glAttachShader(blurPrograms[0], verticalBlur);
@@ -332,9 +337,15 @@ public:
 
 };
 
+#ifdef _WIN32
 
 int WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmdShow) 
 { // int argc, char* argv[] ){
+#else
+	int main(int argc, char * argv[]){
+	
+#endif
+
 	
 	CefMainArgs mainArgs;
 	CefSettings settings;
@@ -347,10 +358,10 @@ int WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmd
 #endif
 	settings.command_line_args_disabled = true;
 
-	CefInitialize(mainArgs, settings, NULL);
+	//CefInitialize(mainArgs, settings, NULL);
 	
-	if (GlobalConfig::tree()->get<bool>("Cef.PersistentCookiesEnabled"))
-		CefCookieManager::GetGlobalManager()->SetStoragePath(".",true);
+//	if (GlobalConfig::tree()->get<bool>("Cef.PersistentCookiesEnabled"))
+//		CefCookieManager::GetGlobalManager()->SetStoragePath(".",true);
 
 	if (GlobalConfig::tree()->get<bool>("FakeDataMode.Enable")) 
 		FBDataSource::instance = new FakeDataSource(GlobalConfig::tree()->get<string>("FakeDataMode.SourceDataDirectory"));
@@ -385,7 +396,7 @@ int WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmd
 	//if (!GlobalConfig::tree()->get<bool>("GraphicsSettings.Fullscreen"))
 	//GlobalConfig::ScreenHeight -= GlobalConfig::tree()->get<float>("Menu.Height");
 
-	GlobalConfig::getInstance().putValue("FontScale",min<float>(GlobalConfig::ScreenWidth/2560.0f,GlobalConfig::ScreenHeight/1440.0f));
+//	GlobalConfig::getInstance().putValue("FontScale",min<float>(GlobalConfig::ScreenWidth/2560.0f,GlobalConfig::ScreenHeight/1440.0f));
 
     if(!init(GlobalConfig::ScreenWidth, GlobalConfig::ScreenHeight, GlobalConfig::tree()->get<bool>("GraphicsSettings.Fullscreen"))) return 1;
 

@@ -10,13 +10,13 @@ ViewOrchestrator * ViewOrchestrator::getInstance()
 	return ViewOrchestrator::instance;
 }
 
-View * ViewOrchestrator::requestView(string & viewIdentifier, ViewOwner * owner, bool & ownershipChanged)
+View * ViewOrchestrator::requestView(string viewIdentifier, ViewOwner * owner, bool & ownershipChanged)
 {
 	ownershipChanged = false;
 	return requestView(viewIdentifier, owner);
 }
 
-View * ViewOrchestrator::requestView(string & viewIdentifier, ViewOwner * owner)
+View * ViewOrchestrator::requestView(string viewIdentifier, ViewOwner * owner)
 {
 	auto v = viewCache.find(viewIdentifier);
 	if (v == viewCache.end())
@@ -37,7 +37,7 @@ View * ViewOrchestrator::requestView(string & viewIdentifier, ViewOwner * owner)
 	}
 }
 
-void ViewOrchestrator::registerView(string & viewIdentifier, View * view, ViewOwner * owner)
+void ViewOrchestrator::registerView(string viewIdentifier, View * view, ViewOwner * owner)
 {
 	auto v = viewCache.get<ViewIdIndex>().find(viewIdentifier);
 	if (v == viewCache.end())
@@ -61,7 +61,7 @@ void ViewOrchestrator::registerView(string & viewIdentifier, View * view, ViewOw
 	}
 }
 
-void ViewOrchestrator::releaseView(string & viewIdentifier)
+void ViewOrchestrator::releaseView(string viewIdentifier)
 {
 	 viewCache.get<ViewIdIndex>().erase(viewIdentifier);
 }

@@ -10,12 +10,12 @@ View::View()
 	enabled = true;
 }
 
-void View::setLayoutParams(cv::Size2f & _desiredSize)
+void View::setLayoutParams(cv::Size2f _desiredSize)
 {
 	this->desiredSize = _desiredSize;
 }
 
-void View::setLayoutParams(LayoutParams & _params)
+void View::setLayoutParams(LayoutParams _params)
 {
 	this->desiredSize = _params.size;
 	this->layoutParams = LayoutParams(_params);

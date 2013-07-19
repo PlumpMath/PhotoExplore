@@ -68,12 +68,12 @@ private:
 
 public:
 		
-	View * requestView(string & viewIdentifier, ViewOwner * owner, bool & ownershipChanged);
-	View * requestView(string & viewIdentifier, ViewOwner * owner);
+	View * requestView(string viewIdentifier, ViewOwner * owner, bool & ownershipChanged);
+	View * requestView(string viewIdentifier, ViewOwner * owner);
 
-	void registerView(string & viewIdentifier, View * view, ViewOwner * owner);
+	void registerView(string viewIdentifier, View * view, ViewOwner * owner);
 	
-	void releaseView(string & viewIdentifier);
+	void releaseView(string viewIdentifier);
 	void releaseView(View * view, ViewOwner * owner);
 
 };

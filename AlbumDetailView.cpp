@@ -43,7 +43,6 @@ AlbumDetailView::AlbumDetailView()
 }
 
 
-
 void AlbumDetailView::loadItems(int photos)
 {
 	int requestedPhotos = activeNode->loadState["photos"].requestedCount;

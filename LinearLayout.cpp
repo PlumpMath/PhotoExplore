@@ -12,7 +12,7 @@ void LinearLayout::measure(cv::Size2f & _measuredSize)
 	if (horizontal)
 	{	
 		if (_measuredSize.height == 0)
-			throw std::exception("Initial height must be provided");
+			throw std::runtime_error("Initial height must be provided");
 
 		float height = _measuredSize.height;
 
@@ -34,7 +34,7 @@ void LinearLayout::measure(cv::Size2f & _measuredSize)
 	}
 	else
 	{
-		throw std::exception("Vertical layout not yet implemented");
+		throw std::runtime_error("Vertical layout not yet implemented");
 	}
 }
 

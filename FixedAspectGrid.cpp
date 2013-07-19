@@ -24,7 +24,7 @@ void FixedAspectGrid::measure(cv::Size2f & _measuredSize)
 	if (columnFirst)
 	{	
 		if (_measuredSize.height == 0)
-			throw std::exception("Initial height must be provided");
+			throw std::runtime_error("Initial height must be provided");
 
 		float height = _measuredSize.height;
 		float cellHeight = height/gridDimensions.height;
@@ -57,7 +57,7 @@ void FixedAspectGrid::measure(cv::Size2f & _measuredSize)
 	}
 	else
 	{
-		throw std::exception("Row-first not yet implemented");
+		throw std::runtime_error("Row-first not yet implemented");
 	}
 }
 
@@ -77,7 +77,7 @@ void FixedAspectGrid::layout(Vector position, cv::Size2f _size)
 		if (index >= childSizes.size())
 		{
 			cout << "Error! More children than measurements." << endl;
-			throw std::exception("Error!");
+			throw std::runtime_error("Error!");
 		}
 		cv::Size2f childSize = childSizes.at(index++);
 		cv::Vec4f childPadding = (*it)->getLayoutParams().padding;

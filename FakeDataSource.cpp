@@ -1,11 +1,29 @@
 #include "FakeDataSource.hpp"
+#include "tinydir.h"
 
 FakeDataSource::FakeDataSource(string fakeDataPath)
 {
 	photoIndex = albumIndex = friendIndex = 0;
-	boost::filesystem::path fakePath = boost::filesystem::path(GlobalConfig::tree()->get<string>("FakeDataMode.SourceDataDirectory"));
-	copy(directory_iterator(fakePath), directory_iterator(), back_inserter(dirContents));
+//	boost::filesystem::path fakePath = boost::filesystem::path(
+	fakeDataPath = GlobalConfig::tree()->get<string>("FakeDataMode.SourceDataDirectory");
+//	copy(directory_iterator(fakePath), directory_iterator(), back_inserter(dirContents));
 
+	tinydir_dir dir;
+	tinydir_open(&dir, fakeDataPath.c_str());
+	
+	while (dir.has_next)
+	{
+		tinydir_file file;
+		tinydir_readfile(&dir, &file);
+
+		Logger::stream("FAKEDATA","INFO") << file.name << endl;
+		dirContents.push_back(boost::filesystem::path(file.path));
+		
+		tinydir_next(&dir);
+	}
+	
+	tinydir_close(&dir);
+	
 	new boost::thread([this](){
 		runThread(&taskMutex,&taskQueue);
 	});
@@ -124,7 +142,7 @@ void FakeDataSource::extractLimitOffset(string nodeQuery, string edge, int & lim
 	int limitPos = nodeQuery.find("limit(",photoPos);
 	if (limitPos == string::npos)
 	{
-		throw new std::exception("Needs limit");
+		throw new std::runtime_error("Needs limit");
 	}
 	int limitEnd = nodeQuery.find(")",limitPos);
 	limit = (int)atoi(nodeQuery.substr(limitPos+6,(limitPos+6)- limitEnd).c_str());

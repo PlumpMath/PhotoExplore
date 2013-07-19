@@ -183,7 +183,7 @@ void ShakeGestureDetector::calculateSignalMetrics(vector<double> & v, double & m
 	mean = sum / v.size();
 
 	double accum = 0.0;
-	std::for_each (std::begin(v), std::end(v), [&](const double d) {
+	std::for_each (v.begin(), v.end(), [&](const double d) {
 		accum += (d - mean) * (d - mean);
 	});
 

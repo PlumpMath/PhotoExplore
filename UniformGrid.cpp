@@ -45,7 +45,7 @@ cv::Rect_<int> UniformGrid::getHitRect()
 	return cv::Rect_<int>((int)lastPosition.x,(int)lastPosition.y,(int)lastSize.width,(int)lastSize.height);
 }
 
-void UniformGrid::resize(cv::Size2i & _gridDimensions)
+void UniformGrid::resize(cv::Size2i _gridDimensions)
 {
 	this->gridDimensions = _gridDimensions;
 	layout(lastPosition,lastSize);

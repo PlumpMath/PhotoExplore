@@ -1,17 +1,18 @@
 {
 	"Logging" : 
 	{
-		"Enabled" : false
+		"Enabled" : true
 	},
 	"Typography" : 
 	{
-		"FontFile" : "Roboto-Light.ttf", //Choose font
+		"FontFile" : "../Roboto-Light.ttf", //Choose font
 		"FontScaleModifier" : 1.0,
 		"AdjustToScreenHeight" : true,
 		"SubPixelTextRendering" : false
 	},
 	"GraphicsSettings" :
 	{
+		"ShaderDirectory" : ".",
 		"Fullscreen" : false,
 		"OverrideResolution" : false,
 		"OverrideWidth" : 1280,
@@ -47,8 +48,8 @@
 	},
 	"FakeDataMode" : 
 	{
-		"Enable" : false,
-		"SourceDataDirectory" : "C:\\Users\\Adam\\Pictures\\pixiv-win" ,
+		"Enable" : true,
+		"SourceDataDirectory" : "/Users/adamskubel/Pictures" ,
 		"RequestDelay" : 100 ,//ms
 		"MaxPhotos" : 2000,
 		"MaxAlbums" : 40,

@@ -19,7 +19,7 @@ TextureLoadTask::TextureLoadTask(std::string _resourceId, float _priority, cv::M
 	callback(_callback)
 {
 	if (cvImage.data == NULL || cvImage.size().area() == 0)
-		throw new std::exception("Invalid image");
+		throw new std::runtime_error("Invalid image");
 
 	sourceBuffer = NULL;
 	textureInfo.textureId = NULL;

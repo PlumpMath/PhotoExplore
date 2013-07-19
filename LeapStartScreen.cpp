@@ -284,13 +284,15 @@ void LeapStartScreen::onFrame(const Controller & controller)
 	else if (state == StartState)
 	{
 		Frame frame = controller.frame();
-
 		HandModel * handModel = HandProcessor::LastModel();
-		Vector pt = LeapHelper::FindScreenPoint(controller,frame.pointable(handModel->IntentFinger));
+		
+		Pointable intentPointable = frame.pointable(handModel->IntentFinger);
+		
+		Vector pt = LeapHelper::FindScreenPoint(controller,intentPointable);
 		int flags = 0;
 		LeapElement * element = floatingPanelsView->elementAtPoint((int)pt.x,(int)pt.y,flags);
 		if (element != NULL)
-			element->OnPointableEnter(frame.pointable(handModel->IntentFinger));
+			element->OnPointableEnter(intentPointable);
 
 	}
 

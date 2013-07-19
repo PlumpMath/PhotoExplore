@@ -138,26 +138,26 @@ vector<FBNode*>  DataViewGenerator::getDataView(FBNode * start, const NodeQueryS
 						}
 					}
 				}
-				
-				if (resultCount > 0)
-				{
-					long loadCount = layer->second.nodeCount+layer->second.offset;
-					//cout << "Not enough data, requesting edge: " << layer->first << " load to " << loadCount << endl;
-					
-					if (current->setLoadTarget(layer->first,loadCount))
-					{
-						current->childrenChangedCallback = [this](NodeBase * nb){
-							this->nodeUpdated((FBNode*)nb);
-						};
-						
-						viewCallbacks.insert(make_pair(current,[this,start,nodeQuery,callback](){
-							bool started;
-							callback(this->getDataView(start,nodeQuery,callback,started));
-						}));
-						current->startLoad();
-						loadStarted = true;
-					}
-				}
+//				
+//				if (resultCount > 0)
+//				{
+//					long loadCount = layer->second.nodeCount+layer->second.offset;
+//					//cout << "Not enough data, requesting edge: " << layer->first << " load to " << loadCount << endl;
+//					
+//					if (current->setLoadTarget(layer->first,loadCount))
+//					{
+//						current->childrenChangedCallback = [this](NodeBase * nb){
+//							this->nodeUpdated((FBNode*)nb);
+//						};
+//						
+//						viewCallbacks.insert(make_pair(current,[this,start,nodeQuery,callback](){
+//							bool started;
+//							callback(this->getDataView(start,nodeQuery,callback,started));
+//						}));
+//						current->startLoad();
+//						loadStarted = true;
+//					}
+//				}
 			}
 		}
 	}

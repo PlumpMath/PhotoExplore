@@ -26,19 +26,19 @@ struct LayoutParams {
 
 	}
 
-	LayoutParams(LayoutParams & copy) :
+	LayoutParams(const LayoutParams & copy) :
 		size(copy.size),
 		padding(copy.padding)
 	{
 	}
 
 
-	LayoutParams(cv::Size2f & _size) :
+	LayoutParams(cv::Size2f _size) :
 		size(_size)
 	{
 	}
 
-	LayoutParams(cv::Size2f & _size, cv::Vec4f & _padding) :
+	LayoutParams(cv::Size2f _size, cv::Vec4f _padding) :
 		size(_size),
 		padding(_padding)
 	{
@@ -67,8 +67,8 @@ protected:
 public:
 	View();
 
-	virtual void setLayoutParams(cv::Size2f & desiredSize);
-	virtual void setLayoutParams(LayoutParams & params);
+	virtual void setLayoutParams(cv::Size2f desiredSize);
+	virtual void setLayoutParams(LayoutParams params);
 
 	LayoutParams getLayoutParams();
 

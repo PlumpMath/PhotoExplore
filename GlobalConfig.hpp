@@ -52,16 +52,6 @@ public:
 
 	void loadConfigFile(string configFilePath);
 
-	float getFloat(string key);
-	string getString(string key);
-	bool getBool(string key);
-	int getInt(string key);
-
-	void putValue(string key, float value);
-	void putValue(string key, bool value);
-	void putValue(string key, int value);
-	void putValue(string key, string value);
-
 };
 
 

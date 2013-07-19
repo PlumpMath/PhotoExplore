@@ -56,9 +56,10 @@ void AlbumPanel::show(FBNode * node)
 	//}
 		
 	bool isLoading;
-	viewChanged("a",DataViewGenerator::getInstance()->getDataView(node,friendConfig,[this](vector<FBNode*> & data){
-		this->viewChanged("",data);
-	},isLoading));
+	vector<FBNode*> initData = DataViewGenerator::getInstance()->getDataView(node,friendConfig,[this](vector<FBNode*> & data){
+		this->viewChanged(std::string(""),data);
+	},isLoading);
+	viewChanged(std::string(""),initData);
 }
 
 static cv::Size2i calculatePanelSize(int count)

@@ -3,8 +3,9 @@
 
 #include <include/cef_client.h>
 #include "GLImport.h"
+#ifdef WIN_32_
 #include <Windows.h>
-
+#endif
 
 #ifndef GL_UNSIGNED_INT_8_8_8_8_REV
 #define GL_UNSIGNED_INT_8_8_8_8_REV 0x8367
@@ -105,8 +106,11 @@ public:
 	{
 		//CefRefPtr<MyVisitor> v = new MyVisitor();
 		//CefCookieManager::GetGlobalManager()->VisitAllCookies(v.get());
+#ifdef WIN_32_
+		
 		SwitchToThisWindow(browser->GetHost()->GetWindowHandle(),false);
 		browser->GetHost()->SetFocus(true);
+#endif
 	}
 
 	//CefRefPtr<CefRenderHandler> GetRenderHandler()

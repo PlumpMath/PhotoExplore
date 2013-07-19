@@ -223,7 +223,7 @@ void FBNode::startLoad()
 	if (loadString.str().size() > 0)
 	{
 		string ls = getId()+ "?fields=" + loadString.str();
-		ls.pop_back(); //Remove ending ','
+		//ls.pop_back(); //Remove ending ','
 		Logger::stream("FBNode","INFO") << "Loading node to target level: " << ls << endl;
 		FBDataSource::instance->loadField(this,ls, targetEdge,[](FBNode * node){});
 	}

@@ -208,7 +208,7 @@ void FacebookIntroView::show(FBNode * node)
 			if (photoList.size() > 0)
 			{
 				FacebookIntroView * v = this;
-				postTask([v,photoList](){
+				this->postTask([v,photoList](){
 					v->viewChanged("my_photos",photoList);
 				});
 			}

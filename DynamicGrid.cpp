@@ -57,9 +57,9 @@ void DynamicGrid::measure(cv::Size2f & _measuredSize)
 	int index = 0;
 
 	if (columnFirst && _measuredSize.height == 0)
-		throw std::exception("Initial height must be provided");
+		throw std::runtime_error("Initial height must be provided");
 	else if (!columnFirst && _measuredSize.width == 0)
-		throw std::exception("Initial height must be provided");
+		throw std::runtime_error("Initial height must be provided");
 
 
 	for (auto it = children.begin();it != children.end();it++)
