@@ -282,6 +282,8 @@ void PointableElementManager::processFrame(const Controller & controller, Frame 
 		hitLastFrame = hit;
 	}
 	
+
+	static float hoverClickTimeLimit = GlobalConfig::tree()->get<double>("Leap.HoverClickTime");
 	if (elementStateFlags == 0 
 		&& hit != NULL 
 		&& hit->isClickable() 
@@ -291,7 +293,7 @@ void PointableElementManager::processFrame(const Controller & controller, Frame 
 
 		//Check for hover-click completion
 		Pointable lastFramePointable = controller.frame(1).pointable(testPointable.id());		
-		if (hoverClickState == 1 && hoverClickTimer.seconds() >= GlobalConfig::tree()->get<float>("Leap.HoverClickTime"))
+		if (hoverClickState == 1 && hoverClickTimer.seconds() >= hoverClickTimeLimit)
 		{
 			hoverClickState = 0;
 			hit->elementClicked();
@@ -381,7 +383,7 @@ void PointableElementManager::processFrame(const Controller & controller, Frame 
 
 	if (hoverClickState == 1)
 	{
-		double size = cursorDimension*(hoverClickTimer.seconds()/2.0);
+		double size = cursorDimension*(hoverClickTimer.seconds()/hoverClickTimeLimit);
 		ldvHover->size = size;
 		//LeapDebugVisual * ldv =new LeapDebugVisual(Point2f(hitScreenPoint.x,hitScreenPoint.y),2,2,size,Colors::HoloBlueBright);
 	}

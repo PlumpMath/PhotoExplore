@@ -85,11 +85,9 @@ cv::Mat TypographyManager::renderText(std::string text, string fontName, Color t
 
 cv::Mat TypographyManager::renderTextFreeType(std::string text, FT_Face fontFace, int fontSize, Color textColor, TextLayoutConfig & config)
 {
-
 	int numGlyphs = text.size();
 
 	FT_Error error;
-
 	error = FT_Set_Char_Size(fontFace,0,fontSize,300,300);
 
 	FT_BBox boundingBox;
@@ -97,38 +95,27 @@ cv::Mat TypographyManager::renderTextFreeType(std::string text, FT_Face fontFace
 	cv::Point2i * positionArray = new cv::Point2i[numGlyphs];
 
 	if (config.maxLineWidth <= 0)
+	{ 
 		config.maxLineWidth = 10000;
-
-
+	}
 
 	long lineSpacing = FT_MulFix(fontFace->height, fontFace->size->metrics.y_scale) >> 6;
 	long fontHeight = FT_MulFix(fontFace->height, fontFace->size->metrics.height) >> 6;
 	
 	computeGlyphs(text,fontFace,positionArray,lineSpacing,glyphArray,numGlyphs,config);
-	//else
-	//computeGlyphs(text,positionArray,glyphArray,numGlyphs);
-
 	computeBoundingBox(boundingBox,glyphArray,positionArray,numGlyphs);
 
 	float stringWidth  = boundingBox.xMax - boundingBox.xMin;
 	float stringHeight = boundingBox.yMax - boundingBox.yMin;
 
 	float targetWidth = config.maxLineWidth;
-	float targetHeight = ceilf((float)stringHeight/(float)lineSpacing)*(float)lineSpacing;
+	float targetHeight = stringHeight;
 
 	int start_x = ((config.maxLineWidth-stringWidth)/2)-boundingBox.xMin;
 	if (config.maxLineWidth == 10000)
 		start_x = -boundingBox.xMin;
 
-	int start_y = lineSpacing; 
-	
-	//ofstream fontDebugOut;
-	//fontDebugOut.open("G://FontDebug//FontLog.txt");
-
-	//fontDebugOut << "Target height = " << targetHeight << endl;
-	//fontDebugOut << "BB YMin = " << boundingBox.yMin << endl;
-	//fontDebugOut << "BB YMax = " << boundingBox.yMax << endl;
-	//fontDebugOut <<  text << endl;
+	int start_y = - boundingBox.yMin; 
 
 	cv::Mat img = cv::Mat::ones((int)targetHeight,(int)targetWidth,CV_8UC4);
 
@@ -147,12 +134,10 @@ cv::Mat TypographyManager::renderTextFreeType(std::string text, FT_Face fontFace
 		if (!error)
 		{
 			FT_BitmapGlyph bit = (FT_BitmapGlyph)image;
-			//fontDebugOut << "start_y = " << start_y << "," << "pen_y = " << pen.y << "bit->top = " << bit->top << endl;
-			drawBitmapToMatrix(img,bit->bitmap,cv::Point2i(start_x + pen.x + bit->left, (start_y + pen.y + boundingBox.yMin) - bit->top),textColor);
+			drawBitmapToMatrix(img,bit->bitmap,cv::Point2i(start_x + pen.x + bit->left, (start_y + pen.y ) - bit->top),textColor);
 			FT_Done_Glyph(image);
 		}
 	}
-	//fontDebugOut.close();
 	return img;
 }
 
@@ -178,7 +163,6 @@ void TypographyManager::drawBitmapToMatrix(cv::Mat & matrix, FT_Bitmap & glyphBi
 		}
 	}
 }
-
 
 void TypographyManager::computeGlyphs(string text, FT_Face fontFace, cv::Point2i * pos, int lineSpacing, FT_Glyph * glyphs, int & numGlyphs, TextLayoutConfig & config)
 {		
@@ -212,7 +196,6 @@ void TypographyManager::computeGlyphs(string text, FT_Face fontFace, cv::Point2i
 
 	int lineStartIndex = 0, lineCount = 0;//, int leftMost = 0;
 
-	//cout << "Glyphs for : " << text << ":  ";
 	for (int n = 0; n < text.size(); n++ )
 	{
 		glyphChar = text.at(n);
@@ -225,8 +208,6 @@ void TypographyManager::computeGlyphs(string text, FT_Face fontFace, cv::Point2i
 			FT_Get_Kerning( fontFace, previous, glyph_index, FT_KERNING_DEFAULT, &delta );
 			int deltaK =  delta.x >> 6;
 			pen_x += deltaK;
-			//if (deltaK != 0)
-			//	cout << text.at(n-1) << "_" << deltaK << "_" << glyphChar;
 		}
 		
 		error = FT_Load_Glyph( fontFace, glyph_index, FT_LOAD_DEFAULT );
@@ -240,45 +221,83 @@ void TypographyManager::computeGlyphs(string text, FT_Face fontFace, cv::Point2i
 		if (glyphChar == ' ' || glyphChar == '\t')
 			lastSplit = n;
 				
-		if (pen_x > wrapWidth)
+		if (pen_x + (slot->advance.x>>6) > wrapWidth)
 		{	
-			if (lastSplit > 0 && lastSplit < n-1)
+			if (isCentered)
 			{
-				xOffset = pos[lastSplit+1].x; //Everything past here gets moved down
-
-				if (isCentered)
+				int lineEnd;
+				if (lastSplit > 0)
+				{						
+					lineEnd = lastSplit -1;
+				}
+				else
 				{
-					int lastLineOffset = (wrapWidth - xOffset)/2;
-					for (int i = lineStartIndex; i < lastSplit;i++)
-					{
-						pos[i].x += lastLineOffset;
-					}	
+					lineEnd = numGlyphs-1;
 				}
 
+				FT_BBox  glyph_bbox;
+				FT_Glyph_Get_CBox( glyphs[lineStartIndex], ft_glyph_bbox_pixels,&glyph_bbox );
+
+				int xStart = glyph_bbox.xMin;
+
+				FT_Glyph_Get_CBox( glyphs[lineEnd], ft_glyph_bbox_pixels,&glyph_bbox );
+
+				int lineXOffset = (pos[lineEnd].x+glyph_bbox.xMax) - xStart;
+				int lastLineOffset = (wrapWidth - lineXOffset)/2;		
+				for (int i = lineStartIndex; i <= lineEnd;i++)
+				{
+					pos[i].x += lastLineOffset;
+				}
+			}
+
+			if (lastSplit > 0 && lastSplit < numGlyphs-1)
+			{
+				xOffset = pos[lastSplit+1].x; //Everything past here gets moved down
 				pen_y += lineSpacing;
 				pen_x -= xOffset;
-				for (int i = lastSplit+1; i < n;i++)
+				for (int i = lastSplit+1; i < numGlyphs;i++)
 				{
 					pos[i].y += lineSpacing;
 					pos[i].x -= xOffset;
 				}		
 				
 				lineStartIndex = lastSplit+1;
+				
+				pos[numGlyphs].x = pen_x;
+				pos[numGlyphs].y = pen_y;
+				
+				pen_x += slot->advance.x >> 6;
 			}
-			else
-			{
+			else if (lastSplit == n)
+			{				
 				pen_y += lineSpacing;
 				pen_x = 0;
-				lineStartIndex = n;
+				lineStartIndex = numGlyphs;
+			}		
+			else
+			{				
+				pen_y += lineSpacing;
+				pen_x = 0;
+
+				pos[numGlyphs].x = pen_x;
+				pos[numGlyphs].y = pen_y;
+				
+				lineStartIndex = numGlyphs;
+				pen_x += slot->advance.x >> 6;
 			}		
 			lastSplit = 0;
 			lineCount++;
+						
+		}
+		else
+		{			
+			pos[numGlyphs].x = pen_x;
+			pos[numGlyphs].y = pen_y;
+
+			pen_x += slot->advance.x >> 6;
 		}
 
-		pos[numGlyphs].x = pen_x;
-		pos[numGlyphs].y = pen_y;
 		
-		pen_x += slot->advance.x >> 6;
 		pen_y += slot->advance.y >> 6;
 
 
@@ -302,51 +321,177 @@ void TypographyManager::computeGlyphs(string text, FT_Face fontFace, cv::Point2i
 			pos[i].x += lastLineOffset;
 		}
 	}
-	 //cout << endl;
 
 }
 
 
-	void TypographyManager::computeBoundingBox(FT_BBox & bbox, FT_Glyph * glyphArray, cv::Point2i * pos, int numGlyphs)
+//void TypographyManager::computeGlyphs(string text, FT_Face fontFace, cv::Point2i * pos, int lineSpacing, FT_Glyph * glyphs, int & numGlyphs, TextLayoutConfig & config)
+//{		
+//	FT_GlyphSlot  slot = fontFace->glyph;  
+//	FT_UInt       glyph_index;
+//	FT_Bool       use_kerning;
+//	FT_UInt       previous;
+//	int           pen_x, pen_y;
+//
+//	FT_Error error;
+//
+//	pen_x = 0; 
+//	pen_y = 0;
+//
+//	use_kerning = FT_HAS_KERNING( fontFace );
+//	previous    = 0;
+//	numGlyphs = 0;
+//
+//	int lastSplit = -1;
+//
+//
+//	char glyphChar;
+//
+//	pen_y = 0;// lineSpacing;
+//	int xOffset = 0;
+//
+//	int wrapWidth = config.maxLineWidth;
+//	
+//	bool isCentered = config.alignment == TextLayoutConfig::CenterAligned;
+//
+//
+//	int lineStartIndex = 0, lineCount = 0;//, int leftMost = 0;
+//
+//	//cout << "Glyphs for : " << text << ":  ";
+//	for (int n = 0; n < text.size(); n++ )
+//	{
+//		glyphChar = text.at(n);
+//		
+//		glyph_index = FT_Get_Char_Index( fontFace, glyphChar);
+//
+//		if ( use_kerning && previous && glyph_index )
+//		{
+//			FT_Vector  delta;
+//			FT_Get_Kerning( fontFace, previous, glyph_index, FT_KERNING_DEFAULT, &delta );
+//			int deltaK =  delta.x >> 6;
+//			pen_x += deltaK;
+//			//if (deltaK != 0)
+//			//	cout << text.at(n-1) << "_" << deltaK << "_" << glyphChar;
+//		}
+//		
+//		error = FT_Load_Glyph( fontFace, glyph_index, FT_LOAD_DEFAULT );
+//		if (error) 
+//			continue;  
+//
+//		error = FT_Get_Glyph( fontFace->glyph, &glyphs[numGlyphs] );
+//		if (error)
+//			continue; 
+//		
+//		if (glyphChar == ' ' || glyphChar == '\t')
+//			lastSplit = n;
+//				
+//		if (pen_x > wrapWidth)
+//		{	
+//			if (lastSplit > 0 && lastSplit < n-1)
+//			{
+//				xOffset = pos[lastSplit+1].x; //Everything past here gets moved down
+//
+//				if (isCentered)
+//				{
+//					int lastLineOffset = (wrapWidth - xOffset)/2;
+//					for (int i = lineStartIndex; i < lastSplit;i++)
+//					{
+//						pos[i].x += lastLineOffset;
+//					}	
+//				}
+//
+//				pen_y += lineSpacing;
+//				pen_x -= xOffset;
+//				for (int i = lastSplit+1; i < n;i++)
+//				{
+//					pos[i].y += lineSpacing;
+//					pos[i].x -= xOffset;
+//				}		
+//				
+//				lineStartIndex = lastSplit+1;
+//			}
+//			else
+//			{
+//				pen_y += lineSpacing;
+//				pen_x = 0;
+//				lineStartIndex = n;
+//			}		
+//			lastSplit = 0;
+//			lineCount++;
+//		}
+//
+//		pos[numGlyphs].x = pen_x;
+//		pos[numGlyphs].y = pen_y;
+//		
+//		pen_x += slot->advance.x >> 6;
+//		pen_y += slot->advance.y >> 6;
+//
+//
+//		previous = glyph_index;
+//		numGlyphs++;
+//	}
+//
+//	if (isCentered && lineCount > 0)
+//	{		
+//		FT_BBox  glyph_bbox;
+//		FT_Glyph_Get_CBox( glyphs[lineStartIndex], ft_glyph_bbox_pixels,&glyph_bbox );
+//
+//		int xStart = glyph_bbox.xMin;
+//		
+//		FT_Glyph_Get_CBox( glyphs[numGlyphs-1], ft_glyph_bbox_pixels,&glyph_bbox );
+//		
+//		int xOffset = (pos[numGlyphs-1].x+glyph_bbox.xMax) - xStart;
+//		int lastLineOffset = (wrapWidth - xOffset)/2;		
+//		for (int i = lineStartIndex; i < numGlyphs;i++)
+//		{
+//			pos[i].x += lastLineOffset;
+//		}
+//	}
+//	 //cout << endl;
+//
+//}
+
+void TypographyManager::computeBoundingBox(FT_BBox & bbox, FT_Glyph * glyphArray, cv::Point2i * pos, int numGlyphs)
+{
+	//FT_BBox  bbox;
+	FT_BBox  glyph_bbox;
+
+	/* initialize string bbox to "empty" values */
+	bbox.xMin = bbox.yMin =  32000;
+	bbox.xMax = bbox.yMax = -32000;
+
+	/* for each glyph image, compute its bounding box, */
+	/* translate it, and grow the string bbox          */
+	for (int n = 0; n < numGlyphs; n++ )
 	{
-		//FT_BBox  bbox;
-		FT_BBox  glyph_bbox;
+		FT_Glyph_Get_CBox( glyphArray[n], ft_glyph_bbox_pixels,&glyph_bbox );
 
-		/* initialize string bbox to "empty" values */
-		bbox.xMin = bbox.yMin =  32000;
-		bbox.xMax = bbox.yMax = -32000;
+		glyph_bbox.xMin += pos[n].x;
+		glyph_bbox.xMax += pos[n].x;
 
-		/* for each glyph image, compute its bounding box, */
-		/* translate it, and grow the string bbox          */
-		for (int n = 0; n < numGlyphs; n++ )
-		{
-			FT_Glyph_Get_CBox( glyphArray[n], ft_glyph_bbox_pixels,&glyph_bbox );
+		auto gMin = glyph_bbox.yMin;
+		glyph_bbox.yMin = pos[n].y - glyph_bbox.yMax;
+		glyph_bbox.yMax = pos[n].y - gMin;
 
-			glyph_bbox.xMin += pos[n].x;
-			glyph_bbox.xMax += pos[n].x;
-			glyph_bbox.yMin += pos[n].y;
-			glyph_bbox.yMax += pos[n].y;
+		if ( glyph_bbox.xMin < bbox.xMin )
+			bbox.xMin = glyph_bbox.xMin;
 
-			if ( glyph_bbox.xMin < bbox.xMin )
-				bbox.xMin = glyph_bbox.xMin;
+		if ( glyph_bbox.yMin < bbox.yMin )
+			bbox.yMin = glyph_bbox.yMin;
 
-			if ( glyph_bbox.yMin < bbox.yMin )
-				bbox.yMin = glyph_bbox.yMin;
+		if ( glyph_bbox.xMax > bbox.xMax )
+			bbox.xMax = glyph_bbox.xMax;
 
-			if ( glyph_bbox.xMax > bbox.xMax )
-				bbox.xMax = glyph_bbox.xMax;
-
-			if ( glyph_bbox.yMax > bbox.yMax )
-				bbox.yMax = glyph_bbox.yMax;
-		}
-
-		/* check that we really grew the string bbox */
-		if ( bbox.xMin > bbox.xMax )
-		{
-			bbox.xMin = 0;
-			bbox.yMin = 0;
-			bbox.xMax = 0;
-			bbox.yMax = 0;
-		}
+		if ( glyph_bbox.yMax > bbox.yMax )
+			bbox.yMax = glyph_bbox.yMax;
 	}
 
+	/* check that we really grew the string bbox */
+	if ( bbox.xMin > bbox.xMax )
+	{
+		bbox.xMin = 0;
+		bbox.yMin = 0;
+		bbox.xMax = 0;
+		bbox.yMax = 0;
+	}
+}

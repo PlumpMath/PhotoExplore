@@ -112,17 +112,14 @@ void FakeDataSource::loadWithOffset(FBNode * parent, string edge, int limit, int
 				this->dirContents.at(friendIndex%dirContents.size()).extension().string().find("jpg") == string::npos && 
 				this->dirContents.at(friendIndex%dirContents.size()).extension().string().find("png") == string::npos)
 				)) friendIndex++;
-
-
-
+			
 			stringstream ss2;
 			ss2 << "Fake_Friend_" << this->friendIndex;
-
 
 			FBNode * n2 = new FBNode(ss2.str());
 			n2->setNodeType("friends");
 			stringstream name;
-			name << "Good friend with a very long name"  << friendIndex;
+			name << "Good friend d y p with y p g p"  << friendIndex;
 			n2->Edges.insert(Edge("name",name.str()));
 			n2->Edges.insert(Edge("fake_uri",this->dirContents.at(friendIndex%dirContents.size()).string()));
 			n2->Edges.insert(Edge("fake_uri_high",""));

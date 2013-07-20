@@ -36,7 +36,7 @@ void ImageDetailView::initButtonBar()
 
 	
 	alreadyLikedButton = new Button("You like this.");
-	alreadyLikedButton->setBackgroundColor(likeBackgroundColor);
+	alreadyLikedButton->setBackgroundColor(Colors::HoloBlueBright.withAlpha(.5f));
 	alreadyLikedButton->setBorderColor(likeBorderColor);
 	alreadyLikedButton->setTextColor(likeTextColor);
 	alreadyLikedButton->setBorderThickness(borderThickness);

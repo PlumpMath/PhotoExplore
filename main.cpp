@@ -125,15 +125,10 @@ void clean_up()
 
 void configureController(const Controller & controller)
 {
-	controller.config().setFloat("Gesture.ScreenTap.HistorySeconds", 0.2f);
-	//controller.config().setFloat("Gesture.Swipe.MinVelocity",300.0f);
-
-	//controller.config().setFloat("Gesture.ScreenTap.MinForwardVelocity",20);
-	//controller.config().setFloat("Gesture.ScreenTap.MinDistance", 30);
+	controller.config().setFloat("Gesture.Swipe.MinVelocity",GlobalConfig::tree()->get<float>("Leap.Gesture.Swipe.MinVelocity"));
+	controller.config().setFloat("Gesture.Swipe.MinLength",GlobalConfig::tree()->get<float>("Leap.Gesture.Swipe.MinLength"));
 	controller.config().save();	
 	controller.enableGesture(Gesture::Type::TYPE_SWIPE);
-	controller.enableGesture(Gesture::Type::TYPE_SCREEN_TAP);
-	controller.enableGesture(Gesture::TYPE_CIRCLE);
 }
 
 GLuint createShader(string filename,GLenum type)

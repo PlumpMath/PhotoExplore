@@ -14,7 +14,7 @@ RadialMenu::RadialMenu(vector<RadialMenuItem> & items)
 {			
 	items.push_back(RadialMenuItem("Exit and Logout","logout", Colors::DarkRed));
 	items.push_back(RadialMenuItem("Exit Photo Explorer","exit",Colors::OrangeRed));
-	items.push_back(RadialMenuItem("Hide Tutorial","hide_tutorial", Colors::DarkTurquoise));
+	//items.push_back(RadialMenuItem("Hide Tutorial","hide_tutorial", Colors::DarkTurquoise));
 	items.push_back(RadialMenuItem("Privacy Information","show_privacy_info", Colors::DodgerBlue));
 	items.push_back(RadialMenuItem("Back","cancel",Colors::SkyBlue));
 
@@ -29,7 +29,7 @@ RadialMenu::RadialMenu(vector<RadialMenuItem> & items)
 	};
 
 	TextPanel * privacyInfoText = new TextPanel(GlobalConfig::tree()->get<string>("Menu.PrivacyInfo.Text"));
-	privacyInfoText->setTextSize(GlobalConfig::tree()->get<float>("Menu.PrivacyInfo.TextSize"));
+	privacyInfoText->setTextSize(GlobalConfig::tree()->get<float>("Menu.PrivacyInfo.TextSize"),false);
 	privacyInfoText->setTextColor(Color(GlobalConfig::tree()->get_child("Menu.PrivacyInfo.TextColor")));
 	privacyInfoText->setBackgroundColor(Color(GlobalConfig::tree()->get_child("Menu.PrivacyInfo.BackgroundColor")));
 	privacyInfoText->setBorderColor(Color(GlobalConfig::tree()->get_child("Menu.PrivacyInfo.BorderColor")));
@@ -40,7 +40,7 @@ RadialMenu::RadialMenu(vector<RadialMenuItem> & items)
 
 
 	Button * dismissDialogButton = new Button(GlobalConfig::tree()->get<string>("Menu.PrivacyInfo.DismissButton.Text"));
-	dismissDialogButton->setTextSize(GlobalConfig::tree()->get<float>("Menu.PrivacyInfo.DismissButton.TextSize"));
+	dismissDialogButton->setTextSize(GlobalConfig::tree()->get<float>("Menu.PrivacyInfo.DismissButton.TextSize"),false);
 	dismissDialogButton->setTextColor(Color(GlobalConfig::tree()->get_child("Menu.PrivacyInfo.DismissButton.TextColor")));
 	dismissDialogButton->setBackgroundColor(Color(GlobalConfig::tree()->get_child("Menu.PrivacyInfo.DismissButton.BackgroundColor")));
 	dismissDialogButton->setBorderColor(Color(GlobalConfig::tree()->get_child("Menu.PrivacyInfo.DismissButton.BorderColor")));

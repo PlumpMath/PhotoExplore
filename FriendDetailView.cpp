@@ -42,21 +42,28 @@ void FriendDetailView::loadItems(int albums, int photos)
 	int requestedAlbums = activeNode->loadState["albums"].requestedCount;
 	int requestedPhotos = activeNode->loadState["photos"].requestedCount;
 	
+	bool load = false;
 	stringstream loadstr;
 	loadstr << activeNode->getId() << "?fields=";
 	if (albums > requestedAlbums)
 	{
+		load = true;
 		activeNode->loadState["albums"].requestedCount = albums;
-		loadstr << "albums.offset(" << requestedAlbums << ").limit(" << albums << ").fields(id,name)";
+		loadstr << "albums.offset(" << requestedAlbums << ").limit(" << albums << ").fields(id,name,photos.fields(id,name,images).limit(4))";
 	}
 	
 	if (photos > requestedPhotos)
 	{
 		activeNode->loadState["photos"].requestedCount = photos;
-		if (albums > requestedAlbums)loadstr << ",";
+		if (load)
+			loadstr << ",";
+
 		loadstr << "photos.offset(" << requestedPhotos << ").limit(" << photos << ").fields(id,name,images)";
+		load = true;
+	}
 
-
+	if (load) 
+	{
 		FriendDetailView * v = this;
 		FBDataSource::instance->loadField(activeNode,loadstr.str(),"",[v](FBNode * _node){
 
