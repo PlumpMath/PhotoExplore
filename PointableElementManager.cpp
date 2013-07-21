@@ -173,23 +173,23 @@ void PointableElementManager::processFrame(const Controller & controller, Frame 
 		topView->onFrame(controller);
 	}
 
-	if (this->globalGestureListenerStack.size() > 0)
-	{
-		GestureList gestureList = frame.gestures(lastFrame);
-		for (int i=0;i< gestureList.count(); i++)
-		{
-			Gesture g = gestureList[i];
+	//if (this->globalGestureListenerStack.size() > 0)
+	//{
+	//	GestureList gestureList = frame.gestures(lastFrame);
+	//	for (int i=0;i< gestureList.count(); i++)
+	//	{
+	//		Gesture g = gestureList[i];
 
-			if (processedGestures.count(g.id()) == 0)
-			{
-				if (globalGestureListenerStack.top()->onLeapGesture(controller, g))
-				{
-					processedGestures.insert(g.id());
-				}
-			}
-		}
-	
-	}
+	//		if (processedGestures.count(g.id()) == 0)
+	//		{
+	//			if (globalGestureListenerStack.top()->onLeapGesture(controller, g))
+	//			{
+	//				processedGestures.insert(g.id());
+	//			}
+	//		}
+	//	}
+	//
+	//}
 
 	if (processedGestures.size() > 0)
 		for (auto it = processedGestures.begin(); it != processedGestures.end();it++)
@@ -317,14 +317,16 @@ void PointableElementManager::processFrame(const Controller & controller, Frame 
 	
 
 	static LeapDebugVisual * ldvHover = NULL, * ldvIntent = NULL, * ldvNonDominant = NULL, * ldvRaw = NULL;
+	static vector<LeapDebugVisual*> touchDistanceVisuals;
 
 	float cursorDimension = (((float)GlobalConfig::ScreenWidth) / 2560.0f) * 41;
 
 	if (ldvHover == NULL)
 	{
-		ldvHover =new LeapDebugVisual(screenPoint,1,LeapDebugVisual::LiveForever,0,Colors::HoloBlueBright);
+		ldvHover =new LeapDebugVisual(screenPoint,1,LeapDebugVisual::LiveForever,0,Colors::LeapGreen.withAlpha(.8f));
 		ldvHover->depth=11;
 		LeapDebug::instance->addDebugVisual(ldvHover);
+		
 
 		ldvIntent =new LeapDebugVisual(screenPoint,1,LeapDebugVisual::LiveForever,cursorDimension,Colors::Black.withAlpha(.5f));
 		ldvIntent->depth=10;
@@ -342,9 +344,6 @@ void PointableElementManager::processFrame(const Controller & controller, Frame 
 		ldvNonDominant->depth=10;
 		ldvNonDominant->lineColor = Colors::MediumVioletRed;
 		LeapDebug::instance->addDebugVisual(ldvNonDominant);
-
-
-
 	}
 
 	if (frame.hands().count() > 1)
@@ -381,14 +380,41 @@ void PointableElementManager::processFrame(const Controller & controller, Frame 
 		ldvRaw->screenPoint.y = rawScreenPoint.y;
 	}
 
-	if (hoverClickState == 1)
+	if (GlobalConfig::tree()->get<bool>("Leap.HoverSelect.Enabled"))
 	{
-		double size = cursorDimension*(hoverClickTimer.seconds()/hoverClickTimeLimit);
-		ldvHover->size = size;
-		//LeapDebugVisual * ldv =new LeapDebugVisual(Point2f(hitScreenPoint.x,hitScreenPoint.y),2,2,size,Colors::HoloBlueBright);
+		if (hoverClickState == 1)
+		{
+			double size = cursorDimension*(hoverClickTimer.seconds()/hoverClickTimeLimit);
+			ldvHover->size = size;
+		}
+		else		
+			ldvHover->size = 0;
 	}
-	else		
+	else
+	{
+		//double size = cursorDimension*(1.0f - testPointable.touchDistance());
 		ldvHover->size = 0;
+
+		for (int i=0;i<touchDistanceVisuals.size();i++)
+			touchDistanceVisuals.at(i)->size = 0;
+
+		for (int i=0;i<hand.fingers().count();i++)
+		{
+			Finger f = hand.fingers()[i];
+			
+			if (touchDistanceVisuals.size() <= i)
+			{
+				LeapDebugVisual * distanceVisual =new LeapDebugVisual(Vector(-100,-100,0),1,LeapDebugVisual::LiveForever,0,Color(GlobalConfig::tree()->get_child("Leap.TouchDistance.VisualColor")));
+				distanceVisual ->depth=11;
+				LeapDebug::instance->addDebugVisual(distanceVisual);
+				touchDistanceVisuals.push_back(distanceVisual);
+			}
+
+			touchDistanceVisuals.at(i)->size = cursorDimension*(1.0f - f.touchDistance());
+			touchDistanceVisuals.at(i)->screenPoint = LeapHelper::FindScreenPoint(controller,f);
+		}
+	}
+
 
 	handleGlobalGestures(controller);
 	

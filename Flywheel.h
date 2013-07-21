@@ -25,7 +25,9 @@ public:
 	void applyFrictionUntilStopped(double frictionCoefficient);
 	
 	double getPosition();
+
 	double getVelocity();
+	void setVelocity(double velocity);
 	
 	double getFriction();
 	void setFriction(double friction);

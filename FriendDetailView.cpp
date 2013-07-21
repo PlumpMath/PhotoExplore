@@ -2,6 +2,7 @@
 #include "FixedAspectGrid.hpp"
 #include "GraphicContext.hpp"
 #include "AbsoluteLayout.hpp"
+#include "SwipeGestureDetector.hpp"
 
 
 FriendDetailView::FriendDetailView()
@@ -212,6 +213,7 @@ void FriendDetailView::show(FBNode * root)
 
 		
 	PointableElementManager::getInstance()->requestGlobalGestureFocus(this);
+	SwipeGestureDetector::getInstance().setFlyWheel(itemScroll->getFlyWheel());
 
 	//float menuHeight = GlobalConfig::tree()->get<float>("Menu.Height");
 	//

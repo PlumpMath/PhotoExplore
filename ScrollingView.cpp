@@ -307,3 +307,8 @@ bool ScrollingView::onLeapGesture(const Controller & controller, const Gesture &
 	}
 	return handled;
 }
+
+void ScrollingView::onFrame(const Controller & controller)
+{
+
+}

@@ -26,7 +26,7 @@
 #include "GraphicContext.hpp"
 
 #include "GlobalConfig.hpp"
-
+#include "SwipeGestureDetector.hpp"
 #include "FakeDataSource.hpp"
 
 using namespace Leap;
@@ -125,9 +125,22 @@ void clean_up()
 
 void configureController(const Controller & controller)
 {
-	controller.config().setFloat("Gesture.Swipe.MinVelocity",GlobalConfig::tree()->get<float>("Leap.Gesture.Swipe.MinVelocity"));
-	controller.config().setFloat("Gesture.Swipe.MinLength",GlobalConfig::tree()->get<float>("Leap.Gesture.Swipe.MinLength"));
-	controller.config().save();	
+
+	Config con = controller.config();
+	float f1 = GlobalConfig::tree()->get<float>("Leap.Gesture.Swipe.MinVelocity");
+	con.setFloat("Gesture.Swipe.MinVelocity",f1);
+	float f2 = GlobalConfig::tree()->get<float>("Leap.Gesture.Swipe.MinLength");	
+	con.setFloat("Gesture.Swipe.MinLength",f2);
+	
+	float f1_a = con.getFloat("Gesture.Swipe.MinVelocity");
+	float f2_a = con.getFloat("Gesture.Swipe.MinLength");
+
+	con.save();
+	//if (f1_a != f1 || f2_a != f2)
+	//{
+		Logger::stream("Main","ERROR") << "Configured. MinLength =" << f2_a << ", MinVel= " << f1_a << endl;
+	//}
+	
 	controller.enableGesture(Gesture::Type::TYPE_SWIPE);
 }
 
@@ -391,11 +404,6 @@ int WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmd
 		GlobalConfig::ScreenHeight = GlobalConfig::tree()->get<int>("GraphicsSettings.OverrideHeight");
 	}
 
-	//if (!GlobalConfig::tree()->get<bool>("GraphicsSettings.Fullscreen"))
-	//GlobalConfig::ScreenHeight -= GlobalConfig::tree()->get<float>("Menu.Height");
-
-//	GlobalConfig::getInstance().putValue("FontScale",min<float>(GlobalConfig::ScreenWidth/2560.0f,GlobalConfig::ScreenHeight/1440.0f));
-
     if(!init(GlobalConfig::ScreenWidth, GlobalConfig::ScreenHeight, GlobalConfig::tree()->get<bool>("GraphicsSettings.Fullscreen"))) return 1;
 
 	initShaders();
@@ -403,6 +411,8 @@ int WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmd
 	//Configure leap and attach listeners
 	Leap::Controller controller = Leap::Controller();	
 	configureController(controller);	
+	controller.addListener(SwipeGestureDetector::getInstance());
+	controller.addListener(ShakeGestureDetector::getInstance());
 
 	HandProcessor * handProcessor = HandProcessor::getInstance();
 	LeapDebug * leapDebug = new LeapDebug(handProcessor);	
@@ -421,25 +431,12 @@ int WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmd
 	long frameId = 0;		
 	int sampleCount = 2000;
 		
+
 	
 	GraphicsContext::getInstance().globalActionCallback = [&](string s){ 
 		
-		if (s.compare("full") == 0)
+		if (s.compare("logout") == 0)
 		{
-			//disposeShaders();
-			//glfwCloseWindow();	
-
-			//init(GlobalConfig::ScreenWidth, GlobalConfig::ScreenHeight, true);
-
-			//initShaders();
-		}
-		else if (s.compare("logout") == 0)
-		{
-
-
-			//CefRefPtr<CefTaskRunner> runner = CefTaskRunner::GetForThread(TID_IO);
-			//CefRefPtr<ShutdownTask> dlTask = new ShutdownTask();
-			//runner->PostTask(dlTask.get());
 			CefRefPtr<CefTaskRunner> runner = CefTaskRunner::GetForThread(TID_IO);
 			CefRefPtr<DeleteCookieTask> dlTask = new DeleteCookieTask();
 			runner->PostTask(dlTask.get());
@@ -456,7 +453,6 @@ int WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmd
 			vector<string> x;
 			LeapDebug::instance->setTutorialImages(x);
 		}
-		//tMan->initialize();
 	};
 
 	while(!(*quit))
@@ -472,7 +468,6 @@ int WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmd
 			quit[0] = true;
 		
 		
-		ShakeGestureDetector::getInstance().onFrame(controller);
 		HandProcessor::getInstance()->processFrame(controller.frame());
 		PointableElementManager::getInstance()->processInputEvents();
 		PointableElementManager::getInstance()->processFrame(controller,controller.frame());
@@ -492,8 +487,6 @@ int WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmd
 		 
 		if (GraphicsContext::getInstance().BlurRenderEnabled)
 		{
-			//Color bg = Colors::WhiteSmoke;
-			//float * color = bg.getFloat();
 			glClearColor(.4f,.4f,.4f, 1);
 
 			GraphicsContext::getInstance().IsBlurCurrentPass = true;
@@ -501,23 +494,8 @@ int WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmd
 			glBindFramebuffer(GL_FRAMEBUFFER, fbo[0]);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 			glMatrixMode( GL_MODELVIEW );	
-
-
-			//glColor4fv(Colors::WhiteSmoke.getFloat());
-			//float z1 = -200.0f;
-			//glBegin( GL_QUADS );
-
-			//glVertex3f(0,0,z1);
-			//glVertex3f(GlobalConfig::ScreenWidth,0,z1);
-			//glVertex3f(GlobalConfig::ScreenWidth,GlobalConfig::ScreenHeight,z1);
-			//glVertex3f(0,GlobalConfig::ScreenHeight,z1);
-
-			//glEnd();
-
-
-
+			
 			startScreen->draw();	
-
 
 			for (int i=0;i<2;i++)
 			{
@@ -578,7 +556,7 @@ int WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmd
 
 			glMatrixMode( GL_MODELVIEW );			
 			ShakeGestureDetector::getInstance().draw();		
-			
+			SwipeGestureDetector::getInstance().draw();
 			startScreen->draw();			
 			
 			//count = 0;

@@ -221,7 +221,7 @@ void TypographyManager::computeGlyphs(string text, FT_Face fontFace, cv::Point2i
 		if (glyphChar == ' ' || glyphChar == '\t')
 			lastSplit = n;
 				
-		if (pen_x + (slot->advance.x>>6) > wrapWidth)
+		if (pen_x + (slot->advance.x>>6) > wrapWidth || glyphChar == '\n')
 		{	
 			if (isCentered)
 			{

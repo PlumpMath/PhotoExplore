@@ -36,7 +36,7 @@ struct ShakeGesture {
 
 };
 
-class ShakeGestureDetector {
+class ShakeGestureDetector : public Listener {
 	
 
 public:

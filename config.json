@@ -1,7 +1,7 @@
 {
 	"Logging" : 
 	{
-		"Enabled" : false
+		"Enabled" : true
 	},
 	"Typography" : 
 	{
@@ -67,12 +67,12 @@
 	},
 	"FakeDataMode" : 
 	{
-		"Enable" : false,
-		"SourceDataDirectory" : "C:\\" ,
+		"Enable" : true,
+		"SourceDataDirectory" : "C:\\Users\\Adam\\Pictures\\pixiv-win\\LeapTestImages" ,
 		"RequestDelay" : 50 ,//ms
 		"MaxPhotos" : 2000,
-		"MaxAlbums" : 40,
-		"MaxFriends" : 1000
+		"MaxAlbums" : 0,
+		"MaxFriends" : 0
 	},
 	"Shake" : 
 	{	
@@ -175,12 +175,47 @@
 	},
 	"Leap" : 
 	{
+		"CustomGesture" : 
+		{
+			"Swipe" :
+			{
+				"DebugDraw" : true,
+				"SphereGrowth" : 
+				{
+					"Enabled" : true,
+					"MaxNegative" : -0.9,
+					"MinPositive" : 0.9
+				},
+				"TouchZoneDistance" : 
+				{
+					"Enabled" : true,
+					"MaxTouchDistance" : 0
+				},
+				"SpeedScale" : 3,
+				"FrictionInduce" :
+				{	
+					"MaxTipVelocity" : 80.0,
+					"FrictionScale" : 0.0,
+					"TouchDistanceScale"  :1.0
+				}
+			}
+		},
 		"Gesture" :
 		{
 			"Swipe" : {
-				"MinVelocity" : 300, //Leap default is 1000 mm/s
-				"MinLength" : 50 //Leap default is 150 mm
+				"MinVelocity" : 900, //Leap default is 1000 mm/s
+				"MinLength" : 100 //Leap default is 150 mm
 			}
+		},
+		"HoverSelect" :
+		{
+			"Enabled" : false,
+			"SelectTime" : 1.5,
+			"MaxTipVelocity" : 30
+		},
+		"TouchDistance" :
+		{
+			"VisualColor" :  {"R" : 200,"G" : 200,"B" : 200,"A" : 150}
 		},
 		"HoverClickTime" : 1.5,
 		"PreferLeftHand" : false,
@@ -246,6 +281,7 @@
 	},
 	"LeapStartScreen" :
 	{
+		"TrainingMode" : true,
 		"StartButtonText" : "Start Exploring",
 		"BrowserLoginPrompt" : "Please login using the browser window",
 		"InternetNotice" : "The above button will open Facebook in a browser window; please login using this window to continue. This application will require an internet connection throughout its use."

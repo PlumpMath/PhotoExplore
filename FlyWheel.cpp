@@ -133,6 +133,12 @@ double FlyWheel::getVelocity()
 	return velocity;
 }
 
+
+void FlyWheel::setVelocity(double _velocity)
+{
+	this->velocity = _velocity;
+}
+
 double FlyWheel::getPosition()
 {
 	if (scrollAnimation.isRunning())

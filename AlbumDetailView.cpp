@@ -3,6 +3,7 @@
 #include "FixedAspectGrid.hpp"
 #include "GraphicContext.hpp"
 #include "AbsoluteLayout.hpp"
+#include "SwipeGestureDetector.hpp"
 
 AlbumDetailView::AlbumDetailView()
 {	
@@ -152,6 +153,8 @@ void AlbumDetailView::updateLoading()
 void AlbumDetailView::show(FBNode * node)
 {			
 	PointableElementManager::getInstance()->requestGlobalGestureFocus(this);
+	SwipeGestureDetector::getInstance().setFlyWheel(itemScroll->getFlyWheel());
+
 	activeNode = node;
 	mainLayout->remove(albumName);
 	currentRightBoundary = 0;

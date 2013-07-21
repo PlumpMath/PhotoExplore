@@ -258,6 +258,7 @@
     <ClCompile Include="ScrollingView.cpp" />
     <ClCompile Include="SeekVisual.cpp" />
     <ClCompile Include="ShakeGestureDetector.cpp" />
+    <ClCompile Include="SwipeGestureDetector.cpp" />
     <ClCompile Include="TextPanel.cpp" />
     <ClCompile Include="TextureLoader.cpp" />
     <ClCompile Include="TextureLoadTask.cpp" />
@@ -321,6 +322,7 @@
     <ClInclude Include="ScrollingView.hpp" />
     <ClInclude Include="SeekVisual.hpp" />
     <ClInclude Include="ShakeGestureDetector.hpp" />
+    <ClInclude Include="SwipeGestureDetector.hpp" />
     <ClInclude Include="TextureLoader.hpp" />
     <ClInclude Include="TextureLoadTask.hpp" />
     <ClInclude Include="ViewOrchestrator.hpp" />

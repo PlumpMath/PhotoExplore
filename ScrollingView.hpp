@@ -60,6 +60,8 @@ public:
 
 	void setDrawLoadingIndicator(int mode, Color indicatorColor);
 
+	void onFrame(const Controller & controller);
+
 };
 
 #endif

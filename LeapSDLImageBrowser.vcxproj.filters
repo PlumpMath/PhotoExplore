@@ -186,9 +186,6 @@
     <ClCompile Include="kiss_fft.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ShakeGestureDetector.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="TextureLoader.cpp">
       <Filter>Source Files\ResourceManager</Filter>
     </ClCompile>
@@ -224,6 +221,12 @@
     </ClCompile>
     <ClCompile Include="ImageButton.cpp">
       <Filter>Source Files\NewPanel</Filter>
+    </ClCompile>
+    <ClCompile Include="SwipeGestureDetector.cpp">
+      <Filter>Source Files\LeapUtil</Filter>
+    </ClCompile>
+    <ClCompile Include="ShakeGestureDetector.cpp">
+      <Filter>Source Files\LeapUtil</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -445,6 +448,9 @@
     </ClInclude>
     <ClInclude Include="ImageButton.hpp">
       <Filter>Header Files\NewPanel</Filter>
+    </ClInclude>
+    <ClInclude Include="SwipeGestureDetector.hpp">
+      <Filter>Header Files\LeapUtil</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
