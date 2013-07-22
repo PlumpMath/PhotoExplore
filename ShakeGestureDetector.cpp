@@ -229,6 +229,8 @@ void ShakeGestureDetector::onFrame(const Controller & controller)
 	//	}
 	//}
 	//
+	int minPointables = GlobalConfig::tree()->get<int>("Shake.MinimumPointables");
+	float minTouchDistance = GlobalConfig::tree()->get<float>("Shake.MinTouchDistance");
 
 	if (cooldownTimer.elapsed() && completedGestures.empty())
 	{
@@ -236,10 +238,13 @@ void ShakeGestureDetector::onFrame(const Controller & controller)
 		{				
 			Pointable p = frame.pointables()[i];
 
-			int minPointables = GlobalConfig::tree()->get<int>("Shake.MinimumPointables");
 			if (minPointables > 1)
 			{
 				if (!p.hand().isValid() || p.hand().pointables().count() < minPointables)
+					continue;
+
+				Pointable closest = LeapHelper::FindClosestPointable(controller,p.hand());
+				if (closest.touchDistance() < minTouchDistance)
 					continue;
 			}
 			

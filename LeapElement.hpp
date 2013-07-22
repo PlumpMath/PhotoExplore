@@ -24,143 +24,48 @@ public:
 	boost::function<void(LeapElement * node, Pointable & pointable)> pointableEnterCallback;
 	boost::function<void(LeapElement * node, Pointable & pointable)> pointableExitCallback;
 
-	LeapElement()
-	{
-		parent = NULL;
-		clickable = true;
-		enabled = true;
-	}
+	LeapElement();
 	
-	void setParent(LeapElement * _parent)
-	{
-		this->parent = _parent;
-	}
+	void setParent(LeapElement * _parent);
 
-	LeapElement * getParent()
-	{
-		return this->parent;
-	}
+	LeapElement * getParent();
 
-	virtual cv::Rect_<int> getHitRect()
-	{
-		return cv::Rect_<int>();
-	}
+	virtual cv::Rect_<int> getHitRect();
 
-	virtual float getZValue()
-	{
-		return -1000.0f;
-	}	
+	virtual float getZValue();
 	
-	virtual bool onGesture(const Gesture & gesture)
-	{
-		return false;
-	}
+	virtual bool onGesture(const Gesture & gesture);
 
-	virtual void gestureFocusLost(LeapElement * lostTo)
-	{
+	virtual void gestureFocusLost(LeapElement * lostTo);
 
-	}
-
-	virtual void OnPointableEnter(Pointable & pointable)
-	{
-		;
-	}
-
-
-
+	virtual void OnPointableEnter(Pointable & pointable);
+	
 	virtual void setClickable(bool _clickable);
 
 	virtual bool isClickable();
 
-	virtual void setEnabled(bool _enabled)
-	{
-		this->enabled = _enabled;
-	}
+	virtual void setEnabled(bool _enabled);
 
-	virtual bool isEnabled()
-	{
-		return this->enabled;
-	}
+	virtual bool isEnabled();
+	void pointableEnter(Pointable & pointable);
 
-	//void getRoutingStack(LeapElement * element, stack<LeapElement*> & result)
-	//{
-	//	while (element->getParent() != NULL)
-	//	{
-	//		result.push(element->getParent());
-	//		element = element->getParent();
-	//	}
-	//}
+	virtual void OnPointableExit(Pointable & pointable);
 
-	void pointableEnter(Pointable & pointable)
-	{
-		if (!pointableEnterCallback.empty())
-			pointableEnterCallback(this, pointable);
+	bool interceptPointableExit(LeapElement * origin, Pointable & pointable);
 
-		OnPointableEnter(pointable);
-	}
+	bool interceptPointableEnter(LeapElement * origin, Pointable & pointable);
 
-	virtual void OnPointableExit(Pointable & pointable)
-	{
-		;
-	}
+	virtual bool OnInterceptPointableExit(LeapElement * origin, Pointable & pointable);
 
-	bool interceptPointableExit(LeapElement * origin, Pointable & pointable)
-	{
-		return OnInterceptPointableExit(origin,pointable);
-	}
+	virtual bool OnInterceptPointableEnter(LeapElement * origin, Pointable & pointable);
 
-	bool interceptPointableEnter(LeapElement * origin, Pointable & pointable)
-	{
-		return OnInterceptPointableEnter(origin, pointable);
-	}
-
-	virtual bool OnInterceptPointableExit(LeapElement * origin, Pointable & pointable)
-	{
-		return false;
-	}
-
-	virtual bool OnInterceptPointableEnter(LeapElement * origin, Pointable & pointable)
-	{
-		return false;
-	}
-
-	void pointableExit(Pointable & pointable)
-	{
-		if (!pointableExitCallback.empty())
-			pointableExitCallback(this, pointable);
-
-		OnPointableExit(pointable);
-	}
+	void pointableExit(Pointable & pointable);
 	
-	virtual void elementClicked()
-	{
-		if (!elementClickedCallback.empty())
-			elementClickedCallback(this);
-	}
+	virtual void elementClicked();
 
-	virtual void onFrame(const Controller & controller)
-	{
-		;
-	}
+	virtual void onFrame(const Controller & controller);
 
-
-	virtual LeapElement * elementAtPoint(int x, int y, int & elementStateFlags)
-	{
-		cv::Rect_<int> hitRect = getHitRect();
-		if (hitRect.width != 0 && hitRect.height != 0)
-		{
-			int left = hitRect.x;
-			int bottom = hitRect.y;
-			int top = bottom + hitRect.height;
-			int right = left + hitRect.width;
-
-			if (x >= left && x < right && y >= bottom && y < top)
-			{
-				return this;
-			}
-		}
-		return NULL;
-	}
+	virtual LeapElement * elementAtPoint(int x, int y, int & elementStateFlags);
 };
 
 #endif

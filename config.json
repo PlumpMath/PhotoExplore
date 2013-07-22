@@ -1,7 +1,7 @@
 {
 	"Logging" : 
 	{
-		"Enabled" : true
+		"Enabled" : false
 	},
 	"Typography" : 
 	{
@@ -32,7 +32,7 @@
 	{
 		"FSAASamples" : 0,
 		"ShaderDirectory" : ".",
-		"Fullscreen" : false,
+		"Fullscreen" : true,
 		"OverrideResolution" : false,
 		"OverrideWidth" : 1280,
 		"OverrideHeight" : 720,
@@ -40,7 +40,7 @@
 	},
 	"Panel" :
 	{
-		"DebugLoading" : false,
+		"DebugLoading" : true,
 		"DebugPriority" : false
 	},
 	"Cef" : 
@@ -49,26 +49,26 @@
 	},
 	"TextureLoading" :
 	{
-		"MaxConcurrentTasks" : 2,
-		"PixelBufferCount" : 4,
+		"MaxConcurrentTasks" : 4,
+		"PixelBufferCount" : 2,
 		"InitialTextureCount" : 200,
 		"MaxTextureCount" : 400
 	},
 	"ResourceCache" : 
 	{
-		"TextureCacheSize" : 512, 		//Megabytes
-		"ImageCacheSize" : 768, 			//Megabytes		
-		"MaxImageSize" : 50,					//Megabytes
+		"TextureCacheSize" : 512, 	//Megabytes
+		"ImageCacheSize" : 768, 	//Megabytes		
+		"MaxImageSize" : 8,			//Megabytes
 		"CacheGCFrequency" : 5000 ,//milliseconds		
 		"FullCacheGCFrequency" : 2000, //milliseconds
 		"TextureCacheGCCollectRatio" : 0.8,
 		"ImageCacheGCCollectRatio" : 0.8,
-		"DebugLogging" : true
+		"DebugLogging" : false
 	},
 	"FakeDataMode" : 
 	{
-		"Enable" : true,
-		"SourceDataDirectory" : "C:\\Users\\Adam\\Pictures\\pixiv-win\\LeapTestImages" ,
+		"Enable" : false,
+		"SourceDataDirectory" : "C:\\Users\\Adam\\Pictures\\pixiv-win" ,
 		"RequestDelay" : 50 ,//ms
 		"MaxPhotos" : 2000,
 		"MaxAlbums" : 0,
@@ -130,7 +130,8 @@
 		"Disabled" : false, 					//Disable the shake completely (breaks most functionality)
 		"CooldownTime" : 500.0, 		//Time between consecutive shakes (milliseconds)
 		"MinTimeVisible" : 0.0,		//Minimum time a pointable must have been visible in order to be considered in shake detection
-		"MinimumPointables" : 2
+		"MinimumPointables" : 2,
+		"MinTouchDistance" : -0.3
 	},
 	"Menu" : 
 	{
@@ -173,13 +174,27 @@
 			}
 		}		
 	},
-	"Leap" : 
+	"Overlay" : 
 	{
+		"BaseCursorSize" : 41,
+		"VertexCount" : 4,
+		"AngleOffset" : 45
+	},
+	"Leap" : 
+	{		
+		"PreferLeftHand" : false,		
+		"Gesture" :
+		{
+			"Swipe" : {
+				"MinVelocity" : 900, //Leap default is 1000 mm/s
+				"MinLength" : 100 //Leap default is 150 mm
+			}
+		},
 		"CustomGesture" : 
 		{
 			"Swipe" :
 			{
-				"DebugDraw" : true,
+				"DebugDraw" : false,
 				"SphereGrowth" : 
 				{
 					"Enabled" : true,
@@ -191,67 +206,115 @@
 					"Enabled" : true,
 					"MaxTouchDistance" : 0
 				},
-				"SpeedScale" : 3,
-				"FrictionInduce" :
-				{	
-					"MaxTipVelocity" : 80.0,
-					"FrictionScale" : 0.0,
-					"TouchDistanceScale"  :1.0
-				}
+				"SpeedScale" : 2.0,
+				"MinSpeed" : 0,
+				"MaxSpeed" : 4000
+			},			
+			"Point" :
+			{
+				"Trigger" : 
+				{
+					"MaxTipVelocity" :  50.0,
+					"MaxAngleOffsetToZAxis" :  45.0				
+				},
+				"Maintain" : 
+				{
+					"MaxTipVelocity" :  60.0,
+					"MaxAngleOffsetToZAxis" :  60.0		//Degrees		
+				},
+				"TimeToComplete" : 50 //milliseconds
 			}
 		},
-		"Gesture" :
-		{
-			"Swipe" : {
-				"MinVelocity" : 900, //Leap default is 1000 mm/s
-				"MinLength" : 100 //Leap default is 150 mm
-			}
+		"TouchScroll" : 
+		{	
+			"FrictionInduce" :
+			{	
+				"MaxTipVelocity" : 200.0,
+				"FrictionScale" : 0.5,
+				"TouchDistanceScale"  : 1.0,	
+				"TouchDistancePreScale"  : 4.0,			
+				"TouchDistanceThreshold"  : 0.5
+			},
+			"MinScrollFingers" : 2,
+			"FlyWheelVelocityThreshold" : 300,
+			"MaxStartScrollDistance" :  0.0,
+			"MaxContinueScrollDistance" : 0.0,
+			"ScrollPositionFilterRC" :  0.1 ,
+			"FlingVelocityTransferRatio" : 0.5,	
+			"MaxFlingSpeed" : 4000,
+			"VisualBackgroundColor" :  {"R" : 255,"G" : 69,"B" : 0,"A" : 200},
+			"VisualLineColor" :  {"R" : 255,"G" : 69,"B" : 0,"A" : 200}
 		},
 		"HoverSelect" :
 		{
 			"Enabled" : false,
 			"SelectTime" : 1.5,
-			"MaxTipVelocity" : 30
+			"MaxTipVelocity" : 30,
+			"Visual" :
+			{
+				"FillColor" :  {"R" : 200,"G" : 200,"B" : 200,"A" : 0},
+				"LineColor" :  {"R" : 100,"G" : 255,"B" : 100,"A" : 255},
+				"LineWidth" :  2.0
+			}
 		},
 		"TouchDistance" :
 		{
-			"VisualColor" :  {"R" : 200,"G" : 200,"B" : 200,"A" : 150}
+			"DrawIntentOnly" : true,
+			"ClickDistanceThreshold" : 0,
+			"MinimumDrawDistance" : -0.1,
+			"MaxRadialClickVelocity" : 400.0,
+			"MaxLongitudalClickVelocity" : 800.0,
+			"ClickEnabled" : true,
+			"Visual" : 
+			{
+				"FillColor" :  {"R" : 200,"G" : 200,"B" : 200,"A" : 0},
+				"LineColor" :  {"R" : 255,"G" : 69,"B" : 0,"A" : 200}, //OrangeRed
+				// "LineColor" :  {"R" : 100,"G" : 255,"B" : 100,"A" : 255},
+				"LineWidth" :  2.0
+			},
+			"ClickVisual" : 
+			{
+				"FillColor" :  {"R" : 200,"G" : 200,"B" : 200,"A" : 0},
+				"LineColor" :  {"R" : 0,"G" : 221,"B" : 255,"A" : 200},
+				"LineWidth" :  2.0
+			},
+			"InvertVisualSize" : false
 		},
-		"HoverClickTime" : 1.5,
-		"PreferLeftHand" : false,
-		"PointGesture" :
-		{
-			"Trigger" : 
+		"IntentControl" : 
+		{			
+			"SelectVisual" : 
 			{
-				"MaxTipVelocity" :  50.0,
-				"MaxAngleOffsetToZAxis" :  45.0				
+				"Color" :  {"R" : 0,"G" : 0,"B" : 0,"A" : 0},
+				"LineColor" :  {"R" : 0,"G" : 221,"B" : 255,"A" : 150},
+				"LineWidth" :  3
 			},
-			"Maintain" : 
+			"ScrollVisual" : 
 			{
-				"MaxTipVelocity" :  60.0,
-				"MaxAngleOffsetToZAxis" :  60.0		//Degrees		
+				"Color" :  {"R" : 200,"G" : 200,"B" : 200,"A" : 0},
+				"LineColor" :  {"R" : 255,"G" : 69,"B" : 0,"A" : 150}, //OrangeRed
+				//"LineColor" :  {"R" : 100,"G" : 255,"B" : 100,"A" : 80}, 
+				"LineWidth" :  3
 			},
-			"TimeToComplete" : 50 //milliseconds
-		},
-		"PointablePositionFilter" : 
-		{
-			"ShowRaw" : false,
-			"Mode" :  "LowpassAngle",
-			"Lowpass" :
+			"NonDominant" : 
 			{
-			"RC" : 10				
+				"FillColor" :  {"R" : 0,"G" : 0,"B" : 0,"A" : 0},
+				"LineColor" :  {"R" : 199,"G" : 21,"B" : 133,"A" : 150},//MediumViolet				
+				"LineWidth" :  1
 			},
-			"LowpassAngle" :
+			"NonDominantTD" : 
 			{
-				"RC" : 100			
-			}			
-		}
+				"FillColor" :  {"R" : 200,"G" : 200,"B" : 200,"A" : 0},
+				"LineColor" :  {"R" : 199,"G" : 21,"B" : 133,"A" : 200}, //MediumViolet
+				//"LineColor" :  {"R" : 128,"G" : 0,"B" : 255,"A" : 80},  //Pretty
+				"LineWidth" :  2
+			}
+		}		
 	},
 	"ImageDetailView" :
 	{
 		"Resize" :
 		{
-			"MaxTouchDistance" : 0.9,
+			"MaxTouchDistance" : 0,
 			"LimitToScreen" :true
 		},
 		"AllowSwipeDownExit" : false,
@@ -281,7 +344,7 @@
 	},
 	"LeapStartScreen" :
 	{
-		"TrainingMode" : true,
+		"TrainingMode" : false,
 		"StartButtonText" : "Start Exploring",
 		"BrowserLoginPrompt" : "Please login using the browser window",
 		"InternetNotice" : "The above button will open Facebook in a browser window; please login using this window to continue. This application will require an internet connection throughout its use."
@@ -357,13 +420,7 @@
 				"B" : 255,
 				"A" : 255
 			},
-			"BackgroundColor" : 
-			{
-				"R" : 70,
-				"G" : 130,
-				"B" : 180,
-				"A" : 255
-			}
+			"BackgroundColor" : {"R" : 70,"G" : 130,"B" : 180,"A" : 255} //SteelBlue
 		}
 	},
 	"Tutorial" :

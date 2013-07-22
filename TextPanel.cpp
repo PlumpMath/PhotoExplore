@@ -35,7 +35,6 @@ void TextPanel::resourceUpdated(ResourceData * data)
 		if (data->TextureState == ResourceState::TextureLoaded)
 		{
 			currentTextureId = data->textureId;
-			//currentTextImage.release();
 		}		
 	}
 	else

@@ -576,9 +576,9 @@ int WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmd
 		frameOut << "DebugDraw = " << itemTimer.millis() << "ms \n";
 		itemTimer.start();
 				
-		itemTimer.start();
-		glFinish();
-		frameOut  << "glFinish = " << itemTimer.millis() << "ms \n";
+		//itemTimer.start();
+		//glFinish();
+		//frameOut  << "glFinish = " << itemTimer.millis() << "ms \n";
 		itemTimer.start();
 		glfwSwapBuffers();
 		frameOut << "SwapBuffers = " << itemTimer.millis() << "ms \n";

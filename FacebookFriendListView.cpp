@@ -1,6 +1,7 @@
 #include "FacebookFriendListView.hpp"
 #include "FixedAspectGrid.hpp"
 #include "GraphicContext.hpp"
+#include "SwipeGestureDetector.hpp"
 
 
 FacebookFriendListView::FacebookFriendListView()
@@ -299,3 +300,10 @@ void FacebookFriendListView::getTutorialDescriptor(vector<string> & tutorial)
 	tutorial.push_back("shake");
 }
 
+void FacebookFriendListView::onGlobalFocusChanged(bool isFocused)
+{
+	if (isFocused)
+		SwipeGestureDetector::getInstance().setFlyWheel(itemScroll->getFlyWheel());
+	else
+		SwipeGestureDetector::getInstance().setFlyWheel(NULL);
+}

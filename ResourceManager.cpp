@@ -12,6 +12,7 @@ ResourceManager::ResourceManager()
 	textureLoadThreshold = 1000;
 	imageLoadThreshold = 1000;
 
+	cacheCleanupTimer.start();
 	ImageLoader::getInstance().setResourceChangedCallback([this](string resourceId, int statusCode, cv::Mat imgMat){
 		updateImageResource(resourceId,statusCode,imgMat);
 	});
@@ -251,8 +252,8 @@ float ResourceManager::calculateResourceSize(ResourceData * data)
 
 void ResourceManager::cleanupCache()
 {
-	static double textureCacheMaxSize = GlobalConfig::tree()->get<double>("ResourceCache.TextureCacheSize") * BytesToMB;
-	static double imageCacheMaxSize = GlobalConfig::tree()->get<double>("ResourceCache.ImageCacheSize")* BytesToMB;
+	double textureCacheMaxSize = GlobalConfig::tree()->get<double>("ResourceCache.TextureCacheSize") * BytesToMB;
+	double imageCacheMaxSize = GlobalConfig::tree()->get<double>("ResourceCache.ImageCacheSize")* BytesToMB;
 	static bool debugLogging = GlobalConfig::tree()->get<bool>("ResourceCache.DebugLogging");
 
 	textureCacheMaxSize *= GlobalConfig::tree()->get<double>("ResourceCache.TextureCacheGCCollectRatio");

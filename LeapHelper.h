@@ -87,21 +87,25 @@ public:
 		}
 	}
 
+	static Pointable FindClosestPointable(const Controller & controller, Hand hand)
+	{
+		float minTouchDistance = 1;
+		Pointable closest;
+		for (int i=0;i<hand.pointables().count(); i++)
+		{
+			Pointable p = hand.pointables()[i];
+			if (p.touchDistance() < minTouchDistance)
+			{
+				minTouchDistance = p.touchDistance();
+				closest = p;
+			}
+		}
+		return closest;
+	}
+
 	static Vector FindNormalizedScreenPoint(const Controller & c, Vector position, Vector direction, Screen & screen)
 	{
-		if (GlobalConfig::tree()->get<bool>("Leap.UseLegacyScreenAPI",false))
-		{
-			if (GlobalConfig::PreferredScreenIndex() < 0)
-				screen = c.calibratedScreens().closestScreenHit(position,direction);
-			else
-				screen = c.calibratedScreens()[GlobalConfig::PreferredScreenIndex()];
-					
-			return screen.intersect(position,direction, true);
-		}
-		else
-		{
-			return c.frame().interactionBox().normalizePoint(position);
-		}
+		return c.frame().interactionBox().normalizePoint(position,false);
 	}
 
 	//static Screen ClosestScreen(const Controller & c, Vector position)

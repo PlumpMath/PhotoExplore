@@ -2,6 +2,7 @@
 #define LEAPIMAGE_FRAME_VIEW_HPP_
 
 #include "View.hpp"
+#include "Types.h"
 
 class FrameView : public View {
 

@@ -428,7 +428,7 @@ void Panel::resourceUpdated(ResourceData * data)
 		glTextureId = NULL;
 	}
 	else if (node != NULL)// && node->getURI().compare(data->resourceId) == 0)
-	{
+	{					
 		glTextureId = data->textureId;
 	}
 }

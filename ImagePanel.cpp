@@ -29,6 +29,18 @@ void ImagePanel::resourceUpdated(ResourceData * data)
 {
 	if (data != NULL)
 		currentTextureId = data->textureId;
+
+	if (data->textureId != NULL)
+	{
+		glBindTexture(GL_TEXTURE_2D,data->textureId);
+		int texWidth,texHeight;
+		glGetTexLevelParameteriv(GL_TEXTURE_2D,0,GL_TEXTURE_WIDTH,&texWidth);
+		glGetTexLevelParameteriv(GL_TEXTURE_2D,0,GL_TEXTURE_HEIGHT,&texHeight);
+
+		textureWidth =  texWidth;
+		textureHeight = texHeight;
+		glBindTexture(GL_TEXTURE_2D,NULL);
+	}		
 }
 
 

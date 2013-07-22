@@ -354,30 +354,78 @@ void LeapDebug::drawPointer(LeapDebugVisual * debugVisual)
 		
 	drawHeight = drawWidth = debugVisual->size;	
 
-	x1 = debugVisual->screenPoint.x - floorf(drawWidth/2.0f);
-	x2 = debugVisual->screenPoint.x + floorf(drawWidth/2.0f);
-	y1 = debugVisual->screenPoint.y - floorf(drawHeight/2.0f);
-	y2 = debugVisual->screenPoint.y + floorf(drawHeight/2.0f);
+	if (drawHeight == 0)
+		return;
+
+	static float vertices = GlobalConfig::tree()->get<float>("Overlay.VertexCount");
+	static float angleOffset = GeomConstants::DegToRad*GlobalConfig::tree()->get<float>("Overlay.AngleOffset");
+
+	if (vertices == 4 && angleOffset == 0)
+	{
+		x1 = debugVisual->screenPoint.x - floorf(drawWidth/2.0f);
+		x2 = debugVisual->screenPoint.x + floorf(drawWidth/2.0f);
+		y1 = debugVisual->screenPoint.y - floorf(drawHeight/2.0f);
+		y2 = debugVisual->screenPoint.y + floorf(drawHeight/2.0f);
 		
-	//cout << "Drawing dbg vis at " << debugVisual->screenPoint.x << ","<<debugVisual->screenPoint.y << endl;
+		glColor4fv(debugVisual->fillColor.getFloat());
+		glBindTexture( GL_TEXTURE_2D, NULL);
+		glLineWidth(0);
+		glBegin(GL_QUADS);
+			glVertex3f(x1,y1,z1);
+			glVertex3f(x2,y1,z1);
+			glVertex3f(x2,y2,z1);
+			glVertex3f(x1,y2,z1);
+		glEnd();
 
-	glColor4fv(debugVisual->fillColor.getFloat());
-	glBindTexture( GL_TEXTURE_2D, NULL);
-	glLineWidth(0);
-	glBegin(GL_QUADS);
-		glVertex3f(x1,y1,z1);
-		glVertex3f(x2,y1,z1);
-		glVertex3f(x2,y2,z1);
-		glVertex3f(x1,y2,z1);
-	glEnd();
+		glColor4fv(debugVisual->lineColor.getFloat());
+		glBindTexture( GL_TEXTURE_2D, NULL);
+		glLineWidth(1);
+		glBegin(GL_LINE_LOOP);
+			glVertex3f(x1,y1,z1);
+			glVertex3f(x2,y1,z1);
+			glVertex3f(x2,y2,z1);
+			glVertex3f(x1,y2,z1);
+		glEnd();
+	}
+	else
+	{
+		float length = drawHeight*.5f;
+		float anglePerVertex = (Leap::PI*2.0f)/vertices;
+		
+		
+		glColor4fv(debugVisual->fillColor.getFloat());
+		glBindTexture( GL_TEXTURE_2D, NULL);
+		glLineWidth(0);
+		glTranslatef(debugVisual->screenPoint.x,debugVisual->screenPoint.y,0);
+		glBegin(GL_POLYGON);
+		for (float v=0;v<vertices;v++)
+		{
+			float angle = v*anglePerVertex;
+			angle += angleOffset;
+			glVertex3f(sinf(angle)*length,cosf(angle)*length,z1);
+		}
+		glEnd();
 
-	glColor4fv(debugVisual->lineColor.getFloat());
-	glBindTexture( GL_TEXTURE_2D, NULL);
-	glLineWidth(1);
-	glBegin(GL_LINE_LOOP);
-		glVertex3f(x1,y1,z1);
-		glVertex3f(x2,y1,z1);
-		glVertex3f(x2,y2,z1);
-		glVertex3f(x1,y2,z1);
-	glEnd();
+		float alphaScale = debugVisual->lineColor.colorArray[3];
+		
+		float lineWidth [] = {debugVisual->lineWidth*3.0f,debugVisual->lineWidth*2.0f,debugVisual->lineWidth};
+		float * lineColor [] = {debugVisual->lineColor.withAlpha(.2f*alphaScale).getFloat(),debugVisual->lineColor.withAlpha(.4f*alphaScale).getFloat(),debugVisual->lineColor.withAlpha(1.0f*alphaScale).getFloat()};
+		
+		for (int i=0; i < 3; i++)
+		{
+			glColor4fv(lineColor[i]);
+			glLineWidth(lineWidth[i]);
+
+			glBegin(GL_LINE_LOOP);
+			for (float v=0;v<vertices;v++)
+			{
+				float angle = v*anglePerVertex;
+				angle += angleOffset;
+				glVertex3f(sinf(angle)*length,cosf(angle)*length,z1);
+			}
+			glEnd();		
+		}
+		glTranslatef(-debugVisual->screenPoint.x,-debugVisual->screenPoint.y,0);
+
+	}
 }

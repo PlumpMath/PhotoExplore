@@ -66,6 +66,8 @@ public:
 
 	void viewOwnershipChanged(View * view, ViewOwner * newOwner);
 
+	void onGlobalFocusChanged(bool isFocused);
+
 };
 
 

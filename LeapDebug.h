@@ -32,6 +32,7 @@ public:
 		this->timeToLive = timeToLive;
 		this->wayOfLife = wayOfLife;
 		this->depth= 10;
+		this->lineWidth = 1;
 	}
 
 
@@ -67,7 +68,7 @@ public:
 	Color fillColor,lineColor;
 	double size;
 	int timeToLive, wayOfLife;
-	float depth;
+	float depth, lineWidth;
 
 	const static int LiveForever = 0;
 	const static int LiveBySize = 1;

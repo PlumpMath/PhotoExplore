@@ -10,8 +10,8 @@
 
 class FlyWheel {
 
-	double position,velocity, minValue, maxValue, minVelocity, maxVelocity, friction;
-	double tmpFriction;
+	volatile double position,velocity, minValue, maxValue, minVelocity, maxVelocity, friction;
+	volatile double tmpFriction;
 private:
 	Timer wheelTimer;
 	void update(double deltaTicks);

@@ -9,6 +9,7 @@
 #include "View.hpp"
 #include <boost/function.hpp>
 #include "Flywheel.h"
+#include "LeapDebug.h"
 
 using namespace Leap;
 
@@ -82,6 +83,7 @@ private:
 
 	bool DrawingEnabled;
 	int sampleCount;
+	int state;
 
 	Frame lastFrame;
 	Timer lastActiveTime;
@@ -89,7 +91,21 @@ private:
 
 	FlyWheel * flyWheel;
 
+	void doTouchZoneScrolling(const Controller & controller);
+	void doGestureScrolling(const Controller & controller);
+
+	Vector startScrollScreenPoint;
+	double startScrollPos, currentScrollVelocity;
+	int scrollingPointableId, scrollingHandId;
+	
+	vector<LeapDebugVisual*> scrollPointVisuals;
+
+
 public:
+	const static int IdleState = 0;
+	const static int GestureScrolling = 1;
+	const static int TouchScrolling = 2;
+
 	void onFrame(const Controller & controller);
 	void draw();
 

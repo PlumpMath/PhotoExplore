@@ -1,5 +1,6 @@
 #include "FrameView.hpp"
 #include "GLImport.h"
+#include "Types.h"
 
 FrameView::FrameView()
 {

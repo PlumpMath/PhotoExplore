@@ -78,14 +78,8 @@ void TexturePanel::drawContent(Vector drawPosition, float drawWidth, float drawH
 void TexturePanel::drawTexture(GLuint drawTexId, Vector drawPosition, float drawWidth, float drawHeight)
 {
 	static bool useInt = GlobalConfig::tree()->get<bool>("GraphicsSettings.UseIntForNonSubPixelRender");
-
-
 	
-	drawPosition.x += floorf(drawWidth/2.0f);	
-	drawPosition.y += floorf(drawHeight/2.0f);
-
-	glBindTexture( GL_TEXTURE_2D, drawTexId);
-
+	glBindTexture(GL_TEXTURE_2D,drawTexId);
 	int texWidth,texHeight;
 	glGetTexLevelParameteriv(GL_TEXTURE_2D,0,GL_TEXTURE_WIDTH,&texWidth);
 	glGetTexLevelParameteriv(GL_TEXTURE_2D,0,GL_TEXTURE_HEIGHT,&texHeight);
@@ -93,6 +87,10 @@ void TexturePanel::drawTexture(GLuint drawTexId, Vector drawPosition, float draw
 	textureWidth =  texWidth;
 	textureHeight = texHeight;
 
+	drawPosition.x += floorf(drawWidth/2.0f);	
+	drawPosition.y += floorf(drawHeight/2.0f);
+
+	glBindTexture( GL_TEXTURE_2D, drawTexId);
 	float drawTextureWidth,drawTextureHeight;
 	float tx1 = 0,tx2 = 1,ty1 = 0,ty2 = 1;
 	//float tx1 = -.5f,tx2 = .5f,ty1 = -.5f,ty2 = .5f;

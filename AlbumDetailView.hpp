@@ -54,6 +54,8 @@ public:
 	void viewOwnershipChanged(View * view, ViewOwner * newOwner);
 
 	void getTutorialDescriptor(vector<string> & tutorial);
+
+	void onGlobalFocusChanged(bool isFocused);
 };
 
 

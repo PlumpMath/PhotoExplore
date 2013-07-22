@@ -2,14 +2,11 @@
 #define PointableElementManager_H
 
 #include <Leap.h>
-#include <LeapMath.h>
 #include <list>
 #include <map>
 #include <stack>
-#include "HandModel.h"
 #include <boost/function.hpp>
 #include "SDLTimer.h"
-
 #include "LeapElement.hpp"
 
 using namespace Leap;
@@ -23,15 +20,14 @@ public:
 	
 	virtual void getTutorialDescriptor(vector<string> & tutorial) = 0;
 
+	virtual void onGlobalFocusChanged(bool isFocused) {}	
 };
 
 
 class PointableElementManager {
 	
 private:
-	HandProcessor * handProcessor;
 	std::list<LeapElement*> testElements;
-	LeapElement * gestureFocusElement;
 	stack<GlobalGestureListener*> globalGestureListenerStack;
 
 	set<int> processedGestures;

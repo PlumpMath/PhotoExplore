@@ -1,6 +1,6 @@
 #include "GLImport.h"
 
-#include <queue>
+#include <list>
 #include <map>
 
 #ifndef TexturePool_H_
@@ -11,7 +11,7 @@ using namespace std;
 class TexturePool {
 
 private:
-	queue<GLuint> textureQueue;
+	list<GLuint> textureQueue;
 	int poolSize;
 	
 	TexturePool(TexturePool const&);

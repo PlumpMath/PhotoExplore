@@ -74,6 +74,19 @@ void AlbumDetailView::loadItems(int photos)
 
 
 
+void AlbumDetailView::onGlobalFocusChanged(bool isFocused)
+{
+	if (isFocused)
+	{
+		SwipeGestureDetector::getInstance().setFlyWheel(itemScroll->getFlyWheel());
+	}
+	else
+	{
+		SwipeGestureDetector::getInstance().setFlyWheel(NULL);
+	}
+}
+
+
 void AlbumDetailView::updateLoading()
 {
 	float scrollPosition = itemScroll->getFlyWheel()->getPosition();
@@ -208,6 +221,7 @@ void AlbumDetailView::addNode(FBNode * node)
 		}
 
 		item->setLayoutParams(LayoutParams(cv::Size2f(),cv::Vec4f(5,5,5,5)));
+		item->layout(Vector(lastSize.width-itemScroll->getFlyWheel()->getPosition(),lastSize.height*.5f,-10),cv::Size2f(lastSize.height*(1.0f/((float)rowCount)),10));
 		item->setClickable(true);
 		item->setVisible(true);
 

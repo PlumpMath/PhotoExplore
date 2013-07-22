@@ -61,6 +61,9 @@
     <Filter Include="Source Files\Panel">
       <UniqueIdentifier>{c7382cd2-038d-497c-a022-a66627574e4b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\EventHandling">
+      <UniqueIdentifier>{636ae548-a27d-4a4e-8e7c-a4202766bfd4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -141,9 +144,6 @@
     <ClCompile Include="ImageDetailView.cpp">
       <Filter>Source Files\NewPanel</Filter>
     </ClCompile>
-    <ClCompile Include="RelevantImageView.cpp">
-      <Filter>Source Files\NewPanel</Filter>
-    </ClCompile>
     <ClCompile Include="FrameView.cpp">
       <Filter>Source Files\NewPanel</Filter>
     </ClCompile>
@@ -155,9 +155,6 @@
     </ClCompile>
     <ClCompile Include="TextureLoadTask.cpp">
       <Filter>Source Files\ResourceManager</Filter>
-    </ClCompile>
-    <ClCompile Include="LeapElement.cpp">
-      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="GlobalConfig.cpp">
       <Filter>Source Files</Filter>
@@ -227,6 +224,9 @@
     </ClCompile>
     <ClCompile Include="ShakeGestureDetector.cpp">
       <Filter>Source Files\LeapUtil</Filter>
+    </ClCompile>
+    <ClCompile Include="LeapElement.cpp">
+      <Filter>Source Files\EventHandling</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

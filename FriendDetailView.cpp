@@ -38,6 +38,8 @@ FriendDetailView::FriendDetailView()
 }
 
 
+
+
 void FriendDetailView::loadItems(int albums, int photos)
 {
 	int requestedAlbums = activeNode->loadState["albums"].requestedCount;
@@ -203,6 +205,18 @@ void FriendDetailView::getTutorialDescriptor(vector<string> & tutorial)
 	tutorial.push_back("shake");
 }
 
+void FriendDetailView::onGlobalFocusChanged(bool isFocused)
+{
+	if (isFocused)
+	{
+		SwipeGestureDetector::getInstance().setFlyWheel(itemScroll->getFlyWheel());
+	}
+	else
+	{
+		SwipeGestureDetector::getInstance().setFlyWheel(NULL);
+	}
+}
+
 void FriendDetailView::show(FBNode * root)
 {	
 	topView = mainLayout;
@@ -210,29 +224,8 @@ void FriendDetailView::show(FBNode * root)
 	currentRightBoundary= 0;
 	items.clear();	
 	lastUpdatePos = 1000;
-
-		
+			
 	PointableElementManager::getInstance()->requestGlobalGestureFocus(this);
-	SwipeGestureDetector::getInstance().setFlyWheel(itemScroll->getFlyWheel());
-
-	//float menuHeight = GlobalConfig::tree()->get<float>("Menu.Height");
-	//
-	//((AbsoluteLayout*)mainLayout)->layoutCallback = [&menuHeight,this](Vector pos, cv::Size2f size){
-
-	//	if (mainLayout->isVisible())
-	//	{
-	//		if (friendNameHeading != NULL && itemScroll != NULL && imageGroup != NULL)
-	//		{			
-	//			if (menuHeight == 0)
-	//				menuHeight = 100;
-
-	//			friendNameHeading->layout(pos-Vector(0,menuHeight,0),cv::Size2f(size.width,menuHeight));
-	//			itemScroll->measure(size);
-	//			itemScroll->layout(pos,size);
-	//		}
-	//	}
-	//};
-	//
 	itemScroll->getFlyWheel()->overrideValue(0);
 
 	activeNode = root;
@@ -336,7 +329,6 @@ void FriendDetailView::addNode(FBNode * node)
 				p->setVisible(true);
 				p->setClickable(true);
 				p->setDataPriority(0);
-				p->layout(Vector(600-itemScroll->getFlyWheel()->getPosition(),600,10),cv::Size2f(100,100));
 				item = p;
 			} else if (node->getNodeType().compare(NodeType::FacebookAlbum) == 0)
 			{
@@ -352,9 +344,12 @@ void FriendDetailView::addNode(FBNode * node)
 			if (node->getNodeType().compare(NodeType::FacebookImage) == 0)
 			{				
 				//item->setLayoutParams(cv::Size2f(500,450));
+
 				Panel * p = (Panel*)item;
 				p->setClickable(true);
-				p->setLayoutParams(LayoutParams(cv::Size2f(),cv::Vec4f(5,5,5,5)));
+				p->setLayoutParams(LayoutParams(cv::Size2f(),cv::Vec4f(5,5,5,5)));				
+				p->layout(Vector(lastSize.width-itemScroll->getFlyWheel()->getPosition(),lastSize.height,-10),cv::Size2f(100,100));
+
 				item->elementClickedCallback = [this,p](LeapElement * clicked){
 
 					this->itemScroll->getFlyWheel()->impartVelocity(0);

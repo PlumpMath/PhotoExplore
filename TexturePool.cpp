@@ -11,7 +11,7 @@ void TexturePool::releaseAll()
 	while (!textureQueue.empty())
 	{
 		glDeleteTextures(1,&textureQueue.front());
-		textureQueue.pop();
+		textureQueue.pop_back();
 	}
 }
 
@@ -22,7 +22,7 @@ void TexturePool::initPool(int poolSize)
 	for (int i=0;i<poolSize;i++)
 	{
 		glGenTextures(1,&textId);	
-		textureQueue.push(textId);
+		textureQueue.push_back(textId);
 	}
 }
 
@@ -34,11 +34,12 @@ GLuint TexturePool::getTexture(int requiredSize)
 	if (textureQueue.size() == 0)
 	{
 		glGenTextures(1,&textId);
+		//return NULL;
 	}
 	else
 	{
-		textId = textureQueue.front();
-		textureQueue.pop();
+		textId = textureQueue.back();
+		textureQueue.pop_back();
 	}		
 
 	return textId;
@@ -47,6 +48,10 @@ GLuint TexturePool::getTexture(int requiredSize)
 int TexturePool::releaseTexture(GLuint texture, int textureSize)
 {
 	if (texture != NULL)
-		textureQueue.push(texture);
+	{		
+		//glDeleteTextures(1,&texture);
+		//glGenTextures(1,&texture);
+		textureQueue.push_front(texture);
+	}
 	return NULL;
 }

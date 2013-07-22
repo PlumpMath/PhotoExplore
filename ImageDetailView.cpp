@@ -417,8 +417,8 @@ bool ImageDetailView::handleImageManipulation(const Controller & controller)
 		ldv1 = new LeapDebugVisual(Vector(),1,LeapDebugVisual::LiveForever,0,Colors::MediumVioletRed.withAlpha(.7f));
 		ldv2 = new LeapDebugVisual(Vector(),1,LeapDebugVisual::LiveForever,0,Colors::MediumVioletRed.withAlpha(.7f));
 		
-		LeapDebug::instance->addDebugVisual(ldv1);
-		LeapDebug::instance->addDebugVisual(ldv2);
+		//LeapDebug::instance->addDebugVisual(ldv1);
+		//LeapDebug::instance->addDebugVisual(ldv2);
 	}
 
 	if (panel != NULL)
@@ -475,12 +475,12 @@ bool ImageDetailView::handleImageManipulation(const Controller & controller)
 					Vector oldCentroid = activePanelInteraction.pointableCentroid;
 					if (oldCentroid.x != 0)
 					{
-						LeapDebug::instance->addDebugVisual(new LeapDebugVisual(newImageCentroid,1,LeapDebugVisual::LiveByTime,35,Colors::LightBlue));
+						//LeapDebug::instance->addDebugVisual(new LeapDebugVisual(newImageCentroid,1,LeapDebugVisual::LiveByTime,35,Colors::LightBlue));
 
 						newImageCentroid.x = LeapHelper::lowpass(oldCentroid.x,newImageCentroid.x,40,timer.millis());
 						newImageCentroid.y = LeapHelper::lowpass(oldCentroid.y,newImageCentroid.y,40,timer.millis());
 					
-						LeapDebug::instance->addDebugVisual(new LeapDebugVisual(newImageCentroid,1,LeapDebugVisual::LiveByTime,40,Colors::Blue));
+						//LeapDebug::instance->addDebugVisual(new LeapDebugVisual(newImageCentroid,1,LeapDebugVisual::LiveByTime,40,Colors::Blue));
 
 						activePanelInteraction.translation += (newImageCentroid - oldCentroid);
 					}
@@ -493,11 +493,11 @@ bool ImageDetailView::handleImageManipulation(const Controller & controller)
 					Pointable p1 = controller.frame().pointable(activePanelInteraction.interactingPointables.at(0).first);
 					Pointable p2 = controller.frame().pointable(activePanelInteraction.interactingPointables.at(1).first);
 
-					ldv1->size = min<float>(cursorDimension,cursorDimension * .6f + (cursorDimension * (p1.touchDistance() * .4f)));
-					ldv1->screenPoint = activePanelInteraction.interactingPointables.at(0).second;
-					
-					ldv2->size = min<float>(cursorDimension,cursorDimension * .6f + (cursorDimension * (p2.touchDistance() * .4f)));
-					ldv2->screenPoint = activePanelInteraction.interactingPointables.at(1).second;
+					//ldv1->size = min<float>(cursorDimension,cursorDimension * .6f + (cursorDimension * (p1.touchDistance() * .4f)));
+					//ldv1->screenPoint = activePanelInteraction.interactingPointables.at(0).second;
+					//
+					//ldv2->size = min<float>(cursorDimension,cursorDimension * .6f + (cursorDimension * (p2.touchDistance() * .4f)));
+					//ldv2->screenPoint = activePanelInteraction.interactingPointables.at(1).second;
 
 					float newDist = 0;
 					for (int i=0;i<size;i++)
