@@ -13,7 +13,7 @@ using namespace Leap;
 class Panel : public TexturePanel, public IResourceWatcher {
 
 private:
-	GLuint glTextureId, fullTextureId;
+	GLuint glTextureId;
 	bool fullScreenMode;
 	
 	TextPanel * textPanel;
@@ -55,6 +55,8 @@ public:
 	void resourceUpdated(ResourceData * data);
 
 	void drawPanel(Vector drawPosition, float drawWidth, float drawHeight);
+
+	GLuint getTextureId();
 
 	
 };

@@ -107,9 +107,17 @@ void LeapElement::pointableExit(Pointable & pointable)
 
 void LeapElement::elementClicked()
 {
+	Pointable p;
+	OnElementClicked(p);
 	if (!elementClickedCallback.empty())
 		elementClickedCallback(this);
 }
+
+
+void LeapElement::OnElementClicked(Pointable & pointable)
+{
+}
+
 
 void LeapElement::onFrame(const Controller & controller)
 {

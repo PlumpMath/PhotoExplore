@@ -163,3 +163,66 @@ void FixedAspectGrid::draw()
 			child->draw();
 	}
 }
+
+
+LeapElement * FixedAspectGrid::elementAtPoint(int x, int y, int & elementStateFlags)
+{
+	LeapElement * hit = NULL;
+
+	if (children.size() > 0)
+	{
+		float height = lastSize.height;
+		float cellHeight = height/gridDimensions.height;
+		float cellWidth = cellHeight*cellAspectRatio;
+
+		auto searchIt = children.begin();
+
+		bool found;
+		float visibleWidth = GraphicsContext::getInstance().getDrawHint("VisibleWidth", found);
+		float offset = GraphicsContext::getInstance().getDrawHint("Offset", found);
+
+		if (found)
+		{
+			int advance = ((int)(-offset/cellWidth)) * gridDimensions.height;		
+
+			advance = min<int>(children.size()-1,advance);
+			std::advance(searchIt,advance);
+		}
+
+		multimap<float,LeapElement*> lazyDepthMap;
+		for (;searchIt != children.end();searchIt++)
+		{
+			View * test = (*searchIt);
+			if (test->isVisible() && test->isEnabled())
+			{
+				if (found)
+				{
+					float lastX = test->getLastPosition().x;
+					float lastWidth = test->getMeasuredSize().width;
+
+					if (lastWidth + lastX + offset < 0)
+						continue;
+					else if ((lastX + offset) > visibleWidth)
+						break;
+				}
+
+				hit = test->elementAtPoint(x,y,elementStateFlags);
+
+				if (hit != NULL)
+				{
+					float depth = hit->getZValue();
+					lazyDepthMap.insert(make_pair(depth,hit));
+				}
+			}
+		}
+
+		if (lazyDepthMap.size() > 0)
+			return (--lazyDepthMap.end())->second;
+		else
+			return View::elementAtPoint(x,y,elementStateFlags);
+
+	}
+	else
+		return View::elementAtPoint(x,y,elementStateFlags);
+
+}

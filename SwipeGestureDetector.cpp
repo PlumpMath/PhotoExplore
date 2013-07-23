@@ -33,11 +33,14 @@ void SwipeGestureDetector::setSwipeDetectedListener(boost::function<void(Hand sw
 
 void SwipeGestureDetector::setFlyWheel(FlyWheel * _flyWheel)
 {
+	flyWheelMutex.lock();
 	for (int i=0;i<scrollPointVisuals.size();i++)
 		scrollPointVisuals.at(i)->size = 0;
 
 	this->flyWheel = _flyWheel;
 	swipeMap.clear();
+	
+	flyWheelMutex.unlock();
 }
 
 
@@ -258,7 +261,7 @@ void SwipeGestureDetector::doTouchZoneScrolling(const Controller & controller)
 					if (scrollingPointable.isValid() && scrollingPointable.touchDistance() < maxContinueScrollDistance)
 					{
 						startScrollScreenPoint = LeapHelper::FindScreenPoint(controller, scrollingPointable);
-						startScrollPos = flyWheel->getPosition();
+						startScrollPos = flyWheel->getCurrentPosition();
 						scrollingPointableId = scrollingPointable.id();
 					}
 				}
@@ -274,8 +277,8 @@ void SwipeGestureDetector::doTouchZoneScrolling(const Controller & controller)
 				Vector screenPoint = LeapHelper::FindScreenPoint(controller,scrollingPointable);
 				Vector scrollBy = screenPoint - startScrollScreenPoint;				
 
-				double newPos = LeapHelper::lowpass(flyWheel->getPosition(),startScrollPos + scrollBy.x,filterRC,filterTimer.seconds());
-				currentScrollVelocity = (newPos - flyWheel->getPosition())/filterTimer.seconds();
+				double newPos = LeapHelper::lowpass(flyWheel->getCurrentPosition(),startScrollPos + scrollBy.x,filterRC,filterTimer.seconds());
+				currentScrollVelocity = (newPos - flyWheel->getCurrentPosition())/filterTimer.seconds();
 				filterTimer.start();
 			
 				flyWheel->overrideValue(newPos);
@@ -315,7 +318,7 @@ void SwipeGestureDetector::doTouchZoneScrolling(const Controller & controller)
 				if (scrollingPointable.isValid())
 				{
 					startScrollScreenPoint = LeapHelper::FindScreenPoint(controller,scrollingPointable);
-					startScrollPos = flyWheel->getPosition();
+					startScrollPos = flyWheel->getCurrentPosition();
 					scrollingPointableId = minTouchPointable;
 					scrollingHandId = frame.pointable(scrollingPointableId).hand().id();
 					state = TouchScrolling;
@@ -386,23 +389,30 @@ void SwipeGestureDetector::doTouchZoneScrolling(const Controller & controller)
 
 void SwipeGestureDetector::onFrame(const Controller & controller)
 {
-
-	Frame frame = controller.frame();
-	if (frame.id() == lastFrame.id())
-		return;
-	if (flyWheel == NULL)
+	if (flyWheelMutex.try_lock())
 	{
+		Frame frame = controller.frame();
+		if (frame.id() == lastFrame.id())
+		{
+			flyWheelMutex.unlock();
+			return;
+		}
+		if (flyWheel == NULL)
+		{
+			lastFrame = frame;
+			flyWheelMutex.unlock();
+			return;
+		}
+
+		doTouchZoneScrolling(controller);
+	
+		if (state != TouchScrolling)
+			doGestureScrolling(controller);
+
+	
 		lastFrame = frame;
-		return;
+		flyWheelMutex.unlock();
 	}
-
-	doTouchZoneScrolling(controller);
-	
-	if (state != TouchScrolling)
-		doGestureScrolling(controller);
-
-	
-	lastFrame = frame;
 }
 
 void SwipeGestureDetector::draw()

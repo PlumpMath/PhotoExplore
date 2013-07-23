@@ -69,7 +69,7 @@ bool init( int window_width, int window_height, bool isFull)
 
 	glfwOpenWindowHint(GLFW_FSAA_SAMPLES,GlobalConfig::tree()->get<int>("GraphicsSettings.FSAASamples"));
 
-	int handle = glfwOpenWindow(window_width, window_height, 8, 8, 8,8,8,2, (isFull) ? GLFW_FULLSCREEN : GLFW_WINDOW);
+	int handle = glfwOpenWindow(window_width, window_height, 8, 8, 8,8,8,0, (isFull) ? GLFW_FULLSCREEN : GLFW_WINDOW);
 
 	if (handle != GL_TRUE)
 	{	return false;
@@ -542,29 +542,16 @@ int WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmd
 			float * color = bg.getFloat();
 			glClearColor(color[0],color[1], color[2], 1);
 
-			//int count = 0;
-			GLenum glError;
-			//while ((glError = glGetError()) != GL_NO_ERROR)
-			//{
-			//	//cout << "[" << count << "]" << "main draw ERROR:" << glError << endl;
-			//}
 			GraphicsContext::getInstance().IsBlurCurrentPass = false;
 			glUseProgram(0);			
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);			
 
 			glMatrixMode( GL_MODELVIEW );			
 			ShakeGestureDetector::getInstance().draw();		
 			SwipeGestureDetector::getInstance().draw();
 			startScreen->draw();			
 			
-			//count = 0;
-			while ((glError = glGetError()) != GL_NO_ERROR)
-			{
-				//cout << "[" << count << "]" << "main draw ERROR:" << glError << endl;
-			}
-
 
 		}
 		//End
@@ -576,16 +563,16 @@ int WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmd
 		frameOut << "DebugDraw = " << itemTimer.millis() << "ms \n";
 		itemTimer.start();
 				
-		//itemTimer.start();
-		//glFinish();
-		//frameOut  << "glFinish = " << itemTimer.millis() << "ms \n";
+		itemTimer.start();
+		glFinish();
+		frameOut  << "glFinish = " << itemTimer.millis() << "ms \n";
 		itemTimer.start();
 		glfwSwapBuffers();
 		frameOut << "SwapBuffers = " << itemTimer.millis() << "ms \n";
 		itemTimer.start();
 		
 		
-		if (frameId % 20 && delta.millis() - (1000.0/60.0) > 2)
+		if (delta.millis() - (1000.0/60.0) > 2)
 		{
 			Logger::stream("MAIN","TIME") << "[" << frameId << "] START \n";
 			Logger::stream("MAIN","TIME") << frameOut.str();

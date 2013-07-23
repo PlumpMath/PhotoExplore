@@ -6,7 +6,7 @@
 
 #include <Leap.h>
 #include <opencv2/opencv.hpp>
-#include "PointableElementManager.h"
+#include "LeapElement.hpp"
 #include <boost/thread/mutex.hpp>
 #include <boost/function.hpp>
 

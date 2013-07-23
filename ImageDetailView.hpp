@@ -56,6 +56,8 @@ private:
 
 	Facebook::FBNode * imageNode;
 
+	bool canClickToExit;
+
 public:
 	ImageDetailView();
 
@@ -78,7 +80,13 @@ public:
 	void update();
 	void draw();
 
+	
+	cv::Rect_<int> getHitRect();
+
+	void OnElementClicked(Pointable & pointable);
+
 	LeapElement * elementAtPoint(int x, int y, int & elementStateFlags);
+	bool isClickable();
 
 };
 

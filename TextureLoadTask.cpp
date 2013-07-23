@@ -12,6 +12,8 @@ using namespace LoadTaskState;
 
 #define  MaxBytesPerFrame 1048576
 
+int TextureLoadTask::taskId = 0;
+
 TextureLoadTask::TextureLoadTask(std::string _resourceId, float _priority, cv::Mat _cvImage, boost::function<void(GLuint textureId, int taskStatus)> _callback):
 	cvImage(_cvImage),
 	priority(_priority),
@@ -24,12 +26,13 @@ TextureLoadTask::TextureLoadTask(std::string _resourceId, float _priority, cv::M
 	sourceBuffer = NULL;
 	textureInfo.textureId = NULL;
 	state = New;
+	taskId++;
 }
 
 
 TextureLoadTask::~TextureLoadTask()
 {
-	cleanup();
+	//cleanup();
 }
 
 void TextureLoadTask::setPriority(float _priority)
@@ -49,8 +52,11 @@ int TextureLoadTask::getState()
 
 void TextureLoadTask::cancel()
 {	
-	//if (textureInfo.textureId != NULL)
-	//	TexturePool::getInstance().releaseTexture(textureInfo.textureId);
+	if (textureInfo.textureId != NULL)
+	{
+		TexturePool::getInstance().releaseTexture(textureInfo.textureId);
+		textureInfo.textureId = NULL;
+	}
 
 	state = Error;
 	cleanup();
@@ -101,7 +107,7 @@ void TextureLoadTask::startTask()
 	sourceBuffer = PixelBufferPool::getInstance().getBuffer();
 	if (sourceBuffer != NULL)
 	{
-		//Logger::stream("TextureLoadTask","INFO") << "Load task started. TexID = " << textureInfo.textureId << " BufferID = " << sourceBuffer << endl;
+		Logger::stream("TextureLoadTask","INFO") << "Load task started. TaskId = " << taskId << " TexID = " << textureInfo.textureId << " BufferID = " << sourceBuffer << endl;
 		state = Initialized;
 		update();
 	}
@@ -202,7 +208,7 @@ void TextureLoadTask::copyMemoryToBuffer_TM_start()
 	}
 	else
 	{
-		Logger::stream("TextureLoadTask","ERROR") << "copyMemoryToBuffer_TM_start - Couldn't access pixel buffer. ID = " << sourceBuffer << endl;
+		Logger::stream("TextureLoadTask","ERROR") << "copyMemoryToBuffer_TM_start - Couldn't access pixel buffer. TaskId = " << taskId << " TexID = " << textureInfo.textureId << " BufferID = " << sourceBuffer << endl;
 		cancel();
 	}
 	if (memTimer.millis() > 2)
@@ -232,13 +238,13 @@ void TextureLoadTask::copyMemoryToBuffer()
 		glUnmapBufferARB(GL_PIXEL_UNPACK_BUFFER_ARB); 	
 		state = BufferLoaded;
 		
-		//Logger::stream("TextureLoadTask","INFO") << "Buffer load complete. TexID = " << textureInfo.textureId << " BufferID = " << sourceBuffer << endl;
+		Logger::stream("TextureLoadTask","INFO") << "Buffer load complete. TaskId = " << taskId << " TexID = " << textureInfo.textureId << " BufferID = " << sourceBuffer << endl;
 		OpenGLHelper::LogOpenGLErrors("TextureLoadTask-copyMemoryToBuffer");
 	}
 	else
 	{
 		OpenGLHelper::LogOpenGLErrors("TextureLoadTask-copyMemoryToBuffer_ERROR");
-		//Logger::stream("TextureLoadTask","ERROR") << "Pixel buffer not acessible. TexID = " << textureInfo.textureId << " BufferID = " << sourceBuffer << endl;
+		Logger::stream("TextureLoadTask","ERROR") << "Pixel buffer not acessible. TaskId = " << taskId << " TexID = " << textureInfo.textureId << " BufferID = " << sourceBuffer << endl;
 		cancel();
 	}
 	glBindBuffer(GL_PIXEL_UNPACK_BUFFER_ARB, NULL);
@@ -249,7 +255,7 @@ void TextureLoadTask::cleanup()
 {
 	if (sourceBuffer != NULL)
 	{
-		//Logger::stream("TextureLoadTask","INFO") << "Cleaning up. TexID = " << textureInfo.textureId << " BufferID = " << sourceBuffer << endl;
+		Logger::stream("TextureLoadTask","INFO") << "Cleaning up. TaskId = " << taskId << " TexID = " << textureInfo.textureId << " BufferID = " << sourceBuffer << endl;
 		PixelBufferPool::getInstance().freeBuffer(sourceBuffer);
 		sourceBuffer = NULL;
 	}

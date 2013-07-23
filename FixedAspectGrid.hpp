@@ -26,10 +26,12 @@ public:
 
 	void setInteriorMarginsOnly(bool interiorOnly);
 	bool getInteriorMarginsOnly();
+
 	
 	cv::Rect_<int> getHitRect();
 
 	void draw();
+	LeapElement * elementAtPoint(int x, int y, int & state);
 
 
 };

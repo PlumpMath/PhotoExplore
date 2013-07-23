@@ -94,10 +94,10 @@ void FacebookFriendListView::loadItems(int friends)
 			auto fRange = v->activeNode->Edges.get<EdgeTypeIndex>().equal_range("friends");
 			for (; fRange.first != fRange.second; fRange.first++)
 			{
-				if (fRange.first->Node->Edges.get<EdgeTypeIndex>().count("photos") < 3)
+				if (fRange.first->Node->Edges.get<EdgeTypeIndex>().count("photos") < 2)
 				{					
 					stringstream load2;
-					load2 << fRange.first->Node->getId() << "?fields=photos.fields(id,name,images).limit(3)";
+					load2 << fRange.first->Node->getId() << "?fields=photos.fields(id,name,images).limit(2)";
 					
 					FacebookFriendListView * v2= v;
 					FBDataSource::instance->loadField(fRange.first->Node,load2.str(),"",[v2](FBNode * nn)

@@ -104,6 +104,7 @@ void ScrollingView::draw()
 	GraphicsContext::getInstance().setDrawHint("VisibleWidth",lastSize.width);
 	content->draw();		
 	GraphicsContext::getInstance().clearDrawHint("Offset");
+	GraphicsContext::getInstance().clearDrawHint("VisibleWidth");
 	
 	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();
@@ -112,11 +113,15 @@ void ScrollingView::draw()
 
 LeapElement * ScrollingView::elementAtPoint(int x, int y, int & elementStateFlags)
 {
+	
+	GraphicsContext::getInstance().setDrawHint("Offset",scrollingFlywheel->getPosition());
+	GraphicsContext::getInstance().setDrawHint("VisibleWidth",lastSize.width);
 	LeapElement * hit = NULL;
 	if (content != NULL)
 	{		
 		if (scrollOrientation == Horizontal)
 		{			
+
 			hit = content->elementAtPoint(x-scrollingFlywheel->getPosition(),y,elementStateFlags);
 			if (abs(scrollingFlywheel->getVelocity()) > 20)
 				elementStateFlags |= LeapElement::Flags_ElementNonClickable;
@@ -124,6 +129,9 @@ LeapElement * ScrollingView::elementAtPoint(int x, int y, int & elementStateFlag
 		else
 			hit = content->elementAtPoint(x, y-scrollingFlywheel->getPosition(),elementStateFlags);
 	}
+	
+	GraphicsContext::getInstance().clearDrawHint("Offset");
+	GraphicsContext::getInstance().clearDrawHint("VisibleWidth");
 	return hit;
 }
 

@@ -114,17 +114,17 @@ void FlyWheel::spinTo(double targetPosition)
 
 void FlyWheel::animateTo(double targetPosition, long duration)
 {
-	if (targetPosition != currentTarget && !scrollAnimation.isRunning())
-		currentTarget = targetPosition;
+	//if (targetPosition != currentTarget && !scrollAnimation.isRunning())
+	//	currentTarget = targetPosition;
 
-	if (duration <= 0)
-		duration = abs(targetPosition-getPosition());	
+	//if (duration <= 0)
+	//	duration = abs(targetPosition-getPosition());	
 
-	if (duration == 0)
-		return;
+	//if (duration == 0)
+	//	return;
 
-	scrollAnimation = DoubleAnimation(getPosition(),targetPosition,duration);
-	scrollAnimation.start();
+	//scrollAnimation = DoubleAnimation(getPosition(),targetPosition,duration);
+	//scrollAnimation.start();
 }
 
 
@@ -139,18 +139,23 @@ void FlyWheel::setVelocity(double _velocity)
 	this->velocity = _velocity;
 }
 
+double FlyWheel::getCurrentPosition()
+{
+	return position;
+}
+
 double FlyWheel::getPosition()
 {
-	if (scrollAnimation.isRunning())
-	{
-		position = scrollAnimation.getValue();
-		return position;
-	}
-	else
-	{
-		double delta = wheelTimer.get_ticks();
-		wheelTimer.start();
-		update(delta);
-		return position;
-	}
+	//if (scrollAnimation.isRunning())
+	//{
+	//	position = scrollAnimation.getValue();
+	//	return position;
+	//}
+	//else
+	//{
+	double delta = wheelTimer.get_ticks();
+	wheelTimer.start();
+	update(delta);
+	return position;
+	//}
 }

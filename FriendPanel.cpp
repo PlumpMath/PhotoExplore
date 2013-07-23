@@ -146,7 +146,7 @@ void FriendPanel::updateLoading()
 	bool photosLoaded = false, albumsLoaded = true;// false;
 
 	bool loaded = false;
-	for (int i=0;i < 3;i++)
+	for (int i=0;i < itemCount;i++)
 	{
 		if (photoNodes.first != photoNodes.second)
 		{

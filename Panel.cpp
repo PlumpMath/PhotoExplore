@@ -309,9 +309,9 @@ void Panel::fitPanelToBoundary(Vector targetPosition, float maxWidth, float maxH
 	animatePanelSize(targetWidth,targetHeight,expandAnimTime);
 }
 
-void Panel::elementTapped(ScreenTapGesture tap)
+GLuint Panel::getTextureId()
 {
-
+	return glTextureId;
 }
 
 void Panel::setDetailLevel(int levelOfDetail)
@@ -427,8 +427,8 @@ void Panel::resourceUpdated(ResourceData * data)
 	{
 		glTextureId = NULL;
 	}
-	else if (node != NULL)// && node->getURI().compare(data->resourceId) == 0)
-	{					
+	else
+	{
 		glTextureId = data->textureId;
 	}
 }

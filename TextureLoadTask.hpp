@@ -78,6 +78,8 @@ private:
 
 	void copyBufferToTexture();
 
+	static int taskId;
+
 public:
 		
 	float priority;

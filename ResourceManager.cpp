@@ -256,6 +256,8 @@ void ResourceManager::cleanupCache()
 	double imageCacheMaxSize = GlobalConfig::tree()->get<double>("ResourceCache.ImageCacheSize")* BytesToMB;
 	static bool debugLogging = GlobalConfig::tree()->get<bool>("ResourceCache.DebugLogging");
 
+
+
 	textureCacheMaxSize *= GlobalConfig::tree()->get<double>("ResourceCache.TextureCacheGCCollectRatio");
 	imageCacheMaxSize *= GlobalConfig::tree()->get<double>("ResourceCache.ImageCacheGCCollectRatio");
 

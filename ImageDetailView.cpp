@@ -5,9 +5,9 @@
 
 ImageDetailView::ImageDetailView() 
 {
+	canClickToExit = false;
 	imagePanel = NULL;
 	initButtonBar();
-
 }
 
 void ImageDetailView::notifyOffsetChanged(Leap::Vector _offset)
@@ -103,6 +103,18 @@ void ImageDetailView::getTutorialDescriptor(vector<string> & tutorial)
 	tutorial.push_back("shake_inv");
 }
 
+void ImageDetailView::OnElementClicked(Pointable & pointable)
+{
+	this->setImagePanel(NULL);
+	PointableElementManager::getInstance()->releaseGlobalGestureFocus(this);
+	this->finishedCallback("");
+}
+
+bool ImageDetailView::isClickable()
+{
+	return (this->imagePanel != NULL && canClickToExit);
+}
+
 void ImageDetailView::setImageMetaData()
 {
 	likeButton->setVisible(false);
@@ -154,6 +166,13 @@ void ImageDetailView::setImageMetaData()
 			{
 				photoComment->setVisible(true);
 				string comment = imageNode->getAttribute("name");
+
+				//DEBUG
+				//stringstream texIdStream;
+				//texIdStream << "TexID = " << imagePanel->getTextureId();
+				//comment = texIdStream.str();
+				//END
+
 				int maxLength = GlobalConfig::tree()->get<int>("ImageDetailView.MaxCommentLength");
 				if (comment.length() > maxLength)
 				{
@@ -277,9 +296,16 @@ LeapElement * ImageDetailView::elementAtPoint(int x, int y, int & elementStateFl
 		return ViewGroup::elementAtPoint(x-hostOffset.x,y-hostOffset.y,elementStateFlags);
 }
 
-void ImageDetailView::onFrame(const Controller & controller)
+cv::Rect_<int> ImageDetailView::getHitRect()
 {
+	return cv::Rect_<int>(lastPosition.x-hostOffset.x,lastPosition.y-hostOffset.y,lastSize.width,lastSize.height);
+}
+
+void ImageDetailView::onFrame(const Controller & controller)
+{	
 	handleImageManipulation(controller);	
+
+	canClickToExit = controller.frame().hands().count() < 2;
 }
 
 void ImageDetailView::draw()

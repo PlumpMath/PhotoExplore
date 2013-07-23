@@ -61,7 +61,9 @@ public:
 
 	void pointableExit(Pointable & pointable);
 	
-	virtual void elementClicked();
+	void elementClicked();
+
+	virtual void OnElementClicked(Pointable & pointable);
 
 	virtual void onFrame(const Controller & controller);
 

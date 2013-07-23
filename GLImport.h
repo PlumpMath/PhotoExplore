@@ -11,7 +11,7 @@
 class OpenGLHelper {
 
 public:
-	static void LogOpenGLErrors(std::string tag)
+	static bool LogOpenGLErrors(std::string tag)
 	{
 		int count = 0;
 		GLenum glError;
@@ -21,6 +21,7 @@ public:
 			error << "GL ERROR [" << count++ << "] = " << glError;
 			Logger::log(tag,error.str());
 		}
+		return count > 0;
 	}
 };
 

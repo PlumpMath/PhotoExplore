@@ -164,7 +164,7 @@ LeapElement * ViewGroup::elementAtPoint(int x, int y, int & elementStateFlags)
 	if (lazyDepthMap.size() > 0)
 		return (--lazyDepthMap.end())->second;
 	else
-		return NULL;
+		return View::elementAtPoint(x,y,elementStateFlags);
 
 	//return hit;
 }

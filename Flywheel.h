@@ -41,6 +41,7 @@ public:
 	double getMinValue();
 
 	void overrideValue(double value);
+	double getCurrentPosition();
 
 
 };

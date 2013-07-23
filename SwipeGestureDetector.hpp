@@ -10,6 +10,7 @@
 #include <boost/function.hpp>
 #include "Flywheel.h"
 #include "LeapDebug.h"
+#include <boost/thread/mutex.hpp>
 
 using namespace Leap;
 
@@ -99,6 +100,8 @@ private:
 	int scrollingPointableId, scrollingHandId;
 	
 	vector<LeapDebugVisual*> scrollPointVisuals;
+
+	boost::mutex flyWheelMutex;
 
 
 public:
