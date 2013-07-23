@@ -106,12 +106,12 @@ public:
 	{
 		//CefRefPtr<MyVisitor> v = new MyVisitor();
 		//CefCookieManager::GetGlobalManager()->VisitAllCookies(v.get());
-//#ifdef WIN_32_
+#ifdef _WIN32
 		
 		SwitchToThisWindow(browser->GetHost()->GetWindowHandle(),false);
 		ShowWindow(browser->GetHost()->GetWindowHandle(),3);
 		browser->GetHost()->SetFocus(true);
-//#endif
+#endif
 	}
 
 	//CefRefPtr<CefRenderHandler> GetRenderHandler()

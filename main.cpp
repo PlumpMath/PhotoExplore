@@ -29,6 +29,10 @@
 #include "SwipeGestureDetector.hpp"
 #include "FakeDataSource.hpp"
 
+#include <execinfo.h>
+#include <signal.h>
+#include <stdlib.h>
+
 using namespace Leap;
 
 
@@ -348,15 +352,32 @@ public:
 
 };
 
+
+void handler(int sig) {
+	void *array[30];
+	size_t size;
+	
+	// get void*'s for all entries on the stack
+	size = backtrace(array, 30);
+	
+	// print out all the frames to stderr
+	fprintf(stderr, "Error: signal %d:\n", sig);
+	backtrace_symbols_fd(array, size, STDERR_FILENO);
+	exit(1);
+}
+
 #ifdef _WIN32
 
 int WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmdShow) 
 { // int argc, char* argv[] ){
 #else
 	int main(int argc, char * argv[]){
-	
+	signal(SIGSEGV, handler);
 #endif
 
+		
+	try
+	{
 	
 	CefMainArgs mainArgs;
 	CefSettings settings;
@@ -407,6 +428,7 @@ int WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmd
     if(!init(GlobalConfig::ScreenWidth, GlobalConfig::ScreenHeight, GlobalConfig::tree()->get<bool>("GraphicsSettings.Fullscreen"))) return 1;
 
 	initShaders();
+	
 
 	//Configure leap and attach listeners
 	Leap::Controller controller = Leap::Controller();	
@@ -418,8 +440,8 @@ int WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmd
 	LeapDebug * leapDebug = new LeapDebug(handProcessor);	
 	LeapDebug::instance = leapDebug;
 
-	LeapStartScreen * startScreen = new LeapStartScreen(startDir);
-	startScreen->setFinishedCallback([quit](){ 
+	LeapStartScreen startScreen(startDir);
+	startScreen.setFinishedCallback([quit](){
 		quit[0] = true;
 	});
 
@@ -455,137 +477,172 @@ int WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmd
 		}
 	};
 
-	while(!(*quit))
-    {
-		stringstream frameOut;
-		double deltaTime = delta.get_ticks();			
-        delta.start();
-
-		Timer itemTimer;
-		itemTimer.start();
-
-		if (glfwGetKey(GLFW_KEY_ESC) == GLFW_PRESS)
-			quit[0] = true;
+	try
+	{
 		
 		
-		HandProcessor::getInstance()->processFrame(controller.frame());
-		PointableElementManager::getInstance()->processInputEvents();
-		PointableElementManager::getInstance()->processFrame(controller,controller.frame());
-		frameOut  << "PointableEvents = " << itemTimer.millis() << "ms \n";
-				
-		startScreen->onFrame(controller);
-		leapDebug->onFrame(controller);
-		
-		ResourceManager::getInstance().update();
-		frameOut  << "RMan = " << itemTimer.millis() << "ms \n";
-		itemTimer.start();
-
-		startScreen->update(deltaTime);	
-		frameOut  << "StartScreen = " << itemTimer.millis() << "ms \n";
-		itemTimer.start();
-
-		 
-		if (GraphicsContext::getInstance().BlurRenderEnabled)
+		while(!(*quit))
 		{
-			glClearColor(.4f,.4f,.4f, 1);
+			stringstream frameOut;
+			double deltaTime = delta.get_ticks();			
+			delta.start();
 
-			GraphicsContext::getInstance().IsBlurCurrentPass = true;
-			glUseProgram(0);
-			glBindFramebuffer(GL_FRAMEBUFFER, fbo[0]);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-			glMatrixMode( GL_MODELVIEW );	
+			Timer itemTimer;
+			itemTimer.start();
+
+			if (glfwGetKey(GLFW_KEY_ESC) == GLFW_PRESS)
+				quit[0] = true;
 			
-			startScreen->draw();	
+			
+			HandProcessor::getInstance()->processFrame(controller.frame());
+			PointableElementManager::getInstance()->processInputEvents();
+			PointableElementManager::getInstance()->processFrame(controller,controller.frame());
+			frameOut  << "PointableEvents = " << itemTimer.millis() << "ms \n";
+					
+			startScreen.onFrame(controller);
+			leapDebug->onFrame(controller);
+			
+			ResourceManager::getInstance().update();
+			frameOut  << "RMan = " << itemTimer.millis() << "ms \n";
+			itemTimer.start();
 
-			for (int i=0;i<2;i++)
+			startScreen.update(deltaTime);
+			frameOut  << "StartScreen = " << itemTimer.millis() << "ms \n";
+			itemTimer.start();
+
+			 
+			if (GraphicsContext::getInstance().BlurRenderEnabled)
 			{
-				glUseProgram(blurPrograms[i]);
+				glClearColor(.4f,.4f,.4f, 1);
 
-				if (i==1)
-				{
-					glBindFramebuffer(GL_FRAMEBUFFER, 0);
-				}
-				else
-				{
-					glBindFramebuffer(GL_FRAMEBUFFER, fbo[1]);				
-				}
-			
-				glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
-
-				glBindTexture(GL_TEXTURE_2D, fbo_texture[i]);
-				glUniform1i(uniform_fbo_texture[i], 0);
-				glUniform1f(uniformGaussScale[i],GraphicsContext::getInstance().getBlurScale());
-				glUniform1f(uniformColorScale[i],0.9f);//GraphicsContext::getInstance().getDrawHint("ColorScale",false));
-				glEnableVertexAttribArray(attribute_v_coord_postproc[i]);
-
-				glBindBuffer(GL_ARRAY_BUFFER, vbo_fbo_vertices);
-				glVertexAttribPointer(
-					attribute_v_coord_postproc[i],  // attribute
-					2,                  // number of elements per vertex, here (x,y)
-					GL_FLOAT,           // the type of each element
-					GL_FALSE,           // take our values as-is
-					0,                  // no extra data between each position
-					0                   // offset of first element
-					);
-				glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-				glDisableVertexAttribArray(attribute_v_coord_postproc[i]);
-			}
-			
-			GraphicsContext::getInstance().IsBlurCurrentPass = false;			
-			glBindFramebuffer(GL_FRAMEBUFFER, 0);
-			glUseProgram(0);
-			GraphicsContext::getInstance().doClearDraw();
-		}
-		else
-		{		
-			Color bg = Colors::WhiteSmoke;
-			float * color = bg.getFloat();
-			glClearColor(color[0],color[1], color[2], 1);
-
-			GraphicsContext::getInstance().IsBlurCurrentPass = false;
-			glUseProgram(0);			
-			glBindFramebuffer(GL_FRAMEBUFFER, 0);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);			
-
-			glMatrixMode( GL_MODELVIEW );			
-			ShakeGestureDetector::getInstance().draw();		
-			SwipeGestureDetector::getInstance().draw();
-			startScreen->draw();			
-			
-
-		}
-		//End
-		
-		frameOut << "MainDraw= " << itemTimer.millis() << "ms \n";
-		itemTimer.start();
- 
-		leapDebug->draw();
-		frameOut << "DebugDraw = " << itemTimer.millis() << "ms \n";
-		itemTimer.start();
+				GraphicsContext::getInstance().IsBlurCurrentPass = true;
+				glUseProgram(0);
+				glBindFramebuffer(GL_FRAMEBUFFER, fbo[0]);
+				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+				glMatrixMode( GL_MODELVIEW );	
 				
-		itemTimer.start();
-		glFinish();
-		frameOut  << "glFinish = " << itemTimer.millis() << "ms \n";
-		itemTimer.start();
-		glfwSwapBuffers();
-		frameOut << "SwapBuffers = " << itemTimer.millis() << "ms \n";
-		itemTimer.start();
-		
-		
-		if (delta.millis() - (1000.0/60.0) > 2)
-		{
-			Logger::stream("MAIN","TIME") << "[" << frameId << "] START \n";
-			Logger::stream("MAIN","TIME") << frameOut.str();
-			Logger::stream("MAIN","TIME") << "[" << frameId << "] = " << delta.millis() << "ms \n"; //@ " << totalTime.seconds() << "s \n";
+				startScreen.draw();
+
+				for (int i=0;i<2;i++)
+				{
+					glUseProgram(blurPrograms[i]);
+
+					if (i==1)
+					{
+						glBindFramebuffer(GL_FRAMEBUFFER, 0);
+					}
+					else
+					{
+						glBindFramebuffer(GL_FRAMEBUFFER, fbo[1]);				
+					}
+				
+					glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+
+					glBindTexture(GL_TEXTURE_2D, fbo_texture[i]);
+					glUniform1i(uniform_fbo_texture[i], 0);
+					glUniform1f(uniformGaussScale[i],GraphicsContext::getInstance().getBlurScale());
+					glUniform1f(uniformColorScale[i],0.9f);//GraphicsContext::getInstance().getDrawHint("ColorScale",false));
+					glEnableVertexAttribArray(attribute_v_coord_postproc[i]);
+
+					glBindBuffer(GL_ARRAY_BUFFER, vbo_fbo_vertices);
+					glVertexAttribPointer(
+						attribute_v_coord_postproc[i],  // attribute
+						2,                  // number of elements per vertex, here (x,y)
+						GL_FLOAT,           // the type of each element
+						GL_FALSE,           // take our values as-is
+						0,                  // no extra data between each position
+						0                   // offset of first element
+						);
+					glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+					glDisableVertexAttribArray(attribute_v_coord_postproc[i]);
+				}
+				
+				GraphicsContext::getInstance().IsBlurCurrentPass = false;			
+				glBindFramebuffer(GL_FRAMEBUFFER, 0);
+				glUseProgram(0);
+				GraphicsContext::getInstance().doClearDraw();
+			}
+			else
+			{		
+				Color bg = Colors::WhiteSmoke;
+				float * color = bg.getFloat();
+				glClearColor(color[0],color[1], color[2], 1);
+
+				GraphicsContext::getInstance().IsBlurCurrentPass = false;
+				glUseProgram(0);			
+				glBindFramebuffer(GL_FRAMEBUFFER, 0);
+				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);			
+
+				glMatrixMode( GL_MODELVIEW );			
+				ShakeGestureDetector::getInstance().draw();		
+				SwipeGestureDetector::getInstance().draw();
+				startScreen.draw();
+				
+
+			}
+			//End
+			
+			frameOut << "MainDraw= " << itemTimer.millis() << "ms \n";
+			itemTimer.start();
+	 
+			leapDebug->draw();
+			frameOut << "DebugDraw = " << itemTimer.millis() << "ms \n";
+			itemTimer.start();
+					
+			itemTimer.start();
+			glFinish();
+			frameOut  << "glFinish = " << itemTimer.millis() << "ms \n";
+			itemTimer.start();
+			glfwSwapBuffers();
+			frameOut << "SwapBuffers = " << itemTimer.millis() << "ms \n";
+			itemTimer.start();
+			
+			
+			if (delta.millis() - (1000.0/60.0) > 2)
+			{
+				Logger::stream("MAIN","TIME") << "[" << frameId << "] START \n";
+				Logger::stream("MAIN","TIME") << frameOut.str();
+				Logger::stream("MAIN","TIME") << "[" << frameId << "] = " << delta.millis() << "ms \n"; //@ " << totalTime.seconds() << "s \n";
+			}
+			frameId++;
 		}
-		frameId++;
-    }
-	    
-	startScreen->shutdown();
+	}
+	catch  (std::exception & e)
+	{
+		Logger::stream("MAIN","FATAL") << "Unhandled exception: " << e.what() << endl;
+		cout << "Unhandled exception during render loop: " << e.what() << endl;
+	}		
+	catch( cv::Exception& e )
+	{
+		Logger::stream("MAIN","FATAL") << "Unhandled CV exception in render loop: " << e.what() << endl;
+		cout << "Unhandled CV exception :" << e.what() <<  endl;
+		handler(3);
+	}
+		
+	startScreen.shutdown();
 
-    clean_up();
+	} catch (std::exception & e)
+	{
+		Logger::stream("MAIN","FATAL") << "Unhandled exception: " << e.what() << endl;
+		cout << "Unhandled exception :" << e.what() << endl;
+		handler(3);
+	}
+	catch( cv::Exception& e )
+	{
+		Logger::stream("MAIN","FATAL") << "Unhandled CV exception: " << e.what() << endl;
+		cout << "Unhandled CV exception :" << e.what() <<  endl;
+		handler(3);
+	}
+	catch (...)
+	{
+		Logger::stream("MAIN","FATAL") << "Unhandled exception?? " << endl;
+		cout << "Unhandled exception??" << endl;
+		handler(3);
+	}
+		
+	clean_up();
 	glfwCloseWindow();
-
+	
 	std::exit(0);
 
     return 0;

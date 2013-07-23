@@ -56,9 +56,10 @@ void SwipeGestureDetector::doGestureScrolling(const Controller & controller)
 		gestures = frame.gestures();
 
 	Hand gestureHand;
-	for (auto it = gestures.begin(); it != gestures.end(); it++)
+
+	for (int i=0;i<gestures.count();i++)
 	{
-		Gesture g = *it;
+		Gesture g = gestures[i];
 
 		if (g.state() == Gesture::STATE_INVALID || g.state() == Gesture::STATE_STOP)
 			continue;
