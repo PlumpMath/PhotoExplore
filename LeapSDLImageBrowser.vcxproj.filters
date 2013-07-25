@@ -228,6 +228,12 @@
     <ClCompile Include="LeapElement.cpp">
       <Filter>Source Files\EventHandling</Filter>
     </ClCompile>
+    <ClCompile Include="PunchGestureDetector.cpp">
+      <Filter>Source Files\LeapUtil</Filter>
+    </ClCompile>
+    <ClCompile Include="ScrollBar.cpp">
+      <Filter>Source Files\NewPanel</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Types.h">
@@ -451,6 +457,18 @@
     </ClInclude>
     <ClInclude Include="SwipeGestureDetector.hpp">
       <Filter>Header Files\LeapUtil</Filter>
+    </ClInclude>
+    <ClInclude Include="PunchGestureDetector.hpp">
+      <Filter>Header Files\LeapUtil</Filter>
+    </ClInclude>
+    <ClInclude Include="FacebookDataDisplay.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ActivityView.hpp">
+      <Filter>Header Files\NewPanel</Filter>
+    </ClInclude>
+    <ClInclude Include="ScrollBar.hpp">
+      <Filter>Header Files\NewPanel</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -14,7 +14,7 @@
 #include "ContentPanel.hpp"
 #include "FrameView.hpp"
 
-class RelevantImageView : public ViewGroup, public ViewOwner, public GlobalGestureListener {
+class RelevantImageView : public ViewOwner, public ActivityView {
 
 private:
 	UniformGrid * buttonBar;

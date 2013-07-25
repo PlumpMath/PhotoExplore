@@ -12,7 +12,7 @@
 
 using namespace std;
 
-class FacebookIntroView : public ViewGroup, public GlobalGestureListener {
+class FacebookIntroView : public ActivityView {
 
 private:
 	ViewGroup * friendPhotoGrid;

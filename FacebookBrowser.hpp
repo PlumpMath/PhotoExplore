@@ -10,26 +10,36 @@
 #include "RelevantImageView.hpp"
 #include "SDLTimer.h"
 #include "FriendPhotoLinkedView.hpp"
+#include "FacebookDataDisplay.hpp"
+#include "AlbumDetailView.hpp"
+#include "ActivityView.hpp"
 
-class FacebookBrowser : public View {
+#include <stack>
 
-private:
-	FBNode * rootNode;
-	
+using namespace std;
+using namespace Leap;
+
+class FacebookBrowser : public View, public FacebookDataDisplay {
+
+private:	
 	View * topView;
 	Timer updateTimer;
 	int state;
 	
-	FriendDetailView * myView;
-	FacebookFriendListView * friendList;
 	FacebookIntroView * introView;
-	FriendPhotoLinkedView * fplv;
 
+	FacebookFriendListView * friendList;
+	FriendDetailView * friendDetailView;
+	AlbumDetailView * albumDetailView;
+	
+	void setTopView(View * topView);
+
+	FBNode * userNode;
 
 public:
-	FacebookBrowser(FBNode * rootNode);
-	
-	void childViewFinished(string action);
+	FacebookBrowser();
+		
+	void displayNode(FBNode * previousNode, FBNode * newNode, string action);
 
 	void layout(Vector position, cv::Size2f size);
 	
@@ -38,6 +48,8 @@ public:
 	void update();
 
 	void draw();
+
+
 };
 
 

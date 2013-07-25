@@ -99,6 +99,8 @@ void PanelBase::measure(cv::Size2f & measuredSize)
 
 void PanelBase::layout(Vector layoutPosition, cv::Size2f layoutSize)
 {
+	static long animationTime = GlobalConfig::tree()->get<long>("Panel.AnimateLayoutDuration");
+
 	this->lastSize = layoutSize;
 	this->lastPosition = layoutPosition;
 
@@ -109,9 +111,9 @@ void PanelBase::layout(Vector layoutPosition, cv::Size2f layoutSize)
 	}
 	else
 	{
-		//animateToPosition(layoutPosition, 300, 500);
-		animateToPosition(layoutPosition,400,400);
-		animatePanelSize(layoutSize.width,layoutSize.height,400);
+
+		animateToPosition(layoutPosition,animationTime,animationTime);
+		animatePanelSize(layoutSize.width,layoutSize.height,animationTime);
 	}
 }
 
@@ -136,8 +138,14 @@ void PanelBase::animatePanelSize(float targetWidth, float targetHeight, long dur
 	if (duration <= 0)
 		duration = sqrtf(powf(width-targetWidth,2) + pow(height-targetHeight,2));
 
-	widthAnimation = DoubleAnimation(width,targetWidth,duration, NULL);
-	heightAnimation = DoubleAnimation(height,targetHeight,duration, NULL);
+	float startWidth = width,startHeight = height;
+	if (widthAnimation.isRunning())
+		startWidth = widthAnimation.getValue();
+	if (heightAnimation.isRunning())
+		startHeight = heightAnimation.getValue();
+
+	widthAnimation = DoubleAnimation(startWidth,targetWidth,duration, NULL);
+	heightAnimation = DoubleAnimation(startHeight,targetHeight,duration, NULL);
 
 	width = targetWidth;
 	height = targetHeight;
@@ -185,7 +193,7 @@ void PanelBase::drawLoadTimer(Vector drawPosition, float drawWidth, float drawHe
 
 		float z1 = 0;
 
-		glTranslatef(drawPosition.x,drawPosition.y,drawPosition.z);
+		glTranslatef(drawPosition.x,drawPosition.y,drawPosition.z+.5f);
 
 		glBegin( GL_QUADS );
 
@@ -196,7 +204,7 @@ void PanelBase::drawLoadTimer(Vector drawPosition, float drawWidth, float drawHe
 
 		glEnd();
 
-		glTranslatef(-drawPosition.x,-drawPosition.y,-drawPosition.z);
+		glTranslatef(-drawPosition.x,-drawPosition.y,-(drawPosition.z+.5f));
 	}
 }
 
@@ -447,18 +455,19 @@ void PanelBase::animateToPosition(Vector newPosition, long durationX, long durat
 		startPosition.z = zPosAnimation.getValue();
 
 	if (durationX < 0)
+	{
 		durationX = newPosition.distanceTo(position);
+		durationX = min<long>(3000,durationX);
+		durationX = max<long>(10,durationX);
+	}
 	
 	if (durationY < 0)
+	{
 		durationY = newPosition.distanceTo(position);
-
-	durationX = min<long>(3000,durationX);
-	durationY = min<long>(3000,durationY);
-
-	durationX = max<long>(10,durationX);
-	durationY  = max<long>(10,durationY);
-
-	
+		durationY = min<long>(3000,durationY);
+		durationY  = max<long>(10,durationY);
+	}
+		
 	xPosAnimation = DoubleAnimation(startPosition.x,newPosition.x,durationX,NULL);
 	xPosAnimation.start();
 	

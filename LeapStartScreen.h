@@ -73,7 +73,7 @@ public:
 };
 
 
-class LeapStartScreen : public View, public GlobalGestureListener {
+class LeapStartScreen : public ActivityView {
 
 private:
 	//Static fields

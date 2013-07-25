@@ -127,8 +127,8 @@ void ImageDetailView::setImageMetaData()
 		if (imageNode != NULL)
 		{
 			likeButton->setVisible(true);
-			likeButton->setDrawLoadAnimation(true);
-			likeButton->setClickable(false);					
+			likeButton->setDrawLoadAnimation(false);
+			likeButton->setClickable(true);					
 
 			Facebook::FBDataSource::instance->loadQuery(imageNode,"fql?q=SELECT%20like_info%20FROM%20photo%20where%20object_id%3D" + imageNode->getId(),"",[this](FBNode * node){
 				
@@ -241,13 +241,6 @@ void ImageDetailView::setFinishedCallback(const boost::function<void(std::string
 	finishedCallback = callback;
 }
 
-
-void ImageDetailView::update()
-{
-	if (imageNode != NULL)
-		imageNode->update();
-}
-
 void ImageDetailView::layout(Vector position, cv::Size2f size)
 {
 	if (imagePanel != NULL && size.width > 0 && size.height > 0)
@@ -265,8 +258,9 @@ void ImageDetailView::layout(Vector position, cv::Size2f size)
 		
 		float buttonPadding = 50;
 		cv::Size2f buttonSize = cv::Size2f(size.height*.2f,size.height*.15f);
-		Vector buttonPos = Vector(imagePanel->getPosition().x - (buttonSize.width+buttonPadding),imagePanel->getPosition().y + imagePanel->getHeight()*.5f,10);
-
+		//- (buttonSize.width+buttonPadding)
+		Vector buttonPos = Vector(imagePanel->getWidth() + imagePanel->getPosition().x + (buttonPadding),imagePanel->getPosition().y + imagePanel->getHeight()*.5f,10);
+		
 		likeButton->layout(buttonPos,buttonSize);
 		alreadyLikedButton->layout(buttonPos,buttonSize);
 		
@@ -284,6 +278,8 @@ void ImageDetailView::setVisible(bool _visible)
 		imagePanel->setFullscreenMode(isVisible());	
 
 	layoutDirty = true;
+
+	PointableElementManager::getInstance()->enableNonDominantCursor(_visible);
 }
 
 
@@ -327,18 +323,7 @@ void ImageDetailView::draw()
 
 static bool isValidInteractionPointable(const Controller & controller, Pointable p)
 {
-	bool result = false;
-	if (p.isValid())
-	{
-		return p.touchDistance() < GlobalConfig::tree()->get<float>("ImageDetailView.Resize.MaxTouchDistance");
-		//float dist = LeapHelper::ClosestScreen(controller, p.stabilizedTipPosition()).project(p.stabilizedTipPosition(),false).distanceTo(p.stabilizedTipPosition());
-
-		//if (dist < GlobalConfig::MinimumInteractionScreenDistance)
-		//{
-		//	result = true;
-		//}
-	}
-	return result;
+	return p.isValid() && (p.touchDistance() < GlobalConfig::tree()->get<float>("ImageDetailView.Resize.MaxTouchDistance"));
 }
 
 static bool getNewPanelInteraction(const Controller & controller, Frame frame, PanelBase * panel, PanelInteraction & activePanelInteraction, Vector hostOffset)
@@ -358,27 +343,28 @@ static bool getNewPanelInteraction(const Controller & controller, Frame frame, P
 	}
 
 	//TODO: Also account for hands with invalid pointables
-	if (GlobalConfig::AllowSingleHandInteraction && frame.hands().count() == 1)
-	{
-		Hand hand = frame.hands()[0];
-		HandModel * model = HandProcessor::LastModel(hand.id());
+	//if (GlobalConfig::AllowSingleHandInteraction && frame.hands().count() == 1)
+	//{
+	//	Hand hand = frame.hands()[0];
+	//	HandModel * model = HandProcessor::LastModel(hand.id());
 
-		vector<int> desiredFingers;
-		desiredFingers.push_back(1);
-		desiredFingers.push_back(2);
-		desiredFingers.push_back(3);
+	//	vector<int> desiredFingers;
+	//	desiredFingers.push_back(1);
+	//	desiredFingers.push_back(2);
+	//	desiredFingers.push_back(3);
 
-		vector<int> selectedFingers = model->SelectFingers(desiredFingers);
+	//	vector<int> selectedFingers = model->SelectFingers(desiredFingers);
 
-		if (selectedFingers.size() == 3)
-		{
-			for (auto it = selectedFingers.begin(); it != selectedFingers.end();it++)
-			{
-				interactionPointables.push_back(hand.pointable(*it));
-			}
-		}
-	}
-	else if (frame.hands().count() >= 2)
+	//	if (selectedFingers.size() == 3)
+	//	{
+	//		for (auto it = selectedFingers.begin(); it != selectedFingers.end();it++)
+	//		{
+	//			interactionPointables.push_back(hand.pointable(*it));
+	//		}
+	//	}
+	//}
+	//else
+	if (frame.hands().count() >= 2)
 	{
 		Hand lh = frame.hands().leftmost();
 		Hand rh = frame.hands().rightmost();
@@ -594,7 +580,7 @@ bool ImageDetailView::handleImageManipulation(const Controller & controller)
 			photoComment->setPosition(-hostOffset + Vector(size.width*.3f,pos.y + h1,10));
 			float buttonPadding = 50;
 			cv::Size2f buttonSize = cv::Size2f(size.height*.2f,size.height*.15f);
-			Vector buttonPos = Vector(pos.x - (buttonSize.width+buttonPadding),pos.y + h1*.5f,10);
+			Vector buttonPos = Vector(w1 + pos.x + (buttonPadding),pos.y + h1*.5f,10);
 
 			likeButton->setPosition(buttonPos);
 			alreadyLikedButton->setPosition(buttonPos);

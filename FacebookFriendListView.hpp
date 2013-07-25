@@ -9,12 +9,11 @@
 #include "RadialMenu.hpp"
 
 
-class FacebookFriendListView :  public ViewGroup, public ViewOwner, public GlobalGestureListener {
+class FacebookFriendListView :  public ViewOwner, public ActivityView {
 
 private:
 	ViewGroup * friendGroup, * mainLayout;
 
-	FriendDetailView * friendDetail;
 	boost::function<void(std::string)> finishedCallback;
 
 	ScrollingView * itemScroll;
@@ -35,7 +34,8 @@ public:
 	
 	void friendPanelClicked(FriendPanel * panel, FBNode * node);
 	void setFinishedCallback(const boost::function<void(std::string)> & callback);
-	
+
+	void suspend();
 	void show(FBNode * root);	
 	void viewChanged(vector<FBNode*> & viewData);
 

@@ -1,9 +1,10 @@
 #include "Button.hpp"
-
+#include "LeapHelper.h"
 
 Button::Button(string _text) : TextPanel(_text)
 {	
-	pressedLevel = 1.0f;
+	pressedLevel = 0.0f;
+	pressedLevelTimer.start();
 }
 
 void Button::OnPointableEnter(Pointable & pointable)
@@ -34,17 +35,24 @@ void Button::onFrame(const Controller & controller)
 
 void Button::setPressedScale(float pressed)
 {
-	this->pressedLevel = pressed;	
+	static float buttonPressFilterRC = GlobalConfig::tree()->get<float>("Button.PressedLevelFilterRC");
+
+	if (isClickable())
+	{
+		pressedLevel = min<float>(1.0f,.5f-pressed);
+		pressedLevelTimer.start();
+	}
+	else
+		this->pressedLevel = 0.0f;
 }
 
 void Button::drawContent(Vector drawPosition, float drawWidth, float drawHeight)
 {		
-	float scale = min<float>(1.0f,.5f-pressedLevel);
-	if (scale > 0.0f)
+	if (pressedLevel > 0.0f)
 	{
 		Color newBG = Colors::HoloBlueBright;
 		Color tmp = getBackgroundColor();
-		newBG.setAlpha(scale*.6f);
+		newBG.setAlpha(pressedLevel*.6f);
 		setBackgroundColor(newBG);
 		PanelBase::drawBackground(drawPosition, drawWidth, drawHeight);
 		setBackgroundColor(tmp);

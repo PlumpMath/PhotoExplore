@@ -2,14 +2,30 @@
 #include "FixedAspectGrid.hpp"
 #include "GraphicContext.hpp"
 #include "SwipeGestureDetector.hpp"
+#include "FacebookDataDisplay.hpp"
+#include "AbsoluteLayout.hpp"
+#include "ScrollBar.hpp"
 
 
 FacebookFriendListView::FacebookFriendListView()
 {
-	vector<RowDefinition> gridDefinition;	
-	gridDefinition.push_back(RowDefinition(1));
-	gridDefinition[0].ColumnWidths.push_back(1);
-	mainLayout = new CustomGrid(gridDefinition);
+
+	ScrollBar * scrollBar = new ScrollBar();
+
+	mainLayout = new AbsoluteLayout();
+
+	((AbsoluteLayout*)mainLayout)->layoutCallback = [this,scrollBar](Vector position, cv::Size2f size){
+
+		float tutorialHeight = GlobalConfig::tree()->get<float>("Tutorial.Height");
+		float scrollBarHeight = GlobalConfig::tree()->get<float>("ScrollView.ScrollBar.Height");
+
+		itemScroll->layout(position,size);
+
+		float scrollBarWidth = size.width * 0.4f;
+
+		scrollBar->layout(position + Vector((size.width-scrollBarWidth)*.5f,size.height+(tutorialHeight-scrollBarHeight)*.5f,1),cv::Size2f(scrollBarWidth,scrollBarHeight));
+	};
+
 
 	rowCount = GlobalConfig::tree()->get<int>("FriendListView.RowCount");
 
@@ -17,14 +33,22 @@ FacebookFriendListView::FacebookFriendListView()
 	((FixedAspectGrid*)friendGroup)->setInteriorMarginsOnly(true);
 		
 	itemScroll = new ScrollingView(friendGroup);
+	scrollBar->setScrollView(itemScroll);
 
-	itemScroll->getFlyWheel()->overrideValue(0);
 	mainLayout->addChild(itemScroll);
+	mainLayout->addChild(scrollBar);
 
-	friendDetail = new FriendDetailView();	
-	friendDetail->setVisible(false);
-	addChild(friendDetail);	
 	addChild(mainLayout);
+}
+
+void FacebookFriendListView::suspend()
+{
+	float targetPriority = 100;
+	for (auto it = friendGroup->getChildren()->begin(); it != friendGroup->getChildren()->end();it++)
+	{		
+		FriendPanel * imagePanel = (FriendPanel*)*it;	
+		imagePanel->setDataPriority(targetPriority);	
+	}
 }
 
 void FacebookFriendListView::show(FBNode * root)
@@ -35,12 +59,13 @@ void FacebookFriendListView::show(FBNode * root)
 	
 	currentRightBoundary = 0;
 	lastUpdatePos = 100000;
+	itemScroll->getFlyWheel()->overrideValue(0);
 
 	items.clear();
 	friendGroup->clearChildren();
 }
 
-void FacebookFriendListView::addNode(FBNode * node)//, vector<FBNode*> & viewData)
+void FacebookFriendListView::addNode(FBNode * node)
 {
 	if (items.count(node->getId()) == 0)
 	{
@@ -63,13 +88,10 @@ void FacebookFriendListView::addNode(FBNode * node)//, vector<FBNode*> & viewDat
 			item->setVisible(true);
 
 			((FriendPanel*)item)->show(node,[](){});
-			//((FriendPanel*)item)->show(node,[this,item](){
-
 			float itemWidth = (lastSize.height/((float)rowCount));
 			friendGroup->addChild(item);
 			currentRightBoundary =  (itemWidth * ceilf((float)(friendGroup->getChildren()->size())/(float)rowCount));	
 			this->layoutDirty = true;
-			//});		
 		}
 	}
 }
@@ -110,9 +132,7 @@ void FacebookFriendListView::loadItems(int friends)
 						});	
 					});
 				}
-			}
-
-				
+			}				
 		});
 	}
 }
@@ -136,7 +156,6 @@ void FacebookFriendListView::updateLoading()
 
 	int loadMore = 0;
 	float remainingPixels =  currentRightBoundary - rightBound;
-	Logger::stream("FriendListView","INFO") << "RemainingPixels = " << remainingPixels << endl;
 	if (remainingPixels < (itemWidth * 1.0f))
 	{
 		loadMore = rowCount * 2;
@@ -195,27 +214,7 @@ void FacebookFriendListView::updateLoading()
 
 void FacebookFriendListView::friendPanelClicked(FriendPanel * panel, FBNode * clicked)
 {	
-	float targetPriority = 10;
-	for (auto it = friendGroup->getChildren()->begin(); it != friendGroup->getChildren()->end();it++)
-	{		
-		FriendPanel * imagePanel = (FriendPanel*)*it;	
-		imagePanel->setDataPriority(targetPriority);	
-	}
-	
-	mainLayout->setVisible(false);
-
-	friendDetail->setFinishedCallback([panel,clicked,this](string tag){
-		this->friendDetail->setVisible(false);
-		this->mainLayout->setVisible(true);
-		this->layoutDirty = true;
-		panel->show(clicked,[](){});
-		updateLoading();
-		//this->show(this->activeNode);
-	});
-
-	friendDetail->setVisible(true);
-	friendDetail->show(clicked);
-	layoutDirty = true;
+	FacebookDataDisplay::getInstance()->displayNode(activeNode,panel->getActiveNode(),"");
 }
 
 void FacebookFriendListView::layout(Vector position, cv::Size2f size)
@@ -223,12 +222,8 @@ void FacebookFriendListView::layout(Vector position, cv::Size2f size)
 	lastPosition = position;
 	lastSize = size;
 	
-	if (friendDetail != NULL && friendDetail->isEnabled() && friendDetail->isVisible())
-		friendDetail->layout(position,size);
-	else
-	{
-		mainLayout->layout(position,size);
-	}
+	mainLayout->layout(position,size);
+	
 	layoutDirty = false;
 }
 
@@ -243,25 +238,7 @@ void FacebookFriendListView::update()
 
 void FacebookFriendListView::onFrame(const Controller & controller)
 {	
-	if (friendDetail != NULL && friendDetail->isEnabled() && friendDetail->isVisible())
-	{	
-		friendDetail->onFrame(controller);
-	}
-	else
-	{
-		HandModel * hm = HandProcessor::LastModel();	
-		Pointable testPointable = controller.frame().pointable(hm->IntentFinger);
-
-		if (testPointable.isValid())
-		{
-			Leap::Vector screenPoint = LeapHelper::FindScreenPoint(controller,testPointable);
-
-			if (friendGroup->getHitRect().contains(cv::Point_<float>(screenPoint.x,screenPoint.y)))
-			{
-				itemScroll->OnPointableEnter(testPointable);
-			}	
-		}
-	}
+	;
 }
 
 void FacebookFriendListView::setFinishedCallback(const boost::function<void(std::string)> & callback)

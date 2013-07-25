@@ -103,6 +103,8 @@ private:
 
 	boost::mutex flyWheelMutex;
 
+	Timer newWheelCooldown;
+
 
 public:
 	const static int IdleState = 0;

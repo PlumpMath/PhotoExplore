@@ -11,50 +11,12 @@ PointableElementManager::PointableElementManager()
 	shakeGestureState = -1;
 	pointingGestureState = 0;
 	hitLastFrame = NULL;
-	hoverClickEnabled = true;
+	drawNonDominant = false;
 }
-
-
-void PointableElementManager::registerElement(LeapElement * element)
-{
-	if (std::find(testElements.begin(),testElements.end(),element) == testElements.end())
-		this->testElements.push_back(element);
-}
-
-void PointableElementManager::unregisterElement(LeapElement * element)
-{
-	this->testElements.remove(element);
-}
-
-LeapElement * PointableElementManager::findElementAt(Vector screenPoint)
-{
-	int flags = 0;
-	LeapElement * hit = NULL;
-	for (std::list<LeapElement*>::iterator it = testElements.begin();it != testElements.end();it++)
-	{
-		hit = (*it)->elementAtPoint((int)screenPoint.x,(int)screenPoint.y,flags);
-		if (hit != NULL)
-		{
-			return hit;
-		}
-	}
-	return hit;
-}
-
-void PointableElementManager::setHoverClickEnabled(bool _hoverClickEnabled)
-{
-	this->hoverClickEnabled = _hoverClickEnabled;
-	
-}
-
-bool PointableElementManager::isHoverClickEnabled()
-{
-	return this->hoverClickEnabled;
-}
-
 
 void PointableElementManager::processInputEvents()
 {
+	return;
 	int x,y;
 	glfwGetMousePos(&x,&y);
 	
@@ -68,14 +30,7 @@ void PointableElementManager::processInputEvents()
 	int flags = 0;
 	View * topView = dynamic_cast<View*>(globalGestureListenerStack.top());
 	hit = topView->elementAtPoint((int)screenPoint.x,(int)screenPoint.y,flags);
-
-	LeapElement * hitLastFrame = NULL;
-	auto it = lastHit.find(fakePointable.id());
-	if (it != lastHit.end())
-	{
-		hitLastFrame = it->second;		
-	}
-
+	
 	if (hit != hitLastFrame)
 	{
 		if (hit != NULL)	
@@ -85,17 +40,7 @@ void PointableElementManager::processInputEvents()
 			hitLastFrame->pointableExit(fakePointable);
 	}
 
-	lastHit[fakePointable.id()] = hit;
-
-
-	for (auto it = lastHit.begin(); it != lastHit.end();it++)
-	{
-		if (it->first != fakePointable.id() && it->second != NULL)
-		{
-			it->second->pointableExit(fakePointable);
-			lastHit[it->first] = NULL;
-		}
-	}
+	hitLastFrame = hit;
 
 	int mouseState = glfwGetMouseButton(GLFW_MOUSE_BUTTON_1);
 
@@ -151,22 +96,55 @@ void PointableElementManager::processInputEvents()
 		if (globalGestureListenerStack.size() > 0)
 			globalGestureListenerStack.top()->onGlobalGesture(Leap::Controller(), "down_key");
 	}
+}
 
+void PointableElementManager::enableNonDominantCursor(bool _enable)
+{
+	this->drawNonDominant = _enable;
+}
 
+static int determineHandState(const Controller & controller, Frame frame, Hand hand)
+{		
+	static float maxSpreadHandInterfingerAngle = GlobalConfig::tree()->get<float>("Leap.HandPoseControl.SpreadHand.MaxInterfingerAngle");
+	
+	HandModel * hm = HandProcessor::getInstance()->lastModel();
+	int handState;
 
+	if (!hand.isValid() || hand.pointables().count() == 1)
+	{
+		handState = InteractionState::Pointing;
+	}
+	else
+	{
+		if (hand.pointables().count() == 2 && hm->ThumbId > -1)
+		{
+			//float angle0 = LeapHelper::GetFingerTipAngle(hand,hand.fingers()[0]);
+			//float angle1 = LeapHelper::GetFingerTipAngle(hand,hand.fingers()[1]);
+
+			//if (abs(angle0 - angle1) < (GeomConstants::DegToRad*maxSpreadHandInterfingerAngle))
+			//	handState = InteractionState::Spread;
+			//else
+				handState = InteractionState::Pointing;
+		}
+		else
+		{
+			handState = InteractionState::Spread;
+		}
+	}
+
+	return handState;
 }
 
 void PointableElementManager::processFrame(const Controller & controller, Frame frame)
 {	
-	static bool hoverClickEnabled = GlobalConfig::tree()->get<bool>("Leap.HoverSelect.Enabled");
-	static float hoverClickTimeLimit = GlobalConfig::tree()->get<double>("Leap.HoverSelect.SelectTime");
-	static bool tapClickEnabled = GlobalConfig::tree()->get<bool>("Leap.TouchDistance.ClickEnabled");
 	static float maxRadialClickVelocity = GlobalConfig::tree()->get<float>("Leap.TouchDistance.MaxRadialClickVelocity");
 	static float maxLongitudalClickVelocity = GlobalConfig::tree()->get<float>("Leap.TouchDistance.MaxLongitudalClickVelocity");
 	static float cursorDimension = (((float)GlobalConfig::ScreenWidth) / 2560.0f) *  GlobalConfig::tree()->get<float>("Overlay.BaseCursorSize");
 	static float clickDistanceThreshold = GlobalConfig::tree()->get<float>("Leap.TouchDistance.ClickDistanceThreshold");
 	static float minimumDrawDistance = GlobalConfig::tree()->get<float>("Leap.TouchDistance.MinimumDrawDistance");
 	static bool drawIntentOnly = GlobalConfig::tree()->get<bool>("Leap.TouchDistance.DrawIntentOnly");
+	
+	bool clickOnRelease = GlobalConfig::tree()->get<bool>("Leap.TouchDistance.ClickOnRelease");
 	
 	if (frame.id() == lastFrameId || !frame.isValid())
 		return;
@@ -216,15 +194,13 @@ void PointableElementManager::processFrame(const Controller & controller, Frame 
 
 	Hand hand = controller.frame().hand(hm->HandId);
 
-			
-	bool canPointableClick = (!hand.isValid() || hand.pointables().count() == 1);
-	bool overSelectableElement = false;
+	currentState.ActiveHandId = hand.id();
+	currentState.HandState = determineHandState(controller,frame,hand);
 
 	int elementStateFlags = 0;
 	if (testPointable.isValid() && globalGestureListenerStack.size() > 0)
 	{				
-		Screen screen = controller.locatedScreens()[0];
-		screenPoint = LeapHelper::FindScreenPoint(controller,testPointable.stabilizedTipPosition(),filteredScreenPoint,screen);
+		screenPoint = LeapHelper::FindScreenPoint(controller,testPointable);
 
 		hit = RadialMenu::instance->elementAtPoint((int)screenPoint.x,(int)screenPoint.y,elementStateFlags);
 
@@ -236,84 +212,85 @@ void PointableElementManager::processFrame(const Controller & controller, Frame 
 
 		if (hit != hitLastFrame)
 		{
-			if (hit != NULL)	
-			{	
-				hit->pointableEnter(testPointable);		
-				if (hoverClickEnabled && elementStateFlags == 0 && hoverClickEnabled && hit->isClickable() && canPointableClick)
-				{
-					hoverClickState = 1;
-					hoverClickTimer.start();
-				}
-				else
-				{
-					hoverClickState = 0;
-				}
-			}
-			else 
-				hoverClickState = 0;
-
 			if (hitLastFrame != NULL)
 				hitLastFrame->pointableExit(testPointable);
-		}
-		else if (canPointableClick && hoverClickState == 0)
-		{
-			if (hoverClickEnabled && hit != NULL && elementStateFlags == 0 && hoverClickEnabled && hit->isClickable())
-			{
-				hoverClickState = 1;
-				hoverClickTimer.start();
-			}
+
+			if (hit != NULL)	
+				hit->pointableEnter(testPointable);			
 		}
 		hitLastFrame = hit;
 	}
-	
 
 
-
-	if (elementStateFlags == 0 
-		&& hit != NULL 
-		&& hit->isClickable() 
-		&& canPointableClick)
+	bool canPointableClick = false;
+	if (currentState.HandState == InteractionState::Pointing)
+		canPointableClick = true;
+	else if (clickOnRelease)
 	{
+		Pointable clicking = frame.pointable(currentState.ClickingPointableId);
+		if (clicking.isValid())
+			canPointableClick = true;
+	}
+
+	bool clicked = false;
+
+	if (hit != NULL )
+	{		
 		hit->onFrame(controller);
-		overSelectableElement = true;
-
-		bool clicked = false; 
-		if (hoverClickEnabled)
-		{
-			if (hoverClickState == 1 && hoverClickTimer.seconds() >= hoverClickTimeLimit)
-			{
-				hoverClickState = 0;
-				hit->elementClicked();
-				clicked = true;
-			}		
-		}
-
-		if (tapClickEnabled && !clicked)
+	
+		if (elementStateFlags == 0 && canPointableClick && hit->isClickable())
 		{
 			float radialVelocity = testPointable.direction().cross(testPointable.tipVelocity()).magnitude();
 			float longitudalVelocity = testPointable.direction().dot(testPointable.tipVelocity());
 
 			if (radialVelocity < maxRadialClickVelocity && longitudalVelocity < maxLongitudalClickVelocity)
 			{
-				Pointable lastFramePointable = controller.frame(1).pointable(testPointable.id());		
-				if (lastFramePointable.isValid())
+				Frame f1, f0 = controller.frame(0), fN = lastFrame;
+				Pointable p0,p1;
+
+				int count = 0;
+				for (int i = 1; i < 10; i++)
 				{
-					if (lastFramePointable.touchDistance() >= clickDistanceThreshold && testPointable.touchDistance() < clickDistanceThreshold)
+					f0 = controller.frame(i-1);
+					f1 = controller.frame(i);
+
+					if (!f1.isValid())
+						break;
+
+					p0 = f0.pointable(testPointable.id());
+					p1 = f1.pointable(testPointable.id());
+				
+					if (clickOnRelease)
 					{
-						//hoverClickTimer.start();
-						hoverClickState = 0;
-						hit->elementClicked();
+						if (p0.touchDistance() >= clickDistanceThreshold && p1.touchDistance() < clickDistanceThreshold)
+						{
+							clicked = true;
+							hit->elementClicked();
+							break;		
+						}
 					}
+					else if (p1.touchDistance() >= clickDistanceThreshold && p0.touchDistance() < clickDistanceThreshold)
+					{
+						clicked = true;
+						hit->elementClicked();
+						break;					
+					}
+
+					if (f1.id() == lastFrame.id())
+						break;
 				}
 			}
 		}
 	}
-	else
+
+	if (clickOnRelease)
 	{
-		//hoverClickTimer.start();
-		hoverClickState = 0;
+		currentState.ClickingPointableId = -1;		
+		if (!clicked && canPointableClick && testPointable.touchDistance() < clickDistanceThreshold)
+		{
+			currentState.ClickingPointableId = testPointable.id();
+		}
 	}
-	
 
 	static LeapDebugVisual * ldvIntent = NULL, * ldvNonDominant = NULL, * ldvNonDominantTD = NULL;
 	static vector<LeapDebugVisual*> touchDistanceVisuals;
@@ -338,7 +315,7 @@ void PointableElementManager::processFrame(const Controller & controller, Frame 
 		LeapDebug::instance->addDebugVisual(ldvNonDominantTD);
 	}
 
-	if (frame.hands().count() > 1)
+	if (frame.hands().count() > 1 && drawNonDominant)
 	{
 		HandModel * hm2 = HandProcessor::LastModel(frame.hands().leftmost().id());
 		Pointable nonDomPnt = frame.pointable(hm2->IntentFinger);
@@ -390,48 +367,50 @@ void PointableElementManager::processFrame(const Controller & controller, Frame 
 	for (int i=0;i<touchDistanceVisuals.size();i++)
 		touchDistanceVisuals.at(i)->size = 0;
 
-	for (int i=0;i<hand.fingers().count();i++)
+	//for (int i=0;i<hand.pointables().count();i++)
+	//{
+	//	Finger f = hand.fingers()[i];
+
+
+	int i = 0;
+	if (touchDistanceVisuals.size() <= i)
 	{
-		Finger f = hand.fingers()[i];
-
-
-		if (touchDistanceVisuals.size() <= i)
-		{
-			LeapDebugVisual * distanceVisual =new LeapDebugVisual(Vector(-100,-100,0),1,LeapDebugVisual::LiveForever,0,Color(GlobalConfig::tree()->get_child("Leap.TouchDistance.Visual.FillColor")));
-			distanceVisual->lineColor = Color(GlobalConfig::tree()->get_child("Leap.TouchDistance.Visual.LineColor"));
-			distanceVisual->lineWidth = GlobalConfig::tree()->get<float>("Leap.TouchDistance.Visual.LineWidth");
-			distanceVisual->depth=11;
-			LeapDebug::instance->addDebugVisual(distanceVisual);
-			touchDistanceVisuals.push_back(distanceVisual);
-		}
-
-		if (drawIntentOnly && f.id() != testPointable.id()) continue;
-
-		touchDistanceVisuals.at(i)->size = cursorDimension*(1.0f + max<float>(minimumDrawDistance,f.touchDistance()));
-
-		touchDistanceVisuals.at(i)->screenPoint = LeapHelper::FindScreenPoint(controller,f);
-
-		if (canPointableClick)
-		{				
-			touchDistanceVisuals.at(i)->lineColor = Color(GlobalConfig::tree()->get_child("Leap.TouchDistance.ClickVisual.LineColor"));
-			touchDistanceVisuals.at(i)->lineWidth = GlobalConfig::tree()->get<float>("Leap.TouchDistance.ClickVisual.LineWidth");
-
-			float alphaMod = 0;
-			Color c = Color(GlobalConfig::tree()->get_child("Leap.TouchDistance.ClickVisual.FillColor"));
-			if (f.touchDistance() <= minimumDrawDistance)
-			{
-				alphaMod = min<float>(1.0f,-2.0f * f.touchDistance());
-			}
-			c.setAlpha(c.colorArray[3] * alphaMod);
-			touchDistanceVisuals.at(i)->fillColor = c;
-		}
-		else
-		{
-			touchDistanceVisuals.at(i)->lineColor = Color(GlobalConfig::tree()->get_child("Leap.TouchDistance.Visual.FillColor"));
-			touchDistanceVisuals.at(i)->lineColor = Color(GlobalConfig::tree()->get_child("Leap.TouchDistance.Visual.LineColor"));
-			touchDistanceVisuals.at(i)->lineWidth = GlobalConfig::tree()->get<float>("Leap.TouchDistance.Visual.LineWidth");
-		}
+		LeapDebugVisual * distanceVisual =new LeapDebugVisual(Vector(-100,-100,0),1,LeapDebugVisual::LiveForever,0,Color(GlobalConfig::tree()->get_child("Leap.TouchDistance.Visual.FillColor")));
+		distanceVisual->lineColor = Color(GlobalConfig::tree()->get_child("Leap.TouchDistance.Visual.LineColor"));
+		distanceVisual->lineWidth = GlobalConfig::tree()->get<float>("Leap.TouchDistance.Visual.LineWidth");
+		distanceVisual->depth=11;
+		LeapDebug::instance->addDebugVisual(distanceVisual);
+		touchDistanceVisuals.push_back(distanceVisual);
 	}
+
+	//if (drawIntentOnly && f.id() != testPointable.id()) continue;
+
+	float drawTD = min<float>(1.0f,testPointable.touchDistance());
+	touchDistanceVisuals.at(i)->size = cursorDimension*(1.0f + max<float>(minimumDrawDistance,drawTD));
+
+	touchDistanceVisuals.at(i)->screenPoint = LeapHelper::FindScreenPoint(controller,testPointable);
+
+	if (canPointableClick)
+	{				
+		touchDistanceVisuals.at(i)->lineColor = Color(GlobalConfig::tree()->get_child("Leap.TouchDistance.ClickVisual.LineColor"));
+		touchDistanceVisuals.at(i)->lineWidth = GlobalConfig::tree()->get<float>("Leap.TouchDistance.ClickVisual.LineWidth");
+
+		float alphaMod = 0;
+		Color c = Color(GlobalConfig::tree()->get_child("Leap.TouchDistance.ClickVisual.FillColor"));
+		if (testPointable.touchDistance() <= minimumDrawDistance)
+		{
+			alphaMod = min<float>(1.0f,-2.0f * testPointable.touchDistance());
+		}
+		c.setAlpha(c.colorArray[3] * alphaMod);
+		touchDistanceVisuals.at(i)->fillColor = c;
+	}
+	else
+	{
+		touchDistanceVisuals.at(i)->fillColor = Color(GlobalConfig::tree()->get_child("Leap.TouchDistance.Visual.FillColor"));
+		touchDistanceVisuals.at(i)->lineColor = Color(GlobalConfig::tree()->get_child("Leap.TouchDistance.Visual.LineColor"));
+		touchDistanceVisuals.at(i)->lineWidth = GlobalConfig::tree()->get<float>("Leap.TouchDistance.Visual.LineWidth");
+	}
+	//}
 
 
 
@@ -490,7 +469,7 @@ void PointableElementManager::handleGlobalGestures(const Controller & controller
 	}
 }
 
-void PointableElementManager::requestGlobalGestureFocus(GlobalGestureListener * globalListener)
+void PointableElementManager::requestGlobalGestureFocus(ActivityView * globalListener)
 {
 	if (globalGestureListenerStack.empty() || globalGestureListenerStack.top() != globalListener)
 	{
@@ -506,7 +485,7 @@ void PointableElementManager::requestGlobalGestureFocus(GlobalGestureListener * 
 	}
 }
 
-void PointableElementManager::releaseGlobalGestureFocus(GlobalGestureListener * globalListener)
+void PointableElementManager::releaseGlobalGestureFocus(ActivityView * globalListener)
 {
 	if (globalGestureListenerStack.size() > 0 && globalGestureListenerStack.top() == globalListener)
 	{

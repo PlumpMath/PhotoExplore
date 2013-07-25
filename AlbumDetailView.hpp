@@ -10,8 +10,9 @@
 #include "ImageDetailView.hpp"
 #include "CustomGrid.hpp"
 #include "RadialMenu.hpp"
+#include "ScrollBar.hpp"
 
-class AlbumDetailView : public ViewGroup, public ViewOwner, public GlobalGestureListener {
+class AlbumDetailView : public ViewOwner, public ActivityView {
 
 private:
 	ViewGroup * imageGroup;
@@ -22,6 +23,7 @@ private:
 	FBNode * activeNode;
 	ViewGroup * mainLayout;
 	ScrollingView * itemScroll;
+	ScrollBar * scrollBar;
 
 	void updateLoading();
 	void loadItems(int photos);
@@ -37,8 +39,10 @@ private:
 public:
 	AlbumDetailView();		
 	void setFinishedCallback(const boost::function<void(std::string)> & callback);
-		
+	
+	void suspend();
 	void show(FBNode * root);
+	void showChild(FBNode * child);
 
 	FBNode * getNode();
 	

@@ -37,6 +37,7 @@ void SwipeGestureDetector::setFlyWheel(FlyWheel * _flyWheel)
 	for (int i=0;i<scrollPointVisuals.size();i++)
 		scrollPointVisuals.at(i)->size = 0;
 
+	newWheelCooldown.countdown(GlobalConfig::tree()->get<double>("Leap.CustomGesture.Swipe.NewViewCooldown"));
 	this->flyWheel = _flyWheel;
 	swipeMap.clear();
 	
@@ -360,7 +361,8 @@ void SwipeGestureDetector::doTouchZoneScrolling(const Controller & controller)
 		{
 			LeapDebugVisual * scrollPointVisual = new LeapDebugVisual(Vector(),1,LeapDebugVisual::LiveForever,0,Color(scrollConfig.get_child("VisualBackgroundColor")));
 			scrollPointVisual->lineColor = Color(scrollConfig.get_child("VisualLineColor"));
-			scrollPointVisual->depth = 10;
+			scrollPointVisual->lineWidth = 2.0f;
+			scrollPointVisual->depth = 13;
 			LeapDebug::instance->addDebugVisual(scrollPointVisual);
 			scrollPointVisuals.push_back(scrollPointVisual);
 		}
@@ -398,7 +400,8 @@ void SwipeGestureDetector::onFrame(const Controller & controller)
 			flyWheelMutex.unlock();
 			return;
 		}
-		if (flyWheel == NULL)
+		
+		if (!newWheelCooldown.elapsed() || flyWheel == NULL)
 		{
 			lastFrame = frame;
 			flyWheelMutex.unlock();

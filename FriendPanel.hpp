@@ -38,6 +38,8 @@ public:
 	void setDataPriority(float dataPriority);
 
 	boost::function<void(FriendPanel*)> photosLoadedCallback;
+
+	FBNode * getActiveNode();
 };
 
 

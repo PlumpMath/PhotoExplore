@@ -3,6 +3,7 @@
 #include "GraphicContext.hpp"
 #include "AbsoluteLayout.hpp"
 #include "SwipeGestureDetector.hpp"
+#include "FacebookDataDisplay.hpp"
 
 
 FriendDetailView::FriendDetailView()
@@ -11,12 +12,30 @@ FriendDetailView::FriendDetailView()
 	rowCount = GlobalConfig::tree()->get<int>("FriendDetailView.RowCount");
 
 	mainLayout = new AbsoluteLayout(); //(gridDefinition);	
+	((AbsoluteLayout*)mainLayout)->layoutCallback = [this](Vector position, cv::Size2f size){
+
+		float menuHeight = GlobalConfig::tree()->get<float>("Menu.Height");
+		float tutorialHeight = GlobalConfig::tree()->get<float>("Tutorial.Height");
+		float scrollBarHeight = GlobalConfig::tree()->get<float>("ScrollView.ScrollBar.Height");
+
+		friendNameHeading->layout(position-Vector(0,menuHeight,0),cv::Size2f(size.width,menuHeight));
+		itemScroll->layout(position,size);
+
+		float scrollBarWidth = size.width * 0.4f;
+
+		scrollBar->layout(position + Vector((size.width-scrollBarWidth)*.5f,size.height+(tutorialHeight-scrollBarHeight)*.5f,1),cv::Size2f(scrollBarWidth,scrollBarHeight));
+	};
+
+
 	imageGroup = new FixedAspectGrid(cv::Size2i(0,rowCount),true);	
 	itemScroll = new ScrollingView(imageGroup);
 	friendNameHeading = NULL;
-
+		
+	scrollBar = new ScrollBar();
+	scrollBar->setScrollView(itemScroll);
+	
 	mainLayout->addChild(itemScroll);
-
+	mainLayout->addChild(scrollBar);
 
 	imageDetailView = new ImageDetailView();
 	imageDetailView->setVisible(false);
@@ -25,13 +44,9 @@ FriendDetailView::FriendDetailView()
 		this->topView = mainLayout;
 		this->layoutDirty = true;						
 	});
-	addChild(imageDetailView);
-
-	albumDetail = new AlbumDetailView();	
-	albumDetail->setVisible(false);
-	addChild(albumDetail);	
-	
+		
 	addChild(mainLayout);
+	addChild(imageDetailView);
 	
 	topView = mainLayout;
 	projectedRightBoundary= 0;
@@ -39,6 +54,21 @@ FriendDetailView::FriendDetailView()
 
 
 
+void FriendDetailView::suspend()
+{
+	float targetPriority = 100;
+	for (auto it = imageGroup->getChildren()->begin(); it != imageGroup->getChildren()->end();it++)
+	{		
+		PanelBase * imagePanel = (Panel*)*it;	
+		if (dynamic_cast<Panel*>(imagePanel) != NULL)
+			((Panel*)imagePanel)->setDataPriority(targetPriority);	
+		else if (dynamic_cast<AlbumPanel*>(imagePanel) != NULL)
+		{
+			AlbumPanel * ap = (AlbumPanel*)imagePanel;
+			ap->setChildDataPriority(targetPriority);
+		}			
+	}
+}
 
 void FriendDetailView::loadItems(int albums, int photos)
 {
@@ -224,6 +254,7 @@ void FriendDetailView::show(FBNode * root)
 	currentRightBoundary= 0;
 	items.clear();	
 	lastUpdatePos = 1000;
+	this->itemScroll->getFlyWheel()->overrideValue(0);
 			
 	PointableElementManager::getInstance()->requestGlobalGestureFocus(this);
 	itemScroll->getFlyWheel()->overrideValue(0);
@@ -256,35 +287,59 @@ void FriendDetailView::show(FBNode * root)
 	imageGroup->clearChildren();
 }
 
+
+void FriendDetailView::showChild(FBNode * node)
+{	
+	if (items.count(node->getId()) == 0)
+	{		
+		items.insert(make_pair(node->getId(),node));
+		View * v= ViewOrchestrator::getInstance()->requestView(node->getId(), this);
+
+		Panel * item = NULL;
+		if (v == NULL)
+		{
+			item = new Panel(0,0);
+			item->setNode(node);
+			ViewOrchestrator::getInstance()->registerView(node->getId(),item, this);
+		}
+		else
+		{
+			item = dynamic_cast<Panel*>(v);
+		}
+		item->setLayoutParams(LayoutParams(cv::Size2f(),cv::Vec4f(5,5,5,5)));
+		item->setClickable(true);
+
+		item->elementClickedCallback = [this,item](LeapElement * clicked){
+			this->itemScroll->getFlyWheel()->impartVelocity(0);			
+			this->imageDetailView->notifyOffsetChanged(Vector((float)this->itemScroll->getFlyWheel()->getCurrentPosition(),0,0));
+			
+			this->imageDetailView->setImagePanel(item);										
+			imageDetailView->setVisible(true);			
+			PointableElementManager::getInstance()->requestGlobalGestureFocus(this->imageDetailView);
+			this->layoutDirty = true;			
+		};
+
+		imageGroup->addChild(item);		
+		float viewHeight = lastSize.height;
+		if (viewHeight == 0) viewHeight = GlobalConfig::ScreenHeight;
+		float itemWidth = lastSize.height / ((float)rowCount);
+		currentRightBoundary =  (itemWidth * ceilf((float)(imageGroup->getChildren()->size())/(float)rowCount));	
+		
+		item->elementClicked();
+	}
+	else
+	{
+		Panel * childPanel= dynamic_cast<Panel*>(ViewOrchestrator::getInstance()->requestView(node->getId(), this));
+		if (childPanel != NULL)
+		{
+			childPanel->elementClicked();
+		}
+	}
+}
+
 void FriendDetailView::albumPanelClicked(FBNode * clicked)
 {
-	topView = albumDetail;
-	float targetPriority = 10;
-	for (auto it = imageGroup->getChildren()->begin(); it != imageGroup->getChildren()->end();it++)
-	{		
-		PanelBase * imagePanel = (Panel*)*it;	
-		if (dynamic_cast<Panel*>(imagePanel) != NULL)
-			((Panel*)imagePanel)->setDataPriority(targetPriority);	
-		else if (dynamic_cast<AlbumPanel*>(imagePanel) != NULL)
-		{
-			AlbumPanel * ap = (AlbumPanel*)imagePanel;
-			ap->setChildDataPriority(targetPriority);
-		}			
-	}
-	
-	albumDetail->setFinishedCallback([this](string tag){
-		this->albumDetail->setVisible(false);
-		this->mainLayout->setVisible(true);
-		this->layoutDirty = true;		
-		this->show(this->activeNode);
-	});
-	
-	mainLayout->setVisible(false);
-
-	albumDetail->setVisible(true);
-	albumDetail->show(clicked);
-
-	layoutDirty = true;
+	FacebookDataDisplay::getInstance()->displayNode(activeNode,clicked,"");
 }
 
 void FriendDetailView::onGlobalGesture(const Controller & controller, std::string gestureType)
@@ -328,7 +383,6 @@ void FriendDetailView::addNode(FBNode * node)
 				p->setNode(node);
 				p->setVisible(true);
 				p->setClickable(true);
-				p->setDataPriority(0);
 				item = p;
 			} else if (node->getNodeType().compare(NodeType::FacebookAlbum) == 0)
 			{
@@ -343,15 +397,12 @@ void FriendDetailView::addNode(FBNode * node)
 		{
 			if (node->getNodeType().compare(NodeType::FacebookImage) == 0)
 			{				
-				//item->setLayoutParams(cv::Size2f(500,450));
-
 				Panel * p = (Panel*)item;
 				p->setClickable(true);
 				p->setLayoutParams(LayoutParams(cv::Size2f(),cv::Vec4f(5,5,5,5)));				
-				p->layout(Vector(lastSize.width-itemScroll->getFlyWheel()->getPosition(),lastSize.height,-10),cv::Size2f(100,100));
-
 				item->elementClickedCallback = [this,p](LeapElement * clicked){
-
+					
+					this->imageDetailView->notifyOffsetChanged(Vector((float)this->itemScroll->getFlyWheel()->getCurrentPosition(),0,0));
 					this->itemScroll->getFlyWheel()->impartVelocity(0);
 					this->imageDetailView->setImagePanel(p);
 					this->imageDetailView->setVisible(true);						
@@ -374,13 +425,11 @@ void FriendDetailView::addNode(FBNode * node)
 			}
 		}
 		layoutDirty = true;		
-		float itemWidth = 400;
-		if (!imageGroup->getChildren()->empty())
-		{
-			itemWidth = imageGroup->getChildren()->at(0)->getMeasuredSize().width;
-			if (itemWidth == 0)
-				itemWidth = 400;
-		}
+
+		float viewHeight = lastSize.height;
+		if (viewHeight == 0) viewHeight = GlobalConfig::ScreenHeight;
+		float itemWidth = lastSize.height / ((float)rowCount);
+
 		currentRightBoundary =  (itemWidth * ceilf((float)(imageGroup->getChildren()->size())/(float)rowCount));		
 	}
 }
@@ -389,15 +438,18 @@ void FriendDetailView::layout(Vector position, cv::Size2f size)
 {
 	lastSize = size;
 	lastPosition = position;
-
-	if (topView == mainLayout)
+	
+	mainLayout->layout(position,size);
+	
+	if (imageDetailView->isVisible())
 	{
-		float menuHeight = GlobalConfig::tree()->get<float>("Menu.Height");
-		friendNameHeading->layout(position-Vector(0,menuHeight,0),cv::Size2f(size.width,menuHeight));
-		//itemScroll->measure(size);
-		itemScroll->layout(position,size);
+		imageDetailView->layout(position,size);
 	}
-	topView->layout(position,size);	
+	//else
+	//{
+	//	mainLayout->layout(position,size);
+	//}
+
 	layoutDirty = false;
 }
 
@@ -406,7 +458,9 @@ void FriendDetailView::update()
 	ViewGroup::update();
 
 	float pos = (float)itemScroll->getFlyWheel()->getPosition();
-	imageDetailView->notifyOffsetChanged(Vector(pos,0,0));
+
+	if (!imageDetailView->isVisible())
+		imageDetailView->notifyOffsetChanged(Vector(pos,0,0));
 	
 	if (abs(lastUpdatePos - (-pos)) > 50)
 		updateLoading();
@@ -417,21 +471,6 @@ void FriendDetailView::onFrame(const Controller & controller)
 	if (topView != NULL && topView->isVisible())
 	{
 		topView->onFrame(controller);
-	}
-	else
-	{
-		HandModel * hm = HandProcessor::LastModel();	
-		Pointable testPointable = controller.frame().pointable(hm->IntentFinger);
-
-		if (testPointable.isValid())
-		{
-			Leap::Vector screenPoint = LeapHelper::FindScreenPoint(controller,testPointable);
-
-			if (imageGroup->getHitRect().contains(cv::Point_<float>(screenPoint.x,screenPoint.y)))
-			{
-				itemScroll->OnPointableEnter(testPointable);
-			}	
-		}
 	}
 }
 
@@ -446,10 +485,4 @@ void FriendDetailView::viewOwnershipChanged(View * view, ViewOwner * newOwner)
 	auto r1 = std::find(imageGroup->getChildren()->begin(),imageGroup->getChildren()->end(),view);
 	if (r1 != imageGroup->getChildren()->end())
 		imageGroup->getChildren()->erase(r1);
-	else
-	{
-		r1 = std::find(children.begin(),children.end(),view);
-		if (r1 != children.end())
-			children.erase(r1);	
-	}
 }

@@ -11,52 +11,79 @@ using namespace Leap;
 using namespace std;
 
 
-class HandModel
-{
-public:
-	HandModel()
-	{
-		this->HandId= -1;
-		this->IndexedFingers = NULL;
-		this->IntentFinger = -1;
-	}
+//class HandModel
+//{
+//public:
+//	HandModel()
+//	{
+//		this->HandId= -1;
+//		this->IndexedFingers = NULL;
+//		this->IntentFinger = -1;
+//	}
+//
+//	
+//	HandModel(int handId)
+//	{
+//		this->HandId= handId;
+//		this->IndexedFingers = NULL;
+//		this->IntentFinger = -1;
+//	}
+//
+//
+//	HandModel(int handId, int * indexedFingers, int intentFinger)
+//	{
+//		this->HandId = handId;
+//		this->IndexedFingers = indexedFingers;
+//		this->IntentFinger = intentFinger;
+//	}
+//
+//	int HandId;
+//	int * IndexedFingers;
+//	int IntentFinger;
+//
+//	vector<int> SelectFingers(vector<int> fingers)
+//	{
+//		vector<int> fingerList;
+//		if (IndexedFingers != NULL)
+//		{
+//			for (int i = 0; i < fingers.size(); i++)
+//			{
+//				int id = IndexedFingers[fingers[i]];
+//				if (id != -1)
+//				{
+//					fingerList.push_back(id);
+//				}
+//			}
+//		}
+//		return fingerList;
+//	}
+//};
 
-	
-	HandModel(int handId)
-	{
-		this->HandId= handId;
-		this->IndexedFingers = NULL;
-		this->IntentFinger = -1;
-	}
-
-
-	HandModel(int handId, int * indexedFingers, int intentFinger)
-	{
-		this->HandId = handId;
-		this->IndexedFingers = indexedFingers;
-		this->IntentFinger = intentFinger;
-	}
+struct HandModel {
 
 	int HandId;
-	int * IndexedFingers;
 	int IntentFinger;
+	int ThumbId;
 
-	vector<int> SelectFingers(vector<int> fingers)
+	bool isLeftHand;
+
+	HandModel() :
+		HandId(-1),
+		IntentFinger(-1)
+	{}
+
+		
+	HandModel(int _handId) :
+		HandId(_handId),
+		IntentFinger(-1)
+	{}
+
+	HandModel(int _handId, int _intentFinger) :
+		HandId(_handId),
+		IntentFinger(_intentFinger)
 	{
-		vector<int> fingerList;
-		if (IndexedFingers != NULL)
-		{
-			for (int i = 0; i < fingers.size(); i++)
-			{
-				int id = IndexedFingers[fingers[i]];
-				if (id != -1)
-				{
-					fingerList.push_back(id);
-				}
-			}
-		}
-		return fingerList;
 	}
+
 };
 
 
@@ -65,7 +92,7 @@ class HandProcessor
 
 	
 public:
-	static HandProcessor * getInstance();
+	static HandProcessor *getInstance();
 	static HandModel * LastModel(int handId);
 	static HandModel * LastModel();
 		
@@ -73,6 +100,9 @@ public:
 	HandModel * lastModel(int id);
 	void processFrame(Frame frame);
 	
+	Hand drawHand;
+
+	void draw();
 
 private:
 	int strongDeterminedIndex;
@@ -95,6 +125,7 @@ private:
 	bool hasThumb(Hand hand, vector<int> * fingerIndexes, bool invert);
 
 	HandModel buildModel(Hand hand, bool invert);
+	HandModel buildComplexModel(Hand hand, bool invert);
 
 	static float getContigousHistory(int * history, int length, int id);
 	static void pushHistory(int *history, int length, int id);

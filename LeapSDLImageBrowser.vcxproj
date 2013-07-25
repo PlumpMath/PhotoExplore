@@ -252,8 +252,10 @@
     <ClCompile Include="PanelBase.cpp" />
     <ClCompile Include="PanelFactory.cpp" />
     <ClCompile Include="PointableElementManager.cpp" />
+    <ClCompile Include="PunchGestureDetector.cpp" />
     <ClCompile Include="RadialMenu.cpp" />
     <ClCompile Include="ResourceManager.cpp" />
+    <ClCompile Include="ScrollBar.cpp" />
     <ClCompile Include="ScrollingView.cpp" />
     <ClCompile Include="SeekVisual.cpp" />
     <ClCompile Include="ShakeGestureDetector.cpp" />
@@ -270,6 +272,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AbsoluteLayout.hpp" />
+    <ClInclude Include="ActivityView.hpp" />
     <ClInclude Include="AlbumDetailView.hpp" />
     <ClInclude Include="AlbumPanel.hpp" />
     <ClInclude Include="Animation.h" />
@@ -279,6 +282,7 @@
     <ClInclude Include="CefFileBrowser.h" />
     <ClInclude Include="DataListView.hpp" />
     <ClInclude Include="EmptyView.hpp" />
+    <ClInclude Include="FacebookDataDisplay.hpp" />
     <ClInclude Include="FakeDataSource.hpp" />
     <ClInclude Include="FastSeekBar.hpp" />
     <ClInclude Include="GlobalConfig.hpp" />
@@ -316,8 +320,10 @@
     <ClInclude Include="PackingGrid.hpp" />
     <ClInclude Include="PanelFactory.hpp" />
     <ClInclude Include="PixelBufferPool.hpp" />
+    <ClInclude Include="PunchGestureDetector.hpp" />
     <ClInclude Include="RadialMenu.hpp" />
     <ClInclude Include="RelevantImageView.hpp" />
+    <ClInclude Include="ScrollBar.hpp" />
     <ClInclude Include="ScrollingView.hpp" />
     <ClInclude Include="SeekVisual.hpp" />
     <ClInclude Include="ShakeGestureDetector.hpp" />

@@ -170,7 +170,7 @@ void TexturePanel::drawTexture(GLuint drawTexId, Vector drawPosition, float draw
 	//if (!allowSubPixelRendering)
 	//	y2 = floorf(y2);
 
-	float z1 = drawPosition.z;
+	float z1 = drawPosition.z + .5f;
 				
 	glColor4fv(textureTint.getFloat());
 	glBegin( GL_QUADS );

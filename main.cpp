@@ -28,10 +28,12 @@
 #include "GlobalConfig.hpp"
 #include "SwipeGestureDetector.hpp"
 #include "FakeDataSource.hpp"
+#include "FacebookDataDisplay.hpp"
+#include "FacebookBrowser.hpp"
 
-#include <execinfo.h>
-#include <signal.h>
-#include <stdlib.h>
+//#include <execinfo.h>
+//#include <signal.h>
+//#include <stdlib.h>
 
 using namespace Leap;
 
@@ -43,11 +45,12 @@ bool GlobalConfig::LeftHanded = false;
 bool GlobalConfig::AllowSingleHandInteraction = !true;
 float GlobalConfig::SelectCircleMinRadius = 50.0f;
 float GlobalConfig::MinimumInteractionScreenDistance = 400.0f;
-std::string GlobalConfig::TestingToken = std::string("CAACDNO54yc8BAN2roqcODuqZCKrBs9ZAZB2JJyXHD9dtpjUEZCNZAfcXfo9GTVMBytl5QJE5673ZAHVxzrC6c279t4AhG9ZCuDfGdUbPErr4UmibOBfKJVXOL4ZC92IPPPMUxUTEU5ftMJZBgZBZAD4hPWHTv59x17OyZB8q5iUMlTtY2QZDZD");
+std::string GlobalConfig::TestingToken = std::string("");
 
 HandProcessor * HandProcessor::instance = NULL;
 FileManager * FileManager::instance = NULL;
 FBDataSource * FBDataSource::instance = NULL;
+FacebookDataDisplay * FacebookDataDisplay::instance = NULL;
 PointableElementManager * PointableElementManager::instance = NULL;
 
 LeapDebug * LeapDebug::instance = NULL;
@@ -88,13 +91,21 @@ bool init( int window_width, int window_height, bool isFull)
 	glewInit();
 	//LeapImageOut << "PBO support = " << (glewIsSupported("GL_ARB_pixel_buffer_object") ? "true" : "false. This is unexpected! Application may not function at all.") << "\n";
 		
-	//OpenGL
-	glEnable(GL_LINE_SMOOTH);
-	glHint(GL_LINE_SMOOTH_HINT,  GL_NICEST);
+	if (GlobalConfig::tree()->get<bool>("GraphicsSettings.EnableLineSmoothing"))
+	{
+		glEnable(GL_LINE_SMOOTH);
+		glHint(GL_LINE_SMOOTH_HINT,  GL_NICEST);
+	}
+	else
+	{
+		glDisable(GL_LINE_SMOOTH);
+	}
+
+	glHint(GL_TEXTURE_COMPRESSION_HINT,  GL_NICEST );
 
 	glEnable(GL_TEXTURE_2D);  
 	glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_LEQUAL);
+	glDepthFunc(GL_LESS);
 
 	glAlphaFunc(GL_GEQUAL, 0.0625);
 	glEnable(GL_ALPHA_TEST);
@@ -354,16 +365,16 @@ public:
 
 
 void handler(int sig) {
-	void *array[30];
-	size_t size;
-	
-	// get void*'s for all entries on the stack
-	size = backtrace(array, 30);
-	
-	// print out all the frames to stderr
-	fprintf(stderr, "Error: signal %d:\n", sig);
-	backtrace_symbols_fd(array, size, STDERR_FILENO);
-	exit(1);
+	//void *array[30];
+	//size_t size;
+	//
+	//// get void*'s for all entries on the stack
+	//size = backtrace(array, 30);
+	//
+	//// print out all the frames to stderr
+	//fprintf(stderr, "Error: signal %d:\n", sig);
+	//backtrace_symbols_fd(array, size, STDERR_FILENO);
+	//exit(1);
 }
 
 #ifdef _WIN32
@@ -399,6 +410,8 @@ int WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmd
 		FBDataSource::instance = new FakeDataSource(GlobalConfig::tree()->get<string>("FakeDataMode.SourceDataDirectory"));
 	else
 		FBDataSource::instance = new FacebookLoader();
+
+	FacebookDataDisplay::instance = new FacebookBrowser();
 
     bool * quit = new bool[1];
 	quit[0] = false;
@@ -576,6 +589,8 @@ int WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmd
 				glMatrixMode( GL_MODELVIEW );			
 				ShakeGestureDetector::getInstance().draw();		
 				SwipeGestureDetector::getInstance().draw();
+				if (GlobalConfig::tree()->get<bool>("Leap.HandModel.DrawDebug"))
+					HandProcessor::getInstance()->draw();
 				startScreen.draw();
 				
 

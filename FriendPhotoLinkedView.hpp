@@ -20,7 +20,7 @@
 #include "GLImport.h"
 #include "FastSeekBar.hpp"
 
-class FriendPhotoLinkedView : public ViewGroup, public ViewOwner, public GlobalGestureListener {
+class FriendPhotoLinkedView : public ViewOwner, public ActivityView {
 
 private:
 	ViewGroup * imageGroup;

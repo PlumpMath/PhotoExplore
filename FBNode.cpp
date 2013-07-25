@@ -14,7 +14,6 @@ string Edge::id() const
 
 FBNode::FBNode(string id)
 {
-	this->loadCompleteFlag = false;
 	this->id = id;
 	this->dataPriority = 1;
 }
@@ -153,11 +152,10 @@ void FBNode::addJSON(string edge, vector<json_spirit::Pair> & obj)
 
 		if (child != NULL)
 		{
+			child->ReverseEdges.insert(Edge(this->getNodeType(),this));
 			Edges.insert(Edge(edge,child));
-			childrenChanged();
 		}
 	}
-	loadCompleteFlag = true;
 }
 
 
@@ -181,54 +179,6 @@ void FBNode::addJSONArray(string edge, vector<json_spirit::Value> & objectArray)
 	//}
 }
 
-
-void FBNode::startLoad()
-{
-	loadCompleteFlag = false;
-	stringstream loadString;
-	string targetEdge = "";
-	for (auto it = loadState.begin(); it != loadState.end(); it++)
-	{
-		EdgeLoadSpec * loadSpec = &((*it).second);
-		if (loadSpec->requestedCount != loadSpec->loadedCount && !loadSpec->hasReachedEnd)
-		{			
-			targetEdge = it->first;
-			stringstream fields;
-			fields << ".fields(";
-			if (targetEdge.compare("photos") == 0)
-			{
-				fields << "id,name,images";
-			}
-			//else if (targetEdge.compare("friends") == 0)
-			//{
-			//	fields << "id,name,photos.fields(id,name,images).limit(5)";
-			//}
-			else
-			{
-				fields << "id,name";
-			}
-			fields << ")";
-
-			if (loadSpec->requestedCount == LONG_MAX)
-				loadString << targetEdge << fields.str() << ",";
-			else
-			{
-				int limit = loadSpec->requestedCount - loadSpec->loadedCount;
-				loadString << targetEdge << fields.str() << ".offset(" << loadSpec->loadedCount << ").limit(" << limit << "),";		
-			}
-			loadSpec->loadedCount = loadSpec->requestedCount;
-		}
-	}
-
-	if (loadString.str().size() > 0)
-	{
-		string ls = getId()+ "?fields=" + loadString.str();
-		//ls.pop_back(); //Remove ending ','
-		Logger::stream("FBNode","INFO") << "Loading node to target level: " << ls << endl;
-		FBDataSource::instance->loadField(this,ls, targetEdge,[](FBNode * node){});
-	}
-}
-
 void FBNode::clearLoadCompleteDelegate()
 {
 	this->loadCompleteDelegate = [](){};
@@ -248,27 +198,4 @@ bool FBNode::setLoadTarget(string edge, long count)
 		return true;
 	}
 	return false;
-}
-
-void FBNode::setDataPriority(float priority)
-{
-	this->dataPriority = priority;
-}
-
-void FBNode::update()
-{
-	if (loadCompleteFlag)
-	{
-		if (!loadCompleteDelegate.empty())
-			loadCompleteDelegate();
-		loadCompleteFlag = false;
-	}
-	NodeBase::update();
-		
-
-	for (auto it=Edges.begin(); it!=Edges.end();it++)
-	{
-		if (it->Node != NULL)
-			it->Node->update();
-	}
 }

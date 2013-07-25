@@ -113,7 +113,8 @@ void ScrollingView::draw()
 
 LeapElement * ScrollingView::elementAtPoint(int x, int y, int & elementStateFlags)
 {
-	
+	static float maxClickSpeed = GlobalConfig::tree()->get<float>("ScrollView.MaximumClickSpeed");
+
 	GraphicsContext::getInstance().setDrawHint("Offset",scrollingFlywheel->getPosition());
 	GraphicsContext::getInstance().setDrawHint("VisibleWidth",lastSize.width);
 	LeapElement * hit = NULL;
@@ -123,7 +124,7 @@ LeapElement * ScrollingView::elementAtPoint(int x, int y, int & elementStateFlag
 		{			
 
 			hit = content->elementAtPoint(x-scrollingFlywheel->getPosition(),y,elementStateFlags);
-			if (abs(scrollingFlywheel->getVelocity()) > 20)
+			if (abs(scrollingFlywheel->getVelocity()) > maxClickSpeed)
 				elementStateFlags |= LeapElement::Flags_ElementNonClickable;
 		}
 		else

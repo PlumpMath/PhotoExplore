@@ -33,7 +33,7 @@ struct PanelInteraction {
 	vector<pair<int,Vector> > interactingPointables;	
 };
 
-class ImageDetailView : public ViewGroup, public GlobalGestureListener {
+class ImageDetailView : public ActivityView {
 
 private:	
 	boost::function<void(std::string)> finishedCallback;
@@ -77,7 +77,6 @@ public:
 	void getTutorialDescriptor(vector<string> & tutorial);
 
 	void setVisible(bool visible);
-	void update();
 	void draw();
 
 	

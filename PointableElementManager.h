@@ -8,27 +8,53 @@
 #include <boost/function.hpp>
 #include "SDLTimer.h"
 #include "LeapElement.hpp"
+#include "ActivityView.hpp"
 
 using namespace Leap;
 using namespace std;
 
-class GlobalGestureListener {
 
-public:
-	virtual bool onLeapGesture(const Controller & controller, const Gesture & gesture) = 0;	
-	virtual void onGlobalGesture(const Controller & controller, std::string gestureType) = 0;
+
+struct InteractionState {
+		
+	enum HandStates {
+		
+		Invalid = -1,
+		Spread = 1,
+		Pointing = 2
+	};
+
+	//const static int Invalid = -1;
+	//const static int Spread = 1;
+	//const static int Pointing = 2;
+
+	int ActiveHandId;
+	int HandState;
 	
-	virtual void getTutorialDescriptor(vector<string> & tutorial) = 0;
+	int ClickingPointableId;
+	
+	InteractionState() :
+		ActiveHandId(-1),
+		HandState(HandStates::Invalid),
+		ClickingPointableId(-1)		
+	{
 
-	virtual void onGlobalFocusChanged(bool isFocused) {}	
+	}
+
+	InteractionState(int _handId, HandStates _handState, bool _clickingPointableId) :
+		ActiveHandId(_handId),
+		HandState(_handState),
+		ClickingPointableId(_clickingPointableId)
+	{
+
+	}
+	
 };
-
 
 class PointableElementManager {
 	
 private:
-	std::list<LeapElement*> testElements;
-	stack<GlobalGestureListener*> globalGestureListenerStack;
+	stack<ActivityView*> globalGestureListenerStack;
 
 	set<int> processedGestures;
 	
@@ -42,7 +68,6 @@ private:
 	const static int EnterEvent = 0;
 	const static int ExitEvent = 1;
 
-	void getRoutingStack(LeapElement * element, stack<LeapElement*> & result);
 	void callEvent(LeapElement * element, Pointable & pointable, int eventType);	
 	
 	Timer pointingGestureTimer;
@@ -52,17 +77,12 @@ private:
 	long lastFrameId;
 	Frame lastFrame;
 
-	bool hoverClickEnabled;
-
-	int hoverClickState;
-	Timer hoverClickTimer;
-
 	LeapElement * hitLastFrame;
-
-	int filteredPointable;
-	Vector filteredScreenPoint;
-	Timer filterTimer;
-
+		
+	InteractionState currentState;
+	
+	bool drawNonDominant;
+	
 	
 public:
 	static PointableElementManager * getInstance()
@@ -72,22 +92,21 @@ public:
 		return instance;
 	}
 
-	void registerElement(LeapElement * element);
-	void unregisterElement(LeapElement * element);
-
 	void processFrame(const Controller & controller, Frame frame);
 	void processInputEvents();
 	
-	void requestGlobalGestureFocus(GlobalGestureListener * globalListener);
-	void releaseGlobalGestureFocus(GlobalGestureListener * globalListener);
+	void requestGlobalGestureFocus(ActivityView * globalListener);
+	void releaseGlobalGestureFocus(ActivityView * globalListener);
 
-	void setHoverClickEnabled(bool enableHoverClick);
-	bool isHoverClickEnabled();
+	void enableNonDominantCursor(bool enable);
 
-	LeapElement * findElementAt(Vector screenPoint);
+	InteractionState getInteractionState();
 
-	
-	std::map<int,LeapElement*> lastHit;
+	//LeapElement * findElementAt(Vector screenPoint);
+		
+	//std::map<int,LeapElement*> lastHit;
+
+
 
 };
 

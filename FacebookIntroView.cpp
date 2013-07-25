@@ -3,6 +3,7 @@
 #include "GraphicContext.hpp"
 #include "LeapDebug.h"
 #include "EmptyView.hpp"
+#include "FacebookDataDisplay.hpp"
 
 using namespace cv;
 
@@ -275,9 +276,16 @@ void FacebookIntroView::viewChanged(string viewIdentifier, vector<FBNode*> viewD
 				ViewOrchestrator::getInstance()->registerView(node->getId(),item, NULL);
 			}
 
-			((Panel*)item)->setClickable(false);
+
+
+			((Panel*)item)->setClickable(true);
 			((Panel*)item)->setDataPriority(0);
 			item->setLayoutParams(LayoutParams(cv::Size2f(),cv::Vec4f(5,5,5,5)));
+			item->elementClickedCallback = [node](LeapElement * element){
+				FacebookDataDisplay::getInstance()->displayNode(NULL,node,"");
+			};
+
+
 			if (friendPhotos)
 			{
  				friendPhotoGrid->addChild(item);

@@ -191,7 +191,7 @@ public:
 
 	static float GetFingerTipAngle(Hand hand, Finger finger)
 	{
-		Vector fingerDirection = GetHandPlaneProjection(GetFingerBase(finger), hand) - hand.palmPosition();
+		Vector fingerDirection = GetHandPlaneProjection(finger.stabilizedTipPosition(), hand) - hand.palmPosition();
 		fingerDirection /= fingerDirection.magnitude();
 
 		Vector refAngle = NormalHandDirection(hand);

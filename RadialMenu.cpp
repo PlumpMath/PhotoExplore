@@ -15,6 +15,7 @@ RadialMenu::RadialMenu(vector<RadialMenuItem> & items)
 	items.push_back(RadialMenuItem("Exit and Logout","logout", Colors::DarkRed));
 	items.push_back(RadialMenuItem("Exit Photo Explorer","exit",Colors::OrangeRed));
 	//items.push_back(RadialMenuItem("Hide Tutorial","hide_tutorial", Colors::DarkTurquoise));
+	//items.push_back(RadialMenuItem("Tap mode = On Press","toggle_tap", Colors::DarkTurquoise));
 	items.push_back(RadialMenuItem("Privacy Information","show_privacy_info", Colors::DodgerBlue));
 	items.push_back(RadialMenuItem("Back","cancel",Colors::SkyBlue));
 
@@ -98,8 +99,8 @@ void RadialMenu::setItems(vector<RadialMenuItem> & items)
 		item->setTextSize(12);
 		string itemId = it->id;
 		item->setLayoutParams(LayoutParams(cv::Size2f(400,150),cv::Vec4f(20,20,20,20)));
-		item->elementClickedCallback = [this,itemId](LeapElement * element){
-			this->itemClicked(itemId);
+		item->elementClickedCallback = [this,itemId,item](LeapElement * element){
+			this->itemClicked(itemId,item);
 		};
 		addChild(item);
 	}	
@@ -131,7 +132,7 @@ float RadialMenu::getZValue()
 	return 100.0f;
 }
 
-void RadialMenu::itemClicked(string id)
+void RadialMenu::itemClicked(string id, Button * menuButton)
 {
 	if (id.compare("cancel") == 0)
 	{
@@ -142,6 +143,21 @@ void RadialMenu::itemClicked(string id)
 		state = MenuState_ShowingDialog;
 		privacyInfoBox->setVisible(true);
 		layout(lastPosition,lastSize);
+	}	
+	else if (id.compare("toggle_tap") == 0)
+	{
+		if (GlobalConfig::tree()->get<bool>("Leap.TouchDistance.ClickOnRelease"))
+		{
+			menuButton->setText("Tap mode = On Press");
+			GlobalConfig::tree()->put<bool>("Leap.TouchDistance.ClickOnRelease",false);
+			menuButton->reloadText();
+		}
+		else
+		{
+			menuButton->setText("Tap mode = On Release");
+			GlobalConfig::tree()->put<bool>("Leap.TouchDistance.ClickOnRelease",true);
+			menuButton->reloadText();
+		}
 	}
 	//else if (id.compare("hide_tutorial") == 0)
 	//{

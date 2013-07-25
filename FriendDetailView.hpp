@@ -14,15 +14,15 @@
 #include "PanelFactory.hpp"
 #include "CustomGrid.hpp"
 #include "RadialMenu.hpp"
+#include "ScrollBar.hpp"
 
-class FriendDetailView : public ViewGroup, public ViewOwner, public GlobalGestureListener {
+class FriendDetailView : public ViewOwner, public ActivityView {
 
 private:
 	ViewGroup * imageGroup;
 	TextPanel * friendNameHeading;
 
 	View * topView;
-	AlbumDetailView * albumDetail;
 	ImageDetailView * imageDetailView;
 	FBNode * activeNode;
 
@@ -41,6 +41,7 @@ private:
 	map<string,FBNode*> items;
 	void loadItems(int albums, int photos);
 	
+	ScrollBar * scrollBar;
 
 	
 
@@ -50,7 +51,9 @@ public:
 
 	void albumPanelClicked(FBNode * clicked);
 		
+	void suspend();
 	void show(FBNode * root);
+	void showChild(FBNode * root);
 	
 	void viewChanged(int offset, vector<FBNode*> & viewData);
 

@@ -386,7 +386,6 @@ void Panel::setDataPriority(float dRel)
 	if (dataPriority != dRel)
 	{
 		dataPriority = dRel;
-		node->setDataPriority(dRel);
 		if (currentResource != NULL)
 		{
 			currentResource->priority = dataPriority;

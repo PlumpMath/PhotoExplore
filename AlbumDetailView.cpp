@@ -7,25 +7,32 @@
 
 AlbumDetailView::AlbumDetailView()
 {	
-	//vector<RowDefinition> gridDefinition;	
-	//gridDefinition.push_back(RowDefinition(.1f));
-	//gridDefinition.push_back(RowDefinition(.9f));
-	//gridDefinition[0].ColumnWidths.push_back(1);
-	//gridDefinition[1].ColumnWidths.push_back(1);
 	mainLayout = new AbsoluteLayout();
 
 	((AbsoluteLayout*)mainLayout)->layoutCallback = [this](Vector position, cv::Size2f size){
 
 		float menuHeight = GlobalConfig::tree()->get<float>("Menu.Height");
+		float tutorialHeight = GlobalConfig::tree()->get<float>("Tutorial.Height");
+		float scrollBarHeight = GlobalConfig::tree()->get<float>("ScrollView.ScrollBar.Height");
+
 		albumName->layout(position-Vector(0,menuHeight,0),cv::Size2f(size.width,menuHeight));
 		itemScroll->layout(position,size);
+
+		float scrollBarWidth = size.width * 0.4f;
+
+		scrollBar->layout(position + Vector((size.width-scrollBarWidth)*.5f,size.height+(tutorialHeight-scrollBarHeight)*.5f,1),cv::Size2f(scrollBarWidth,scrollBarHeight));
 	};
 		
 	rowCount = GlobalConfig::tree()->get<int>("AlbumDetailView.RowCount");
 	imageGroup = new FixedAspectGrid(cv::Size2i(0,rowCount),1.0f,true);
 	itemScroll = new ScrollingView(imageGroup);
 
+
+	scrollBar = new ScrollBar();
+	scrollBar->setScrollView(itemScroll);
+	
 	mainLayout->addChild(itemScroll);
+	mainLayout->addChild(scrollBar);
 
 	imageDetailView = new ImageDetailView();
 	imageDetailView->setVisible(false);
@@ -56,10 +63,8 @@ void AlbumDetailView::loadItems(int photos)
 		activeNode->loadState["photos"].requestedCount = photos;
 		loadstr << "photos.offset(" << requestedPhotos << ").limit(" << photos << ").fields(id,name,images)";
 
-
 		AlbumDetailView * v = this;
 		FBDataSource::instance->loadField(activeNode,loadstr.str(),"",[v](FBNode * _node){
-
 			AlbumDetailView * v2= v;
 			v->postTask([v2,_node](){
 				if (v2->activeNode == _node)
@@ -162,6 +167,18 @@ void AlbumDetailView::updateLoading()
 	}	
 }
 
+void AlbumDetailView::suspend()
+{	
+	float targetPriority = 100;
+	for (auto it = imageGroup->getChildren()->begin(); it != imageGroup->getChildren()->end();it++)
+	{		
+		Panel * imagePanel = (Panel*)*it;	
+		imagePanel->setDataPriority(targetPriority);	
+	}
+	
+	PointableElementManager::getInstance()->releaseGlobalGestureFocus(this);
+	layoutDirty = true;
+}
 
 void AlbumDetailView::show(FBNode * node)
 {			
@@ -171,6 +188,7 @@ void AlbumDetailView::show(FBNode * node)
 	activeNode = node;
 	mainLayout->remove(albumName);
 	currentRightBoundary = 0;
+	this->itemScroll->getFlyWheel()->overrideValue(0);
 	
 	lastUpdatePos = 1000;
 	
@@ -194,6 +212,54 @@ void AlbumDetailView::show(FBNode * node)
 	items.clear();
 	imageGroup->clearChildren();
 	mainLayout->getChildren()->insert(mainLayout->getChildren()->begin(),albumName);
+}
+
+void AlbumDetailView::showChild(FBNode * node)
+{
+	if (items.count(node->getId()) == 0)
+	{		
+		items.insert(make_pair(node->getId(),node));
+		View * v= ViewOrchestrator::getInstance()->requestView(node->getId(), this);
+
+		Panel * item = NULL;
+		if (v == NULL)
+		{
+			item = new Panel(0,0);
+			item->setNode(node);
+			ViewOrchestrator::getInstance()->registerView(node->getId(),item, this);
+		}
+		else
+		{
+			item = dynamic_cast<Panel*>(v);
+		}
+		item->setLayoutParams(LayoutParams(cv::Size2f(),cv::Vec4f(5,5,5,5)));
+		item->setClickable(true);
+
+		item->elementClickedCallback = [this,item](LeapElement * clicked){
+			this->itemScroll->getFlyWheel()->impartVelocity(0);			
+
+			this->imageDetailView->notifyOffsetChanged(Vector((float)this->itemScroll->getFlyWheel()->getCurrentPosition(),0,0));
+			
+			this->imageDetailView->setImagePanel(item);										
+			this->imageDetailView->setVisible(true);
+			PointableElementManager::getInstance()->requestGlobalGestureFocus(this->imageDetailView);
+			this->layoutDirty = true;			
+		};
+
+		imageGroup->addChild(item);		
+		float itemWidth = 1.0f * (lastSize.height/((float)rowCount));
+		currentRightBoundary =  (itemWidth * ceilf((float)(imageGroup->getChildren()->size())/(float)rowCount));	
+		
+		item->elementClicked();
+	}
+	else
+	{
+		Panel * childPanel= dynamic_cast<Panel*>(ViewOrchestrator::getInstance()->requestView(node->getId(), this));
+		if (childPanel != NULL)
+		{
+			childPanel->elementClicked();
+		}
+	}
 }
 
 FBNode * AlbumDetailView::getNode()
@@ -226,16 +292,22 @@ void AlbumDetailView::addNode(FBNode * node)
 		item->setVisible(true);
 
 		item->elementClickedCallback = [this,item](LeapElement * clicked){
+			this->itemScroll->getFlyWheel()->impartVelocity(0);			
+
+			this->imageDetailView->notifyOffsetChanged(Vector((float)this->itemScroll->getFlyWheel()->getCurrentPosition(),0,0));
+
 			this->imageDetailView->setImagePanel(item);										
-			imageDetailView->setVisible(true);
-			this->itemScroll->getFlyWheel()->impartVelocity(0);
+			this->imageDetailView->setVisible(true);
 			PointableElementManager::getInstance()->requestGlobalGestureFocus(this->imageDetailView);
 			this->layoutDirty = true;			
 		};
 
 		imageGroup->addChild(item);
 		
-		float itemWidth = 1.0f * (lastSize.height/((float)rowCount));
+		float viewHeight = lastSize.height;
+		if (viewHeight == 0) viewHeight = GlobalConfig::ScreenHeight;
+		float itemWidth = lastSize.height / ((float)rowCount);
+
 		currentRightBoundary =  (itemWidth * ceilf((float)(imageGroup->getChildren()->size())/(float)rowCount));	
 		layoutDirty = true;
 	}
@@ -246,13 +318,15 @@ void AlbumDetailView::layout(Vector position, cv::Size2f size)
 	lastSize = size;
 	lastPosition = position;
 
+
+	//else
+	//{		
+	mainLayout->layout(position,size);
+	//}
+
 	if (imageDetailView->isVisible())
 	{
 		imageDetailView->layout(position,size);
-	}
-	else
-	{
-		mainLayout->layout(position,size);
 	}
 	layoutDirty = false;
 
@@ -263,11 +337,19 @@ void AlbumDetailView::update()
 {
 	ViewGroup::update();
 
+	if (imageDetailView->isVisible())
+	{
+		imageDetailView->update();
+	}
+	//else
+	//{
 	double pos = itemScroll->getFlyWheel()->getPosition();
-	imageDetailView->notifyOffsetChanged(Vector((float)pos,0,0));
-	
+	if (!imageDetailView->isVisible())
+		imageDetailView->notifyOffsetChanged(Vector((float)pos,0,0));
+
 	if (abs(pos - lastUpdatePos) > 100)
 		updateLoading();
+	//}
 
 }
 
@@ -277,41 +359,13 @@ void AlbumDetailView::onFrame(const Controller & controller)
 	{
 		imageDetailView->onFrame(controller);
 	}
-	else
-	{
-		HandModel * hm = HandProcessor::LastModel();	
-		Pointable testPointable = controller.frame().pointable(hm->IntentFinger);
-
-		if (testPointable.isValid())
-		{
-			Leap::Vector screenPoint = LeapHelper::FindScreenPoint(controller,testPointable);
-
-			if (imageGroup->getHitRect().contains(cv::Point_<float>(screenPoint.x,screenPoint.y)))
-			{
-				children[0]->OnPointableEnter(testPointable);
-			}	
-		}
-	}
 }
-
 
 
 void AlbumDetailView::onGlobalGesture(const Controller & controller, std::string gestureType)
 {
 	if (gestureType.compare("shake") == 0)
 	{
-		float targetPriority = 10;
-		for (auto it = imageGroup->getChildren()->begin(); it != imageGroup->getChildren()->end();it++)
-		{		
-			Panel * imagePanel = (Panel*)*it;	
-			imagePanel->setDataPriority(targetPriority);	
-		}
-
-		imageDetailView->setVisible(false);
-
-		PointableElementManager::getInstance()->releaseGlobalGestureFocus(this);
-
-		layoutDirty = true;
 		if (!finishedCallback.empty())
 			finishedCallback("album_detail");
 	} 
@@ -343,10 +397,10 @@ void AlbumDetailView::viewOwnershipChanged(View * view, ViewOwner * newOwner)
 	auto r1 = std::find(imageGroup->getChildren()->begin(),imageGroup->getChildren()->end(),view);
 	if (r1 != imageGroup->getChildren()->end())
 		imageGroup->getChildren()->erase(r1);
-	else
-	{
-		r1 = std::find(children.begin(),children.end(),view);
-		if (r1 != children.end())
-			children.erase(r1);	
-	}
+	//else
+	//{
+	//	r1 = std::find(children.begin(),children.end(),view);
+	//	if (r1 != children.end())
+	//		children.erase(r1);	
+	//}
 }

@@ -57,10 +57,14 @@ double FlyWheel::getFriction()
 }
 
 
-void FlyWheel::update(double delta)
+void FlyWheel::update(double elapsedSeconds)
 {
-	double elapsedSeconds = ((double)delta)/1000.0;
+	static float max_Kp = GlobalConfig::tree()->get<float>("ScrollView.FlyWheel.MaxBoundLimiter.Proportional");
+	static float max_alpha = GlobalConfig::tree()->get<float>("ScrollView.FlyWheel.MaxBoundLimiter.VelocityComponent");
 
+	static float min_Kp = GlobalConfig::tree()->get<float>("ScrollView.FlyWheel.MinBoundLimiter.Proportional");
+	static float min_alpha = GlobalConfig::tree()->get<float>("ScrollView.FlyWheel.MinBoundLimiter.VelocityComponent");
+	
 	if (abs(velocity) > maxVelocity)
 	{
 		velocity = sgn(velocity) * maxVelocity;
@@ -75,21 +79,33 @@ void FlyWheel::update(double delta)
 		velocity += frictionAccel * elapsedSeconds;
 		position += (velocity * elapsedSeconds);
 	}
-		
 	
-	if (position > maxValue)
+	if (max_Kp > 0 && min_Kp > 0)
 	{
-		position = maxValue;
-		if (velocity > 0)
-			velocity = 0;
+		if (position > maxValue)
+		{
+			velocity =  velocity*max_alpha +  (max_Kp  * (maxValue-position))*(1.0f - max_alpha);
+		}
+		else if (position < minValue)
+		{
+			velocity =  velocity*min_alpha + (min_Kp  * (minValue-position))*(1.0f - min_alpha);
+		}
 	}
-	else if (position <= minValue)
+	else
 	{
-		position = minValue;
-		if (velocity < 0)
-			velocity = 0;
-	}        
-
+		if (position > maxValue)
+		{
+			position = maxValue;
+			if (velocity > 0)
+				velocity = 0;
+		}
+		else if (position <= minValue)
+		{
+			position = minValue;
+			if (velocity < 0)
+				velocity = 0;
+		}  
+	}
 }
 
 void FlyWheel::impartVelocity(double velocity)
@@ -153,9 +169,9 @@ double FlyWheel::getPosition()
 	//}
 	//else
 	//{
-	double delta = wheelTimer.get_ticks();
+	
+	update(wheelTimer.seconds());
 	wheelTimer.start();
-	update(delta);
 	return position;
 	//}
 }

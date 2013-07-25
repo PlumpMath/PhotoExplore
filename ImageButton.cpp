@@ -48,7 +48,7 @@ void ImageButton::drawContent(Vector drawPosition, float drawWidth, float drawHe
 	if (scale > 0.0f)
 	{
 		overlayPanel->setTextureTint(Colors::White.withAlpha(scale));
-		overlayPanel->drawPanel(drawPosition,drawWidth,drawHeight);
+		overlayPanel->drawPanel(drawPosition+Vector(0,0,1.0f),drawWidth,drawHeight);
 	}	
 }
 

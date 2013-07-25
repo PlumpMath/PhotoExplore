@@ -30,12 +30,12 @@ struct RadialMenuItem {
 
 };
 
-class RadialMenu : public ViewGroup, public GlobalGestureListener {
+class RadialMenu : public ActivityView {
 
 private:
 
 	ViewGroup * buttonView;
-	void itemClicked(string id);
+	void itemClicked(string id, Button * menuButton);
 
 	int state;
 

@@ -304,7 +304,7 @@ void ResourceManager::cleanupCache()
 				{					
 					imageLoadThreshold = data->priority;
 					imgCacheFull = true;
-					changed += "X(-I)X";
+					if (debugLogging) changed += "X(-I)X";
 				}else if (debugLogging)
 					changed += "(-I)";
 				//Logger::stream("ResourceManager","DEBUG") << "Unloading image for resource " << data->resourceId << " with priority " << data->priority << endl;

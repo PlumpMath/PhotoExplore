@@ -140,7 +140,7 @@ namespace Facebook {
 
 	public:
 		map<string,EdgeLoadSpec> loadState;
-		EdgeContainer Edges;
+		EdgeContainer Edges, ReverseEdges;
 		
 		FBNode(string id);
 
@@ -168,15 +168,9 @@ namespace Facebook {
 
 		void clearLoadCompleteDelegate();
 		void setLoadCompleteDelegate(boost::function<void()> loadCompleteDelegate);
-
-		virtual void setDataPriority(float priority);
-
+		
 		string getNodeType();
 		void setNodeType(string nodeType);
-
-		void update();
-
-		bool loadCompleteFlag;
 
 	protected:
 		string id;

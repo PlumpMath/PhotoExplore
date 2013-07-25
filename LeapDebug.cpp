@@ -239,29 +239,6 @@ void LeapDebug::addDebugVisual(LeapDebugVisual * ldv)
 	persistentVisuals.push_back(ldv);
 }
 
-static void drawHand(Vector handCenter, Hand hand, HandModel * handModel)
-{	
-	glLineWidth(2);
-	for (int i=0;i< hand.fingers().count();i++)
-	{
-		Finger f = hand.fingers()[i];
-		
-		float angle = LeapHelper::GetFingerTipAngle(hand,f);
-		Vector drawFinger = Vector(200 * cos(angle), 200 * sin(angle), 0) + handCenter;
-
-		if (handModel->IntentFinger == f.id())
-			glColor4fv(Colors::Lime.getFloat());
-		else 
-			glColor4fv(Colors::OrangeRed.getFloat());
-
-		glBegin(GL_LINES);
-			glVertex3f(handCenter.x, handCenter.y, handCenter.z);
-			glVertex3f(drawFinger.x, drawFinger.y, drawFinger.z);
-		glEnd();
-	}
-
-}
-
 void LeapDebug::setTutorialImages(vector<string> names)
 {	
 	if (!GlobalConfig::tree()->get<bool>("Tutorial.Enabled"))
@@ -328,22 +305,8 @@ void LeapDebug::draw()
 			it->second->draw();
 		}
 	}
-		//tutorialPanel->draw();
 
-	//for (auto it = tutorialPanels.begin(); it != tutorialPanels.end(); it++)
-	//{
-	//	if (it->second->isVisible())
-	//		it->second->draw();
-	//}
-	//
-	//for (int i=0;i<lastFrame.hands().count();i++)
-	//{
-	//	Hand hand = lastFrame.hands()[i];
-	//	HandModel * handModel = handProcessor->lastModel(hand.id());
-	//	drawHand(Vector(100+(i*200),100,10),hand,handModel);
-	//}
-	glPopMatrix();
-	
+	glPopMatrix();	
 }
 
 void LeapDebug::drawPointer(LeapDebugVisual * debugVisual)
@@ -358,6 +321,7 @@ void LeapDebug::drawPointer(LeapDebugVisual * debugVisual)
 		return;
 
 	static float vertices = GlobalConfig::tree()->get<float>("Overlay.VertexCount");
+	static float cornerAngle = GeomConstants::DegToRad*GlobalConfig::tree()->get<float>("Overlay.CornerAngle");
 	static float angleOffset = GeomConstants::DegToRad*GlobalConfig::tree()->get<float>("Overlay.AngleOffset");
 
 	//if (vertices == 4 && angleOffset == 0)
@@ -421,7 +385,8 @@ void LeapDebug::drawPointer(LeapDebugVisual * debugVisual)
 		{
 			float angle = v*anglePerVertex;
 			angle += angleOffset;
-			glVertex3f(sinf(angle)*length,cosf(angle)*length,z1);
+			glVertex3f(sinf(angle-cornerAngle)*length,cosf(angle-cornerAngle)*length,z1+ ((float)i * .1f));	
+			glVertex3f(sinf(angle+cornerAngle)*length,cosf(angle+cornerAngle)*length,z1+ ((float)i * .1f));		
 		}
 		glEnd();		
 	}

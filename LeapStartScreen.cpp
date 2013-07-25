@@ -51,7 +51,10 @@ LeapStartScreen::LeapStartScreen(std::string startDir)
 	if (GlobalConfig::tree()->get<bool>("FakeDataMode.Enable")) {
 		
 		init();
-		rootView = new FacebookBrowser(new FBNode("human"));
+		FBNode * root =new FBNode("human");
+		root->setNodeType("me");
+		FacebookDataDisplay::getInstance()->displayNode(NULL,root,"");
+		rootView = (FacebookBrowser*) FacebookDataDisplay::getInstance();
 		state = FinishedState;
 	}
 	else {
@@ -180,24 +183,22 @@ void LeapStartScreen::init()
 		noticePanel->setTextColor(Colors::White);
 		noticePanel->setBackgroundColor(Colors::SteelBlue);
 		noticePanel->setTextFitPadding(20);
-		noticePanel->setTextSize(7);	
+		noticePanel->setTextSize(6);	
 	}
-
 	
-	PointableElementManager::getInstance()->registerElement(mainLayout);
 
 	this->layout(Vector(),cv::Size2f(GlobalConfig::ScreenWidth, GlobalConfig::ScreenHeight));
 		
 
-	float numPanels = 3;
+	float numPanels = 6;
 	FixedAspectGrid * floatLayout = new FixedAspectGrid(cv::Size2i(0,(int)numPanels),1.0f);
 	float totalWidth = GlobalConfig::ScreenWidth*10.0f;
 
 	floatLayout->setLayoutParams(cv::Size2f(totalWidth,GlobalConfig::ScreenHeight));
 
-	float panelWidth = GlobalConfig::ScreenHeight/((float)numPanels);
+	float panelWidth =((float)GlobalConfig::ScreenHeight)/numPanels;
 	
-	int itemCount = (totalWidth/panelWidth) * numPanels;
+	int itemCount = ceilf(totalWidth/panelWidth) * numPanels;
 		
 	std::srand(10);
 
@@ -302,15 +303,15 @@ void LeapStartScreen::layout(Leap::Vector pos, cv::Size2f size)
 	this->lastPosition = pos;
 	this->lastSize = size;
 
-	mainLayout->layout(pos,size);
+	mainLayout->layout(pos+Vector(0,0,2),size);
 
 	if (!GlobalConfig::tree()->get<bool>("LeapStartScreen.TrainingMode"))
 	{
 		cv::Size2f buttonSize = cv::Size2f(size.width*.4f,size.height*.35f);
-		facebookLoginButton->layout(Vector((size.width-buttonSize.width)*.5f,size.height*.30f,0)+pos,buttonSize);
+		facebookLoginButton->layout(Vector((size.width-buttonSize.width)*.5f,size.height*.30f,2)+pos,buttonSize);
 
 		buttonSize = cv::Size2f(size.width*.3f,size.height*.15f);
-		noticePanel->layout(Vector((size.width-buttonSize.width)*.5f,size.height*.70f,0)+pos,buttonSize);
+		noticePanel->layout(Vector((size.width-buttonSize.width)*.5f,size.height*.70f,2)+pos,buttonSize);
 	}
 }
 
@@ -373,7 +374,7 @@ void LeapStartScreen::onGlobalGesture(const Controller & controller, std::string
 		ViewGroup * panels = (ViewGroup*)floatingPanelsView->getContent();
 		std::random_shuffle(panels->getChildren()->begin(), panels->getChildren()->end());
 
-		floatingPanelsView->layout(Vector(),cv::Size2f(GlobalConfig::ScreenWidth,GlobalConfig::ScreenHeight));
+		floatingPanelsView->layout(Vector(0,0,0),cv::Size2f(GlobalConfig::ScreenWidth,GlobalConfig::ScreenHeight));
 
 		//float padding = 10;
 		//int gridSpace = ((GlobalConfig::ScreenWidth - (padding*2))/10);
@@ -411,11 +412,7 @@ void LeapStartScreen::update(double delta)
 	}
 	else
 	{
-
-		if (loggedInNode != NULL)
-			loggedInNode->update();
-
-		View::update();
+		ViewGroup::update();
 		//double dT = updateTimer.millis();
 		//for (int i=0;i<panelList.size();i++)
 		//{
@@ -509,13 +506,11 @@ void LeapStartScreen::update(double delta)
 				GlobalConfig::TestingToken = facebookClient->token;
 				if (GlobalConfig::TestingToken.length() > 0)
 				{
-					//FBNode * myNode =;
-					//FacebookLoader::instance->loadQuery(myNode ,"fql?q=SELECT%20uid%2C%20name%20FROM%20user%20WHERE%20uid%20%3D%20me()%0AOR%20uid%20IN%20(SELECT%20uid2%20FROM%20friend%20WHERE%20uid1%20%3D%20me())%20ORDER%20BY%20likes_count", "friends");
-					//FacebookLoader::instance->load(myNode ,"?fields=albums.fields(id),friends.fields(id,name), photos.fields(id)");
-					rootView = new FacebookBrowser( new FBNode("me"));
+					FBNode * root = new FBNode("me");
+					root->setNodeType("me");
 					
-					//facebookClient->
-					//facebookPreCheckClient->Release();
+					rootView = (FacebookBrowser*) FacebookDataDisplay::getInstance();
+					FacebookBrowser::getInstance()->displayNode(NULL,root,"");
 					state = FinishedState;
 				}
 				else

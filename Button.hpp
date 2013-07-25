@@ -11,6 +11,8 @@ private:
 
 	ViewGroup * rootView;
 
+	Timer pressedLevelTimer;
+
 	
 public:
 	void setPressedScale(float pressed);

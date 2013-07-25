@@ -142,6 +142,7 @@ void FixedAspectGrid::draw()
 		int advance = ((int)(-offset/cellWidth)) * gridDimensions.height;		
 
 		advance = min<int>(children.size()-1,advance);
+		advance = max<int>(advance,0);
 		std::advance(drawIt,advance);
 	}
 
@@ -186,6 +187,7 @@ LeapElement * FixedAspectGrid::elementAtPoint(int x, int y, int & elementStateFl
 			int advance = ((int)(-offset/cellWidth)) * gridDimensions.height;		
 
 			advance = min<int>(children.size()-1,advance);
+			advance = max<int>(advance,0);
 			std::advance(searchIt,advance);
 		}
 

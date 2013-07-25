@@ -42,6 +42,10 @@ void FriendPanel::setDataPriority(float _dataPriority)
 		friendPhotoPanel->setDataPriority(dataPriority);
 }
 
+FBNode * FriendPanel::getActiveNode()
+{
+	return activeNode;
+}
 
 
 void FriendPanel::show(FBNode * _node, boost::function<void()> loadCompleteCallback)
