@@ -33,7 +33,7 @@
 		"EnableLineSmoothing" : true,
 		"FSAASamples" : 0,
 		"ShaderDirectory" : ".",
-		"Fullscreen" : true,
+		"Fullscreen" : false,
 		"OverrideResolution" : false,
 		"OverrideWidth" : 1280,
 		"OverrideHeight" : 720,
@@ -73,7 +73,7 @@
 	},
 	"FakeDataMode" : 
 	{
-		"Enable" : false,
+		"Enable" : true,
 		"SourceDataDirectory" : "C:\\Users\\Adam\\Pictures\\pixiv-win" ,
 		"RequestDelay" : 50 ,//ms
 		"MaxPhotos" : 2000,
@@ -392,6 +392,14 @@
 		"MaxScrollDistance" : 3200, //Max number of pixels to scroll in a single swipe
 		"MinScrollDistance" : 2500, //Min number of pixels to scroll in a single swipe
 		"ScrollSpeedFactor" : 2.5 //Ratio of swipe gesture speed to scrolling distance
+	},
+	"FacebookBrowser" :
+	{
+		"AddressBar" : 
+		{
+			"HomeButtonImg" : "Images/Home.png",
+			"HomeButtonOvr" : "Images/Home_Overlay.png"
+		}
 	},
 	"LeapStartScreen" :
 	{

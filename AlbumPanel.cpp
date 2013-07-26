@@ -5,20 +5,6 @@
 
 AlbumPanel::AlbumPanel() : ContentPanel()
 {
-	//vector<RowDefinition> gridDefinition;
-	//
-	//gridDefinition.push_back(RowDefinition(.1f));
-	//gridDefinition.push_back(RowDefinition(.5f));
-	//gridDefinition.push_back(RowDefinition(.4f));
-	//
-	//gridDefinition[0].ColumnWidths.push_back(1.0f);
-
-	//gridDefinition[1].ColumnWidths.push_back(.6f);
-	//gridDefinition[1].ColumnWidths.push_back(.4f);
-	//	
-	//gridDefinition[2].ColumnWidths.push_back(.5f);
-	//gridDefinition[2].ColumnWidths.push_back(.5f);
-
 	albumGroup = new UniformGrid(cv::Size2i(2,2));
 		
 	this->setContentView(albumGroup);
@@ -41,19 +27,6 @@ void AlbumPanel::show(FBNode * node)
 	albumNode = node;
 	NodeQuerySpec friendConfig(1);
 	friendConfig.layers[0].insert(make_pair("photos",SelectionConfig(4)));
-
-	//View * item = ViewOrchestrator::getInstance()->requestView(node->getId() + "/name",this);
-	 
-	//if (item != NULL)
-	//{
-	//	nameText = (TextPanel*)item;
-	//	PanelFactory::getInstance().setStyle(nameText, TextStyles::Heading1);
-	//}
-	//else
-	//{
-	//	nameText = PanelFactory::getInstance().buildTextPanel(node->getId(), TextStyles::Body);
-	//	ViewOrchestrator::getInstance()->registerView(node->getId() + "/name",nameText,this);
-	//}
 		
 	bool isLoading;
 	vector<FBNode*> initData = DataViewGenerator::getInstance()->getDataView(node,friendConfig,[this](vector<FBNode*> & data){
@@ -108,7 +81,7 @@ void AlbumPanel::viewChanged(string viewIdentifier, vector<FBNode*> & viewData)
 		if (item == NULL)
 		{
 			Panel * p = new Panel(0,0);
-			p->setNode(childNode);
+			p->show(childNode);
 			p->setVisible(true);
 			item = p;
 			ViewOrchestrator::getInstance()->registerView(childNode->getId(),item, this);
@@ -124,7 +97,7 @@ void AlbumPanel::viewChanged(string viewIdentifier, vector<FBNode*> & viewData)
 }
 
 
-void AlbumPanel::setChildDataPriority(float dataPriority)
+void AlbumPanel::setDataPriority(float dataPriority)
 {
 	if (currentDataPriority != dataPriority)
 	{

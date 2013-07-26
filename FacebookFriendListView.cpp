@@ -43,6 +43,8 @@ FacebookFriendListView::FacebookFriendListView()
 
 void FacebookFriendListView::suspend()
 {
+	PointableElementManager::getInstance()->releaseGlobalGestureFocus(this);
+
 	float targetPriority = 100;
 	for (auto it = friendGroup->getChildren()->begin(); it != friendGroup->getChildren()->end();it++)
 	{		
@@ -87,7 +89,7 @@ void FacebookFriendListView::addNode(FBNode * node)
 			item->setLayoutParams(LayoutParams(cv::Size2f(600,400),cv::Vec4f(5,5,5,5)));
 			item->setVisible(true);
 
-			((FriendPanel*)item)->show(node,[](){});
+			((FriendPanel*)item)->show(node);
 			float itemWidth = (lastSize.height/((float)rowCount));
 			friendGroup->addChild(item);
 			currentRightBoundary =  (itemWidth * ceilf((float)(friendGroup->getChildren()->size())/(float)rowCount));	
@@ -95,7 +97,6 @@ void FacebookFriendListView::addNode(FBNode * node)
 		}
 	}
 }
-
 
 
 void FacebookFriendListView::loadItems(int friends)
@@ -130,7 +131,7 @@ void FacebookFriendListView::loadItems(int friends)
 							v3->itemScroll->setDrawLoadingIndicator(0,Colors::SteelBlue);
 							v3->updateLoading();
 						});	
-					});
+					}); 
 				}
 			}				
 		});
@@ -214,7 +215,7 @@ void FacebookFriendListView::updateLoading()
 
 void FacebookFriendListView::friendPanelClicked(FriendPanel * panel, FBNode * clicked)
 {	
-	FacebookDataDisplay::getInstance()->displayNode(activeNode,panel->getActiveNode(),"");
+	FacebookDataDisplay::getInstance()->displayNode(activeNode,panel->getNode(),"");
 }
 
 void FacebookFriendListView::layout(Vector position, cv::Size2f size)
@@ -250,13 +251,6 @@ void FacebookFriendListView::onGlobalGesture(const Controller & controller, std:
 {
 	if (gestureType.compare("shake") == 0)
 	{
-		float targetPriority = 10;
-		for (auto it = friendGroup->getChildren()->begin(); it != friendGroup->getChildren()->end();it++)
-		{		
-			FriendPanel * imagePanel = (FriendPanel*)*it;	
-			imagePanel->setDataPriority(targetPriority);	
-		}
-		PointableElementManager::getInstance()->releaseGlobalGestureFocus(this);
 		finishedCallback("done");
 	} 
 	else if (gestureType.compare("pointing") == 0)

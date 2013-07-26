@@ -218,6 +218,7 @@
     <ClCompile Include="Animation.cpp" />
     <ClCompile Include="Button.cpp" />
     <ClCompile Include="Color.cpp" />
+    <ClCompile Include="DataListActivity.cpp" />
     <ClCompile Include="FakeDataSource.cpp" />
     <ClCompile Include="FastSeekBar.cpp" />
     <ClCompile Include="GlobalConfig.cpp" />
@@ -234,7 +235,6 @@
     <ClCompile Include="FrameView.cpp" />
     <ClCompile Include="FriendDetailView.cpp" />
     <ClCompile Include="FriendPanel.cpp" />
-    <ClCompile Include="FriendPhotoLinkedView.cpp" />
     <ClCompile Include="HandModel.cpp" />
     <ClCompile Include="HandRotationGestureDetector.cpp" />
     <ClCompile Include="ImageButton.cpp" />
@@ -280,11 +280,14 @@
     <ClInclude Include="Cefalopod.h" />
     <ClInclude Include="CefDownloadClient.h" />
     <ClInclude Include="CefFileBrowser.h" />
-    <ClInclude Include="DataListView.hpp" />
+    <ClInclude Include="FBDataCursor.hpp" />
+    <ClInclude Include="DataListActivity.hpp" />
     <ClInclude Include="EmptyView.hpp" />
     <ClInclude Include="FacebookDataDisplay.hpp" />
     <ClInclude Include="FakeDataSource.hpp" />
     <ClInclude Include="FastSeekBar.hpp" />
+    <ClInclude Include="FBDataView.hpp" />
+    <ClInclude Include="FriendListCursorView.hpp" />
     <ClInclude Include="GlobalConfig.hpp" />
     <ClInclude Include="ContentPanel.hpp" />
     <ClInclude Include="CustomGrid.hpp" />
@@ -314,7 +317,6 @@
     <ClInclude Include="ImageLoader.hpp" />
     <ClInclude Include="ImagePanel.hpp" />
     <ClInclude Include="LeapElement.hpp" />
-    <ClInclude Include="LightFriendPanel.hpp" />
     <ClInclude Include="LinearLayout.hpp" />
     <ClInclude Include="Logger.hpp" />
     <ClInclude Include="PackingGrid.hpp" />

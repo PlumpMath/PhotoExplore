@@ -9,8 +9,9 @@
 #include "Panel.h"
 #include "TextPanel.h"
 #include "PanelFactory.hpp"
+#include "FBDataView.hpp"
 
-class FriendPanel : public ContentPanel, public ViewOwner {
+class FriendPanel : public ContentPanel, public ViewOwner, public FBDataView {
 
 private:
 	FBNode * activeNode;
@@ -31,15 +32,15 @@ private:
 
 public:
 	FriendPanel(cv::Size2f targetSize);
-	void show(FBNode * node,boost::function<void()> loadCompleteCallback);
 		
 	void viewOwnershipChanged(View * view, ViewOwner * newOwner);
 
 	void setDataPriority(float dataPriority);
+	FBNode * getNode();
+	void show(FBNode * node);
 
 	boost::function<void(FriendPanel*)> photosLoadedCallback;
 
-	FBNode * getActiveNode();
 };
 
 

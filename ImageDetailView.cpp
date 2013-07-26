@@ -44,7 +44,6 @@ void ImageDetailView::initButtonBar()
 	alreadyLikedButton->setVisible(false);
 	alreadyLikedButton->setAnimateOnLayout(false);
 	alreadyLikedButton->setTextFitPadding(6);
-	alreadyLikedButton->setEnabled(false);
 	
 	//likeButton->layout(likeButton->getPosition(),cv::Size2f(250,200));
 
@@ -58,7 +57,6 @@ void ImageDetailView::initButtonBar()
 	photoComment->setBackgroundColor(Colors::Transparent);
 	photoComment->setTextSize(GlobalConfig::tree()->get<float>("ImageDetailView.Comment.FontSize"));
 	photoComment->setTextFitPadding(12);
-	photoComment->setEnabled(false);
 	
 
 	addChild(photoComment);
@@ -115,6 +113,28 @@ bool ImageDetailView::isClickable()
 	return (this->imagePanel != NULL && canClickToExit);
 }
 
+
+void ImageDetailView::initLikeButton(FBNode * node)
+{
+	alreadyLikedButton->setVisible(false);
+	likeButton->setVisible(true);
+	ImageDetailView * me = this;
+	FBNode * nodeToLike = imageNode;
+	likeButton->elementClickedCallback = [nodeToLike ,me](LeapElement * clicked){
+
+		me->alreadyLikedButton->setVisible(true);				
+		me->likeButton->setVisible(false);
+		//nodeToLike->Edges.insert(Facebook::Edge("user_likes","1"));
+		auto likeIt = nodeToLike->Edges.get<EdgeTypeIndex>().find("user_likes");
+		if (likeIt != nodeToLike->Edges.get<EdgeTypeIndex>().end())
+			nodeToLike->Edges.replace(likeIt,Facebook::Edge("user_likes","1"));
+		else
+			nodeToLike->Edges.insert(Facebook::Edge("user_likes","1"));
+		((FacebookLoader*)Facebook::FBDataSource::instance)->postRequest(nodeToLike->getId() + "/likes");
+	};	
+}
+
+
 void ImageDetailView::setImageMetaData()
 {
 	likeButton->setVisible(false);
@@ -126,15 +146,19 @@ void ImageDetailView::setImageMetaData()
 		imageNode = dynamic_cast<Facebook::FBNode*>(imagePanel->getNode());
 		if (imageNode != NULL)
 		{
-			likeButton->setVisible(true);
-			likeButton->setDrawLoadAnimation(false);
-			likeButton->setClickable(true);					
+			if (imageNode->getAttribute("user_likes").compare("1") == 0)
+			{
+				alreadyLikedButton->setVisible(true);
+				likeButton->setVisible(false);
+			}
+			else 
+			{				
+				initLikeButton(imageNode);
+			}
 
+			//Validate state and re-init
 			Facebook::FBDataSource::instance->loadQuery(imageNode,"fql?q=SELECT%20like_info%20FROM%20photo%20where%20object_id%3D" + imageNode->getId(),"",[this](FBNode * node){
-				
-				likeButton->setDrawLoadAnimation(false);
-				likeButton->setClickable(true);							
-								
+												
 				if (imageNode->getAttribute("user_likes").compare("1") == 0)
 				{
 					alreadyLikedButton->setVisible(true);
@@ -142,22 +166,7 @@ void ImageDetailView::setImageMetaData()
 				}
 				else 
 				{				
-					alreadyLikedButton->setVisible(false);
-					likeButton->setVisible(true);
-					ImageDetailView * me = this;
-					FBNode * nodeToLike = imageNode;
-					likeButton->elementClickedCallback = [nodeToLike ,me](LeapElement * clicked){
-						
-						me->alreadyLikedButton->setVisible(true);				
-						me->likeButton->setVisible(false);
-						//nodeToLike->Edges.insert(Facebook::Edge("user_likes","1"));
-						auto likeIt = nodeToLike->Edges.get<EdgeTypeIndex>().find("user_likes");
-						if (likeIt != nodeToLike->Edges.get<EdgeTypeIndex>().end())
-							nodeToLike->Edges.replace(likeIt,Facebook::Edge("user_likes","1"));
-						else
-							nodeToLike->Edges.insert(Facebook::Edge("user_likes","1"));
-						((FacebookLoader*)Facebook::FBDataSource::instance)->postRequest(nodeToLike->getId() + "/likes");
-					};	
+					initLikeButton(node);
 				}
 				imageNode->clearLoadCompleteDelegate();
 			});
@@ -258,7 +267,6 @@ void ImageDetailView::layout(Vector position, cv::Size2f size)
 		
 		float buttonPadding = 50;
 		cv::Size2f buttonSize = cv::Size2f(size.height*.2f,size.height*.15f);
-		//- (buttonSize.width+buttonPadding)
 		Vector buttonPos = Vector(imagePanel->getWidth() + imagePanel->getPosition().x + (buttonPadding),imagePanel->getPosition().y + imagePanel->getHeight()*.5f,10);
 		
 		likeButton->layout(buttonPos,buttonSize);
@@ -342,28 +350,6 @@ static bool getNewPanelInteraction(const Controller & controller, Frame frame, P
 		return false;
 	}
 
-	//TODO: Also account for hands with invalid pointables
-	//if (GlobalConfig::AllowSingleHandInteraction && frame.hands().count() == 1)
-	//{
-	//	Hand hand = frame.hands()[0];
-	//	HandModel * model = HandProcessor::LastModel(hand.id());
-
-	//	vector<int> desiredFingers;
-	//	desiredFingers.push_back(1);
-	//	desiredFingers.push_back(2);
-	//	desiredFingers.push_back(3);
-
-	//	vector<int> selectedFingers = model->SelectFingers(desiredFingers);
-
-	//	if (selectedFingers.size() == 3)
-	//	{
-	//		for (auto it = selectedFingers.begin(); it != selectedFingers.end();it++)
-	//		{
-	//			interactionPointables.push_back(hand.pointable(*it));
-	//		}
-	//	}
-	//}
-	//else
 	if (frame.hands().count() >= 2)
 	{
 		Hand lh = frame.hands().leftmost();
@@ -385,17 +371,8 @@ static bool getNewPanelInteraction(const Controller & controller, Frame frame, P
 			if (isValidInteractionPointable(controller, interactionPointables[i]) && interactionPointables.at(i).tipVelocity().magnitude() < GlobalConfig::SteadyVelocity)
 			{						
 				Vector imgPoint = LeapHelper::FindScreenPoint(controller,interactionPointables[i]);		
-				
-				//int flags;
-				//if (panel->elementAtPoint((int)imgPoint.x-hostOffset.x,(int)imgPoint.y-hostOffset.y,flags) != NULL)
-				//{
 				activePanelInteraction.interactingPointables.push_back(make_pair(interactionPointables[i].id(),imgPoint));		
-				iterationSuccess = true;				
-				//}	
-				//else
-				//{
-				//	activePanelInteraction.panel = NULL;
-				//}
+				iterationSuccess = true;		
 			}
 			canStartInteraction = canStartInteraction && iterationSuccess;
 		}

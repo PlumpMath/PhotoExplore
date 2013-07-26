@@ -270,7 +270,7 @@ void FacebookIntroView::viewChanged(string viewIdentifier, vector<FBNode*> viewD
 			if (item == NULL)
 			{
 				Panel * p = new Panel(0,0);
-				p->setNode(node);
+				p->show(node);
 				p->setVisible(true);
 				item = p;				
 				ViewOrchestrator::getInstance()->registerView(node->getId(),item, NULL);

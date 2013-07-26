@@ -58,6 +58,8 @@ private:
 
 	bool canClickToExit;
 
+	void initLikeButton(Facebook::FBNode * node);
+
 public:
 	ImageDetailView();
 

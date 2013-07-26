@@ -1,19 +1,31 @@
 #include "FacebookBrowser.hpp"
+#include "LinearLayout.hpp"
+#include "GraphicContext.hpp"
 
 FacebookBrowser::FacebookBrowser()
-{	
-	
+{		
 	friendList = new FacebookFriendListView();
-
 	introView  = new FacebookIntroView();
 	albumDetailView = new AlbumDetailView();
-	friendDetailView = new FriendDetailView();
+	//friendDetailView = new FriendDetailView();
+	friendCursorView = new FriendListCursorView();
 	
 	state = 0;
-	updateTimer.start();
+		
 	topView = NULL;
-
 	userNode = NULL;
+
+	pathView = new LinearLayout();
+
+	homeButton = new ImageButton(GlobalConfig::tree()->get<string>("FacebookBrowser.AddressBar.HomeButtonImg"),GlobalConfig::tree()->get<string>("FacebookBrowser.AddressBar.HomeButtonOvr"));
+	pathView->addChild(homeButton);
+	
+	float menuHeight = GlobalConfig::tree()->get<float>("Menu.Height");
+
+	homeButton->setLayoutParams(LayoutParams(cv::Size2f(menuHeight,menuHeight),cv::Vec4f(5,5,5,5)));
+	homeButton->elementClickedCallback = [this](LeapElement * clicked){		
+		this->displayNode(NULL,this->userNode,"");
+	};
 }
 
 void FacebookBrowser::displayNode(FBNode * previousNode, FBNode * node, string action)
@@ -22,7 +34,8 @@ void FacebookBrowser::displayNode(FBNode * previousNode, FBNode * node, string a
 		return;
 
 	previousNode = NULL;
-
+	
+	homeButton->setClickable(true);
 	if (node->getNodeType().compare(NodeType::FacebookImage) == 0)
 	{
 		auto parentIt = node->ReverseEdges.get<EdgeTypeIndex>().find("albums");
@@ -108,13 +121,20 @@ void FacebookBrowser::displayNode(FBNode * previousNode, FBNode * node, string a
 			friendDetailView->show(node);
 		}
 		else if (action.compare("friend_list_view") == 0)
-		{
-			friendList->setFinishedCallback([this,node](string action){				
+		{			
+			friendCursorView->setFinishedCallback([this,node](string action){				
 				this->displayNode(NULL,node,"");
 			});		
 
-			friendList->show(node);
-			setTopView(friendList);
+			friendCursorView->show(new FBFriendsCursor(node));
+			setTopView(friendCursorView);
+
+			//friendList->setFinishedCallback([this,node](string action){				
+			//	this->displayNode(NULL,node,"");
+			//});		
+
+			//friendList->show(node);
+			//setTopView(friendList);
 		}
 		else
 		{
@@ -122,7 +142,8 @@ void FacebookBrowser::displayNode(FBNode * previousNode, FBNode * node, string a
 				this->displayNode(NULL,node,_action);
 			});		
 			setTopView(introView);
-			introView->show(node);			
+			introView->show(node);	
+			homeButton->setClickable(false);
 		}
 	}
 	else
@@ -154,15 +175,42 @@ void FacebookBrowser::onFrame(const Controller & controller)
 
 void FacebookBrowser::layout(Vector position, cv::Size2f size)
 { 	
-	position = Vector(0,GlobalConfig::tree()->get<float>("Menu.Height"),0);
-	size = cv::Size2f(GlobalConfig::ScreenWidth, GlobalConfig::ScreenHeight-(GlobalConfig::tree()->get<float>("Tutorial.Height")+GlobalConfig::tree()->get<float>("Menu.Height")));
+	float menuHeight = GlobalConfig::tree()->get<float>("Menu.Height");
+	Vector menuBarPosition = Vector();
+	cv::Size2f menuBarSize = cv::Size2f(GlobalConfig::ScreenWidth-menuHeight, menuHeight);
+	
+	pathView->measure(menuBarSize);
+	pathView->layout(menuBarPosition,menuBarSize);
 
-	topView->layout(position,size);
+	Vector contentPosition = Vector(0,menuHeight,0);
+	cv::Size2f contentSize = cv::Size2f(GlobalConfig::ScreenWidth, GlobalConfig::ScreenHeight-(GlobalConfig::tree()->get<float>("Tutorial.Height")+menuHeight));
+
+	topView->layout(contentPosition,contentSize);
+}
+
+LeapElement * FacebookBrowser::elementAtPoint(int x, int y, int & state)
+{
+	LeapElement * hit = pathView->elementAtPoint(x,y,state);
+
+	if (hit != NULL)
+		return hit;
+	return View::elementAtPoint(x,y,state);
 }
 
 void FacebookBrowser::draw()
 {
 	topView->draw();
+
+	if (!GraphicsContext::getInstance().IsBlurCurrentPass)
+	{	
+		pathView->draw();		
+	}
+	else
+	{
+		GraphicsContext::getInstance().requestClearDraw([this](){
+			pathView->draw();
+		});
+	}
 }
 
 void FacebookBrowser::update()

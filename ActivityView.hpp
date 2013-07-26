@@ -2,8 +2,12 @@
 #define LEAPIMAGE_ACTIVITY_VIEW_HPP_
 
 #include "View.hpp"
+#include <boost/function.hpp>
 
 class ActivityView : public ViewGroup {
+
+protected:	
+	boost::function<void(std::string)> viewFinishedCallback;
 
 public:
 	virtual bool onLeapGesture(const Controller & controller, const Gesture & gesture) = 0;	

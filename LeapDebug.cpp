@@ -317,42 +317,13 @@ void LeapDebug::drawPointer(LeapDebugVisual * debugVisual)
 		
 	drawHeight = drawWidth = debugVisual->size;	
 
-	if (drawHeight == 0)
+	if (drawHeight == 0 || (debugVisual->screenPoint.x == 0 && debugVisual->screenPoint.y == 0))
 		return;
 
 	static float vertices = GlobalConfig::tree()->get<float>("Overlay.VertexCount");
 	static float cornerAngle = GeomConstants::DegToRad*GlobalConfig::tree()->get<float>("Overlay.CornerAngle");
 	static float angleOffset = GeomConstants::DegToRad*GlobalConfig::tree()->get<float>("Overlay.AngleOffset");
 
-	//if (vertices == 4 && angleOffset == 0)
-	//{
-	//	x1 = debugVisual->screenPoint.x - floorf(drawWidth/2.0f);
-	//	x2 = debugVisual->screenPoint.x + floorf(drawWidth/2.0f);
-	//	y1 = debugVisual->screenPoint.y - floorf(drawHeight/2.0f);
-	//	y2 = debugVisual->screenPoint.y + floorf(drawHeight/2.0f);
-	//	
-	//	glColor4fv(debugVisual->fillColor.getFloat());
-	//	glBindTexture( GL_TEXTURE_2D, NULL);
-	//	glLineWidth(0);
-	//	glBegin(GL_QUADS);
-	//		glVertex3f(x1,y1,z1);
-	//		glVertex3f(x2,y1,z1);
-	//		glVertex3f(x2,y2,z1);
-	//		glVertex3f(x1,y2,z1);
-	//	glEnd();
-
-	//	glColor4fv(debugVisual->lineColor.getFloat());
-	//	glBindTexture( GL_TEXTURE_2D, NULL);
-	//	glLineWidth(1);
-	//	glBegin(GL_LINE_LOOP);
-	//		glVertex3f(x1,y1,z1);
-	//		glVertex3f(x2,y1,z1);
-	//		glVertex3f(x2,y2,z1);
-	//		glVertex3f(x1,y2,z1);
-	//	glEnd();
-	//}
-	//else
-	//{
 	float length = drawHeight*.5f;
 	float anglePerVertex = (Leap::PI*2.0f)/vertices;
 

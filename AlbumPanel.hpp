@@ -8,8 +8,9 @@
 #include "ViewOrchestrator.hpp"
 #include "Panel.h"
 #include "TextPanel.h"
+#include "FBDataView.hpp"
 
-class AlbumPanel : public ContentPanel, public ViewOwner {
+class AlbumPanel : public ContentPanel, public ViewOwner, public FBDataView {
 
 private:
 	ViewGroup * albumGroup;
@@ -20,13 +21,12 @@ private:
 
 public:
 	AlbumPanel();
-	void show(FBNode * node);
-
-	FBNode * getNode();
 
 	void viewChanged(string viewIdentifier, vector<FBNode*> & viewData);
 	
-	void setChildDataPriority(float dataPriority);
+	void setDataPriority(float dataPriority);
+	void show(FBNode * node);
+	FBNode * getNode();
 
 };
 

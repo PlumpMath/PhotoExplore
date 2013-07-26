@@ -169,6 +169,9 @@ void AlbumDetailView::updateLoading()
 
 void AlbumDetailView::suspend()
 {	
+	PointableElementManager::getInstance()->releaseGlobalGestureFocus(this->imageDetailView);	
+	this->imageDetailView->setVisible(false);	
+
 	float targetPriority = 100;
 	for (auto it = imageGroup->getChildren()->begin(); it != imageGroup->getChildren()->end();it++)
 	{		
@@ -225,7 +228,7 @@ void AlbumDetailView::showChild(FBNode * node)
 		if (v == NULL)
 		{
 			item = new Panel(0,0);
-			item->setNode(node);
+			item->show(node);
 			ViewOrchestrator::getInstance()->registerView(node->getId(),item, this);
 		}
 		else
@@ -278,7 +281,7 @@ void AlbumDetailView::addNode(FBNode * node)
 		if (v == NULL)
 		{
 			item = new Panel(0,0);
-			item->setNode(node);
+			item->show(node);
 			ViewOrchestrator::getInstance()->registerView(node->getId(),item, this);
 		}
 		else

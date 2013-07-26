@@ -28,9 +28,7 @@ void Panel::initDefaults()
 	textureHeight = width;
 	textureWidth = height;
 
-	dataPriority = 1;
-
-	textPanel = NULL;
+	dataPriority = 100;
 
 	textureScale = Vector(1,1,1);
 	textureScaleMode = ScaleMode::FillUniform;
@@ -405,12 +403,12 @@ float Panel::getDataPriority()
 	return dataPriority;
 }
 
-void Panel::setNode(NodeBase * node)
+void Panel::show(FBNode * node)
 {
 	this->node = node;
 }
 
-NodeBase * Panel::getNode()
+FBNode * Panel::getNode()
 {
 	return this->node;
 }

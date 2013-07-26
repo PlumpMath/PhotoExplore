@@ -13,6 +13,8 @@
 #include "FacebookDataDisplay.hpp"
 #include "AlbumDetailView.hpp"
 #include "ActivityView.hpp"
+#include "ImageButton.hpp"
+#include "FriendListCursorView.hpp"
 
 #include <stack>
 
@@ -29,12 +31,17 @@ private:
 	FacebookIntroView * introView;
 
 	FacebookFriendListView * friendList;
+	FriendListCursorView * friendCursorView;
+
 	FriendDetailView * friendDetailView;
 	AlbumDetailView * albumDetailView;
 	
 	void setTopView(View * topView);
 
 	FBNode * userNode;
+
+	ViewGroup * pathView;
+	ImageButton * homeButton;
 
 public:
 	FacebookBrowser();
@@ -48,6 +55,8 @@ public:
 	void update();
 
 	void draw();
+
+	LeapElement * elementAtPoint(int x, int y, int & state);
 
 
 };

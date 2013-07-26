@@ -42,13 +42,13 @@ void FriendPanel::setDataPriority(float _dataPriority)
 		friendPhotoPanel->setDataPriority(dataPriority);
 }
 
-FBNode * FriendPanel::getActiveNode()
+FBNode * FriendPanel::getNode()
 {
 	return activeNode;
 }
 
 
-void FriendPanel::show(FBNode * _node, boost::function<void()> loadCompleteCallback)
+void FriendPanel::show(FBNode * _node)
 {	
 	this->activeNode = _node;
 	
@@ -57,11 +57,10 @@ void FriendPanel::show(FBNode * _node, boost::function<void()> loadCompleteCallb
 	if (item != NULL)
 	{
 		nameText = (TextPanel*)item;
-		//PanelFactory::getInstance().setStyle(nameText,TextStyles::Heading2);
 	}
 	else
 	{
-		nameText = new TextPanel(activeNode->getAttribute("name")); // PanelFactory::getInstance().buildTextPanel(TextStyles::Heading2);
+		nameText = new TextPanel(activeNode->getAttribute("name")); 
 		ViewOrchestrator::getInstance()->registerView(activeNode->getId() + "/name",nameText,this);
 	}
 
@@ -82,7 +81,7 @@ void FriendPanel::show(FBNode * _node, boost::function<void()> loadCompleteCallb
 	if (friendPhotoPanel == NULL)
 	{
 		friendPhotoPanel = new Panel(0,0);
-		friendPhotoPanel->setNode(activeNode);
+		friendPhotoPanel->show(activeNode);
 		ViewOrchestrator::getInstance()->registerView(activeNode->getId() + "/friendphoto",friendPhotoPanel, this);
 	}
 	
@@ -98,48 +97,6 @@ void FriendPanel::show(FBNode * _node, boost::function<void()> loadCompleteCallb
 	layoutGroup->addChild(friendViewGroup);
 
 	updateLoading();
-
-	//if (items.size() < 2 && activeNode->loadState["photos"].requestedCount < 2)
-	//{
-	//	FriendPanel * v = this;
-	//	stringstream loadstr;
-	//	loadstr << activeNode->getId();
-	//	loadstr << "?fields=photos.limit(2).fields(id,name,images)";
-	//	activeNode->loadState["photos"].requestedCount  = 2;
-	//	//}
-	//	//else 
-	//	//	loadstr << "?fields=albums.limit(2).fields(id,name,photos.limit(1).fields(id,name,images))";
-
-	//	FBDataSource::instance->loadField(activeNode,loadstr.str(),"",[v](FBNode * _node){
-
-	//		FriendPanel * v2= v;
-	//		v->postTask([v2,_node](){
-
-	//			if (v2->activeNode == _node)
-	//				v2->updateLoading();
-	//		});		
-	//	});
-	//}
-
-	//NodeQuerySpec friendConfig(2,3);	
-	//friendConfig.layers[0].insert(make_pair("photos",SelectionConfig(3)));
-	//friendConfig.layers[0].insert(make_pair("albums",SelectionConfig(3,0,false)));
-	//friendConfig.layers[1].insert(make_pair("photos",SelectionConfig(1)));
-
-
-	//bool isLoading;
-	//vector<FBNode*> dataView = DataViewGenerator::getInstance()->getDataView(activeNode,friendConfig,[this,loadCompleteCallback](vector<FBNode*> & data){
-	//	this->viewChanged("",data);
-	//	if (data.size() > 0)
-	//		loadCompleteCallback();
-	//},isLoading);
-
-	//if (dataView.size() > 0)
-	//{
-	//	loadCompleteCallback();
-	//	viewChanged("",dataView);
-	//}
-
 }
 
 void FriendPanel::updateLoading()
@@ -196,7 +153,7 @@ void FriendPanel::addNode(FBNode * childNode)
 		if (item == NULL)
 		{
 			Panel * p = new Panel(0,0);
-			p->setNode(childNode);
+			p->show(childNode);
 			p->setVisible(true);
 			item = p;			
 			ViewOrchestrator::getInstance()->registerView(childNode->getId(),item, this);

@@ -1,7 +1,7 @@
 #include "ResourceManager.h"
 #include "NodeBase.h"
 #include "TexturePanel.h"
-#include "TextPanel.h"
+#include "FBDataView.hpp"
 #include <boost/function.hpp>
 
 #ifndef Panel_H_
@@ -9,23 +9,20 @@
 
 using namespace std;
 using namespace Leap;
+using namespace Facebook;
 
-class Panel : public TexturePanel, public IResourceWatcher {
+class Panel : public TexturePanel, public IResourceWatcher, public FBDataView {
 
 private:
 	GLuint glTextureId;
 	bool fullScreenMode;
-	
-	TextPanel * textPanel;
 
 	ResourceData * currentResource;
-
-	//_ResourceLoadCallbackType resourceCallback;
 
 protected:
 	int currentDetailLevel;
 	float dataPriority;
-	NodeBase * node;	
+	FBNode * node;	
 
 	virtual void initDefaults();
 	
@@ -42,13 +39,13 @@ public:
 
 	void setDetailLevel(int levelOfDetail);
 	
-	virtual void setNode(NodeBase * node);
-	virtual NodeBase * getNode();
-
 	virtual void setVisible(bool visible);
 	
 	float getDataPriority();
+
 	virtual void setDataPriority(float relevance);
+	virtual void show(FBNode * node);
+	virtual FBNode * getNode();
 	
 	void elementTapped(ScreenTapGesture tapGesture);
 

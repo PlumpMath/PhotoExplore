@@ -56,6 +56,9 @@ FriendDetailView::FriendDetailView()
 
 void FriendDetailView::suspend()
 {
+	this->imageDetailView->setVisible(false);
+	this->topView = mainLayout;
+
 	float targetPriority = 100;
 	for (auto it = imageGroup->getChildren()->begin(); it != imageGroup->getChildren()->end();it++)
 	{		
@@ -65,9 +68,11 @@ void FriendDetailView::suspend()
 		else if (dynamic_cast<AlbumPanel*>(imagePanel) != NULL)
 		{
 			AlbumPanel * ap = (AlbumPanel*)imagePanel;
-			ap->setChildDataPriority(targetPriority);
+			ap->setDataPriority(targetPriority);
 		}			
 	}
+	
+	layoutDirty = true;		
 }
 
 void FriendDetailView::loadItems(int albums, int photos)
@@ -215,7 +220,7 @@ void FriendDetailView::updateLoading()
 		else if (dynamic_cast<AlbumPanel*>(imagePanel) != NULL)
 		{
 			AlbumPanel * ap = (AlbumPanel*)imagePanel;
-			ap->setChildDataPriority(targetPriority);
+			ap->setDataPriority(targetPriority);
 		}
 	}
 	
@@ -299,7 +304,7 @@ void FriendDetailView::showChild(FBNode * node)
 		if (v == NULL)
 		{
 			item = new Panel(0,0);
-			item->setNode(node);
+			item->show(node);
 			ViewOrchestrator::getInstance()->registerView(node->getId(),item, this);
 		}
 		else
@@ -355,7 +360,7 @@ void FriendDetailView::onGlobalGesture(const Controller & controller, std::strin
 			else if (dynamic_cast<AlbumPanel*>(imagePanel) != NULL)
 			{
 				AlbumPanel * ap = (AlbumPanel*)imagePanel;
-				ap->setChildDataPriority(targetPriority);
+				ap->setDataPriority(targetPriority);
 			}			
 		}
 
@@ -380,7 +385,7 @@ void FriendDetailView::addNode(FBNode * node)
 			if (node->getNodeType().compare(NodeType::FacebookImage) == 0)
 			{
 				Panel * p = new Panel(0,0);
-				p->setNode(node);
+				p->show(node);
 				p->setVisible(true);
 				p->setClickable(true);
 				item = p;

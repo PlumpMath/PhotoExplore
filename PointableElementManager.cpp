@@ -5,6 +5,7 @@
 #include "GLImport.h"
 #include "ShakeGestureDetector.hpp"
 #include "RadialMenu.hpp"
+#include "FacebookDataDisplay.hpp"
 
 PointableElementManager::PointableElementManager()
 {
@@ -203,6 +204,12 @@ void PointableElementManager::processFrame(const Controller & controller, Frame 
 		screenPoint = LeapHelper::FindScreenPoint(controller,testPointable);
 
 		hit = RadialMenu::instance->elementAtPoint((int)screenPoint.x,(int)screenPoint.y,elementStateFlags);
+				
+		View * fbdd = dynamic_cast<View*>(FacebookDataDisplay::getInstance());
+		if (hit == NULL && fbdd != NULL)
+		{
+			hit = fbdd->elementAtPoint((int)screenPoint.x,(int)screenPoint.y,elementStateFlags);
+		}
 
 		if (hit == NULL)
 		{

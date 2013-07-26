@@ -64,6 +64,9 @@
     <Filter Include="Source Files\EventHandling">
       <UniqueIdentifier>{636ae548-a27d-4a4e-8e7c-a4202766bfd4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\NewPanel\DataPanels">
+      <UniqueIdentifier>{6e631b39-013d-448c-9869-97fd553ecb15}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -111,9 +114,6 @@
     <ClCompile Include="DynamicGrid.cpp">
       <Filter>Source Files\NewPanel</Filter>
     </ClCompile>
-    <ClCompile Include="FriendPanel.cpp">
-      <Filter>Source Files\NewPanel</Filter>
-    </ClCompile>
     <ClCompile Include="PackingGrid.cpp">
       <Filter>Source Files\NewPanel</Filter>
     </ClCompile>
@@ -132,9 +132,6 @@
     <ClCompile Include="View.cpp">
       <Filter>Source Files\NewPanel</Filter>
     </ClCompile>
-    <ClCompile Include="AlbumPanel.cpp">
-      <Filter>Source Files\NewPanel</Filter>
-    </ClCompile>
     <ClCompile Include="AlbumDetailView.cpp">
       <Filter>Source Files\NewPanel</Filter>
     </ClCompile>
@@ -145,9 +142,6 @@
       <Filter>Source Files\NewPanel</Filter>
     </ClCompile>
     <ClCompile Include="FrameView.cpp">
-      <Filter>Source Files\NewPanel</Filter>
-    </ClCompile>
-    <ClCompile Include="FriendPhotoLinkedView.cpp">
       <Filter>Source Files\NewPanel</Filter>
     </ClCompile>
     <ClCompile Include="FixedAspectGrid.cpp">
@@ -201,9 +195,6 @@
     <ClCompile Include="TextPanel.cpp">
       <Filter>Source Files\Panel</Filter>
     </ClCompile>
-    <ClCompile Include="Panel.cpp">
-      <Filter>Source Files\Panel</Filter>
-    </ClCompile>
     <ClCompile Include="PanelBase.cpp">
       <Filter>Source Files\Panel</Filter>
     </ClCompile>
@@ -233,6 +224,18 @@
     </ClCompile>
     <ClCompile Include="ScrollBar.cpp">
       <Filter>Source Files\NewPanel</Filter>
+    </ClCompile>
+    <ClCompile Include="DataListActivity.cpp">
+      <Filter>Source Files\NewPanel</Filter>
+    </ClCompile>
+    <ClCompile Include="FriendPanel.cpp">
+      <Filter>Source Files\NewPanel\DataPanels</Filter>
+    </ClCompile>
+    <ClCompile Include="Panel.cpp">
+      <Filter>Source Files\NewPanel\DataPanels</Filter>
+    </ClCompile>
+    <ClCompile Include="AlbumPanel.cpp">
+      <Filter>Source Files\NewPanel\DataPanels</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -268,9 +271,6 @@
     </ClInclude>
     <ClInclude Include="FacebookLoader.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Panel.h">
-      <Filter>Header Files\Panel</Filter>
     </ClInclude>
     <ClInclude Include="FileNode.h">
       <Filter>Header Files\DataModel</Filter>
@@ -398,9 +398,6 @@
     <ClInclude Include="LinearLayout.hpp">
       <Filter>Header Files\NewPanel\GridLayouts</Filter>
     </ClInclude>
-    <ClInclude Include="LightFriendPanel.hpp">
-      <Filter>Header Files\NewPanel\DataPanels</Filter>
-    </ClInclude>
     <ClInclude Include="ShakeGestureDetector.hpp">
       <Filter>Header Files\LeapUtil</Filter>
     </ClInclude>
@@ -446,9 +443,6 @@
     <ClInclude Include="AbsoluteLayout.hpp">
       <Filter>Header Files\NewPanel</Filter>
     </ClInclude>
-    <ClInclude Include="DataListView.hpp">
-      <Filter>Header Files\NewPanel</Filter>
-    </ClInclude>
     <ClInclude Include="EmptyView.hpp">
       <Filter>Header Files\NewPanel</Filter>
     </ClInclude>
@@ -469,6 +463,21 @@
     </ClInclude>
     <ClInclude Include="ScrollBar.hpp">
       <Filter>Header Files\NewPanel</Filter>
+    </ClInclude>
+    <ClInclude Include="DataListActivity.hpp">
+      <Filter>Header Files\NewPanel</Filter>
+    </ClInclude>
+    <ClInclude Include="Panel.h">
+      <Filter>Header Files\NewPanel\DataPanels</Filter>
+    </ClInclude>
+    <ClInclude Include="FBDataView.hpp">
+      <Filter>Header Files\NewPanel\DataPanels</Filter>
+    </ClInclude>
+    <ClInclude Include="FBDataCursor.hpp">
+      <Filter>Header Files\DataModel</Filter>
+    </ClInclude>
+    <ClInclude Include="FriendListCursorView.hpp">
+      <Filter>Header Files\NewPanel\DataViews</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

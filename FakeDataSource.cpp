@@ -223,4 +223,6 @@ void FakeDataSource::load(FBNode * parent, string objectId, string edge){
 }
 void FakeDataSource::loadQuery(FBNode * parent, string nodeQuery, string interpretAs, boost::function<void(FBNode*)> callback){
 	cout << "FAKE QUERY NOT IMPLANTED\n";
+	
+	//callback(parent);
 }
