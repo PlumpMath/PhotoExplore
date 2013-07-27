@@ -67,6 +67,9 @@
     <Filter Include="Source Files\NewPanel\DataPanels">
       <UniqueIdentifier>{6e631b39-013d-448c-9869-97fd553ecb15}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\NewPanel\DataViews">
+      <UniqueIdentifier>{a0f2ad91-cfb7-4cf4-ae82-7a6aeefbffdb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -105,40 +108,16 @@
     <ClCompile Include="FacebookBrowser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="FacebookIntroView.cpp">
-      <Filter>Source Files\NewPanel</Filter>
-    </ClCompile>
-    <ClCompile Include="FacebookFriendListView.cpp">
-      <Filter>Source Files\NewPanel</Filter>
-    </ClCompile>
-    <ClCompile Include="DynamicGrid.cpp">
-      <Filter>Source Files\NewPanel</Filter>
-    </ClCompile>
-    <ClCompile Include="PackingGrid.cpp">
-      <Filter>Source Files\NewPanel</Filter>
-    </ClCompile>
     <ClCompile Include="ContentPanel.cpp">
-      <Filter>Source Files\NewPanel</Filter>
-    </ClCompile>
-    <ClCompile Include="CustomGrid.cpp">
       <Filter>Source Files\NewPanel</Filter>
     </ClCompile>
     <ClCompile Include="Button.cpp">
       <Filter>Source Files\NewPanel</Filter>
     </ClCompile>
-    <ClCompile Include="FriendDetailView.cpp">
-      <Filter>Source Files\NewPanel</Filter>
-    </ClCompile>
     <ClCompile Include="View.cpp">
       <Filter>Source Files\NewPanel</Filter>
     </ClCompile>
-    <ClCompile Include="AlbumDetailView.cpp">
-      <Filter>Source Files\NewPanel</Filter>
-    </ClCompile>
     <ClCompile Include="PanelFactory.cpp">
-      <Filter>Source Files\NewPanel</Filter>
-    </ClCompile>
-    <ClCompile Include="ImageDetailView.cpp">
       <Filter>Source Files\NewPanel</Filter>
     </ClCompile>
     <ClCompile Include="FrameView.cpp">
@@ -166,9 +145,6 @@
       <Filter>Source Files\LeapUtil</Filter>
     </ClCompile>
     <ClCompile Include="FastSeekBar.cpp">
-      <Filter>Source Files\NewPanel</Filter>
-    </ClCompile>
-    <ClCompile Include="LinearLayout.cpp">
       <Filter>Source Files\NewPanel</Filter>
     </ClCompile>
     <ClCompile Include="TexturePool.cpp">
@@ -225,9 +201,6 @@
     <ClCompile Include="ScrollBar.cpp">
       <Filter>Source Files\NewPanel</Filter>
     </ClCompile>
-    <ClCompile Include="DataListActivity.cpp">
-      <Filter>Source Files\NewPanel</Filter>
-    </ClCompile>
     <ClCompile Include="FriendPanel.cpp">
       <Filter>Source Files\NewPanel\DataPanels</Filter>
     </ClCompile>
@@ -236,6 +209,45 @@
     </ClCompile>
     <ClCompile Include="AlbumPanel.cpp">
       <Filter>Source Files\NewPanel\DataPanels</Filter>
+    </ClCompile>
+    <ClCompile Include="FBDataCursorImpl.cpp">
+      <Filter>Source Files\DataModel</Filter>
+    </ClCompile>
+    <ClCompile Include="TextEditPanel.cpp">
+      <Filter>Source Files\Panel</Filter>
+    </ClCompile>
+    <ClCompile Include="AlbumDetailView.cpp">
+      <Filter>Source Files\NewPanel\DataViews</Filter>
+    </ClCompile>
+    <ClCompile Include="FacebookFriendListView.cpp">
+      <Filter>Source Files\NewPanel\DataViews</Filter>
+    </ClCompile>
+    <ClCompile Include="FacebookIntroView.cpp">
+      <Filter>Source Files\NewPanel\DataViews</Filter>
+    </ClCompile>
+    <ClCompile Include="FriendDetailView.cpp">
+      <Filter>Source Files\NewPanel\DataViews</Filter>
+    </ClCompile>
+    <ClCompile Include="ImageDetailView.cpp">
+      <Filter>Source Files\NewPanel\DataViews</Filter>
+    </ClCompile>
+    <ClCompile Include="FriendListCursorView.cpp">
+      <Filter>Source Files\NewPanel\DataViews</Filter>
+    </ClCompile>
+    <ClCompile Include="DataListActivity.cpp">
+      <Filter>Source Files\NewPanel\DataViews</Filter>
+    </ClCompile>
+    <ClCompile Include="CustomGrid.cpp">
+      <Filter>Source Files\NewPanel\GridLayouts</Filter>
+    </ClCompile>
+    <ClCompile Include="DynamicGrid.cpp">
+      <Filter>Source Files\NewPanel\GridLayouts</Filter>
+    </ClCompile>
+    <ClCompile Include="LinearLayout.cpp">
+      <Filter>Source Files\NewPanel\GridLayouts</Filter>
+    </ClCompile>
+    <ClCompile Include="PackingGrid.cpp">
+      <Filter>Source Files\NewPanel\GridLayouts</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -478,6 +490,9 @@
     </ClInclude>
     <ClInclude Include="FriendListCursorView.hpp">
       <Filter>Header Files\NewPanel\DataViews</Filter>
+    </ClInclude>
+    <ClInclude Include="TextEditPanel.hpp">
+      <Filter>Header Files\Panel</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

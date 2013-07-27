@@ -20,6 +20,7 @@ protected:
 	ViewGroup * itemGroup;
 	ScrollingView * itemScroll;	
 	ScrollBar * scrollBar;
+	View * loadIndicator;
 
 	FBDataCursor * cursor;
 

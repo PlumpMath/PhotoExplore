@@ -69,16 +69,16 @@
 		"FullCacheGCFrequency" : 2000, //milliseconds
 		"TextureCacheGCCollectRatio" : 0.8,
 		"ImageCacheGCCollectRatio" : 0.8,
-		"DebugLogging" : true
+		"DebugLogging" : false
 	},
 	"FakeDataMode" : 
 	{
-		"Enable" : true,
+		"Enable" : false,
 		"SourceDataDirectory" : "C:\\Users\\Adam\\Pictures\\pixiv-win" ,
 		"RequestDelay" : 50 ,//ms
 		"MaxPhotos" : 2000,
 		"MaxAlbums" : 0,
-		"MaxFriends" : 0
+		"MaxFriends" : 200
 	},
 	"Shake" : 
 	{	
@@ -406,7 +406,7 @@
 		"TrainingMode" : false,
 		"StartButtonText" : "Start Exploring",
 		"BrowserLoginPrompt" : "Please login using the browser window",
-		"InternetNotice" : "The above button will open Facebook in a browser window; please login using this window to continue. This application will require an internet connection throughout its use."		
+		"InternetNotice" : "Tap the button above to open Facebook in a browser window, then login using this window to continue. This application will require an internet connection throughout its use."		
 	},
 	"FriendDetailView" :
 	{ 
@@ -465,6 +465,69 @@
 		"RowCount" : 3,
 		"FriendsPerRequest" : 15
 	},
+	"FriendLookupView" : 
+	{
+		"Enable" : true,
+		"LookupDialog" :
+		{
+			"Height" : 500,
+			"Width" : 600,
+			"FriendNameTextBox" : 
+			{
+				"TextSize" : 8,
+				"TextColor" :  {"R" : 240,"G" : 240,"B" : 240,"A" : 255},
+				"BackgroundColor" :  {"R" : 30,"G" : 30,"B" : 30,"A" : 240},
+				"BorderColor" :  {"R" : 240,"G" : 240,"B" : 240,"A" : 240},
+				"BorderThickness" : 2,
+				"TextAlignment" : 0,
+				"TextPadding" : 4
+			},
+			"FriendLookupLabel" : 
+			{
+				"Text" : "Find a friend by name",
+				"TextSize" : 8,
+				"TextColor" :  {"R" : 240,"G" : 240,"B" : 240,"A" : 255},
+				"BackgroundColor" :  {"R" : 30,"G" : 30,"B" : 30,"A" : 240},
+				"BorderColor" :  {"R" : 240,"G" : 240,"B" : 240,"A" : 240},
+				"BorderThickness" : 2,
+				"TextAlignment" : 0,
+				"TextPadding" : 4
+			},			
+			"SearchButton" : 
+			{
+				"Text" : "Search",
+				"TextSize" : 8,
+				"TextColor" :  {"R" : 240,"G" : 240,"B" : 240,"A" : 255},
+				"BackgroundColor" :  {"R" : 30,"G" : 30,"B" : 30,"A" : 240},
+				"BorderColor" :  {"R" : 240,"G" : 240,"B" : 240,"A" : 240},
+				"BorderThickness" : 2,
+				"TextAlignment" : 0,
+				"TextPadding" : 4
+			},			
+			"ClearButton" : 
+			{
+				"Text" : "Show all",
+				"TextSize" : 8,
+				"TextColor" :  {"R" : 240,"G" : 240,"B" : 240,"A" : 255},
+				"BackgroundColor" :  {"R" : 30,"G" : 30,"B" : 30,"A" : 240},
+				"BorderColor" :  {"R" : 240,"G" : 240,"B" : 240,"A" : 240},
+				"BorderThickness" : 2,
+				"TextAlignment" : 1,
+				"TextPadding" : 4
+			},		
+			"CloseButton" : 
+			{
+				"Text" : "Hide",
+				"TextSize" : 8,
+				"TextColor" :  {"R" : 240,"G" : 240,"B" : 240,"A" : 255},
+				"BackgroundColor" :  {"R" : 30,"G" : 30,"B" : 30,"A" : 240},
+				"BorderColor" :  {"R" : 240,"G" : 240,"B" : 240,"A" : 240},
+				"BorderThickness" : 2,
+				"TextAlignment" : 0,
+				"TextPadding" : 4
+			}
+		}
+	},
 	"FriendPanel" : 
 	{
 		"NameLabel" :
@@ -507,7 +570,7 @@
 			"TextPadding" : 5.0,
 			"SwipeGesture" : "Swipe Left or Right",
 			"PointGesture" : "Tap to select",
-			"PointStopGesture" : "Point to stop\nTap to select",
+			"PointStopGesture" : " Point to stop  \nTap to select",
 			"ShakeGesture" : "Shake to go back",
 			"StretchGesture" : " Use two fingers to  stretch the image ",
 			"Color" : 

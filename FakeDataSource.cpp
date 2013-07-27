@@ -107,32 +107,37 @@ void FakeDataSource::loadWithOffset(FBNode * parent, string edge, int limit, int
 			albumIndex++;
 		}
 	}else if (edge.compare("friends") == 0)
-	{
-		for (int i=0;i<limit;i++)
+	{		
+		if (friendIndex < GlobalConfig::tree()->get<int>("FakeDataMode.MaxFriends"))
 		{
-			while ((is_directory(this->dirContents.at(friendIndex%dirContents.size())) ||  
-				this->dirContents.at(friendIndex%dirContents.size()).extension().string().size() < 3 || (
-				this->dirContents.at(friendIndex%dirContents.size()).extension().string().find("jpg") == string::npos && 
-				this->dirContents.at(friendIndex%dirContents.size()).extension().string().find("png") == string::npos)
-				)) friendIndex++;
-			
-			stringstream ss2;
-			ss2 << "Fake_Friend_" << this->friendIndex;
+			for (int i=0;i<limit;i++)
+			{
+				while ((is_directory(this->dirContents.at(friendIndex%dirContents.size())) ||  
+					this->dirContents.at(friendIndex%dirContents.size()).extension().string().size() < 3 || (
+					this->dirContents.at(friendIndex%dirContents.size()).extension().string().find("jpg") == string::npos && 
+					this->dirContents.at(friendIndex%dirContents.size()).extension().string().find("png") == string::npos)
+					)) friendIndex++;
 
-			FBNode * n2 = new FBNode(ss2.str());
-			n2->setNodeType("friends");
-			stringstream name;
-			name << "Good friend #"  << friendIndex;
-			n2->Edges.insert(Edge("name",name.str()));
-			n2->Edges.insert(Edge("fake_uri",this->dirContents.at(friendIndex%dirContents.size()).string()));
-			n2->Edges.insert(Edge("fake_uri_high",""));
-			
-			n2->ReverseEdges.insert(Edge(parent->getNodeType(),parent));
-			parent->Edges.insert(Edge("friends",n2));
-			if (albumIndex >= GlobalConfig::tree()->get<int>("FakeDataMode.MaxFriends"))
-				parent->loadState["friends"].hasReachedEnd = true;
+				stringstream ss2;
+				ss2 << "Fake_Friend_" << this->friendIndex;
 
-			friendIndex++;
+				FBNode * n2 = new FBNode(ss2.str());
+				n2->setNodeType("friends");
+				stringstream name;
+				if (std::rand() % 2 == 0)
+					name << "AB friend #"  << friendIndex;
+				else
+					name << "ZY friend #"  << friendIndex;
+
+				n2->Edges.insert(Edge("name",name.str()));
+				n2->Edges.insert(Edge("fake_uri",this->dirContents.at(friendIndex%dirContents.size()).string()));
+				n2->Edges.insert(Edge("fake_uri_high",""));
+
+				n2->ReverseEdges.insert(Edge(parent->getNodeType(),parent));
+				parent->Edges.insert(Edge("friends",n2));
+
+				friendIndex++;
+			}
 		}
 	}
 }
@@ -222,7 +227,20 @@ void FakeDataSource::load(FBNode * parent, string objectId, string edge){
 	cout << "FAKE LOAD NOT IMPLANTED\n";
 }
 void FakeDataSource::loadQuery(FBNode * parent, string nodeQuery, string interpretAs, boost::function<void(FBNode*)> callback){
-	cout << "FAKE QUERY NOT IMPLANTED\n";
 	
-	//callback(parent);
+	if (nodeQuery.find("friend") != string::npos)
+	{
+		int friendLimit = 50, friendOffset = 0;
+
+		taskMutex.lock();
+		taskQueue.push([this,friendLimit,friendOffset,parent,callback](){
+		
+			if (friendLimit != 0)
+			{
+				loadWithOffset(parent,"friends",friendLimit, friendOffset);
+			}		
+			callback(parent);
+		});
+		taskMutex.unlock();
+	}
 }

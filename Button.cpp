@@ -54,7 +54,7 @@ void Button::drawContent(Vector drawPosition, float drawWidth, float drawHeight)
 		Color tmp = getBackgroundColor();
 		newBG.setAlpha(pressedLevel*.6f);
 		setBackgroundColor(newBG);
-		PanelBase::drawBackground(drawPosition, drawWidth, drawHeight);
+		PanelBase::drawBackground(drawPosition+Vector(0,0,0.5f), drawWidth, drawHeight);
 		setBackgroundColor(tmp);
 	}
 	

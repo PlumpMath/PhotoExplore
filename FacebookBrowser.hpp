@@ -41,7 +41,7 @@ private:
 	FBNode * userNode;
 
 	ViewGroup * pathView;
-	ImageButton * homeButton;
+	View * homeButton;
 
 public:
 	FacebookBrowser();

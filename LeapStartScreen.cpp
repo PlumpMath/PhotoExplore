@@ -95,6 +95,11 @@ void LeapStartScreen::shutdown()
 
 }
 
+LeapStartScreen::~LeapStartScreen()
+{
+
+}
+
 LeapElement * LeapStartScreen::elementAtPoint(int x, int y, int & elementStateFlags)
 {	
 	LeapElement * hit = RadialMenu::instance->elementAtPoint(x,y,elementStateFlags);

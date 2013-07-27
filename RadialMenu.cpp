@@ -67,12 +67,11 @@ RadialMenu::RadialMenu(vector<RadialMenuItem> & items)
 	((ViewGroup*)privacyInfoGrid)->addChild(privacyInfoText);	
 	((ViewGroup*)privacyInfoGrid)->addChild(dismissDialogButton);
 	
-	privacyInfoBox = privacyInfoGrid; //new ContentPanel(privacyInfoGrid);
-
+	privacyInfoBox = privacyInfoGrid;
 	
 	cv::Size2f dialogSize = cv::Size2f(GlobalConfig::tree()->get<float>("Menu.PrivacyInfo.DialogWidth"),GlobalConfig::tree()->get<float>("Menu.PrivacyInfo.DialogHeight"));
-	//((ContentPanel*)privacyInfoBox)->layout(Vector(),dialogSize);
 	privacyInfoBox->setVisible(false);
+
 
 	state = MenuState_ButtonOnly;
 	instance = this;
@@ -232,13 +231,13 @@ void RadialMenu::layout(Vector pos, cv::Size2f size)
 		
 		cv::Size2f dialogSize = cv::Size2f(GlobalConfig::tree()->get<float>("Menu.PrivacyInfo.DialogWidth"),GlobalConfig::tree()->get<float>("Menu.PrivacyInfo.DialogHeight"));
 
-		privacyInfoBox->layout(pos + Vector((size.width - dialogSize.width)*.5f,size.height*1.2f,0), dialogSize);
+		privacyInfoBox->layout(pos + Vector((size.width - dialogSize.width)*.5f,size.height*1.2f,4), dialogSize);
 	}
 	else if (state == MenuState_ShowingDialog)
 	{
 		cv::Size2f dialogSize = cv::Size2f(GlobalConfig::tree()->get<float>("Menu.PrivacyInfo.DialogWidth"),GlobalConfig::tree()->get<float>("Menu.PrivacyInfo.DialogHeight"));
 
-		privacyInfoBox->layout(pos + Vector(size.width - dialogSize.width,size.height - dialogSize.height,0)*.5f,dialogSize);
+		privacyInfoBox->layout(pos + Vector(size.width - dialogSize.width,size.height - dialogSize.height,4)*.5f,dialogSize);
 
 	}
 	else if (state == MenuState_ButtonOnly) 

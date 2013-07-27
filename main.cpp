@@ -1,4 +1,5 @@
 #define NDEBUG 1
+#define TEST_MODE 0
 
 #include "GLImport.h"
 
@@ -377,6 +378,63 @@ void handler(int sig) {
 	//exit(1);
 }
 
+#include "FBDataCursor.hpp"
+
+void runTests()
+{
+
+	FBNode * root =new FBNode("human");
+	root->setNodeType("me");
+	FBFriendsCursor * friendCursor = new FBFriendsCursor(root);
+
+	int * count = new int[1];
+
+	friendCursor->cursorChangedCallback = [friendCursor,count](){
+
+		int itCount = 0;
+		string lastId ="";
+		while (friendCursor->canLoad)
+		{
+			FBNode * result = friendCursor->getNext();
+			if (result != NULL)
+			{
+				itCount++;
+				(*count)++;
+				string thisId = result->getId();
+
+				if (lastId.compare(thisId)==0)
+				{
+					Logger::stream("test-mt","ERROR") << itCount << "-" << "Ids same!" << thisId << endl;
+					break;
+				}
+				Logger::stream("test-mt","INFO") << itCount << "-" << thisId << endl;
+				lastId = thisId;
+			}
+			else
+				break;
+		}
+	};
+	
+	while (friendCursor->canLoad && !friendCursor->isLoading)
+	{
+		FBNode * result = friendCursor->getNext();
+		if (result != NULL)
+		{
+			(*count)++;
+			Logger::stream("test","INFO") << result->getId() << endl;
+		}
+		else
+			break;
+	}
+	
+	while ((*count) < 400)
+	{
+		boost::this_thread::sleep(boost::posix_time::milliseconds(100));
+	}
+
+}
+
+
 #ifdef _WIN32
 
 int WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmdShow) 
@@ -493,6 +551,9 @@ int WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmd
 	try
 	{
 		
+#if TEST_MODE
+		runTests();
+#else
 		
 		while(!(*quit))
 		{
@@ -621,6 +682,7 @@ int WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmd
 			}
 			frameId++;
 		}
+#endif
 	}
 	catch  (std::exception & e)
 	{

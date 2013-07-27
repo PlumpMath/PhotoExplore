@@ -113,6 +113,8 @@ private:
 
 public:
 	LeapStartScreen(std::string startDir);
+	~LeapStartScreen();
+
 	void init();
 	void update(double delta);
 	void draw();

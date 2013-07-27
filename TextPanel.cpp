@@ -88,14 +88,15 @@ void TextPanel::drawContent(Vector drawPosition, float drawWidth, float drawHeig
 	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST); 
 	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
-	TexturePanel::drawTexture(currentTextureId,drawPosition,drawWidth,drawHeight);	
+	TexturePanel::drawTexture(currentTextureId,drawPosition+Vector(0,0,1),drawWidth,drawHeight);	
 	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 
 void TextPanel::refresh()
 {
-	reloadText();
+	if (textDirty)
+		reloadText();
 }
 
 void TextPanel::setFontName(string _fontName)
@@ -115,11 +116,13 @@ void TextPanel::setTextAlignment(int a)
 
 void TextPanel::setText(string _text)
 {
-	if (_text.length() > 0)
-		textEnabled = true; 
+	textEnabled = _text.length() > 0;		
 
-	this->text = _text;	
-	textDirty = true;
+	if (!textEnabled)
+		currentTextureId = NULL;
+
+	textDirty = textDirty || (_text.compare(this->text) != 0);
+	this->text = _text;		
 }
 string TextPanel::getText()
 {

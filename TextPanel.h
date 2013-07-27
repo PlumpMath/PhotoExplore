@@ -14,7 +14,6 @@
 class TextPanel : public TexturePanel, public IResourceWatcher {
 
 private:
-	string text;
 	Color textColor;
 	float textSize, textFitPadding;
 	
@@ -28,6 +27,9 @@ private:
 
 	string fontName;
 	void init();
+
+protected:
+	string text;
 
 public:
 	TextPanel(string text);

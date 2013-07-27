@@ -7,7 +7,7 @@ FacebookBrowser::FacebookBrowser()
 	friendList = new FacebookFriendListView();
 	introView  = new FacebookIntroView();
 	albumDetailView = new AlbumDetailView();
-	//friendDetailView = new FriendDetailView();
+	friendDetailView = new FriendDetailView();
 	friendCursorView = new FriendListCursorView();
 	
 	state = 0;
@@ -17,15 +17,20 @@ FacebookBrowser::FacebookBrowser()
 
 	pathView = new LinearLayout();
 
-	homeButton = new ImageButton(GlobalConfig::tree()->get<string>("FacebookBrowser.AddressBar.HomeButtonImg"),GlobalConfig::tree()->get<string>("FacebookBrowser.AddressBar.HomeButtonOvr"));
-	pathView->addChild(homeButton);
+	TextPanel * homeButtonText = new Button("Home");
+	homeButtonText->setTextSize(10,false);
+	homeButtonText->setTextColor(Colors::SteelBlue);
+
 	
 	float menuHeight = GlobalConfig::tree()->get<float>("Menu.Height");
 
-	homeButton->setLayoutParams(LayoutParams(cv::Size2f(menuHeight,menuHeight),cv::Vec4f(5,5,5,5)));
+	homeButton = homeButtonText;
+	homeButton->setLayoutParams(LayoutParams(cv::Size2f(menuHeight*1.5f,menuHeight),cv::Vec4f(5,5,5,5)));
 	homeButton->elementClickedCallback = [this](LeapElement * clicked){		
 		this->displayNode(NULL,this->userNode,"");
 	};
+	
+	pathView->addChild(homeButton);
 }
 
 void FacebookBrowser::displayNode(FBNode * previousNode, FBNode * node, string action)
@@ -122,19 +127,24 @@ void FacebookBrowser::displayNode(FBNode * previousNode, FBNode * node, string a
 		}
 		else if (action.compare("friend_list_view") == 0)
 		{			
-			friendCursorView->setFinishedCallback([this,node](string action){				
-				this->displayNode(NULL,node,"");
-			});		
+			if (GlobalConfig::tree()->get<bool>("FriendLookupView.Enable"))
+			{
+				friendCursorView->setFinishedCallback([this,node](string action){				
+					this->displayNode(NULL,node,"");
+				});		
 
-			friendCursorView->show(new FBFriendsCursor(node));
-			setTopView(friendCursorView);
+				friendCursorView->setUserNode(node);
+				setTopView(friendCursorView);
+			}
+			else
+			{
+				friendList->setFinishedCallback([this,node](string action){				
+					this->displayNode(NULL,node,"");
+				});		
 
-			//friendList->setFinishedCallback([this,node](string action){				
-			//	this->displayNode(NULL,node,"");
-			//});		
-
-			//friendList->show(node);
-			//setTopView(friendList);
+				friendList->show(node);
+				setTopView(friendList);
+			}
 		}
 		else
 		{

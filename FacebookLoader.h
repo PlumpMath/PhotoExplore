@@ -280,7 +280,7 @@ public:
 
 	void loadQuery(FBNode * parent, string nodeQuery, string interpretAs, boost::function<void(FBNode*)> loadCompleteCallback)
 	{
-		//cout << "Loading node fields " << nodeQuery << "\n";
+		Logger::stream("FacebookLoader","INFO") << "Executing query: " << nodeQuery << "\n";
 		CefRefPtr<JSONDownloadTask> newTask = new JSONDownloadTask(nodeQuery,parent);
 		newTask->edgeType = interpretAs;
 		newTask->onComplete = loadCompleteCallback;

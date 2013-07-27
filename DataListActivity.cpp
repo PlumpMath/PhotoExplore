@@ -2,6 +2,7 @@
 #include "GlobalConfig.hpp"
 #include "FixedAspectGrid.hpp"
 #include "PanelBase.h"
+#include "TextPanel.h"
 
 DataListActivity::DataListActivity(int _rowCount) :
 	rowCount(_rowCount)
@@ -13,8 +14,11 @@ DataListActivity::DataListActivity(int _rowCount) :
 	itemScroll = new ScrollingView(itemGroup);
 	scrollBar->setScrollView(itemScroll);
 
+	loadIndicator = new TextPanel();
+
 	addChild(itemScroll);
 	addChild(scrollBar);
+	addChild(loadIndicator);
 }
 
 DataListActivity::~DataListActivity()
@@ -25,16 +29,25 @@ DataListActivity::~DataListActivity()
 
 void DataListActivity::show(FBDataCursor * _cursor)
 {
-	this->cursor = _cursor;
-
 	PointableElementManager::getInstance()->requestGlobalGestureFocus(this);
-	
+
+	if (this->cursor != NULL)
+		this->cursor->cursorChangedCallback = [](){};
+		
 	currentRightBoundary = 0;
 	lastUpdatePos = 100000;
 	itemScroll->getFlyWheel()->overrideValue(0);
 
 	items.clear();
 	itemGroup->clearChildren();
+		
+	this->cursor = _cursor;
+	cursor->cursorChangedCallback = [this](){
+		this->updateLoading();
+	};
+	cursor->getNext();
+
+	layoutDirty = true;
 }
 
 void DataListActivity::suspend()
@@ -98,16 +111,23 @@ void DataListActivity::updateLoading()
 
 	lastUpdatePos = -scrollPosition;
 
-	if (cursor->isLoading || !cursor->canLoad)
-		return;
+	if (cursor->isLoading)
+	{		
+		((TextPanel*)loadIndicator)->setText("Loading...");
+		((TextPanel*)loadIndicator)->refresh();
+	}
+
+	if (!cursor->canLoad)
+	{
+		((TextPanel*)loadIndicator)->setText("Done!");
+		((TextPanel*)loadIndicator)->refresh();
+	}
+
 
 	float leftBound = -scrollPosition;
 	float rightBound = -scrollPosition + visibleSize.width;
 
 	float itemWidth = (visibleSize.height/((float)rowCount));
-
-	Timer loadingTimer;
-	loadingTimer.start();
 
 	int loadMore = 0;
 	float remainingPixels =  currentRightBoundary - rightBound;
@@ -123,12 +143,14 @@ void DataListActivity::updateLoading()
 		{
 			FBNode * next = cursor->getNext();
 			
-			if (next == NULL)// && cursor->isLoading())
+			if (next == NULL || !cursor->canLoad)
 				break;
 
 			addNode(next);			
 		}			
 	}
+
+	updatePriorities();
 }
 
 void DataListActivity::addNode(FBNode * node)
@@ -147,11 +169,11 @@ void DataListActivity::addNode(FBNode * node)
 		
 		items.insert(make_pair(node,dataView));
 		itemGroup->addChild(newView);
-		
-		float itemWidth = (lastSize.height/((float)rowCount));
-		currentRightBoundary =  (itemWidth * ceilf((float)(itemGroup->getChildren()->size())/(float)rowCount));	
-		this->layoutDirty = true;
 	}
+
+	float itemWidth = (lastSize.height/((float)rowCount));
+	currentRightBoundary =  (itemWidth * ceilf((float)(itemGroup->getChildren()->size())/(float)rowCount));	
+	this->layoutDirty = true;
 }
 
 void DataListActivity::draw()
