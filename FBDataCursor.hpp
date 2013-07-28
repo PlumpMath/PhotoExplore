@@ -2,12 +2,14 @@
 #define LEAPIMAGE_FB_DATA_CURSOR_HPP_
 
 #include "FBNode.h"
+#include "GlobalConfig.hpp"
 
 using namespace Facebook;
 
 class FBDataCursor {
 	
-//protected:
+protected:
+	int itemsPerRequest;
 
 public:	
 	volatile bool isLoading, canLoad;
@@ -17,6 +19,7 @@ public:
 		isLoading(false),
 		canLoad(true)
 	{
+		itemsPerRequest = GlobalConfig::tree()->get<int>("FacebookAPI.ItemsPerRequest");
 	}
 
 	virtual FBNode * getNext() = 0;

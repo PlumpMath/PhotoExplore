@@ -110,7 +110,7 @@ void DynamicGrid::layout(Vector position, cv::Size2f _size)
 	{
 		if (index >= childSizes.size())
 		{
-			cout << "Error! More children than measurements." << endl;
+			throw std::runtime_error("DynamicGrid.layout() - ERROR: More children than measurements.");
 			break;
 		}
 		cv::Size2f childSize = childSizes.at(index++);

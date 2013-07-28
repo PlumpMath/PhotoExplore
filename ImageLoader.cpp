@@ -123,7 +123,7 @@ void ImageLoader::update()
 
 void ImageLoader::runLoadThread(ImgTaskQueue::ImageTaskQueue * loadQueue, boost::mutex * loadQueueMutex) 
 {
-	static int maxImageSize = GlobalConfig::tree()->get<int>("ResourceCache.MaxImageSize");
+	static float maxImageSize = (float)(GlobalConfig::tree()->get<double>("ResourceCache.MaxImageSize")*BytesToMB);
 
 	while (true)
 	{		
@@ -185,9 +185,9 @@ void ImageLoader::runLoadThread(ImgTaskQueue::ImageTaskQueue * loadQueue, boost:
 				{
 					cv::cvtColor(imgMat, imgMat, CV_BGR2RGBA, 4);
 
-					if (4 * imgMat.size().area() >  maxImageSize * BytesToMB)
+					if (4 * imgMat.size().area() >  maxImageSize)
 					{
-						float scale = (float)(maxImageSize * BytesToMB)/((float)imgMat.size().area()*4.0f);
+						float scale = (float)(maxImageSize)/((float)imgMat.size().area()*4.0f);
 						
 						float originalWidth = imgMat.size().width, originalHeight = imgMat.size().height;
 

@@ -7,17 +7,23 @@
 #include "FriendPanel.hpp"
 #include "TextEditPanel.hpp"
 #include "FBDataCursor.hpp"
+#include "SDLTimer.h"
 
 class FriendListCursorView : public DataListActivity, public ViewOwner {
 
 private:
 	TextEditPanel * editText;
+	TextPanel * labelText;
 	View * lookupPanel;
 	
-	bool lookupActive;
+	int lookupDialogState;
 
 	FBFriendsFQLCursor * searchCursor;
 	FBDataCursor * allFriendsCursor;
+
+	Timer lookupDialogTimer;
+
+	bool showPicturelessFriends;
 
 public:
 	FriendListCursorView();
@@ -34,6 +40,8 @@ public:
 	void onGlobalFocusChanged(bool isFocused);
 
 	void layout(Vector position, cv::Size2f size);
+	void update();
+
 
 	void setUserNode(FBNode * node);
 

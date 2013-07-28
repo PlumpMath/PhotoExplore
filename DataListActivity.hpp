@@ -12,11 +12,10 @@ using namespace Facebook;
 
 class DataListActivity : public ActivityView {
 
-private:
+protected: 	
 	void updateLoading();
 	void updatePriorities();
 
-protected: 	
 	ViewGroup * itemGroup;
 	ScrollingView * itemScroll;	
 	ScrollBar * scrollBar;

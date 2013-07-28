@@ -28,12 +28,7 @@ LeapDebug::LeapDebug(HandProcessor * handProcessor)
 	leapNotFocusedPanel->setPosition(Vector(GlobalConfig::ScreenWidth - 450, GlobalConfig::ScreenHeight - 100, 1));
 	leapNotFocusedPanel->layout(Vector(GlobalConfig::ScreenWidth - 500, GlobalConfig::ScreenHeight - 300, 10),cv::Size2f(400,150));
 	leapNotFocusedPanel->setBackgroundColor(Colors::LeapGreen.withAlpha(.7f));
-
-	auto p = GlobalConfig::tree()->get_child("Tutorial.RightHandImages");
-
-	if (GlobalConfig::tree()->get<bool>("Leap.PreferLeftHand"))
-		p = GlobalConfig::tree()->get_child("Tutorial.LeftHandImages");
-
+	
 	
 	auto labels = GlobalConfig::tree()->get_child("Tutorial.Labels");
 
@@ -52,129 +47,38 @@ LeapDebug::LeapDebug(HandProcessor * handProcessor)
 
 	cv::Size2f imagePanelSize = cv::Size2f(300,GlobalConfig::tree()->get<float>("Tutorial.Height")*.6f);
 
-	ImagePanel  * shakeGesturePanel_img = new ImagePanel(p.get<string>("ShakeGesture"),imagePanelSize);
-	shakeGesturePanel_img->setBackgroundColor(backgroundColor);
-
-	TextPanel  * shakeGesturePanel_text = new TextPanel(labels.get<string>("ShakeGesture"));
-	shakeGesturePanel_text->setTextFitPadding(textPadding);
-	shakeGesturePanel_text->setTextColor(labelColor);
-	shakeGesturePanel_text->setBackgroundColor(textBackground);
-	shakeGesturePanel_text->setTextSize(tutorialTextSize,false);
-	shakeGesturePanel_text->setFontName(fontName);
 	
-	TextPanel  * shakeGesturePanel_text_inv = new TextPanel(labels.get<string>("ShakeGesture"));
-	shakeGesturePanel_text_inv->setTextFitPadding(textPadding);
-	shakeGesturePanel_text_inv->setTextColor(invertedLabelColor);
-	shakeGesturePanel_text_inv->setBackgroundColor(textBackground);
-	shakeGesturePanel_text_inv->setTextSize(tutorialTextSize,false);
-	shakeGesturePanel_text_inv->setFontName(fontName);
-	
-	ImagePanel  * swipeGesturePanel_img = new ImagePanel(p.get<string>("SwipeGesture"),imagePanelSize);
-	swipeGesturePanel_img->setBackgroundColor(backgroundColor);
+	auto tutorialIcons = GlobalConfig::tree()->get_child("Tutorial.Icons");
 
-	TextPanel  * swipeGesturePanel_text = new TextPanel(labels.get<string>("SwipeGesture"));
-	swipeGesturePanel_text->setTextFitPadding(textPadding);
-	swipeGesturePanel_text->setTextColor(labelColor);
-	swipeGesturePanel_text->setBackgroundColor(textBackground);
-	swipeGesturePanel_text->setTextSize(tutorialTextSize,false);
-	swipeGesturePanel_text->setFontName(fontName);
+	for (auto tutIt = tutorialIcons.begin(); tutIt != tutorialIcons.end(); tutIt++)
+	{
 
-	ImagePanel  * pointGesturePanel_img = new ImagePanel(p.get<string>("PointGesture"),imagePanelSize);
-	pointGesturePanel_img->setBackgroundColor(backgroundColor);
+		ImagePanel  * tutorialImage = new ImagePanel(tutIt->second.get<string>("RightImage"),imagePanelSize);
+		tutorialImage->setBackgroundColor(backgroundColor);
 
-	TextPanel  * pointGesturePanel_text = new TextPanel(labels.get<string>("PointGesture"));
-	pointGesturePanel_text->setTextFitPadding(textPadding);
-	pointGesturePanel_text->setTextColor(labelColor);
-	pointGesturePanel_text->setBackgroundColor(textBackground);
-	pointGesturePanel_text->setTextSize(tutorialTextSize,false);
-	pointGesturePanel_text->setFontName(fontName);
+		TextPanel  * tutorialText = new TextPanel(tutIt->second.get<string>("Text"));
+		tutorialText->setTextFitPadding(textPadding);
+		tutorialText->setTextColor(tutIt->second.get<bool>("InvertColor") ? invertedLabelColor : labelColor);
+		tutorialText->setBackgroundColor(textBackground);
+		tutorialText->setTextSize(tutorialTextSize,false);
+		tutorialText->setFontName(fontName);
 
-	TextPanel  * pointGesturePanel_text_inv = new TextPanel(labels.get<string>("PointGesture"));
-	pointGesturePanel_text_inv->setTextFitPadding(textPadding);
-	pointGesturePanel_text_inv->setTextColor(invertedLabelColor);
-	pointGesturePanel_text_inv->setBackgroundColor(textBackground);
-	pointGesturePanel_text_inv->setTextSize(tutorialTextSize,false);
-	pointGesturePanel_text_inv->setFontName(fontName);
+		vector<RowDefinition> gridDefinition;	
+		gridDefinition.push_back(RowDefinition(.6f));
+		gridDefinition.push_back(RowDefinition(.4f));
+		gridDefinition[0].ColumnWidths.push_back(1);
+		gridDefinition[1].ColumnWidths.push_back(1);
 
+		CustomGrid * tutorialLayout = new CustomGrid(gridDefinition);
+		tutorialLayout->addChild(tutorialImage);
+		tutorialLayout->addChild(tutorialText);
 
-	ImagePanel  * pointStopGesturePanel_img = new ImagePanel(p.get<string>("PointStopGesture"),imagePanelSize);
-	pointStopGesturePanel_img->setBackgroundColor(backgroundColor);
-
-	TextPanel  * pointStopGesturePanel_text = new TextPanel(labels.get<string>("PointStopGesture"));
-	pointStopGesturePanel_text->setTextFitPadding(textPadding);
-	pointStopGesturePanel_text->setTextColor(labelColor);
-	pointStopGesturePanel_text->setBackgroundColor(textBackground);
-	pointStopGesturePanel_text->setTextSize(tutorialTextSize,false);
-	pointStopGesturePanel_text->setFontName(fontName);
-
-
-	ImagePanel  * stretchGesturePanel_img = new ImagePanel(p.get<string>("StretchGesture"),imagePanelSize);
-	stretchGesturePanel_img->setBackgroundColor(backgroundColor);
-
-	TextPanel  * stretchGesturePanel_text = new TextPanel(labels.get<string>("StretchGesture"));
-	stretchGesturePanel_text->setTextFitPadding(textPadding);
-	stretchGesturePanel_text->setTextColor(invertedLabelColor);
-	stretchGesturePanel_text->setBackgroundColor(textBackground);
-	stretchGesturePanel_text->setTextSize(tutorialTextSize,false);
-	stretchGesturePanel_text->setFontName(fontName);
-
-			 
-	vector<RowDefinition> gridDefinition;	
-	gridDefinition.push_back(RowDefinition(.6f));
-	gridDefinition.push_back(RowDefinition(.4f));
-	gridDefinition[0].ColumnWidths.push_back(1);
-	gridDefinition[1].ColumnWidths.push_back(1);
-
-	CustomGrid * cg1 = new CustomGrid(gridDefinition);
-	cg1->addChild(shakeGesturePanel_img);
-	cg1->addChild(shakeGesturePanel_text);
-
-	
-	CustomGrid * cg1_inv = new CustomGrid(gridDefinition);
-	cg1_inv->addChild(shakeGesturePanel_img);
-	cg1_inv->addChild(shakeGesturePanel_text_inv);
-		
-		
-	CustomGrid * cg2 = new CustomGrid(gridDefinition);
-	cg2->addChild(swipeGesturePanel_img);
-	cg2->addChild(swipeGesturePanel_text);
-		
-	CustomGrid * cg3 = new CustomGrid(gridDefinition);
-	cg3->addChild(pointGesturePanel_img);
-	cg3->addChild(pointGesturePanel_text);
-
-	
-	CustomGrid * cg3_inv = new CustomGrid(gridDefinition);
-	cg3_inv->addChild(pointGesturePanel_img);
-	cg3_inv->addChild(pointGesturePanel_text_inv);
-	
-	CustomGrid * cg4 = new CustomGrid(gridDefinition);
-	cg4->addChild(pointStopGesturePanel_img);
-	cg4->addChild(pointStopGesturePanel_text);
-		
-	CustomGrid * cg5 = new CustomGrid(gridDefinition);
-	cg5->addChild(stretchGesturePanel_img);
-	cg5->addChild(stretchGesturePanel_text);
-	
-	tutorialPanels.insert(make_pair("shake",cg1));	
-	tutorialPanels.insert(make_pair("shake_inv",cg1_inv));	
-	tutorialPanels.insert(make_pair("swipe",cg2));	
-	tutorialPanels.insert(make_pair("point",cg3));	
-	tutorialPanels.insert(make_pair("point_inv",cg3_inv));	
-	tutorialPanels.insert(make_pair("point_stop",cg4));	
-	tutorialPanels.insert(make_pair("stretch",cg5));	
+		tutorialPanels.insert(make_pair(tutIt->second.get<string>("Name"),tutorialLayout));	
+	}
 
 	tutorialLayout = new FixedAspectGrid(cv::Size2f(0,1),GlobalConfig::tree()->get<float>("Tutorial.AspectRatio"));
-
 	tutorialPanel = new ContentPanel(tutorialLayout);
-	//tutorialPanel->setBackgroundColor(Colors::DimGray.withAlpha(.2f));
 
-	//for (auto it = tutorialPanels.begin(); it != tutorialPanels.end(); it++)
-	//{
-	//	it->second->layout(Vector(-300,GlobalConfig::ScreenHeight-200,10),cv::Size2f(100,1));
-	//	//tutorialLayout->addChild(it->second);
-	//}
-		
 	cv::Size2f size = cv::Size2f(300,GlobalConfig::tree()->get<float>("Tutorial.Height"));
 	tutorialLayout->measure(size);
 	tutorialLayout->layout(Vector(0,GlobalConfig::ScreenHeight+100,10),size);

@@ -249,7 +249,6 @@
     <ClCompile Include="LeapStartScreen.cpp" />
     <ClCompile Include="LinearLayout.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="PackingGrid.cpp" />
     <ClCompile Include="Panel.cpp" />
     <ClCompile Include="PanelBase.cpp" />
     <ClCompile Include="PanelFactory.cpp" />

@@ -44,6 +44,11 @@ void DoubleAnimation::start()
 	}
 }
 
+double DoubleAnimation::getElapsedTime()
+{
+	return timer.millis();
+}
+
 bool DoubleAnimation::isRunning()
 {
 	getValue();

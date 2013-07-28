@@ -97,7 +97,7 @@ public:
 	
 	bool DoClose(CefRefPtr<CefBrowser> browser)
 	{
-		//quit = true;
+		quit = true;
 		//browser->GetHost()->CloseBrowser(false);
 		return false; 
 	}

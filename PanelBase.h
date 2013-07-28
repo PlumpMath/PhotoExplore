@@ -22,6 +22,7 @@ protected:
 	float borderThickness;
 	Vector position, offset;
 	
+	long layoutDuration;
 	Timer loadAnimTimer;
 
 	bool panelDirty;
@@ -56,6 +57,8 @@ public:
 
 	virtual void setPosition(Vector position);
 	virtual void animateToPosition(Vector position, long durationX = -1, long durationY = -1);
+	
+	void setLayoutDuration(long duration);
 
 	void setAnimateOnLayout(bool animateOnLayout);
 	bool isAnimateOnLayout();

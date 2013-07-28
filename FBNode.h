@@ -77,6 +77,9 @@ namespace Facebook {
 
 
 		string id() const;
+
+		
+		unsigned long long numericId() const;
 	};
 		
 	struct EdgeTypeIndex {};
@@ -94,7 +97,8 @@ namespace Facebook {
 					<
 						Edge, 
 						boost::multi_index::member<Edge,string,&Edge::Type>,
-						boost::multi_index::const_mem_fun<Edge, string, &Edge::id> 
+						boost::multi_index::const_mem_fun<Edge, unsigned long long, &Edge::numericId> 
+						//boost::multi_index::const_mem_fun<Edge, string, &Edge::id> 
 					>
 				>,								
 				boost::multi_index::sequenced
@@ -150,6 +154,8 @@ namespace Facebook {
 			return id;
 		}
 
+		unsigned long long getNumericId();
+
 		std::string getURI()
 		{
 			return id;
@@ -175,6 +181,7 @@ namespace Facebook {
 	protected:
 		string id;
 		string nodeType;
+		unsigned long long numericId;
 
 
 	};

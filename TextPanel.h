@@ -30,6 +30,7 @@ private:
 
 protected:
 	string text;
+	ResourceData * currentResource;
 
 public:
 	TextPanel(string text);

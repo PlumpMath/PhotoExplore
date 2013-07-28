@@ -393,16 +393,22 @@ void FriendDetailView::addNode(FBNode * node)
 			{
 				item = new AlbumPanel();
 			}
-
-			if (item != NULL)
-				ViewOrchestrator::getInstance()->registerView(node->getId(),item, this);
+			else
+			{
+				Logger::stream("FriendDetailView","ERROR") << "Added invalid nodetype: " << node->getNodeType() << endl;
+				return;
+			}
+			
+			
+			ViewOrchestrator::getInstance()->registerView(node->getId(),item, this);
 		}
 
 		if (item != NULL)
 		{
 			if (node->getNodeType().compare(NodeType::FacebookImage) == 0)
-			{				
-				Panel * p = (Panel*)item;
+			{								
+				Panel * p = dynamic_cast<Panel*>(item);
+
 				p->setClickable(true);
 				p->setLayoutParams(LayoutParams(cv::Size2f(),cv::Vec4f(5,5,5,5)));				
 				item->elementClickedCallback = [this,p](LeapElement * clicked){
@@ -420,8 +426,11 @@ void FriendDetailView::addNode(FBNode * node)
 			}
 			else if (node->getNodeType().compare(NodeType::FacebookAlbum) == 0)
 			{				
-				((AlbumPanel*)item)->show(node);				
-				((AlbumPanel*)item)->setLayoutParams(LayoutParams(cv::Size2f(),cv::Vec4f(5,5,5,5)));
+				AlbumPanel * ap = dynamic_cast<AlbumPanel*>(item);
+				
+				ap->show(node);				
+				
+				item->setLayoutParams(LayoutParams(cv::Size2f(),cv::Vec4f(5,5,5,5)));
 				item->elementClickedCallback = [this, node](LeapElement * element){
 					this->albumPanelClicked(node);
 				};

@@ -3,6 +3,7 @@
 
 PanelBase::PanelBase()
 {
+	layoutDuration = -1;
 	width = height = 0;
 	borderThickness = 0;
 	borderColor = Colors::Transparent;
@@ -71,6 +72,12 @@ void PanelBase::setAnimateOnLayout(bool _animateOnLayout)
 	this->animateOnLayout = _animateOnLayout;
 }
 
+
+void PanelBase::setLayoutDuration(long _layoutDuration)
+{
+	this->layoutDuration = _layoutDuration;
+}
+
 bool PanelBase::isAnimateOnLayout()
 {
 	return this->animateOnLayout;
@@ -101,6 +108,9 @@ void PanelBase::layout(Vector layoutPosition, cv::Size2f layoutSize)
 {
 	static long animationTime = GlobalConfig::tree()->get<long>("Panel.AnimateLayoutDuration");
 
+	if (layoutDuration <= 0)
+		layoutDuration = animationTime;
+
 	this->lastSize = layoutSize;
 	this->lastPosition = layoutPosition;
 
@@ -112,8 +122,8 @@ void PanelBase::layout(Vector layoutPosition, cv::Size2f layoutSize)
 	else
 	{
 
-		animateToPosition(layoutPosition,animationTime,animationTime);
-		animatePanelSize(layoutSize.width,layoutSize.height,animationTime);
+		animateToPosition(layoutPosition,animationTime,layoutDuration);
+		animatePanelSize(layoutSize.width,layoutSize.height,layoutDuration);
 	}
 }
 
@@ -133,19 +143,30 @@ void PanelBase::animatePanelSize(cv::Size2f targetSize, long duration)
 
 void PanelBase::animatePanelSize(float targetWidth, float targetHeight, long duration)
 {
-	//cout << "Animating panel size: " << targetWidth << "," << targetHeight << endl;
-
 	if (duration <= 0)
 		duration = sqrtf(powf(width-targetWidth,2) + pow(height-targetHeight,2));
 
 	float startWidth = width,startHeight = height;
 	if (widthAnimation.isRunning())
+	{
 		startWidth = widthAnimation.getValue();
-	if (heightAnimation.isRunning())
-		startHeight = heightAnimation.getValue();
+		widthAnimation = DoubleAnimation(startWidth,targetWidth,duration-widthAnimation.getElapsedTime(), NULL);
+	}
+	else
+	{
+		widthAnimation = DoubleAnimation(startWidth,targetWidth,duration, NULL);
+	}
 
-	widthAnimation = DoubleAnimation(startWidth,targetWidth,duration, NULL);
-	heightAnimation = DoubleAnimation(startHeight,targetHeight,duration, NULL);
+
+	if (heightAnimation.isRunning())
+	{
+		startHeight = heightAnimation.getValue();
+		heightAnimation = DoubleAnimation(startHeight,targetHeight,duration-heightAnimation.getElapsedTime(), NULL);
+	}
+	else
+	{
+		heightAnimation = DoubleAnimation(startHeight,targetHeight,duration, NULL);
+	}
 
 	width = targetWidth;
 	height = targetHeight;
@@ -415,6 +436,7 @@ void PanelBase::drawBackground(Vector drawPosition, float drawWidth, float drawH
 	float y1 = drawPosition.y ;//- drawHeight/2.0f;
 	float y2 = y1 + drawHeight;
 	float z1 = drawPosition.z;
+
 			
 	glColor4fv(backgroundColor.getFloat());
 	
@@ -428,10 +450,10 @@ void PanelBase::drawBackground(Vector drawPosition, float drawWidth, float drawH
 		glVertex3f(x1,y2,z1);
 	glEnd();
 
+	
 	if (borderThickness > 0)
 	{
-		glLineWidth(borderThickness);		
-		
+		glLineWidth(borderThickness);	
 		glColor4fv(borderColor.getFloat());
 		glBegin( GL_LINE_LOOP);
 			glVertex3f(x1,y1,z1);
@@ -439,18 +461,29 @@ void PanelBase::drawBackground(Vector drawPosition, float drawWidth, float drawH
 			glVertex3f(x2,y2,z1);
 			glVertex3f(x1,y2,z1);
 		glEnd();
-	}	
+	}
+
+	
 }
 
 
 void PanelBase::animateToPosition(Vector newPosition, long durationX, long durationY)
 {
+	if (position.distanceTo(newPosition) == 0.0f)
+		return;
+
 	Vector startPosition = position;
 
 	if (xPosAnimation.isRunning())
+	{
 		startPosition.x = xPosAnimation.getValue();
+		durationX -= xPosAnimation.getElapsedTime();
+	}
 	if (yPosAnimation.isRunning())
+	{
 		startPosition.y = yPosAnimation.getValue();
+		durationY -= yPosAnimation.getElapsedTime();
+	}
 	if (zPosAnimation.isRunning())
 		startPosition.z = zPosAnimation.getValue();
 

@@ -23,7 +23,7 @@ ImagePanel::ImagePanel(string path, cv::Size2f panelSize)
 		cv::resize(imgMat,resized,newSize,0,0,cv::INTER_AREA);
 		imgMat.release();
 
-	ResourceManager::getInstance().loadResource(path,resized,-2,this);
+		ResourceManager::getInstance().loadResource(path,resized,-2,this);
 	}
 	catch (cv::Exception & e)
 	{

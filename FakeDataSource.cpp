@@ -1,8 +1,12 @@
 #include "FakeDataSource.hpp"
 #include "tinydir.h"
+#include <boost/date_time/posix_time/posix_time.hpp>
 
 FakeDataSource::FakeDataSource(string fakeDataPath)
 {
+	srand(boost::posix_time::microsec_clock::local_time().time_of_day().total_microseconds());
+
+
 	photoIndex = albumIndex = friendIndex = 0;
 //	boost::filesystem::path fakePath = boost::filesystem::path(
 	fakeDataPath = GlobalConfig::tree()->get<string>("FakeDataMode.SourceDataDirectory");
@@ -66,7 +70,7 @@ void FakeDataSource::loadWithOffset(FBNode * parent, string edge, int limit, int
 
 
 			stringstream ss2;
-			ss2 << "fake_IMG_" << photoIndex;
+			ss2 << (10000 + photoIndex);
 
 			FBNode * n2 = new FBNode(ss2.str());
 			n2->setNodeType("photos");
@@ -90,7 +94,7 @@ void FakeDataSource::loadWithOffset(FBNode * parent, string edge, int limit, int
 		for (int i=0;i<limit;i++)
 		{
 			stringstream ss2;
-			ss2 << "Fake_Album_" << this->albumIndex;
+			ss2 << (30000 + this->albumIndex);
 
 			FBNode * n2 = new FBNode(ss2.str());
 			n2->setNodeType("albums");
@@ -119,15 +123,21 @@ void FakeDataSource::loadWithOffset(FBNode * parent, string edge, int limit, int
 					)) friendIndex++;
 
 				stringstream ss2;
-				ss2 << "Fake_Friend_" << this->friendIndex;
+				ss2 << (40000 + this->friendIndex);
 
 				FBNode * n2 = new FBNode(ss2.str());
 				n2->setNodeType("friends");
-				stringstream name;
+			/*	stringstream name;
 				if (std::rand() % 2 == 0)
 					name << "AB friend #"  << friendIndex;
 				else
-					name << "ZY friend #"  << friendIndex;
+					name << "ZY friend #"  << friendIndex;*/
+
+				string billy [] = {"Shit","Ass","John","Bill","Penis","Munch","Cum","Sperm","Goblin","Susanna","Elephant", "Wang","Leaf","Holy","What","Cable","Billy","Willy","Milly","Schlong"};
+				
+				
+				stringstream name;				
+				name << billy[rand()%20] << " " << billy[rand()%20];
 
 				n2->Edges.insert(Edge("name",name.str()));
 				n2->Edges.insert(Edge("fake_uri",this->dirContents.at(friendIndex%dirContents.size()).string()));
@@ -188,7 +198,7 @@ void FakeDataSource::loadField(FBNode * parent, string nodeQuery, string interpr
 
 
 
-	Logger::stream("FakeData","INFO") << "Loading albums: " << albumLimit << " +" << albumOffset << " , Photos: " << photoLimit << " +" << photoOffset << " , Friends = " << friendLimit << " +" << friendOffset << endl;
+	Logger::stream("FakeData","INFO") << "Loading. Albums=" << albumLimit << " +" << albumOffset << " , Photos=" << photoLimit << " +" << photoOffset << " , Friends = " << friendLimit << " +" << friendOffset << endl;
 
 	taskMutex.lock();
 	taskQueue.push([this,photoLimit, photoOffset, albumLimit, albumOffset,friendLimit,friendOffset,parent,callback](){
@@ -228,6 +238,8 @@ void FakeDataSource::load(FBNode * parent, string objectId, string edge){
 }
 void FakeDataSource::loadQuery(FBNode * parent, string nodeQuery, string interpretAs, boost::function<void(FBNode*)> callback){
 	
+	Logger::stream("FakeData","INFO") << "LoadQuery=" << nodeQuery << endl;
+
 	if (nodeQuery.find("friend") != string::npos)
 	{
 		int friendLimit = 50, friendOffset = 0;

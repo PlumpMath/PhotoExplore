@@ -1,5 +1,5 @@
 #include "FBDataCursor.hpp"
-
+#include "Logger.hpp"
 
 FBNode * FBFriendsCursor::getNext()
 {
@@ -20,14 +20,19 @@ FBNode * FBFriendsCursor::getNext()
 			}
 			nextItem = friendNodes.first->Node;
 		}
+		else if (canLoad)
+		{
+			int currentCount =  node->Edges.get<EdgeTypeIndex>().count("friends");
+			loadItems(currentCount + itemsPerRequest);					
+		}
 		else
 		{
-			loadItems(25);
+			return NULL;
 		}
 	}
 	else
 	{
-		auto friendNodes = node->Edges.get<EdgeTypeIndex>().find(boost::make_tuple("friends",nextItem->getId()));
+		auto friendNodes = node->Edges.get<EdgeTypeIndex>().find(boost::make_tuple("friends",nextItem->getNumericId()));
 		if (friendNodes != node->Edges.get<EdgeTypeIndex>().end())
 		{
 			friendNodes++;
@@ -42,10 +47,14 @@ FBNode * FBFriendsCursor::getNext()
 			{
 				nextItem = (friendNodes)->Node;
 			}
-			else
+			else if (canLoad)
 			{
 				int currentCount =  node->Edges.get<EdgeTypeIndex>().count("friends");
-				loadItems(currentCount + 25);					
+				loadItems(currentCount + itemsPerRequest);					
+			}
+			else
+			{
+				return NULL;
 			}
 		}
 		else
@@ -65,8 +74,15 @@ void FBFriendsCursor::reset()
 
 void FBFriendsCursor::loadItems(int friends)
 {
+	if (isLoading)
+	{
+		Logger::stream("FBFriendsCursor","ERROR") << "Currently loading." << endl;
+		return;
+	}
 
 	int currentFriendCount = node->Edges.get<EdgeTypeIndex>().count("friends");
+	Logger::stream("FBFriendsCursor","INFO") << "Loading " << friends << " more friends. CurrentCount = " << currentFriendCount << endl;
+
 	if (friends > currentFriendCount && canLoad)
 	{		
 		isLoading = true;	
@@ -80,14 +96,21 @@ void FBFriendsCursor::loadItems(int friends)
 
 			int newFriendCount = _node->Edges.get<EdgeTypeIndex>().count("friends");
 			if (newFriendCount <= currentFriendCount)
+			{				
+				Logger::stream("FBFriendsCursor","ERROR") << "Reached end of items" << endl;
 				v->canLoad = false;
+			}
 
-			//if (v->isLoading)
+			if (v->isLoading)
 			{
 				v->isLoading = false;
-				//v->getNext();
+				v->getNext();
 				if (!v->cursorChangedCallback.empty())
 					v->cursorChangedCallback();
+			}
+			else
+			{
+				Logger::stream("FBFriendsCursor","ERROR") << "Load completed while not loading" << endl;
 			}
 		});
 	}
@@ -108,8 +131,15 @@ FBNode * FBFriendsFQLCursor::getNext()
 			{
 				FBNode * check = friendNodes.first->Node;
 
-				if (check->getAttribute("name").substr(0,searchName.length()).compare(searchName) == 0 && check->getNodeType().compare("friends") == 0)
-					break;		
+				if (check != NULL && check->getNodeType().compare("friends") == 0)
+				{
+					string checkName = check->getAttribute("name");
+					string subName = checkName.substr(0,searchName.length());
+
+					std::transform(subName.begin(), subName.end(), subName.begin(), ::tolower);
+					if (subName.compare(searchName) == 0)
+						break;		
+				}
 			}
 
 			if (friendNodes.first != friendNodes.second)
@@ -117,15 +147,23 @@ FBNode * FBFriendsFQLCursor::getNext()
 				currentPosition++;
 				nextItem = friendNodes.first->Node;
 			}
+			else if (canLoad)
+			{
+				loadItems(itemsPerRequest);					
+			}
+			else 
+			{
+				return NULL;
+			}
 		}
 		else
 		{
-			loadItems(25);
+			loadItems(itemsPerRequest);
 		}
 	}
 	else
 	{
-		auto friendNodes = node->Edges.get<EdgeTypeIndex>().find(boost::make_tuple("friends",nextItem->getId()));
+		auto friendNodes = node->Edges.get<EdgeTypeIndex>().find(boost::make_tuple("friends",nextItem->getNumericId()));
 		if (friendNodes != node->Edges.get<EdgeTypeIndex>().end())
 		{
 			friendNodes++;
@@ -133,8 +171,15 @@ FBNode * FBFriendsFQLCursor::getNext()
 			{
 				FBNode * check = friendNodes->Node;
 				
-				if (check != NULL && check->getAttribute("name").substr(0,searchName.length()).compare(searchName) == 0 && check->getNodeType().compare("friends") == 0)
-					break;		
+				if (check != NULL && check->getNodeType().compare("friends") == 0)
+				{
+					string checkName = check->getAttribute("name");
+					string subName = checkName.substr(0,searchName.length());
+
+					std::transform(subName.begin(), subName.end(), subName.begin(), ::tolower);
+					if (subName.compare(searchName) == 0)
+						break;		
+				}
 			}
 
 			if (friendNodes != node->Edges.get<EdgeTypeIndex>().end())
@@ -142,9 +187,13 @@ FBNode * FBFriendsFQLCursor::getNext()
 				currentPosition++;
 				nextItem = (friendNodes)->Node;
 			}
-			else
+			else if (canLoad)
 			{
-				loadItems(currentPosition + 25);					
+				loadItems(currentPosition + itemsPerRequest);					
+			}
+			else 
+			{
+				return NULL;
 			}
 		}
 		else
@@ -157,23 +206,36 @@ FBNode * FBFriendsFQLCursor::getNext()
 
 void FBFriendsFQLCursor::lookupName(string _lookupName)
 {
+	std::transform(_lookupName.begin(), _lookupName.end(), _lookupName.begin(), ::tolower);
+
+	if (!canLoad && _lookupName.find(searchName) == 0 && searchName.length() > 0)
+		canLoad = false;
+	else
+		canLoad = true;
+
 	this->searchName = _lookupName;
 	currentPosition = 0;
 	nextItem = NULL;
-	canLoad = true;
 	isLoading = false;
-	loadItems(10);
 }
 
 void FBFriendsFQLCursor::loadItems(int friends)
 {
+	if (isLoading)
+	{
+		Logger::stream("FBFriendsFQL","ERROR") << "Currently loading." << endl;
+		return;
+	}
+
+	Logger::stream("FBFriendsFQL","INFO") << "Loading " << friends << " more friends." << endl;
 	
 	if (friends > currentPosition && canLoad)
 	{
 		isLoading = true;
 
 		stringstream loadStr;
-		int limit = 25,offset = currentPosition;
+		int limit = friends-currentPosition;
+		int offset = currentPosition;
 
 		loadStr << "/fql?q=SELECT%20name%2Cuid%20from%20user%20where%20uid%20in%20(SELECT%20uid2%20FROM%20friend%20WHERE%20uid1%3Dme())%20AND%20substr(first_name%2C0%2C";
 		loadStr << searchName.length() << ")%20%3D%20%22" << searchName << "%22";
@@ -196,6 +258,10 @@ void FBFriendsFQLCursor::loadItems(int friends)
 				v->getNext();
 				if (!v->cursorChangedCallback.empty())
 					v->cursorChangedCallback();
+			}
+			else
+			{
+				Logger::stream("FBFriendsCursor","ERROR") << "Load completed while not loading" << endl;
 			}
 		});
 	}

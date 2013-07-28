@@ -12,10 +12,35 @@ string Edge::id() const
 		return "";
 }
 
+unsigned long long Edge::numericId() const 
+{
+	if (Node != NULL)
+		return Node->getNumericId();
+	else
+		return 0;
+}
+
 FBNode::FBNode(string id)
 {
 	this->id = id;
-	this->dataPriority = 1;
+	if (id.length() > 0)
+	{
+		try
+		{
+			this->numericId = boost::lexical_cast<unsigned long long>(id);
+		}
+		catch (boost::bad_lexical_cast & b)
+		{
+			this->numericId = 0;
+		}
+	}
+	else
+		this->numericId = 0;
+}
+
+unsigned long long FBNode::getNumericId() 
+{
+	return numericId;
 }
 
 string FBNode::tryExtractId(vector<Pair> & obj, bool & success)

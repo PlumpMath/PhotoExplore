@@ -38,20 +38,6 @@ public:
 		return std::string();
 	}
 		
-	virtual float getDataPriority()
-	{
-		return dataPriority;
-	}
-	
-	virtual void setDataPriority(float priority) {};
-	virtual void setDataPriority(float priority, NodeBase * sender) {};
-
-protected:	
-	float dataPriority;
-	
-
-
-
 
 };
 

@@ -323,8 +323,7 @@ void LeapStartScreen::layout(Leap::Vector pos, cv::Size2f size)
 void LeapStartScreen::launchBrowser()
 {		
 	if (state != BrowserOpenState)
-	{		
-		facebookLoginButton->setDrawLoadAnimation(true);
+	{	
 		facebookLoginButton->setText(GlobalConfig::tree()->get<string>("LeapStartScreen.BrowserLoginPrompt"));
 		facebookLoginButton->reloadText();
 
@@ -418,93 +417,17 @@ void LeapStartScreen::update(double delta)
 	else
 	{
 		ViewGroup::update();
-		//double dT = updateTimer.millis();
-		//for (int i=0;i<panelList.size();i++)
-		//{
-		//	panelList.at(i)->update(dT);
-		//}
-		//updateTimer.start();
-
-		//if (fileBrowserCallback.get() != NULL)
-		//{
-		//	if (fileBrowserCallback->isDone())
-		//	{
-		//		startDir = fileBrowserCallback->result.at(0);
-
-		//		boost::filesystem::path startPath = startDir;
-		//		if (!boost::filesystem::is_directory(startPath))
-		//			startPath = startPath.parent_path();
-
-		//		//fileBrowser = new LeapFileBrowser(new FileNode(startPath));	
-		//		//elementManager->unregisterElement(mainLayout);
-		//		state = FinishedState;
-		//	}
-		//}
-		if (state == PreCheckState)		
+		
+		if (state == BrowserOpenState)
 		{
-			//if (facebookPreCheckClient->done || facebookPreCheckClient->loadedEnded)
-			//{	
-			//	facebookLoginButton->setDrawLoadAnimation(false);
-			//	state = StartState;
-			//	string tokenResult = facebookPreCheckClient->token;
-			//	if (tokenResult.size() > 0)
-			//	{
-			//		loggedInNode = new FBNode("me");
-			//		//facebookLoginButton->setText("Logged in as ...");
-
-			//		loggedInNode->setLoadCompleteDelegate([&,tokenResult](){
-			//			
-			//			this->facebookLoginButton->setDrawLoadAnimation(false);
-			//			
-			//			LeapStartScreen * me = this;
-			//			string nodeName = this->loggedInNode->getAttribute("name");
-			//			if (nodeName.size() > 0)
-			//			{
-			//				string token2 = tokenResult;
-			//				//me->statusPanel->setText("Logged in as " + nodeName ". );
-			//				//me->statusPanel->reloadText();
-			//				
-			//				me->facebookLoginButton->setText("Logged in as " + nodeName + ". Tap here to Explore!");
-			//				me->facebookLoginButton->reloadText();
-			//				
-			//				me->logoutButton->setText("Logout and Exit");
-			//				me->logoutButton->setVisible(true);
-
-			//				me->layoutDirty=true;
-
-			//				me->facebookLoginButton->elementClickedCallback = [me,token2](LeapElement * element){
-			//					GlobalConfig::TestingToken = token2;
-			//					me->rootView = new FacebookBrowser(me->loggedInNode);
-			//					me->state = me->FinishedState;
-			//				};
-			//			}
-			//			me->loggedInNode->setLoadCompleteDelegate([](){});
-			//		});
-			//		
-			//		facebookLoginButton->setDrawLoadAnimation(true);
-			//		GlobalConfig::TestingToken = tokenResult;
-			//		FacebookLoader::instance->loadField(loggedInNode ,"me?fields=id,name");
-			//	}
-			//	else
-			//	{
-
-			//		//this->statusPanel->setText("Tap or hover over the Login button to begin");
-			//		//this->statusPanel->reloadText();
-
-			//		this->logoutButton->setVisible(false);
-			//		this->facebookLoginButton->setText("Tap or hover here to Login");
-			//		this->facebookLoginButton->reloadText();
-			//		this->facebookLoginButton->elementClickedCallback = [this](LeapElement * element){
-			//			this->launchBrowser();
-			//		};
-			//	}
-			//}
-		}
-		else if (state == BrowserOpenState)
-		{
-			if (facebookClient->quit)
-			{
-				this->finishedCallback();
+			if (facebookClient->quit && !facebookClient->done)
+			{	
+				this->facebookLoginButton->setText("Login window closed, tap to retry.");
+				this->facebookLoginButton->reloadText();
+				this->state = StartState;
+				this->facebookLoginButton->elementClickedCallback = [this](LeapElement * element){
+					this->launchBrowser();
+				};
 			}
 			else if (facebookClient->done)
 			{		
@@ -521,7 +444,7 @@ void LeapStartScreen::update(double delta)
 				else
 				{					
 					//this->logoutButton->setVisible(false);
-					this->facebookLoginButton->setText("Login error! Tap or hover here to retry.");
+					this->facebookLoginButton->setText("Login failed. Tap to retry.");
 					this->facebookLoginButton->reloadText();
 					this->facebookLoginButton->elementClickedCallback = [this](LeapElement * element){
 						this->launchBrowser();

@@ -53,8 +53,7 @@ void LinearLayout::layout(Vector position, cv::Size2f _size)
 	{
 		if (index >= childSizes.size())
 		{
-			cout << "Error! More children than measurements." << endl;
-			break;
+			throw std::runtime_error("LinearLayout.layout() - ERROR: More children than measurements.");
 		}
 		cv::Size2f childSize = childSizes.at(index++);
 		cv::Vec4f childPadding = (*it)->getLayoutParams().padding;

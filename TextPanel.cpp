@@ -15,6 +15,7 @@ TextPanel::TextPanel()
 
 void TextPanel::init()
 {	
+	currentResource = NULL;
 	fontName = "Default";
 	textColor = Colors::Black;
 	textSize = 6;
@@ -40,10 +41,8 @@ void TextPanel::resourceUpdated(ResourceData * data)
 	else
 		currentTextureId = NULL;
 
-	//if (fitToText)
-	//{
-	//	animatePanelSize(textureSize.width + textFitPadding,textureSize.height + textFitPadding,ARB_TEXT_RESIZE_DURATION);
-	//}
+	currentResource = data;
+
 }
 
 
@@ -61,7 +60,7 @@ void TextPanel::reloadText()
 {		
 	cv::Size2f textureSize(this->lastSize.width-textFitPadding*2,this->lastSize.height-textFitPadding*2);
 	TextDefinition td(text, textColor, textSize, textureSize);
-
+	
 	ResourceData * textResource = ResourceManager::getInstance().watchResource(td.getKey(),this);	
 	if (textResource == NULL)
 	{
@@ -69,11 +68,23 @@ void TextPanel::reloadText()
 		currentTextImage = TypographyManager::getInstance()->renderText(text,fontName,textColor,textSize,config);	
 		if (currentTextImage.data != NULL)
 		{
-			ResourceManager::getInstance().loadResource(td.getKey(),currentTextImage,-1,this);
+			if (currentResource != NULL)
+			{
+				ResourceManager::getInstance().releaseResource(currentResource->resourceId,this);
+			}
+
+			currentResource = ResourceManager::getInstance().loadResource(td.getKey(),currentTextImage,-1,this);
 		}
 	}
 	else if (textResource->TextureState == ResourceState::TextureLoaded)
-		currentTextureId = textResource->textureId;
+	{
+		if (currentResource != textResource && currentResource != NULL)
+		{
+			ResourceManager::getInstance().releaseResource(currentResource->resourceId,this);
+		}
+		currentResource = textResource;
+		currentTextureId = currentResource->textureId;
+	}
 
 	textDirty = false;
 }

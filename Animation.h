@@ -63,6 +63,8 @@ public:
 	double getValue();
 	bool isRunning();
 
+	double getElapsedTime();
+
 };
 
 class VectorAnimation {

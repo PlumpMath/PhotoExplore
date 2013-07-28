@@ -3,6 +3,7 @@
 #include "FixedAspectGrid.hpp"
 #include "PanelBase.h"
 #include "TextPanel.h"
+#include "Logger.hpp"
 
 DataListActivity::DataListActivity(int _rowCount) :
 	rowCount(_rowCount)
@@ -29,6 +30,8 @@ DataListActivity::~DataListActivity()
 
 void DataListActivity::show(FBDataCursor * _cursor)
 {
+	Logger::stream("DataListActivity","INFO") << "Showing new cursor" << endl;
+
 	PointableElementManager::getInstance()->requestGlobalGestureFocus(this);
 
 	if (this->cursor != NULL)
@@ -43,11 +46,11 @@ void DataListActivity::show(FBDataCursor * _cursor)
 		
 	this->cursor = _cursor;
 	cursor->cursorChangedCallback = [this](){
-		this->updateLoading();
-	};
-	cursor->getNext();
-
-	layoutDirty = true;
+		DataListActivity * me = this;
+		this->postTask([me](){
+			me->updateLoading();
+		});
+	};	
 }
 
 void DataListActivity::suspend()
@@ -75,6 +78,8 @@ void DataListActivity::layout(Vector position, cv::Size2f size)
 	float scrollBarWidth = size.width * 0.4f;
 
 	scrollBar->layout(position + Vector((size.width-scrollBarWidth)*.5f,size.height+(tutorialHeight-scrollBarHeight)*.5f,1),cv::Size2f(scrollBarWidth,scrollBarHeight));
+	
+	loadIndicator->layout(position + Vector(size.width-tutorialHeight*2.0f,size.height,1),cv::Size2f(tutorialHeight*2.0f,tutorialHeight));
 
 	layoutDirty = false;
 }
@@ -95,33 +100,27 @@ void DataListActivity::updatePriorities()
 
 	for (auto it = itemGroup->getChildren()->begin(); it != itemGroup->getChildren()->end();it++)
 	{
-		PanelBase * item = (PanelBase*)(*it);
-			
-		float distance = abs((item->getPosition().x + item->getWidth()/2.0f) - peakPriority);
+		View * view = *it;
+
+		PanelBase * panelView = dynamic_cast<PanelBase*>(view);
+
+		float distance = abs((panelView->getPosition().x + panelView->getWidth()/2.0f) - peakPriority);
 		float targetPriority = min<float>(10,distance/1000.0f);
 		
-		((FBDataView*)item)->setDataPriority(targetPriority);	
+		FBDataView * dataView = dynamic_cast<FBDataView*>(view);
+		dataView->setDataPriority(targetPriority);	
 	}	
 }
 
 void DataListActivity::updateLoading()
 {
+	Timer loadTimer;
+	loadTimer.start();
+
 	float scrollPosition = itemScroll->getFlyWheel()->getPosition();
 	cv::Size2f visibleSize = itemScroll->getMeasuredSize();
 
 	lastUpdatePos = -scrollPosition;
-
-	if (cursor->isLoading)
-	{		
-		((TextPanel*)loadIndicator)->setText("Loading...");
-		((TextPanel*)loadIndicator)->refresh();
-	}
-
-	if (!cursor->canLoad)
-	{
-		((TextPanel*)loadIndicator)->setText("Done!");
-		((TextPanel*)loadIndicator)->refresh();
-	}
 
 
 	float leftBound = -scrollPosition;
@@ -143,14 +142,34 @@ void DataListActivity::updateLoading()
 		{
 			FBNode * next = cursor->getNext();
 			
-			if (next == NULL || !cursor->canLoad)
+			if (next == NULL)
 				break;
 
 			addNode(next);			
 		}			
 	}
 
+	if (loadTimer.millis() > 0)
+		Logger::stream("DataList","INFO") << "updateLoading() time = " << loadTimer.millis() << " ms" << endl;
+
+	loadTimer.start();
 	updatePriorities();
+		
+	if (loadTimer.millis() > 0)
+		Logger::stream("DataList","INFO") << "updatePriorities() time = " << loadTimer.millis() << " ms" << endl;
+	
+
+	if (cursor->isLoading)
+	{		
+		((TextPanel*)loadIndicator)->setText("Loading...");
+		((TextPanel*)loadIndicator)->refresh();
+	}
+
+	if (!cursor->canLoad)
+	{
+		((TextPanel*)loadIndicator)->setText("Done!");
+		((TextPanel*)loadIndicator)->refresh();
+	}
 }
 
 void DataListActivity::addNode(FBNode * node)

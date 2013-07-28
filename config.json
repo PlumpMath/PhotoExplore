@@ -1,7 +1,11 @@
 {
+	"FacebookAPI" : 
+	{
+		"ItemsPerRequest" : 25		
+	},
 	"Logging" : 
 	{
-		"Enabled" : false
+		"Enabled" : true
 	},
 	"Typography" : 
 	{
@@ -64,7 +68,7 @@
 	{
 		"TextureCacheSize" : 512, 	//Megabytes
 		"ImageCacheSize" : 768, 	//Megabytes		
-		"MaxImageSize" : 8,			//Megabytes
+		"MaxImageSize" : 4,			//Megabytes
 		"CacheGCFrequency" : 5000 ,//milliseconds		
 		"FullCacheGCFrequency" : 2000, //milliseconds
 		"TextureCacheGCCollectRatio" : 0.8,
@@ -78,7 +82,7 @@
 		"RequestDelay" : 50 ,//ms
 		"MaxPhotos" : 2000,
 		"MaxAlbums" : 0,
-		"MaxFriends" : 200
+		"MaxFriends" : 60
 	},
 	"Shake" : 
 	{	
@@ -411,7 +415,7 @@
 	"FriendDetailView" :
 	{ 
 		"ScrollAheadTime" : 0.6 ,//Seconds
-		"RowCount" : 2,
+		"RowCount" : 3,
 		"PhotosPerRequest" :  10,
 		"AlbumsPerRequest" : 10,
 		"Title" :
@@ -470,8 +474,9 @@
 		"Enable" : true,
 		"LookupDialog" :
 		{
-			"Height" : 500,
-			"Width" : 600,
+			"HideAfter" : 1500,
+			"Height" : 250,
+			"Width" : 450,
 			"FriendNameTextBox" : 
 			{
 				"TextSize" : 8,
@@ -484,10 +489,10 @@
 			},
 			"FriendLookupLabel" : 
 			{
-				"Text" : "Find a friend by name",
-				"TextSize" : 8,
+				"Text" : "Find a friend by name.\n (clear box to show all friends)",
+				"TextSize" : 6,
 				"TextColor" :  {"R" : 240,"G" : 240,"B" : 240,"A" : 255},
-				"BackgroundColor" :  {"R" : 30,"G" : 30,"B" : 30,"A" : 240},
+				"BackgroundColor" :  {"R" : 30,"G" : 30,"B" : 30,"A" : 230},
 				"BorderColor" :  {"R" : 240,"G" : 240,"B" : 240,"A" : 240},
 				"BorderThickness" : 2,
 				"TextAlignment" : 0,
@@ -547,32 +552,11 @@
 	},
 	"Tutorial" :
 	{
-		"RightHandImages" :
-		{
-			"SwipeGesture" : "tutorial/swipe_gesture_right.png",
-			"PointGesture" : "tutorial/point_gesture_right.png",
-			"PointStopGesture" : "tutorial/point_gesture_right.png",
-			"ShakeGesture" : "tutorial/shake_gesture_right.png",
-			"StretchGesture" : "tutorial/stretch_gesture.png"
-		},
-		"LeftHandImages" :
-		{
-			"SwipeGesture" : "tutorial/swipe_gesture_left.png",
-			"PointGesture" : "tutorial/point_gesture_left.png",
-			"PointStopGesture" : "tutorial/point_gesture_left.png",
-			"ShakeGesture" : "tutorial/shake_gesture_left.png",
-			"StretchGesture" : "tutorial/stretch_gesture.png"
-		},
 		"Labels" :
 		{
 			"FontSize" : 3,
 			"FontName" : "Regular",
 			"TextPadding" : 5.0,
-			"SwipeGesture" : "Swipe Left or Right",
-			"PointGesture" : "Tap to select",
-			"PointStopGesture" : " Point to stop  \nTap to select",
-			"ShakeGesture" : "Shake to go back",
-			"StretchGesture" : " Use two fingers to  stretch the image ",
 			"Color" : 
 			{
 				"R" : 0,
@@ -586,8 +570,60 @@
 		"TextColor" :     {     "R" : 0,     "G" : 0,     "B" : 0,     "A" : 255    },    
 		"InvertedTextColor" :     {     "R" : 200,     "G" : 200,     "B" : 200,     "A" : 255    },
 		"AspectRatio" : 1.55,
-		"Height" : 100, //Pixels - ADJUST TUTORIAL HEIGHT
-		"Enabled" : true
+		"Height" : 100, 
+		"Enabled" : true,
+		"Icons" :
+		[
+			{
+				"Name" : "KeyboardNameSearch",
+				"Text" : "Use the keyboard to search by name",
+				"RightImage" : "Tutorial/keyboard_icon.png",
+				"LeftImage" : "Tutorial/keyboard_icon.png",
+				"InvertColor" : false					
+			},
+			{
+				"Name" : "shake",
+				"Text" : "Shake to go back",
+				"RightImage" : "Tutorial/shake_gesture_right.png",
+				"LeftImage" : "Tutorial/shake_gesture_left.png"	,
+				"InvertColor" : false								
+			},
+			{
+				"Name" : "shake_inv",
+				"Text" : "Shake to go back",
+				"RightImage" : "Tutorial/shake_gesture_right.png",
+				"LeftImage" : "Tutorial/shake_gesture_left.png"	,
+				"InvertColor" : true								
+			},
+			{
+				"Name" : "swipe",
+				"Text" : "Swipe Left or Right",
+				"RightImage" : "Tutorial/swipe_gesture_right.png",
+				"LeftImage" : "Tutorial/swipe_gesture_left.png"	,
+				"InvertColor" : false								
+			},
+			{
+				"Name" : "point",
+				"Text" : "Tap to select",
+				"RightImage" : "Tutorial/point_gesture_right.png",
+				"LeftImage" : "Tutorial/point_gesture_left.png"	,
+				"InvertColor" : false								
+			},
+			{
+				"Name" : "point_stop",
+				"Text" : " Point to stop  \nTap to select",
+				"RightImage" : "Tutorial/point_gesture_right.png",
+				"LeftImage" : "Tutorial/point_gesture_left.png"	,
+				"InvertColor" : false								
+			},
+			{
+				"Name" : "stretch",
+				"Text" : " Use two fingers to  stretch the image ",	
+				"RightImage" : "tutorial/stretch_gesture.png",
+				"LeftImage" : "tutorial/stretch_gesture.png",
+				"InvertColor" : true								
+			}
+		]	
 	},
 	"Strings" : 
 	{

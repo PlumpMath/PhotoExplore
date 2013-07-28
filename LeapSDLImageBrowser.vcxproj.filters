@@ -246,9 +246,6 @@
     <ClCompile Include="LinearLayout.cpp">
       <Filter>Source Files\NewPanel\GridLayouts</Filter>
     </ClCompile>
-    <ClCompile Include="PackingGrid.cpp">
-      <Filter>Source Files\NewPanel\GridLayouts</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Types.h">

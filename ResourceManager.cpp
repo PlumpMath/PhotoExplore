@@ -34,7 +34,25 @@ void ResourceManager::updateImageResource(string resourceId, int statusCode, cv:
 		}
 	});
 	updateTaskMutex.unlock();
+
 }
+
+
+void ResourceManager::releaseResource(string resourceId, IResourceWatcher * watcher)
+{
+	auto resource = resourceCache.get<IdIndex>().find(resourceId);	
+	
+	ResourceData * data = NULL;
+	if (resource != resourceCache.get<IdIndex>().end())
+	{
+		data = resource->Data;		
+		data->callbacks.erase(watcher);
+	}
+
+	if (data->callbacks.empty())
+		data->priority = 100;
+}
+
 
 ResourceData * ResourceManager::watchResource(string resourceId, IResourceWatcher * watcher)
 {

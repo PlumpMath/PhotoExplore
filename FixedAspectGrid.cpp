@@ -76,8 +76,11 @@ void FixedAspectGrid::layout(Vector position, cv::Size2f _size)
 	{
 		if (index >= childSizes.size())
 		{
-			cout << "Error! More children than measurements." << endl;
-			throw std::runtime_error("Error!");
+#ifdef LEAPIMAGE_DEBUG
+			throw std::runtime_error("FixedAspectGrid.layout() - ERROR: More children than measurements.");			
+#endif
+			cv::Size2f mSize(lastSize);
+			measure(mSize);			
 		}
 		cv::Size2f childSize = childSizes.at(index++);
 		cv::Vec4f childPadding = (*it)->getLayoutParams().padding;

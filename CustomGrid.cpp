@@ -117,8 +117,7 @@ void CustomGrid::layout(Vector position, cv::Size2f _size)
 	{
 		if (index >= childSizes.size() || index >= childPositions.size())
 		{
-			cout << "Error! More children than measurements." << endl;
-			throw std::runtime_error("Error!");
+			throw std::runtime_error("CustomGrid.layout() - ERROR: More children than measurements.");
 		}
 		cv::Size2f childSize = childSizes.at(index);
 		cv::Vec4f childPadding = (*it)->getLayoutParams().padding;

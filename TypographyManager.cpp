@@ -117,7 +117,13 @@ cv::Mat TypographyManager::renderTextFreeType(std::string text, FT_Face fontFace
 
 	int start_y = - boundingBox.yMin; 
 
-	cv::Mat img = cv::Mat::ones((int)targetHeight,(int)targetWidth,CV_8UC4);
+	if (boundingBox.yMax > 0 && targetHeight < lineSpacing)
+	{
+		start_y += boundingBox.yMax;
+		targetHeight += boundingBox.yMax;
+	}
+
+	cv::Mat img = cv::Mat::zeros((int)targetHeight,(int)targetWidth,CV_8UC4);
 
 	for (int n = 0; n < numGlyphs; n++ )
 	{
