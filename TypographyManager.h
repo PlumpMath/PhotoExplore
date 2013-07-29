@@ -105,11 +105,11 @@ private:
 	void computeGlyphs(string text, FT_Face fontFace, cv::Point2i * pos, int fontSize, FT_Glyph * glyphs, int & numGlyphs, TextLayoutConfig & config);
 	void drawBitmapToMatrix(cv::Mat & matrix, FT_Bitmap & glyphBitmap, cv::Point2i topLeft, Color textColor);
 
-	cv::Mat renderTextFreeType(std::string text, FT_Face fontFace, int fontSize, Color textColor, TextLayoutConfig & config);
+	cv::Mat renderTextFreeType(std::string text, FT_Face fontFace, int fontSize, Color textColor, TextLayoutConfig & config, cv::Rect_<float> & textRect);
 
 public:
 
-	cv::Mat renderText(std::string text, string fontName, Color textColor, float fontScale, TextLayoutConfig & config);
+	cv::Mat renderText(std::string text, string fontName, Color textColor, float fontScale, TextLayoutConfig & config, cv::Rect_<float> & textRect);
 };
 
 

@@ -3,19 +3,30 @@
 
 #include "GLImport.h"
 #include <list>
+#include "Logger.hpp"
 
 class PixelBufferPool {
 	
 private:
 	PixelBufferPool()
 	{
-
+		if (GlobalConfig::tree()->get<bool>("GraphicsSettings.DisablePixelBuffers"))
+		{
+			pixelBufferSupportExists = glewIsSupported("GL_ARB_pixel_buffer_object");
+			if (!pixelBufferSupportExists)
+				Logger::stream("PixelBufferPool","ERROR") << "PBO support does not exist. Using sychronous texture loading." << endl;
+		}
+		else
+		{
+			pixelBufferSupportExists = false;
+		}
 	}
 
 	PixelBufferPool(PixelBufferPool const&);
 	void operator=(PixelBufferPool const&); 
 		
 	std::list<GLuint> bufferQueue;
+	bool pixelBufferSupportExists;
 
 public:
 	static PixelBufferPool& getInstance()
@@ -24,6 +35,11 @@ public:
 		return instance;
 	}
 	
+	bool isEnabled()
+	{
+		return pixelBufferSupportExists;
+	}
+
 	GLuint getBuffer()
 	{
 		if (bufferQueue.empty())

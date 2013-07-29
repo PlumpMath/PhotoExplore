@@ -43,7 +43,7 @@ void TypographyManager::init()
 }
 
 
-cv::Mat TypographyManager::renderText(std::string text, string fontName, Color textColor, float fontScale, TextLayoutConfig & config)
+cv::Mat TypographyManager::renderText(std::string text, string fontName, Color textColor, float fontScale, TextLayoutConfig & config, cv::Rect_<float> & textRect)
 {
 	if (freetypeInitialized)
 	{
@@ -54,7 +54,7 @@ cv::Mat TypographyManager::renderText(std::string text, string fontName, Color t
 		FT_Face fontFace = font->second;
 
 
-		cv::Mat result = renderTextFreeType(text,fontFace,(int)(ceilf(fontScale * 64.0f)),textColor, config);
+		cv::Mat result = renderTextFreeType(text,fontFace,(int)(ceilf(fontScale * 64.0f)),textColor, config, textRect);
 		
 		if (GlobalConfig::tree()->get<bool>("Typography.DebugRendering"))
 		{
@@ -83,7 +83,7 @@ cv::Mat TypographyManager::renderText(std::string text, string fontName, Color t
 }
 
 
-cv::Mat TypographyManager::renderTextFreeType(std::string text, FT_Face fontFace, int fontSize, Color textColor, TextLayoutConfig & config)
+cv::Mat TypographyManager::renderTextFreeType(std::string text, FT_Face fontFace, int fontSize, Color textColor, TextLayoutConfig & config, cv::Rect_<float> & textRect)
 {
 	int numGlyphs = text.size();
 
@@ -112,8 +112,12 @@ cv::Mat TypographyManager::renderTextFreeType(std::string text, FT_Face fontFace
 	float targetHeight = stringHeight;
 
 	int start_x = ((config.maxLineWidth-stringWidth)/2)-boundingBox.xMin;
+	
 	if (config.maxLineWidth == 10000)
+	{
 		start_x = -boundingBox.xMin;
+		targetWidth = stringWidth;
+	}
 
 	int start_y = - boundingBox.yMin; 
 
@@ -122,6 +126,8 @@ cv::Mat TypographyManager::renderTextFreeType(std::string text, FT_Face fontFace
 		start_y += boundingBox.yMax;
 		targetHeight += boundingBox.yMax;
 	}
+
+	textRect = cv::Rect_<float>(0,0,stringWidth,stringHeight);
 
 	cv::Mat img = cv::Mat::zeros((int)targetHeight,(int)targetWidth,CV_8UC4);
 
@@ -149,12 +155,6 @@ cv::Mat TypographyManager::renderTextFreeType(std::string text, FT_Face fontFace
 
 void TypographyManager::drawBitmapToMatrix(cv::Mat & matrix, FT_Bitmap & glyphBitmap, cv::Point2i topLeft, Color textColor)
 {
-	//topLeft.y = max<int>(0,topLeft.y);
-	//if (topLeft.y < 0)
-	//{
-	//	cout << "Negative TL.y = " << topLeft.y << endl;
-	//	topLeft. y = 0;
-	//}
 	for (int i=topLeft.y, i2 = 0; i2 < glyphBitmap.rows && i < matrix.rows;i++, i2++)
 	{
 		unsigned char * data = matrix.ptr<unsigned char>(i);

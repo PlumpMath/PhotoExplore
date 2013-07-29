@@ -22,6 +22,7 @@ private:
 	FBDataCursor * allFriendsCursor;
 
 	Timer lookupDialogTimer;
+	Timer lookupDialogMovementTimer;
 
 	bool showPicturelessFriends;
 
@@ -31,6 +32,7 @@ public:
 	FBDataView * getDataView(FBNode * itemNode);
 
 	void suspend();
+	void resume();
 
 	void setFinishedCallback(const boost::function<void(std::string)> & callback);
 

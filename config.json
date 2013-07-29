@@ -34,6 +34,7 @@
 	},
 	"GraphicsSettings" :
 	{
+		"DisablePixelBuffers" : true,
 		"EnableLineSmoothing" : true,
 		"FSAASamples" : 0,
 		"ShaderDirectory" : ".",
@@ -52,6 +53,13 @@
 		"AnimateLayoutDuration" : 400,
 		"DebugLoading" : false,
 		"DebugPriority" : false
+	},
+	"TextEditPanel" : 
+	{
+		"InitialRepeatDelay" : 400,
+		"KeyRepeatPeriod" : 100,
+		"CursorWidth" : 4,
+		"CursorBlinkPeriod" : 300 //ms
 	},
 	"Cef" : 
 	{
@@ -415,7 +423,7 @@
 	"FriendDetailView" :
 	{ 
 		"ScrollAheadTime" : 0.6 ,//Seconds
-		"RowCount" : 3,
+		"RowCount" : 2,
 		"PhotosPerRequest" :  10,
 		"AlbumsPerRequest" : 10,
 		"Title" :
@@ -474,11 +482,13 @@
 		"Enable" : true,
 		"LookupDialog" :
 		{
-			"HideAfter" : 1500,
+			"HideAfter" : 3000,
+			"HideAfterWithMovement" : 500,
 			"Height" : 250,
 			"Width" : 450,
 			"FriendNameTextBox" : 
-			{
+			{			
+				"MaxLength" : 50,
 				"TextSize" : 8,
 				"TextColor" :  {"R" : 240,"G" : 240,"B" : 240,"A" : 255},
 				"BackgroundColor" :  {"R" : 30,"G" : 30,"B" : 30,"A" : 240},
@@ -489,7 +499,7 @@
 			},
 			"FriendLookupLabel" : 
 			{
-				"Text" : "Find a friend by name.\n (clear box to show all friends)",
+				"Text" : "Filter friends by name:",
 				"TextSize" : 6,
 				"TextColor" :  {"R" : 240,"G" : 240,"B" : 240,"A" : 255},
 				"BackgroundColor" :  {"R" : 30,"G" : 30,"B" : 30,"A" : 230},

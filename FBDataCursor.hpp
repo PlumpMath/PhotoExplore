@@ -8,16 +8,24 @@ using namespace Facebook;
 
 class FBDataCursor {
 	
+
 protected:
 	int itemsPerRequest;
 
-public:	
-	volatile bool isLoading, canLoad;
+public:		
+	enum State
+	{
+		Local = 0,
+		Loading = 1,
+		Ended = 2,		
+		Finished = 3
+	};
+
+	volatile State state;
 	boost::function<void()> cursorChangedCallback;
 
 	FBDataCursor() :	
-		isLoading(false),
-		canLoad(true)
+		state(State::Local)
 	{
 		itemsPerRequest = GlobalConfig::tree()->get<int>("FacebookAPI.ItemsPerRequest");
 	}

@@ -379,18 +379,6 @@ void LeapStartScreen::onGlobalGesture(const Controller & controller, std::string
 		std::random_shuffle(panels->getChildren()->begin(), panels->getChildren()->end());
 
 		floatingPanelsView->layout(Vector(0,0,0),cv::Size2f(GlobalConfig::ScreenWidth,GlobalConfig::ScreenHeight));
-
-		//float padding = 10;
-		//int gridSpace = ((GlobalConfig::ScreenWidth - (padding*2))/10);
-		//float floatingPanelWidth = gridSpace;
-		//float count =0;
-		//for (int x=padding;x<GlobalConfig::ScreenWidth-padding;x += gridSpace)
-		//{
-		//	for (int y=padding;y<GlobalConfig::ScreenHeight-padding;y += gridSpace)
-		//	{
-		//		panels->getChildren()->at(count++)->layout(Vector(x+padding/2.0f,y+padding/2.0f,-1), cv::Size2f(floatingPanelWidth-padding,floatingPanelWidth-padding));				
-		//	}
-		//}	
 	} 
 	else if (gestureType.compare("pointing") == 0)
 	{

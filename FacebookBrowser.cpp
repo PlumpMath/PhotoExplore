@@ -105,7 +105,10 @@ void FacebookBrowser::displayNode(FBNode * previousNode, FBNode * node, string a
 	else if (node->getNodeType().compare(NodeType::FacebookFriend) == 0)
 	{	
 		friendDetailView->setFinishedCallback([this,node](string action){				
-			this->displayNode(node,userNode,"friend_list_view");
+			//this->displayNode(userNode,userNode,"friend_list_view");
+
+			this->friendCursorView->resume();
+			this->setTopView(this->friendCursorView);
 		});		
 		
 		setTopView(friendDetailView);
@@ -133,7 +136,7 @@ void FacebookBrowser::displayNode(FBNode * previousNode, FBNode * node, string a
 					this->displayNode(NULL,node,"");
 				});		
 
-				friendCursorView->setUserNode(node);
+				friendCursorView->setUserNode(node);				
 				setTopView(friendCursorView);
 			}
 			else

@@ -73,6 +73,33 @@ GLuint attribute_v_coord_postproc[2], uniform_fbo_texture[2], uniformGaussScale[
 
 
 
+
+#ifdef _WIN32
+
+void handleFatalError(string errorText, int sig)
+{
+	string error = "Photo Explorer encountered a fatal error :(";
+	MessageBox(NULL,errorText.c_str(),error.c_str(),0);
+}
+
+#else
+
+void handler(int sig) {
+	void *array[30];
+	size_t size;
+	
+	// get void*'s for all entries on the stack
+	size = backtrace(array, 30);
+	
+	// print out all the frames to stderr
+	fprintf(stderr, "Error: signal %d:\n", sig);
+	backtrace_symbols_fd(array, size, STDERR_FILENO);
+	exit(1);
+}
+
+#endif
+
+
 bool init( int window_width, int window_height, bool isFull)
 {
 
@@ -81,7 +108,9 @@ bool init( int window_width, int window_height, bool isFull)
 	int handle = glfwOpenWindow(window_width, window_height, 8, 8, 8,8,8,0, (isFull) ? GLFW_FULLSCREEN : GLFW_WINDOW);
 
 	if (handle != GL_TRUE)
-	{	return false;
+	{	
+		handleFatalError("Unable to initialize OpenGL. Please ensure your graphics drivers are up to date.",0);
+		return false;
 	}
 
 	glfwSetWindowTitle("Photo Explorer for Facebook");
@@ -91,19 +120,17 @@ bool init( int window_width, int window_height, bool isFull)
 			
 	glewExperimental=true;
 	glewInit();
-	//LeapImageOut << "PBO support = " << (glewIsSupported("GL_ARB_pixel_buffer_object") ? "true" : "false. This is unexpected! Application may not function at all.") << "\n";
-		
 	if (GlobalConfig::tree()->get<bool>("GraphicsSettings.EnableLineSmoothing"))
 	{
 		glEnable(GL_LINE_SMOOTH);
-		glHint(GL_LINE_SMOOTH_HINT,  GL_NICEST);
+		glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
 	}
 	else
 	{
 		glDisable(GL_LINE_SMOOTH);
 	}
 
-	glHint(GL_TEXTURE_COMPRESSION_HINT,  GL_NICEST );
+	glHint(GL_TEXTURE_COMPRESSION_HINT,  GL_NICEST);
 
 	glEnable(GL_TEXTURE_2D);  
 	glEnable(GL_DEPTH_TEST);
@@ -115,20 +142,20 @@ bool init( int window_width, int window_height, bool isFull)
 
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	//glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
 
 	Color bg = Colors::WhiteSmoke;
 	float * color = bg.getFloat();
 	glClearColor(color[0],color[1], color[2], 0.0f);
 
-	glViewport( 0, 0, window_width, window_height);
-	glClear( GL_COLOR_BUFFER_BIT );
+	glViewport(0, 0, window_width, window_height);
+	glClear(GL_COLOR_BUFFER_BIT);
 
-	glMatrixMode( GL_PROJECTION );
+	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	glOrtho(0.0f, window_width, window_height, 0.0f, -300.0f, 300.0f);
 
-	glMatrixMode( GL_MODELVIEW );
+	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
 
@@ -327,25 +354,9 @@ class DeleteCookieTask : public CefTask {
 public:
 	void Execute()
 	{		
-		//CefCookieManager::GetGlobalManager()->VisitAllCookies("","");
-		//CefCookieManager::GetGlobalManager()->FlushStore(NULL);		
-		CefCookieManager::GetGlobalManager()->DeleteCookies("","");
-		
+		CefCookieManager::GetGlobalManager()->DeleteCookies("","");		
 		CefRefPtr<Compl> cc = new Compl();
-
 		CefCookieManager::GetGlobalManager()->FlushStore(cc.get());
-		//try
-		//{
-		//	boost::filesystem::path ck1 = boost::filesystem::path("Cookies");
-		//	boost::filesystem::remove(ck1);
-
-		//	boost::filesystem::path ck2 = boost::filesystem::path("Cookies-journal");
-		//	boost::filesystem::remove(ck2);
-		//}
-		//catch (std::exception & e)
-		//{
-		//	Logger::stream("MAIN","ERROR") << "Couldn't delete cookies: " << e.what() << endl;
-		//}
 	}
 
 	IMPLEMENT_REFCOUNTING(DeleteCookieTask);
@@ -365,31 +376,6 @@ public:
 
 };
 
-#ifdef _WIN32
-
-void handler(string errorText, int sig)
-{
-	string error = "Photo Explorer crashed :(";
-	MessageBox(NULL,errorText.c_str(),error.c_str(),0);
-}
-
-#else
-
-void handler(int sig) {
-	void *array[30];
-	size_t size;
-	
-	// get void*'s for all entries on the stack
-	size = backtrace(array, 30);
-	
-	// print out all the frames to stderr
-	fprintf(stderr, "Error: signal %d:\n", sig);
-	backtrace_symbols_fd(array, size, STDERR_FILENO);
-	exit(1);
-}
-
-#endif
-
 #include "FBDataCursor.hpp"
 
 void runTests()
@@ -405,7 +391,7 @@ void runTests()
 
 		int itCount = 0;
 		string lastId ="";
-		while (friendCursor->canLoad)
+		while (friendCursor->state != FBDataCursor::Ended)
 		{
 			FBNode * result = friendCursor->getNext();
 			if (result != NULL)
@@ -427,7 +413,7 @@ void runTests()
 		}
 	};
 	
-	while (friendCursor->canLoad && !friendCursor->isLoading)
+	while (friendCursor->state == FBDataCursor::Local || friendCursor->state == FBDataCursor::Loading)
 	{
 		FBNode * result = friendCursor->getNext();
 		if (result != NULL)
@@ -701,14 +687,14 @@ int WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmd
 			Logger::stream("MAIN","FATAL") << "Unhandled CV exception in render loop: " << e.what() << endl;
 			stringstream error;
 			error << "Unhandled CV exception in loop :" << e.what();
-			handler(error.str(),3);
+			handleFatalError(error.str(),3);
 		}
 		catch  (std::exception & e)
 		{
 			Logger::stream("MAIN","FATAL") << "Unhandled exception: " << e.what() << endl;
 			stringstream error;
 			error << "Unhandled exception during render loop :" << e.what();			
-			handler(error.str(),3);
+			handleFatalError(error.str(),3);
 		}	
 		
 		startScreen.shutdown();
@@ -719,18 +705,18 @@ int WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmd
 		Logger::stream("MAIN","FATAL") << "Unhandled CV exception: " << e.what() << endl;
 		stringstream error;
 		error << "Unhandled CV exception :" << e.what();
-		handler(error.str(),3);
+		handleFatalError(error.str(),3);
 	} catch (std::exception & e)
 	{
 		Logger::stream("MAIN","FATAL") << "Unhandled exception: " << e.what() << endl;
 		stringstream error;
 		error << "Unhandled exception :" << e.what();
-		handler(error.str(),3);
+		handleFatalError(error.str(),3);
 	}
 	catch (...)
 	{
 		Logger::stream("MAIN","FATAL") << "Unhandled exception?? " << endl;
-		handler("Unhandled and unknown exception",3);
+		handleFatalError("Unhandled and unknown exception",3);
 	}
 		
 	clean_up();

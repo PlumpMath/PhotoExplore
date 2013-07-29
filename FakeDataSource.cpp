@@ -133,7 +133,10 @@ void FakeDataSource::loadWithOffset(FBNode * parent, string edge, int limit, int
 				else
 					name << "ZY friend #"  << friendIndex;*/
 
-				string billy [] = {"Shit","Ass","John","Bill","Penis","Munch","Cum","Sperm","Goblin","Susanna","Elephant", "Wang","Leaf","Holy","What","Cable","Billy","Willy","Milly","Schlong"};
+				string billy [] = {"King","Idell","Yun","Felix","Micki","Celine","Blanch","Maira","Fidel",
+					"Carolee","Angle","Bell","Maybelle","Bertram","Jolie","Miguel","Weston","Milo","Hedy","Raphael","Catina","Maryrose","Kathryne","Dallas","Lavenia","Lael","Suellen","Jermaine","Marguerita","Pamala"};
+				
+				//{"Shit","Ass","John","Bill","Penis","Munch","Cum","Sperm","Goblin","Susanna","Elephant", "Wang","Leaf","Holy","What","Cable","Billy","Willy","Milly","Schlong"};
 				
 				
 				stringstream name;				

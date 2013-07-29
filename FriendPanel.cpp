@@ -107,7 +107,8 @@ void FriendPanel::updateLoading()
 	bool photosLoaded = false, albumsLoaded = true;// false;
 
 	bool loaded = false;
-	for (int i=0;i < itemCount;i++)
+	int i=0;
+	for (;i < itemCount;i++)
 	{
 		if (photoNodes.first != photoNodes.second)
 		{
@@ -115,33 +116,25 @@ void FriendPanel::updateLoading()
 			photoNodes.first++;
 			photosLoaded = true;
 		}
+		else
+			break;
 	}
-
-	//if (!photosLoaded)// && !albumsLoaded)
-	//{
-	//	FriendPanel * v = this;
-	//	stringstream loadstr;
-	//	loadstr << activeNode->getId();
-	//	if (!photosLoaded && activeNode->loadState["photos"].requestedCount < 2)
-	//	{
-	//		loadstr << "?fields=photos.limit(2).fields(id,name,images)";
-	//		activeNode->loadState["photos"].requestedCount  = 2;
-	//	}
-	//	else 
-	//		loadstr << "?fields=albums.limit(2).fields(id,name,photos.limit(1).fields(id,name,images))";
-
-	//	FBDataSource::instance->loadField(activeNode,loadstr.str(),"",[v](FBNode * _node){
-
-	//		FriendPanel * v2= v;
-	//		v->postTask([v2,_node](){
-
-	//			if (v2->activeNode == _node)
-	//				v2->updateLoading();
-	//		});		
-	//	});
-
-	//}
-
+	
+	auto albumNodes = activeNode->Edges.get<EdgeTypeIndex>().equal_range("albums");
+	for (;i < itemCount;i++)
+	{
+		if (albumNodes.first != albumNodes.second)
+		{
+			photoNodes = albumNodes.first->Node->Edges.get<EdgeTypeIndex>().equal_range("photos");
+			if (photoNodes.first != photoNodes.second)
+			{
+				addNode(photoNodes.first->Node);
+			}
+			albumNodes.first++;
+		}
+		else
+			break;
+	}	
 }
 
 void FriendPanel::addNode(FBNode * childNode)

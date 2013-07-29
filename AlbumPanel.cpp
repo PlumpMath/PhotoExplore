@@ -73,6 +73,7 @@ static cv::Size2i calculatePanelSize(int count)
 
 void AlbumPanel::viewChanged(string viewIdentifier, vector<FBNode*> & viewData)
 {
+	albumGroup->clearChildren();
 	for (auto it = viewData.begin(); it != viewData.end(); it++)
 	{
 		FBNode * childNode = (*it);
@@ -110,4 +111,10 @@ void AlbumPanel::setDataPriority(float dataPriority)
 				imagePanel->setDataPriority(dataPriority);
 		}
 	}
+}
+
+void AlbumPanel::viewOwnershipChanged(View * view, ViewOwner * newOwner)
+{
+	if (this->albumGroup != NULL)
+		this->albumGroup->remove(view);
 }

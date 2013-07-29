@@ -65,7 +65,7 @@ void TextPanel::reloadText()
 	if (textResource == NULL)
 	{
 		TextLayoutConfig config(textAlignment,textureSize.width);
-		currentTextImage = TypographyManager::getInstance()->renderText(text,fontName,textColor,textSize,config);	
+		currentTextImage = TypographyManager::getInstance()->renderText(text,fontName,textColor,textSize,config,currentTextRect);	
 		if (currentTextImage.data != NULL)
 		{
 			if (currentResource != NULL)
@@ -78,12 +78,15 @@ void TextPanel::reloadText()
 	}
 	else if (textResource->TextureState == ResourceState::TextureLoaded)
 	{
-		if (currentResource != textResource && currentResource != NULL)
-		{
-			ResourceManager::getInstance().releaseResource(currentResource->resourceId,this);
-		}
+		//if (currentResource != textResource && currentResource != NULL)
+		//{
+		//	ResourceManager::getInstance().releaseResource(currentResource->resourceId,this);
+		//}
 		currentResource = textResource;
+		//currentResource->priority = -1;
 		currentTextureId = currentResource->textureId;
+
+		//ResourceManager::updateResource(currentResource);
 	}
 
 	textDirty = false;
@@ -127,6 +130,9 @@ void TextPanel::setTextAlignment(int a)
 
 void TextPanel::setText(string _text)
 {
+	if (this->currentResource != NULL && this->currentResource->TextureState == ResourceState::TextureLoading)
+		return;
+
 	textEnabled = _text.length() > 0;		
 
 	if (!textEnabled)
@@ -146,6 +152,12 @@ void TextPanel::setTextColor(Color textColor)
 	textDirty = true;
 	this->textColor = textColor;
 }
+
+Color TextPanel::getTextColor()
+{
+	return this->textColor;
+}
+
 
 void TextPanel::setTextSize(float _textSize, bool relative)
 {

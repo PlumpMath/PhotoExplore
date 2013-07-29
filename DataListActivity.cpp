@@ -65,6 +65,18 @@ void DataListActivity::suspend()
 	}
 }
 
+void DataListActivity::resume()
+{
+	PointableElementManager::getInstance()->requestGlobalGestureFocus(this);
+
+	for (auto it = items.begin(); it != items.end(); it++)
+	{
+		it->second->show(it->first);
+	}
+
+	updatePriorities();	
+}
+
 void DataListActivity::layout(Vector position, cv::Size2f size)
 {
 	lastPosition = position;
@@ -77,9 +89,9 @@ void DataListActivity::layout(Vector position, cv::Size2f size)
 
 	float scrollBarWidth = size.width * 0.4f;
 
-	scrollBar->layout(position + Vector((size.width-scrollBarWidth)*.5f,size.height+(tutorialHeight-scrollBarHeight)*.5f,1),cv::Size2f(scrollBarWidth,scrollBarHeight));
+	scrollBar->layout(position + Vector((size.width-scrollBarWidth)*.5f,size.height+(tutorialHeight*.66f)-(scrollBarHeight*.5f),1),cv::Size2f(scrollBarWidth,scrollBarHeight));
 	
-	loadIndicator->layout(position + Vector(size.width-tutorialHeight*2.0f,size.height,1),cv::Size2f(tutorialHeight*2.0f,tutorialHeight));
+	loadIndicator->layout(position + Vector(size.width-tutorialHeight*3.0f,size.height,1),cv::Size2f(tutorialHeight*3.0f,tutorialHeight));
 
 	layoutDirty = false;
 }
@@ -159,15 +171,19 @@ void DataListActivity::updateLoading()
 		Logger::stream("DataList","INFO") << "updatePriorities() time = " << loadTimer.millis() << " ms" << endl;
 	
 
-	if (cursor->isLoading)
+	if (cursor->state == FBDataCursor::Loading)
 	{		
 		((TextPanel*)loadIndicator)->setText("Loading...");
 		((TextPanel*)loadIndicator)->refresh();
 	}
-
-	if (!cursor->canLoad)
+	else if (cursor->state == FBDataCursor::Ended || cursor->state == FBDataCursor::Finished)
 	{
-		((TextPanel*)loadIndicator)->setText("Done!");
+		((TextPanel*)loadIndicator)->setText("Loading complete.");
+		((TextPanel*)loadIndicator)->refresh();
+	}
+	else 
+	{
+		((TextPanel*)loadIndicator)->setText("");
 		((TextPanel*)loadIndicator)->refresh();
 	}
 }

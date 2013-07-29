@@ -27,6 +27,7 @@ public:
 	void setDataPriority(float dataPriority);
 	void show(FBNode * node);
 	FBNode * getNode();
+	void viewOwnershipChanged(View * view, ViewOwner * newOwner);
 
 };
 

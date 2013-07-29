@@ -14,6 +14,8 @@ using namespace LoadTaskState;
 
 int TextureLoadTask::taskId = 0;
 
+#define TEXTURE_LOGGING false
+
 TextureLoadTask::TextureLoadTask(std::string _resourceId, float _priority, cv::Mat _cvImage, boost::function<void(GLuint textureId, int taskStatus)> _callback):
 	cvImage(_cvImage),
 	priority(_priority),
@@ -104,12 +106,24 @@ void TextureLoadTask::startTask()
 			return;
 	}
 
-	sourceBuffer = PixelBufferPool::getInstance().getBuffer();
-	if (sourceBuffer != NULL)
+	if (PixelBufferPool::getInstance().isEnabled())
 	{
-		Logger::stream("TextureLoadTask","INFO") << "Load task started. TaskId = " << taskId << " TexID = " << textureInfo.textureId << " BufferID = " << sourceBuffer << endl;
-		state = Initialized;
-		update();
+		sourceBuffer = PixelBufferPool::getInstance().getBuffer();
+		if (sourceBuffer != NULL)
+		{
+			Logger::stream("TextureLoadTask","INFO") << "Load task started. TaskId = " << taskId << " TexID = " << textureInfo.textureId << " BufferID = " << sourceBuffer << endl;
+			state = Initialized;
+			update();
+		}
+	}
+	else
+	{
+		glBindTexture(GL_TEXTURE_2D, textureInfo.textureId);
+		glTexImage2D(GL_TEXTURE_2D,0,textureInfo.bytesPerPixel,textureInfo.width,textureInfo.height,0,textureInfo.format,GL_UNSIGNED_BYTE,cvImage.data);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); 
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glBindTexture(GL_TEXTURE_2D, NULL);
+		state = Complete;
 	}
 }
 
@@ -131,8 +145,11 @@ void TextureLoadTask::initializeTexture()
 
 	//LeapDebug::out << "[" << Timer::frameId << "] Initialized TEX[" << textureInfo.textureId << "] in " << initTimer.millis() << "ms \n";
 
-	if (initTimer.millis() > 2)
-		Logger::stream("TextureLoadTask","INFO") << "Initialized texture. Took " << initTimer.millis() << " ms. TexID = " << textureInfo.textureId << " W= " << textureInfo.width << " H = " << textureInfo.height << endl;
+	if (TEXTURE_LOGGING)
+	{
+		if (initTimer.millis() > 2)
+			Logger::stream("TextureLoadTask","INFO") << "Initialized texture. Took " << initTimer.millis() << " ms. TexID = " << textureInfo.textureId << " W= " << textureInfo.width << " H = " << textureInfo.height << endl;
+	}
 
 	dataLoaded = 0;
 	copyMemoryToBuffer_TM_start();
@@ -151,9 +168,11 @@ void TextureLoadTask::copyBufferToTexture()
 	//LeapDebug::out  << "[" << Timer::frameId << "] Loaded TEX[" << textureInfo.textureId << "] FROM PBO[" << sourceBuffer << "] in " << timer.millis() << "ms @ " << textureInfo.textureSizeMB/timer.seconds() << " MB/s \n";		
 	glBindBufferARB(GL_PIXEL_UNPACK_BUFFER_ARB,NULL);
 
-	
+	if (TEXTURE_LOGGING)
+	{
 	if (timer.millis() > 2)
 		Logger::stream("TextureLoadTask","INFO") << "Copied to texture. TexID = " << textureInfo.textureId << " Took " << timer.millis() << " ms" << endl;
+	}
 	
 	state  = Waiting;
 }
@@ -180,9 +199,9 @@ void TextureLoadTask::copyMemoryToBuffer_TM_update()
 		state = BufferLoaded;
 		OpenGLHelper::LogOpenGLErrors("TextureLoadTask-copyMemoryToBuffer_TM_update");
 	}
-	if (memTimer.millis() > 2)
+	if (TEXTURE_LOGGING && memTimer.millis() > 2)
 		Logger::stream("TextureLoadTask","INFO") << "TimeMultiplexed update took " << memTimer.millis() << " ms " << endl;
-
+	
 
 	//LeapDebug::out  << "[" << Timer::frameId << "] - TEX["<< textureInfo.textureId << "] from MEM to PBO[" << sourceBuffer << "]  in " << memTimer.millis() << "ms, @ " << ((loadCount/1048576)/memTimer.seconds()) << " MB/s \n";	
 }
@@ -211,7 +230,7 @@ void TextureLoadTask::copyMemoryToBuffer_TM_start()
 		Logger::stream("TextureLoadTask","ERROR") << "copyMemoryToBuffer_TM_start - Couldn't access pixel buffer. TaskId = " << taskId << " TexID = " << textureInfo.textureId << " BufferID = " << sourceBuffer << endl;
 		cancel();
 	}
-	if (memTimer.millis() > 2)
+	if (TEXTURE_LOGGING && memTimer.millis() > 2)
 		Logger::stream("TextureLoadTask","TIME") << "Initialized buffer in " << memTimer.millis() << " ms" << endl;
 }
 
@@ -238,7 +257,9 @@ void TextureLoadTask::copyMemoryToBuffer()
 		glUnmapBufferARB(GL_PIXEL_UNPACK_BUFFER_ARB); 	
 		state = BufferLoaded;
 		
-		Logger::stream("TextureLoadTask","INFO") << "Buffer load complete. TaskId = " << taskId << " TexID = " << textureInfo.textureId << " BufferID = " << sourceBuffer << endl;
+		if (TEXTURE_LOGGING)
+			Logger::stream("TextureLoadTask","INFO") << "Buffer load complete. TaskId = " << taskId << " TexID = " << textureInfo.textureId << " BufferID = " << sourceBuffer << endl;
+
 		OpenGLHelper::LogOpenGLErrors("TextureLoadTask-copyMemoryToBuffer");
 	}
 	else
@@ -255,7 +276,9 @@ void TextureLoadTask::cleanup()
 {
 	if (sourceBuffer != NULL)
 	{
-		Logger::stream("TextureLoadTask","INFO") << "Cleaning up. TaskId = " << taskId << " TexID = " << textureInfo.textureId << " BufferID = " << sourceBuffer << endl;
+		if (TEXTURE_LOGGING)
+			Logger::stream("TextureLoadTask","INFO") << "Cleaning up. TaskId = " << taskId << " TexID = " << textureInfo.textureId << " BufferID = " << sourceBuffer << endl;
+
 		PixelBufferPool::getInstance().freeBuffer(sourceBuffer);
 		sourceBuffer = NULL;
 	}

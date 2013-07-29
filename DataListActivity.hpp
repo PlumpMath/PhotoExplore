@@ -40,6 +40,7 @@ public:
 	
 	virtual void show(FBDataCursor * cursor);
 	virtual void suspend();
+	virtual void resume();
 
 	void layout(Vector position, cv::Size2f size);
 	void draw();

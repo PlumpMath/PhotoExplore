@@ -31,6 +31,7 @@ private:
 protected:
 	string text;
 	ResourceData * currentResource;
+	cv::Rect_<float> currentTextRect;
 
 public:
 	TextPanel(string text);
@@ -47,6 +48,8 @@ public:
 	bool getTextEnabled();
 
 	void setTextColor(Color textColor);
+	Color getTextColor();
+
 	void setTextSize(float textSize, bool relative = true);
 	void setTextFitMode(bool fitToText);		
 	bool getTextFitMode();

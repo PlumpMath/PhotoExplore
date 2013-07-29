@@ -87,7 +87,7 @@ void FriendDetailView::loadItems(int albums, int photos)
 	{
 		load = true;
 		activeNode->loadState["albums"].requestedCount = albums;
-		loadstr << "albums.offset(" << requestedAlbums << ").limit(" << albums << ").fields(id,name,photos.fields(id,name,images).limit(4))";
+		loadstr << "albums.offset(" << requestedAlbums << ").limit(" << albums << ").fields(id,name,photos.fields(id,name,images,album).limit(4))";
 	}
 	
 	if (photos > requestedPhotos)
@@ -96,7 +96,7 @@ void FriendDetailView::loadItems(int albums, int photos)
 		if (load)
 			loadstr << ",";
 
-		loadstr << "photos.offset(" << requestedPhotos << ").limit(" << photos << ").fields(id,name,images)";
+		loadstr << "photos.offset(" << requestedPhotos << ").limit(" << photos << ").fields(id,name,images,album)";
 		load = true;
 	}
 
@@ -158,7 +158,9 @@ void FriendDetailView::updateLoading()
 			bool loaded = false;
 			if (photoNodes.first != photoNodes.second)
 			{
-				addNode(photoNodes.first->Node);
+				if (photoNodes.first->Node->getAttribute("album").length() == 0)
+					addNode(photoNodes.first->Node);
+
 				photoNodes.first++;
 				loaded = true;
 			}

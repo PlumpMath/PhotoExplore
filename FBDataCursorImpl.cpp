@@ -3,12 +3,15 @@
 
 FBNode * FBFriendsCursor::getNext()
 {
-	if (isLoading)
+	if (state == FBDataCursor::Loading || state == FBDataCursor::Finished)
 		return NULL;
 
 	FBNode * result = nextItem;
 	if (nextItem == NULL)
 	{
+		if (state = FBDataCursor::Local)
+			state = FBDataCursor::Local;	
+
 		auto friendNodes = node->Edges.get<EdgeTypeIndex>().equal_range(boost::make_tuple("friends"));
 		if (friendNodes.first != friendNodes.second)
 		{
@@ -20,14 +23,14 @@ FBNode * FBFriendsCursor::getNext()
 			}
 			nextItem = friendNodes.first->Node;
 		}
-		else if (canLoad)
+		else if (state == FBDataCursor::Local)
 		{
 			int currentCount =  node->Edges.get<EdgeTypeIndex>().count("friends");
 			loadItems(currentCount + itemsPerRequest);					
 		}
-		else
+		else if (state == FBDataCursor::Ended)
 		{
-			return NULL;
+			state = FBDataCursor::Finished;
 		}
 	}
 	else
@@ -47,14 +50,14 @@ FBNode * FBFriendsCursor::getNext()
 			{
 				nextItem = (friendNodes)->Node;
 			}
-			else if (canLoad)
+			else if (state == FBDataCursor::Local)
 			{
 				int currentCount =  node->Edges.get<EdgeTypeIndex>().count("friends");
 				loadItems(currentCount + itemsPerRequest);					
 			}
-			else
+			else if (state == FBDataCursor::Ended)
 			{
-				return NULL;
+				state = FBDataCursor::Finished;
 			}
 		}
 		else
@@ -68,24 +71,22 @@ FBNode * FBFriendsCursor::getNext()
 void FBFriendsCursor::reset()
 {
 	nextItem = NULL;
-	canLoad = true;
-	isLoading = false;
+	state = FBDataCursor::Local;
 }
 
 void FBFriendsCursor::loadItems(int friends)
 {
-	if (isLoading)
-	{
-		Logger::stream("FBFriendsCursor","ERROR") << "Currently loading." << endl;
+	if (state == FBDataCursor::Loading || state == FBDataCursor::Ended)
+	{		
 		return;
 	}
 
 	int currentFriendCount = node->Edges.get<EdgeTypeIndex>().count("friends");
 	Logger::stream("FBFriendsCursor","INFO") << "Loading " << friends << " more friends. CurrentCount = " << currentFriendCount << endl;
 
-	if (friends > currentFriendCount && canLoad)
+	if (friends > currentFriendCount)
 	{		
-		isLoading = true;	
+		state = FBDataCursor::Loading;
 
 		stringstream loadstr;
 		loadstr << node->getId() << "?fields=";
@@ -93,18 +94,21 @@ void FBFriendsCursor::loadItems(int friends)
 
 		FBFriendsCursor * v = this;
 		FBDataSource::instance->loadField(node,loadstr.str(),"",[v,currentFriendCount](FBNode * _node){
-
-			int newFriendCount = _node->Edges.get<EdgeTypeIndex>().count("friends");
-			if (newFriendCount <= currentFriendCount)
-			{				
-				Logger::stream("FBFriendsCursor","ERROR") << "Reached end of items" << endl;
-				v->canLoad = false;
-			}
-
-			if (v->isLoading)
+						
+			if (v->state == FBDataCursor::Loading)
 			{
-				v->isLoading = false;
-				v->getNext();
+				int newFriendCount = _node->Edges.get<EdgeTypeIndex>().count("friends");
+				if (newFriendCount <= currentFriendCount)
+				{				
+					Logger::stream("FBFriendsCursor","ERROR") << "Reached end of items" << endl;
+					v->state = FBDataCursor::Ended;
+				}
+				else
+				{
+					v->state = FBDataCursor::Local;
+					v->getNext();
+				}
+
 				if (!v->cursorChangedCallback.empty())
 					v->cursorChangedCallback();
 			}
@@ -118,12 +122,15 @@ void FBFriendsCursor::loadItems(int friends)
 
 FBNode * FBFriendsFQLCursor::getNext()
 {
-	if (isLoading)
+	if (state == FBDataCursor::Loading || state == FBDataCursor::Finished)
 		return NULL;
 
 	FBNode * result = nextItem;
 	if (nextItem == NULL)
 	{
+		if (state == FBDataCursor::Local)
+			state = FBDataCursor::Local;
+
 		auto friendNodes = node->Edges.get<EdgeTypeIndex>().equal_range(boost::make_tuple("friends"));
 		if (friendNodes.first != friendNodes.second)
 		{
@@ -147,13 +154,13 @@ FBNode * FBFriendsFQLCursor::getNext()
 				currentPosition++;
 				nextItem = friendNodes.first->Node;
 			}
-			else if (canLoad)
+			else if (state == FBDataCursor::Local)
 			{
 				loadItems(itemsPerRequest);					
 			}
-			else 
+			else if (state == FBDataCursor::Ended)
 			{
-				return NULL;
+				state = FBDataCursor::Finished;
 			}
 		}
 		else
@@ -187,17 +194,18 @@ FBNode * FBFriendsFQLCursor::getNext()
 				currentPosition++;
 				nextItem = (friendNodes)->Node;
 			}
-			else if (canLoad)
+			else if (state == FBDataCursor::Local)
 			{
 				loadItems(currentPosition + itemsPerRequest);					
 			}
-			else 
+			else if (state == FBDataCursor::Ended) 
 			{
-				return NULL;
+				state = FBDataCursor::Finished;
 			}
 		}
 		else
 		{
+			state = FBDataCursor::Finished;
 			result = NULL;
 		}
 	}		
@@ -208,30 +216,30 @@ void FBFriendsFQLCursor::lookupName(string _lookupName)
 {
 	std::transform(_lookupName.begin(), _lookupName.end(), _lookupName.begin(), ::tolower);
 
-	if (!canLoad && _lookupName.find(searchName) == 0 && searchName.length() > 0)
-		canLoad = false;
+	if (state == FBDataCursor::Ended && _lookupName.find(searchName) == 0 && searchName.length() > 0)
+		state = FBDataCursor::Ended;
+	else if (state == FBDataCursor::Ended && searchName.find(_lookupName) == 0 && _lookupName.length() > 0)
+		state = FBDataCursor::Ended;
 	else
-		canLoad = true;
+		state = FBDataCursor::Local;
 
 	this->searchName = _lookupName;
 	currentPosition = 0;
 	nextItem = NULL;
-	isLoading = false;
 }
 
 void FBFriendsFQLCursor::loadItems(int friends)
 {
-	if (isLoading)
-	{
-		Logger::stream("FBFriendsFQL","ERROR") << "Currently loading." << endl;
+	if (state == FBDataCursor::Loading || state == FBDataCursor::Ended)
+	{		
 		return;
 	}
 
 	Logger::stream("FBFriendsFQL","INFO") << "Loading " << friends << " more friends." << endl;
 	
-	if (friends > currentPosition && canLoad)
+	if (friends > currentPosition)
 	{
-		isLoading = true;
+		state = FBDataCursor::Loading;
 
 		stringstream loadStr;
 		int limit = friends-currentPosition;
@@ -246,18 +254,22 @@ void FBFriendsFQLCursor::loadItems(int friends)
 		FBFriendsFQLCursor * v = this;
 		FBDataSource::instance->loadQuery(node,loadStr.str(),"friends",[v,expectedCount](FBNode * _node){
 
-			int newFriendCount = _node->Edges.get<EdgeTypeIndex>().count("friends");
-			if (newFriendCount < expectedCount)
-				v->canLoad = false;
-
-			//v->currentPosition = newFriendCount;
-
-			if (v->isLoading)
+			if (v->state == FBDataCursor::Loading)
 			{
-				v->isLoading = false;
+				int newFriendCount = _node->Edges.get<EdgeTypeIndex>().count("friends");
+				if (newFriendCount < expectedCount)
+				{
+					v->state = FBDataCursor::Ended;
+				}
+				else
+				{		
+					v->state = FBDataCursor::Local;					
+				}
+
 				v->getNext();
 				if (!v->cursorChangedCallback.empty())
 					v->cursorChangedCallback();
+				
 			}
 			else
 			{
