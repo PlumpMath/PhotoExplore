@@ -42,44 +42,24 @@ void TypographyManager::init()
 	}
 }
 
-
 cv::Mat TypographyManager::renderText(std::string text, string fontName, Color textColor, float fontScale, TextLayoutConfig & config, cv::Rect_<float> & textRect)
 {
-	if (freetypeInitialized)
+	auto font = fontFaceMap.find(fontName);
+	if (font == fontFaceMap.end())
+		font = fontFaceMap.find("Default");
+
+	FT_Face fontFace = font->second;
+
+
+	cv::Mat result = renderTextFreeType(text,fontFace,(int)(ceilf(fontScale * 64.0f)),textColor, config, textRect);
+
+	if (GlobalConfig::tree()->get<bool>("Typography.DebugRendering"))
 	{
-		auto font = fontFaceMap.find(fontName);
-		if (font == fontFaceMap.end())
-			font = fontFaceMap.find("Default");
-
-		FT_Face fontFace = font->second;
-
-
-		cv::Mat result = renderTextFreeType(text,fontFace,(int)(ceilf(fontScale * 64.0f)),textColor, config, textRect);
-		
-		if (GlobalConfig::tree()->get<bool>("Typography.DebugRendering"))
-		{
-			TextDefinition td(text,textColor,fontScale,cv::Size2f(config.maxLineWidth,0));
-			cv::imwrite(GlobalConfig::tree()->get<string>("Typography.DebugImagePath") + td.getKey() + ".png",result);
-		}
-
-		return result;
+		TextDefinition td(text,textColor,fontScale,cv::Size2f(config.maxLineWidth,0));
+		cv::imwrite(GlobalConfig::tree()->get<string>("Typography.DebugImagePath") + td.getKey() + ".png",result);
 	}
-	else
-	{
-		fontScale *= .2f;
 
-		int fontFace = cv::FONT_HERSHEY_DUPLEX;
-		int thickness =(int)(fontScale*1.5f);
-
-		int baseline=0;
-		cv::Size textSize = cv::getTextSize(text, fontFace,fontScale, thickness, &baseline);
-
-		cv::Mat img(textSize.height*1.5f, textSize.width, CV_8UC4, cv::Scalar::all(0));
-
-		cv::putText(img, text, cv::Point2i(0,textSize.height), fontFace, fontScale,cv::Scalar(textColor.colorArray[0] * 255,textColor.colorArray[1] * 255,textColor.colorArray[2] * 255, textColor.colorArray[3] * 255), thickness, CV_AA);
-
-		return img;
-	}
+	return result;
 }
 
 
@@ -190,7 +170,7 @@ void TypographyManager::computeGlyphs(string text, FT_Face fontFace, cv::Point2i
 	int lastSplit = -1;
 
 
-	char glyphChar;
+	unsigned char glyphChar;
 
 	pen_y = 0;// lineSpacing;
 	int xOffset = 0;

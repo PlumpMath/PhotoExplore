@@ -53,7 +53,7 @@ LeapStartScreen::LeapStartScreen(std::string startDir)
 		init();
 		FBNode * root =new FBNode("human");
 		root->setNodeType("me");
-		FacebookDataDisplay::getInstance()->displayNode(NULL,root,"");
+		FacebookDataDisplay::getInstance()->displayNode(root,"");
 		rootView = (FacebookBrowser*) FacebookDataDisplay::getInstance();
 		state = FinishedState;
 	}
@@ -426,7 +426,7 @@ void LeapStartScreen::update(double delta)
 					root->setNodeType("me");
 					
 					rootView = (FacebookBrowser*) FacebookDataDisplay::getInstance();
-					FacebookBrowser::getInstance()->displayNode(NULL,root,"");
+					FacebookBrowser::getInstance()->displayNode(root,"");
 					state = FinishedState;
 				}
 				else

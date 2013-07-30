@@ -39,21 +39,21 @@ LeapDebug::LeapDebug(HandProcessor * handProcessor)
 	Color invertedLabelColor = Color(GlobalConfig::tree()->get_child("Tutorial.InvertedTextColor"));
 
 
-	float tutorialTextSize = labels.get<float>("FontSize");// / (GlobalConfig::ScreenHeight/1440.0f);
-
+	float tutorialTextSize = labels.get<float>("FontSize");
 	float textPadding = labels.get<float>("TextPadding");
-
 	string fontName = labels.get<string>("FontName");
 
 	cv::Size2f imagePanelSize = cv::Size2f(300,GlobalConfig::tree()->get<float>("Tutorial.Height")*.6f);
-
 	
 	auto tutorialIcons = GlobalConfig::tree()->get_child("Tutorial.Icons");
 
 	for (auto tutIt = tutorialIcons.begin(); tutIt != tutorialIcons.end(); tutIt++)
 	{
 
-		ImagePanel  * tutorialImage = new ImagePanel(tutIt->second.get<string>("RightImage"),imagePanelSize);
+		ImagePanel  * tutorialImage = new ImagePanel(tutIt->second.get<string>("RightImage"));
+		tutorialImage->setScaleMode(ScaleMode::None);
+		tutorialImage->setAllowSubPixelRendering(false);
+
 		tutorialImage->setBackgroundColor(backgroundColor);
 
 		TextPanel  * tutorialText = new TextPanel(tutIt->second.get<string>("Text"));

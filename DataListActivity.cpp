@@ -4,6 +4,7 @@
 #include "PanelBase.h"
 #include "TextPanel.h"
 #include "Logger.hpp"
+#include "SwipeGestureDetector.hpp"
 
 DataListActivity::DataListActivity(int _rowCount) :
 	rowCount(_rowCount)
@@ -122,6 +123,18 @@ void DataListActivity::updatePriorities()
 		FBDataView * dataView = dynamic_cast<FBDataView*>(view);
 		dataView->setDataPriority(targetPriority);	
 	}	
+}
+
+void DataListActivity::onGlobalFocusChanged(bool isFocused)
+{
+	if (isFocused)
+	{
+		SwipeGestureDetector::getInstance().setFlyWheel(itemScroll->getFlyWheel());
+	}
+	else
+	{
+		SwipeGestureDetector::getInstance().setFlyWheel(NULL);
+	}
 }
 
 void DataListActivity::updateLoading()

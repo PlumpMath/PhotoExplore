@@ -9,7 +9,7 @@ class FacebookDataDisplay {
 public:
 	static FacebookDataDisplay * instance;
 
-	virtual void displayNode(Facebook::FBNode * previousNode, Facebook::FBNode * newNode, string action) = 0;
+	virtual void displayNode(Facebook::FBNode * newNode, string action) = 0;
 
 	static FacebookDataDisplay * getInstance()
 	{

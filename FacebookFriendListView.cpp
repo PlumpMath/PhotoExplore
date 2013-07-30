@@ -215,7 +215,7 @@ void FacebookFriendListView::updateLoading()
 
 void FacebookFriendListView::friendPanelClicked(FriendPanel * panel, FBNode * clicked)
 {	
-	FacebookDataDisplay::getInstance()->displayNode(activeNode,panel->getNode(),"");
+	FacebookDataDisplay::getInstance()->displayNode(panel->getNode(),"");
 }
 
 void FacebookFriendListView::layout(Vector position, cv::Size2f size)

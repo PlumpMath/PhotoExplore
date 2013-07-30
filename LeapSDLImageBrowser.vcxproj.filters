@@ -219,9 +219,6 @@
     <ClCompile Include="AlbumDetailView.cpp">
       <Filter>Source Files\NewPanel\DataViews</Filter>
     </ClCompile>
-    <ClCompile Include="FacebookFriendListView.cpp">
-      <Filter>Source Files\NewPanel\DataViews</Filter>
-    </ClCompile>
     <ClCompile Include="FacebookIntroView.cpp">
       <Filter>Source Files\NewPanel\DataViews</Filter>
     </ClCompile>
@@ -245,6 +242,12 @@
     </ClCompile>
     <ClCompile Include="LinearLayout.cpp">
       <Filter>Source Files\NewPanel\GridLayouts</Filter>
+    </ClCompile>
+    <ClCompile Include="AlbumCursorView.cpp">
+      <Filter>Source Files\NewPanel\DataViews</Filter>
+    </ClCompile>
+    <ClCompile Include="FBFriendFQLCursor.cpp">
+      <Filter>Source Files\DataModel</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -490,6 +493,9 @@
     </ClInclude>
     <ClInclude Include="TextEditPanel.hpp">
       <Filter>Header Files\Panel</Filter>
+    </ClInclude>
+    <ClInclude Include="AlbumCursorView.hpp">
+      <Filter>Header Files\NewPanel\DataViews</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

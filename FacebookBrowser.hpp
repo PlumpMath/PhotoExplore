@@ -15,6 +15,7 @@
 #include "ActivityView.hpp"
 #include "ImageButton.hpp"
 #include "FriendListCursorView.hpp"
+#include "AlbumCursorView.hpp"
 
 #include <stack>
 
@@ -29,12 +30,9 @@ private:
 	int state;
 	
 	FacebookIntroView * introView;
-
-	FacebookFriendListView * friendList;
 	FriendListCursorView * friendCursorView;
-
+	AlbumCursorView * albumCursorView;
 	FriendDetailView * friendDetailView;
-	AlbumDetailView * albumDetailView;
 	
 	void setTopView(View * topView);
 
@@ -46,7 +44,8 @@ private:
 public:
 	FacebookBrowser();
 		
-	void displayNode(FBNode * previousNode, FBNode * newNode, string action);
+	void viewFinished(View * finishedView);
+	void displayNode(FBNode * newNode, string action);
 
 	void layout(Vector position, cv::Size2f size);
 	

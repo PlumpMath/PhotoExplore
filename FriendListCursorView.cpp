@@ -139,7 +139,7 @@ FBDataView * FriendListCursorView::getDataView(FBNode * itemNode)
 		if (hasData)
 		{
 			item->elementClickedCallback = [item](LeapElement*element){
-				FacebookDataDisplay::getInstance()->displayNode(NULL,item->getNode(),"");
+				FacebookDataDisplay::getInstance()->displayNode(item->getNode(),"");
 			};
 		}
 		item->setLayoutParams(LayoutParams(cv::Size2f(600,400),cv::Vec4f(5,5,5,5)));
@@ -193,13 +193,13 @@ void FriendListCursorView::getTutorialDescriptor(vector<string> & tutorial)
 	tutorial.push_back("KeyboardNameSearch");
 }
 
-void FriendListCursorView::onGlobalFocusChanged(bool isFocused)
-{
-	if (isFocused)
-		SwipeGestureDetector::getInstance().setFlyWheel(itemScroll->getFlyWheel());
-	else
-		SwipeGestureDetector::getInstance().setFlyWheel(NULL);
-}
+//void FriendListCursorView::onGlobalFocusChanged(bool isFocused)
+//{
+//	if (isFocused)
+//		SwipeGestureDetector::getInstance().setFlyWheel(itemScroll->getFlyWheel());
+//	else
+//		SwipeGestureDetector::getInstance().setFlyWheel(NULL);
+//}
 
 void FriendListCursorView::layout(Vector position, cv::Size2f size)
 {

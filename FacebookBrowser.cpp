@@ -4,9 +4,8 @@
 
 FacebookBrowser::FacebookBrowser()
 {		
-	friendList = new FacebookFriendListView();
 	introView  = new FacebookIntroView();
-	albumDetailView = new AlbumDetailView();
+	albumCursorView = new AlbumCursorView();
 	friendDetailView = new FriendDetailView();
 	friendCursorView = new FriendListCursorView();
 	
@@ -27,34 +26,37 @@ FacebookBrowser::FacebookBrowser()
 	homeButton = homeButtonText;
 	homeButton->setLayoutParams(LayoutParams(cv::Size2f(menuHeight*1.5f,menuHeight),cv::Vec4f(5,5,5,5)));
 	homeButton->elementClickedCallback = [this](LeapElement * clicked){		
-		this->displayNode(NULL,this->userNode,"");
+		this->displayNode(this->userNode,"");
 	};
 	
 	pathView->addChild(homeButton);
 }
 
-void FacebookBrowser::displayNode(FBNode * previousNode, FBNode * node, string action)
+void FacebookBrowser::viewFinished(View * finishedView)
+{
+
+}
+
+void FacebookBrowser::displayNode(FBNode * node, string action)
 {
 	if (node == NULL)
 		return;
-
-	previousNode = NULL;
-	
+		
 	homeButton->setClickable(true);
 	if (node->getNodeType().compare(NodeType::FacebookImage) == 0)
 	{
 		auto parentIt = node->ReverseEdges.get<EdgeTypeIndex>().find("albums");
 		if (parentIt != node->ReverseEdges.get<EdgeTypeIndex>().end())
 		{			
-			displayNode(NULL,parentIt->Node,"");
-			albumDetailView->showChild(node);
+			displayNode(parentIt->Node,"");
+			//albumCursorView->showChild(node);
 		}
 		else
 		{
 			parentIt = node->ReverseEdges.get<EdgeTypeIndex>().find("friends");			
 			if (parentIt != node->ReverseEdges.get<EdgeTypeIndex>().end())
 			{
-				displayNode(NULL,parentIt->Node,"");
+				displayNode(parentIt->Node,"");
 				friendDetailView->showChild(node);
 			}
 			else
@@ -62,7 +64,7 @@ void FacebookBrowser::displayNode(FBNode * previousNode, FBNode * node, string a
 				parentIt = node->ReverseEdges.get<EdgeTypeIndex>().find("me");
 				if (parentIt != node->ReverseEdges.get<EdgeTypeIndex>().end())
 				{
-					displayNode(NULL,parentIt->Node,"my_photos");
+					displayNode(parentIt->Node,"my_photos");
 					friendDetailView->showChild(node);
 				}
 				else
@@ -77,9 +79,9 @@ void FacebookBrowser::displayNode(FBNode * previousNode, FBNode * node, string a
 		auto parentIt = node->ReverseEdges.get<EdgeTypeIndex>().find("friends");
 		if (parentIt != node->ReverseEdges.get<EdgeTypeIndex>().end())
 		{
-			previousNode = parentIt->Node;
-			albumDetailView->setFinishedCallback([this,previousNode,node](string action){				
-				this->displayNode(node,previousNode,"");
+			FBNode * show = parentIt->Node;
+			albumCursorView->setFinishedCallback([this,show](string action){				
+				this->displayNode(show,"");
 			});			
 		}
 		else
@@ -88,10 +90,10 @@ void FacebookBrowser::displayNode(FBNode * previousNode, FBNode * node, string a
 
 			if (parentIt != node->ReverseEdges.get<EdgeTypeIndex>().end())
 			{
-				previousNode = parentIt->Node;
-				albumDetailView->setFinishedCallback([this,previousNode,node](string action){				
-					this->displayNode(node,previousNode,"my_photos");
-				});			
+				FBNode * show = parentIt->Node;
+				albumCursorView->setFinishedCallback([this,show](string action){				
+					this->displayNode(show,"my_photos");
+				});
 			}
 			else
 			{
@@ -99,15 +101,12 @@ void FacebookBrowser::displayNode(FBNode * previousNode, FBNode * node, string a
 			}
 		}		
 
-		setTopView(albumDetailView);
-		albumDetailView->show(node);	
+		setTopView(albumCursorView);
+		albumCursorView->setAlbumOwner(node);
 	}
 	else if (node->getNodeType().compare(NodeType::FacebookFriend) == 0)
 	{	
-		friendDetailView->setFinishedCallback([this,node](string action){				
-			//this->displayNode(userNode,userNode,"friend_list_view");
-
-			this->friendCursorView->resume();
+		friendDetailView->setFinishedCallback([this,node](string action){
 			this->setTopView(this->friendCursorView);
 		});		
 		
@@ -122,7 +121,7 @@ void FacebookBrowser::displayNode(FBNode * previousNode, FBNode * node, string a
 			node->Edges.insert(Facebook::Edge("name","My Photos and Albums"));
 
 			friendDetailView->setFinishedCallback([this,node](string action){				
-				this->displayNode(NULL,node,"");
+				this->displayNode(node,"");
 			});		
 
 			setTopView(friendDetailView);
@@ -130,29 +129,17 @@ void FacebookBrowser::displayNode(FBNode * previousNode, FBNode * node, string a
 		}
 		else if (action.compare("friend_list_view") == 0)
 		{			
-			if (GlobalConfig::tree()->get<bool>("FriendLookupView.Enable"))
-			{
-				friendCursorView->setFinishedCallback([this,node](string action){				
-					this->displayNode(NULL,node,"");
-				});		
+			friendCursorView->setFinishedCallback([this,node](string action){				
+				this->displayNode(node,"");
+			});		
 
-				friendCursorView->setUserNode(node);				
-				setTopView(friendCursorView);
-			}
-			else
-			{
-				friendList->setFinishedCallback([this,node](string action){				
-					this->displayNode(NULL,node,"");
-				});		
-
-				friendList->show(node);
-				setTopView(friendList);
-			}
+			friendCursorView->setUserNode(node);				
+			setTopView(friendCursorView);
 		}
 		else
 		{
 			introView->setFinishedCallback([this,node](string _action){
-				this->displayNode(NULL,node,_action);
+				this->displayNode(node,_action);
 			});		
 			setTopView(introView);
 			introView->show(node);	
@@ -161,7 +148,7 @@ void FacebookBrowser::displayNode(FBNode * previousNode, FBNode * node, string a
 	}
 	else
 	{
-		throw new std::runtime_error("Unknown node type: " + node->getNodeType());
+		throw new std::runtime_error("Unknown node type: ");// + node->getNodeType().c_str);
 	}
 	this->layout(Vector(),cv::Size2f(0,0));
 }
@@ -170,15 +157,40 @@ void FacebookBrowser::setTopView(View * _topView)
 {
 	if (this->topView != NULL)
 	{
-		if (topView == friendList)
-			friendList->suspend();
-		else if (topView == albumDetailView)
-			albumDetailView->suspend();
+		if (topView == friendCursorView)
+		{
+			friendCursorView->suspend();
+			friendCursorView->setViewState(ActivityView::Suspended);
+		}
+		else if (topView == albumCursorView)
+			albumCursorView->suspend();
 		else if (topView == friendDetailView)
 			friendDetailView->suspend();
 	}
 
 	this->topView = _topView;
+
+	
+	if (this->topView != NULL)
+	{
+		if (topView == friendCursorView)
+		{
+			if (friendCursorView->getViewState() == ActivityView::Suspended)
+				friendCursorView->resume();
+			else
+				friendCursorView->setUserNode(userNode);
+
+			friendCursorView->setViewState(ActivityView::Active);
+		}
+		else if (topView == albumCursorView)
+		{
+			//albumDetailView->show();
+		}
+		else if (topView == friendDetailView)
+		{
+			//friendDetailView->show();
+		}
+	}
 }
 
 void FacebookBrowser::onFrame(const Controller & controller)

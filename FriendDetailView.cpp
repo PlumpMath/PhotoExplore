@@ -346,7 +346,7 @@ void FriendDetailView::showChild(FBNode * node)
 
 void FriendDetailView::albumPanelClicked(FBNode * clicked)
 {
-	FacebookDataDisplay::getInstance()->displayNode(activeNode,clicked,"");
+	FacebookDataDisplay::getInstance()->displayNode(clicked,"");
 }
 
 void FriendDetailView::onGlobalGesture(const Controller & controller, std::string gestureType)

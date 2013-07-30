@@ -34,6 +34,9 @@
 	},
 	"GraphicsSettings" :
 	{
+		"WindowTitle" : "Photo Explorer for Facebook",
+		"AlphaFunc" : 6, //1 = Less, 2 = Equal, 3 = LEqual, 4 = Greater, 5 = Notequal, 6 = GEqual, 7 = Always
+		"AlphaFuncVal" : 0.0,
 		"DisablePixelBuffers" : true,
 		"EnableLineSmoothing" : true,
 		"FSAASamples" : 0,
@@ -42,7 +45,7 @@
 		"OverrideResolution" : false,
 		"OverrideWidth" : 1280,
 		"OverrideHeight" : 720,
-		"UseIntForNonSubPixelRender" : false
+		"UseIntForNonSubPixelRender" : true
 	},
 	"Button" : 
 	{
@@ -85,7 +88,7 @@
 	},
 	"FakeDataMode" : 
 	{
-		"Enable" : false,
+		"Enable" : true,
 		"SourceDataDirectory" : "C:\\Users\\Adam\\Pictures\\pixiv-win" ,
 		"RequestDelay" : 50 ,//ms
 		"MaxPhotos" : 2000,
@@ -587,49 +590,49 @@
 			{
 				"Name" : "KeyboardNameSearch",
 				"Text" : "Use the keyboard to search by name",
-				"RightImage" : "Tutorial/keyboard_icon.png",
+				"RightImage" : "Tutorial/keyboard_icon_small.png",
 				"LeftImage" : "Tutorial/keyboard_icon.png",
 				"InvertColor" : false					
 			},
 			{
 				"Name" : "shake",
 				"Text" : "Shake to go back",
-				"RightImage" : "Tutorial/shake_gesture_right.png",
+				"RightImage" : "Tutorial/shake_gesture_right_small.png",
 				"LeftImage" : "Tutorial/shake_gesture_left.png"	,
 				"InvertColor" : false								
 			},
 			{
 				"Name" : "shake_inv",
 				"Text" : "Shake to go back",
-				"RightImage" : "Tutorial/shake_gesture_right.png",
+				"RightImage" : "Tutorial/shake_gesture_right_small.png",
 				"LeftImage" : "Tutorial/shake_gesture_left.png"	,
 				"InvertColor" : true								
 			},
 			{
 				"Name" : "swipe",
 				"Text" : "Swipe Left or Right",
-				"RightImage" : "Tutorial/swipe_gesture_right.png",
+				"RightImage" : "Tutorial/swipe_gesture_right_small.png",
 				"LeftImage" : "Tutorial/swipe_gesture_left.png"	,
 				"InvertColor" : false								
 			},
 			{
 				"Name" : "point",
 				"Text" : "Tap to select",
-				"RightImage" : "Tutorial/point_gesture_right.png",
+				"RightImage" : "Tutorial/point_gesture_right_small.png",
 				"LeftImage" : "Tutorial/point_gesture_left.png"	,
 				"InvertColor" : false								
 			},
 			{
 				"Name" : "point_stop",
 				"Text" : " Point to stop  \nTap to select",
-				"RightImage" : "Tutorial/point_gesture_right.png",
+				"RightImage" : "Tutorial/point_gesture_right_small.png",
 				"LeftImage" : "Tutorial/point_gesture_left.png"	,
 				"InvertColor" : false								
 			},
 			{
 				"Name" : "stretch",
 				"Text" : " Use two fingers to  stretch the image ",	
-				"RightImage" : "tutorial/stretch_gesture.png",
+				"RightImage" : "tutorial/stretch_gesture_small.png",
 				"LeftImage" : "tutorial/stretch_gesture.png",
 				"InvertColor" : true								
 			}

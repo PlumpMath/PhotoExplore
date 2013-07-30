@@ -103,7 +103,9 @@ void handler(int sig) {
 bool init( int window_width, int window_height, bool isFull)
 {
 
-	glfwOpenWindowHint(GLFW_FSAA_SAMPLES,GlobalConfig::tree()->get<int>("GraphicsSettings.FSAASamples"));
+	auto conf = GlobalConfig::tree()->get_child("GraphicsSettings");
+
+	glfwOpenWindowHint(GLFW_FSAA_SAMPLES,conf.get<int>("FSAASamples"));
 
 	int handle = glfwOpenWindow(window_width, window_height, 8, 8, 8,8,8,0, (isFull) ? GLFW_FULLSCREEN : GLFW_WINDOW);
 
@@ -113,14 +115,14 @@ bool init( int window_width, int window_height, bool isFull)
 		return false;
 	}
 
-	glfwSetWindowTitle("Photo Explorer for Facebook");
+	glfwSetWindowTitle(conf.get<string>("WindowTitle").c_str());
 
 	glfwSwapInterval(1);
 
 			
 	glewExperimental=true;
 	glewInit();
-	if (GlobalConfig::tree()->get<bool>("GraphicsSettings.EnableLineSmoothing"))
+	if (conf.get<bool>("EnableLineSmoothing"))
 	{
 		glEnable(GL_LINE_SMOOTH);
 		glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
@@ -129,20 +131,20 @@ bool init( int window_width, int window_height, bool isFull)
 	{
 		glDisable(GL_LINE_SMOOTH);
 	}
-
-	glHint(GL_TEXTURE_COMPRESSION_HINT,  GL_NICEST);
-
+		
 	glEnable(GL_TEXTURE_2D);  
 	glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_LESS);
-
-	glAlphaFunc(GL_GEQUAL, 0.0625);
 	glEnable(GL_ALPHA_TEST);
 	glEnable(GL_BLEND);
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+	
+	glHint(GL_TEXTURE_COMPRESSION_HINT,  GL_NICEST);
+	
+	glDepthFunc(GL_LESS);
+
+	glAlphaFunc(GL_NEVER + conf.get<int>("AlphaFunc"), conf.get<float>("AlphaFuncVal"));
 
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-	glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
 
 	Color bg = Colors::WhiteSmoke;
 	float * color = bg.getFloat();
@@ -153,7 +155,7 @@ bool init( int window_width, int window_height, bool isFull)
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	glOrtho(0.0f, window_width, window_height, 0.0f, -300.0f, 300.0f);
+	glOrtho(0.0f, window_width, window_height, 0.0f, -127.0f, 128.0f);
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();

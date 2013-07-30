@@ -213,6 +213,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AlbumCursorView.cpp" />
     <ClCompile Include="AlbumDetailView.cpp" />
     <ClCompile Include="AlbumPanel.cpp" />
     <ClCompile Include="Animation.cpp" />
@@ -222,12 +223,12 @@
     <ClCompile Include="FakeDataSource.cpp" />
     <ClCompile Include="FastSeekBar.cpp" />
     <ClCompile Include="FBDataCursorImpl.cpp" />
+    <ClCompile Include="FBFriendFQLCursor.cpp" />
     <ClCompile Include="FriendListCursorView.cpp" />
     <ClCompile Include="GlobalConfig.cpp" />
     <ClCompile Include="ContentPanel.cpp" />
     <ClCompile Include="CustomGrid.cpp" />
     <ClCompile Include="DynamicGrid.cpp" />
-    <ClCompile Include="FacebookFriendListView.cpp" />
     <ClCompile Include="FacebookIntroView.cpp" />
     <ClCompile Include="DataViewGenerator.cpp" />
     <ClCompile Include="FacebookBrowser.cpp" />
@@ -275,6 +276,7 @@
   <ItemGroup>
     <ClInclude Include="AbsoluteLayout.hpp" />
     <ClInclude Include="ActivityView.hpp" />
+    <ClInclude Include="AlbumCursorView.hpp" />
     <ClInclude Include="AlbumDetailView.hpp" />
     <ClInclude Include="AlbumPanel.hpp" />
     <ClInclude Include="Animation.h" />

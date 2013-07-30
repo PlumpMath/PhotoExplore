@@ -5,17 +5,45 @@
 #include <boost/function.hpp>
 
 class ActivityView : public ViewGroup {
+public:
+	enum ViewState {
+		New,
+		Active,
+		Suspended
+	};
 
 protected:	
 	boost::function<void(std::string)> viewFinishedCallback;
+	
+	ViewState viewState;
 
 public:
-	virtual bool onLeapGesture(const Controller & controller, const Gesture & gesture) = 0;	
+	ActivityView() :
+	  viewState(New)
+	{
+	}
+	
+	virtual bool onLeapGesture(const Controller & controller, const Gesture & gesture) { return false; }
+
 	virtual void onGlobalGesture(const Controller & controller, std::string gestureType) = 0;
 	
 	virtual void getTutorialDescriptor(vector<string> & tutorial) = 0;
 
 	virtual void onGlobalFocusChanged(bool isFocused) {}	
+
+	void setViewState(ViewState _viewState)
+	{
+		this->viewState = _viewState;
+	}
+
+	ViewState getViewState()
+	{
+		return this->viewState;
+	}
+
+
+
+
 };
 
 #endif

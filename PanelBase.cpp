@@ -426,7 +426,7 @@ void PanelBase::drawPanel(Vector drawPosition, float drawWidth, float drawHeight
 	{
 		drawLoadTimer(drawPosition,drawWidth,drawHeight);
 	}
-	drawContent(drawPosition,drawWidth,drawHeight);	
+	drawContent(drawPosition+Vector(0,0,1),drawWidth,drawHeight);	
 }
 
 void PanelBase::drawBackground(Vector drawPosition, float drawWidth, float drawHeight)

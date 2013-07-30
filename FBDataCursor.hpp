@@ -34,26 +34,36 @@ public:
 
 };
 
-class FBFriendsCursor : public FBDataCursor {
+class FBSimpleEdgeCursor : public FBDataCursor {
 
-private:
-	FBNode * node;
-	
+protected:
+	FBNode * node;	
 	FBNode * nextItem;
+	string edgeName;
 
 public:
-	FBFriendsCursor(FBNode * _node) :
+	FBSimpleEdgeCursor(FBNode * _node, string _edgeName) :
 		node(_node),
-		nextItem(NULL)
+		nextItem(NULL),
+		edgeName(_edgeName)
 	{
 	}
 
-	void loadItems(int friends);
+	virtual void loadItems(int items) = 0;
 	void reset();
 	FBNode * getNext();
-
-
 };
+
+
+class FBFriendsCursor : public FBSimpleEdgeCursor {
+
+public:
+	FBFriendsCursor(FBNode * _node) : FBSimpleEdgeCursor(_node,"friends")
+	{}
+
+	void loadItems(int friends);
+};
+
 
 class FBFriendsFQLCursor : public FBDataCursor {
 
@@ -79,5 +89,25 @@ public:
 
 
 };
+
+class FBUserAlbumsCursor : public FBSimpleEdgeCursor {
+
+public:
+	FBUserAlbumsCursor(FBNode * _node) : FBSimpleEdgeCursor(_node,"albums")
+	{}
+
+	void loadItems(int items);
+};
+
+class FBAlbumPhotosCursor : public FBSimpleEdgeCursor {
+
+public:
+	FBAlbumPhotosCursor(FBNode * _node) : FBSimpleEdgeCursor(_node,"photos")
+	{}
+
+	void loadItems(int items);
+};
+
+
 
 #endif

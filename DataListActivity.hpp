@@ -37,6 +37,8 @@ protected:
 public:
 	DataListActivity(int rowCount);
 	~DataListActivity();
+
+	void onGlobalFocusChanged(bool isFocused);
 	
 	virtual void show(FBDataCursor * cursor);
 	virtual void suspend();
