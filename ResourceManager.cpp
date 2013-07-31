@@ -235,8 +235,8 @@ void ResourceManager::updateImageState(ResourceData * data, bool load)
 
 void ResourceManager::updateResource(ResourceData * data)
 {	
-	updateImageState(data, data->priority < imageLoadThreshold);
-	updateTextureState(data, data->priority < textureLoadThreshold);
+	updateImageState(data, data->priority <= imageLoadThreshold);
+	updateTextureState(data, data->priority <= textureLoadThreshold);
 }
 
 int compareResourcePriority(const void * a, const void * b) 
@@ -314,8 +314,14 @@ void ResourceManager::cleanupCache()
 		float resourceSize = calculateResourceSize(data);
 
 		if (data->ImageState == ResourceState::ImageLoaded || data->ImageState == ResourceState::ImageLoading)
-		{	
-			if (imgCacheFull || imageCacheSize  + resourceSize >= imageCacheMaxSize)
+		{				
+			if (imageCacheSize < imageCacheMaxSize)
+			{ 
+				if (debugLogging) changed += "(+I)";
+				updateImageState(data,true);
+				imageCacheSize += resourceSize;
+			}
+			else  //if (imgCacheFull || imageCacheSize >= imageCacheMaxSize)
 			{
 				updateImageState(data,false);
 				if (!imgCacheFull)
@@ -323,25 +329,21 @@ void ResourceManager::cleanupCache()
 					imageLoadThreshold = data->priority;
 					imgCacheFull = true;
 					if (debugLogging) changed += "X(-I)X";
-				}else if (debugLogging)
+
+				} else if (debugLogging)
+				{
 					changed += "(-I)";
-				//Logger::stream("ResourceManager","DEBUG") << "Unloading image for resource " << data->resourceId << " with priority " << data->priority << endl;
+				}
 			}
-			else
-			{
-				imageCacheSize += resourceSize;
-			}
-		}
-		else if (!imgCacheFull && imageCacheSize  + resourceSize  < imageCacheMaxSize)
-		{ 
-			if (debugLogging) changed += "(+I)";
-			updateImageState(data,true);
-			imageCacheSize += resourceSize;
+			//else
+			//{
+			//	imageCacheSize += resourceSize;
+			//}
 		}
 
 		if (data->TextureState == ResourceState::TextureLoaded || data->TextureState == ResourceState::TextureLoading)
 		{				
-			if (textureCacheFull || textureCacheSize + resourceSize >= textureCacheMaxSize)
+			if (textureCacheFull || textureCacheSize >= textureCacheMaxSize)
 			{
 				updateTextureState(data,false);
 				if (!textureCacheFull)
@@ -359,7 +361,7 @@ void ResourceManager::cleanupCache()
 				textureCacheSize += resourceSize;
 			}
 		}
-		else if (!textureCacheFull && textureCacheSize  + resourceSize < textureCacheMaxSize)
+		else if (!textureCacheFull && textureCacheSize  < textureCacheMaxSize)
 		{
 			updateTextureState(data,true);
 			textureCacheSize += resourceSize;			

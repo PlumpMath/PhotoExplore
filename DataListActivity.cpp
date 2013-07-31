@@ -9,6 +9,7 @@
 DataListActivity::DataListActivity(int _rowCount) :
 	rowCount(_rowCount)
 {
+	titlePanel = NULL;
 	cursor = NULL;
 
 	itemGroup = new FixedAspectGrid(cv::Size2i(0,rowCount),1.0f);	
@@ -52,7 +53,17 @@ void DataListActivity::show(FBDataCursor * _cursor)
 			me->updateLoading();
 		});
 	};	
+	this->layoutDirty = true;
 }
+
+
+void DataListActivity::setTitlePanel(TextPanel * _titlePanel)
+{
+	this->remove(titlePanel);
+	this->titlePanel = _titlePanel;
+	this->addChild(titlePanel);
+}
+
 
 void DataListActivity::suspend()
 {
@@ -83,14 +94,24 @@ void DataListActivity::layout(Vector position, cv::Size2f size)
 	lastPosition = position;
 	lastSize = size;
 
-	float tutorialHeight = GlobalConfig::tree()->get<float>("Tutorial.Height");
-	float scrollBarHeight = GlobalConfig::tree()->get<float>("ScrollView.ScrollBar.Height");
+	static float tutorialHeight = GlobalConfig::tree()->get<float>("Tutorial.Height");
+	static float scrollBarHeight = GlobalConfig::tree()->get<float>("ScrollView.ScrollBar.Height");
+	static float menuHeight = GlobalConfig::tree()->get<float>("Menu.Height");
+			
+ 	if (titlePanel != NULL && titlePanel->isVisible())
+	{
+		cv::Size2f titleSize(size.width*.4f,menuHeight);
+		titlePanel->layout(position + Vector((size.width - titleSize.width)*.5f, -menuHeight,0),titleSize);
+	}
 
-	itemScroll->layout(position,size);
+	cv::Size2f scrollSize = cv::Size2f(size.width-10,size.height-scrollBarHeight);
 
-	float scrollBarWidth = size.width * 0.4f;
+	itemScroll->layout(position,scrollSize);
 
-	scrollBar->layout(position + Vector((size.width-scrollBarWidth)*.5f,size.height+(tutorialHeight*.66f)-(scrollBarHeight*.5f),1),cv::Size2f(scrollBarWidth,scrollBarHeight));
+	//float scrollBarWidth = size.width * 0.4f;
+	//scrollBar->layout(position + Vector((size.width-scrollBarWidth)*.5f,size.height+(tutorialHeight*.66f)-(scrollBarHeight*.5f),1),cv::Size2f(scrollBarWidth,scrollBarHeight));
+
+	scrollBar->layout(position + Vector(5,scrollSize.height,1),cv::Size2f(scrollSize.width,scrollBarHeight));
 	
 	loadIndicator->layout(position + Vector(size.width-tutorialHeight*3.0f,size.height,1),cv::Size2f(tutorialHeight*3.0f,tutorialHeight));
 
@@ -136,6 +157,8 @@ void DataListActivity::onGlobalFocusChanged(bool isFocused)
 		SwipeGestureDetector::getInstance().setFlyWheel(NULL);
 	}
 }
+
+
 
 void DataListActivity::updateLoading()
 {
@@ -184,12 +207,12 @@ void DataListActivity::updateLoading()
 		Logger::stream("DataList","INFO") << "updatePriorities() time = " << loadTimer.millis() << " ms" << endl;
 	
 
-	if (cursor->state == FBDataCursor::Loading)
+	if (cursor->getState() == FBDataCursor::Loading)
 	{		
 		((TextPanel*)loadIndicator)->setText("Loading...");
 		((TextPanel*)loadIndicator)->refresh();
 	}
-	else if (cursor->state == FBDataCursor::Ended || cursor->state == FBDataCursor::Finished)
+	else if (cursor->getState() == FBDataCursor::Ended || cursor->state == FBDataCursor::Finished)
 	{
 		((TextPanel*)loadIndicator)->setText("Loading complete.");
 		((TextPanel*)loadIndicator)->refresh();

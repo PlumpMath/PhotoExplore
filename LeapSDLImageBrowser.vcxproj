@@ -214,16 +214,17 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AlbumCursorView.cpp" />
-    <ClCompile Include="AlbumDetailView.cpp" />
     <ClCompile Include="AlbumPanel.cpp" />
     <ClCompile Include="Animation.cpp" />
     <ClCompile Include="Button.cpp" />
+    <ClCompile Include="Cefalopod.cpp" />
     <ClCompile Include="Color.cpp" />
     <ClCompile Include="DataListActivity.cpp" />
     <ClCompile Include="FakeDataSource.cpp" />
     <ClCompile Include="FastSeekBar.cpp" />
     <ClCompile Include="FBDataCursorImpl.cpp" />
     <ClCompile Include="FBFriendFQLCursor.cpp" />
+    <ClCompile Include="FriendCursorView.cpp" />
     <ClCompile Include="FriendListCursorView.cpp" />
     <ClCompile Include="GlobalConfig.cpp" />
     <ClCompile Include="ContentPanel.cpp" />
@@ -236,7 +237,6 @@
     <ClCompile Include="FixedAspectGrid.cpp" />
     <ClCompile Include="FlyWheel.cpp" />
     <ClCompile Include="FrameView.cpp" />
-    <ClCompile Include="FriendDetailView.cpp" />
     <ClCompile Include="FriendPanel.cpp" />
     <ClCompile Include="HandModel.cpp" />
     <ClCompile Include="HandRotationGestureDetector.cpp" />
@@ -277,7 +277,6 @@
     <ClInclude Include="AbsoluteLayout.hpp" />
     <ClInclude Include="ActivityView.hpp" />
     <ClInclude Include="AlbumCursorView.hpp" />
-    <ClInclude Include="AlbumDetailView.hpp" />
     <ClInclude Include="AlbumPanel.hpp" />
     <ClInclude Include="Animation.h" />
     <ClInclude Include="Button.hpp" />
@@ -291,6 +290,7 @@
     <ClInclude Include="FakeDataSource.hpp" />
     <ClInclude Include="FastSeekBar.hpp" />
     <ClInclude Include="FBDataView.hpp" />
+    <ClInclude Include="FriendCursorView.hpp" />
     <ClInclude Include="FriendListCursorView.hpp" />
     <ClInclude Include="GlobalConfig.hpp" />
     <ClInclude Include="ContentPanel.hpp" />
@@ -308,7 +308,6 @@
     <ClInclude Include="FixedAspectGrid.hpp" />
     <ClInclude Include="Flywheel.h" />
     <ClInclude Include="FrameView.hpp" />
-    <ClInclude Include="FriendDetailView.hpp" />
     <ClInclude Include="FriendPanel.hpp" />
     <ClInclude Include="FriendPhotoLinkedView.hpp" />
     <ClInclude Include="GLImport.h" />
@@ -328,7 +327,6 @@
     <ClInclude Include="PixelBufferPool.hpp" />
     <ClInclude Include="PunchGestureDetector.hpp" />
     <ClInclude Include="RadialMenu.hpp" />
-    <ClInclude Include="RelevantImageView.hpp" />
     <ClInclude Include="ScrollBar.hpp" />
     <ClInclude Include="ScrollingView.hpp" />
     <ClInclude Include="SeekVisual.hpp" />

@@ -19,7 +19,11 @@ RadialMenu::RadialMenu(vector<RadialMenuItem> & items)
 	items.push_back(RadialMenuItem("Privacy Information","show_privacy_info", Colors::DodgerBlue));
 	items.push_back(RadialMenuItem("Back","cancel",Colors::SkyBlue));
 
-	menuLaunchButton = new ImageButton(GlobalConfig::tree()->get<string>("Menu.OpenMenuImage"),GlobalConfig::tree()->get<string>("Menu.OpenMenuOverlay"));	
+	menuLaunchButton =  new Button("Menu"); 
+	((Button*)menuLaunchButton)->setTextSize(10,false);
+	((Button*)menuLaunchButton)->setTextColor(Colors::SteelBlue);
+
+	//new ImageButton(GlobalConfig::tree()->get<string>("Menu.OpenMenuImage"),GlobalConfig::tree()->get<string>("Menu.OpenMenuOverlay"));	
 	addChild(menuLaunchButton);
 	menuLaunchButton->elementClickedCallback = [this](LeapElement * clicked){
 
@@ -231,19 +235,19 @@ void RadialMenu::layout(Vector pos, cv::Size2f size)
 		
 		cv::Size2f dialogSize = cv::Size2f(GlobalConfig::tree()->get<float>("Menu.PrivacyInfo.DialogWidth"),GlobalConfig::tree()->get<float>("Menu.PrivacyInfo.DialogHeight"));
 
-		privacyInfoBox->layout(pos + Vector((size.width - dialogSize.width)*.5f,size.height*1.2f,4), dialogSize);
+		privacyInfoBox->layout(pos + Vector((size.width - dialogSize.width)*.5f,size.height*1.2f,14), dialogSize);
 	}
 	else if (state == MenuState_ShowingDialog)
 	{
 		cv::Size2f dialogSize = cv::Size2f(GlobalConfig::tree()->get<float>("Menu.PrivacyInfo.DialogWidth"),GlobalConfig::tree()->get<float>("Menu.PrivacyInfo.DialogHeight"));
 
-		privacyInfoBox->layout(pos + Vector(size.width - dialogSize.width,size.height - dialogSize.height,4)*.5f,dialogSize);
+		privacyInfoBox->layout(pos + Vector(size.width - dialogSize.width,size.height - dialogSize.height,14)*.5f,dialogSize);
 
 	}
 	else if (state == MenuState_ButtonOnly) 
 	{
 		float height = GlobalConfig::tree()->get<float>("Menu.Height");
-		cv::Size2f menuButtonSize = cv::Size2f(height-10,height-10);
+		cv::Size2f menuButtonSize = cv::Size2f(height*1.5f,height-10);
 		
 		if (GlobalConfig::tree()->get<bool>("Menu.TopRightButton"))
 			menuLaunchButton->layout(Vector(size.width - (menuButtonSize.width + 5),5,10) + pos,menuButtonSize);

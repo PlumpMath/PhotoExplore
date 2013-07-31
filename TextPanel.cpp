@@ -68,10 +68,10 @@ void TextPanel::reloadText()
 		currentTextImage = TypographyManager::getInstance()->renderText(text,fontName,textColor,textSize,config,currentTextRect);	
 		if (currentTextImage.data != NULL)
 		{
-			if (currentResource != NULL)
-			{
-				ResourceManager::getInstance().releaseResource(currentResource->resourceId,this);
-			}
+			//if (currentResource != NULL)
+			//{
+			//	ResourceManager::getInstance().releaseResource(currentResource->resourceId,this);
+			//}
 
 			currentResource = ResourceManager::getInstance().loadResource(td.getKey(),currentTextImage,-1,this);
 		}
@@ -206,4 +206,12 @@ float TextPanel::getTextFitPadding()
 void TextPanel::setVisible(bool v)
 {
 	PanelBase::setVisible(v);
+}
+
+void TextPanel::setStyle(boost::property_tree::ptree configTree)
+{	
+	setTextSize(configTree.get<float>("FontSize"),true);
+	setTextFitPadding(configTree.get<float>("TextPadding"));
+	setTextColor(Color(configTree.get_child("TextColor")));
+	setBackgroundColor(Color(configTree.get_child("BackgroundColor")));
 }

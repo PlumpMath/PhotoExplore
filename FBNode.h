@@ -83,7 +83,7 @@ namespace Facebook {
 	};
 		
 	struct EdgeTypeIndex {};
-	struct EdgeSequence {};
+	struct AscEdgeTypeIndex {};
 	
 	typedef boost::multi_index_container
 		<
@@ -99,11 +99,26 @@ namespace Facebook {
 						boost::multi_index::member<Edge,string,&Edge::Type>,
 						boost::multi_index::const_mem_fun<Edge, unsigned long long, &Edge::numericId> 
 						//boost::multi_index::const_mem_fun<Edge, string, &Edge::id> 
+					>,
+					boost::multi_index::composite_key_compare<
+						std::less<std::string>,   
+						std::less<unsigned long long> 
 					>
 				>,								
-				boost::multi_index::sequenced
+				boost::multi_index::ordered_unique
 				<
-					boost::multi_index::tag<EdgeSequence>
+					boost::multi_index::tag<AscEdgeTypeIndex>,
+					boost::multi_index::composite_key
+					<
+						Edge, 
+						boost::multi_index::member<Edge,string,&Edge::Type>,
+						boost::multi_index::const_mem_fun<Edge, unsigned long long, &Edge::numericId> 
+						//boost::multi_index::const_mem_fun<Edge, string, &Edge::id> 
+					>,
+					boost::multi_index::composite_key_compare<
+						std::less<std::string>,   
+						std::greater<unsigned long long> 
+					>
 				>
 			>
 		> EdgeContainer;

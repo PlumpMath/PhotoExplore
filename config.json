@@ -5,7 +5,7 @@
 	},
 	"Logging" : 
 	{
-		"Enabled" : true
+		"Enabled" : false
 	},
 	"Typography" : 
 	{
@@ -36,16 +36,16 @@
 	{
 		"WindowTitle" : "Photo Explorer for Facebook",
 		"AlphaFunc" : 6, //1 = Less, 2 = Equal, 3 = LEqual, 4 = Greater, 5 = Notequal, 6 = GEqual, 7 = Always
-		"AlphaFuncVal" : 0.0,
+		"AlphaFuncVal" : 0.0625,
 		"DisablePixelBuffers" : true,
 		"EnableLineSmoothing" : true,
 		"FSAASamples" : 0,
 		"ShaderDirectory" : ".",
-		"Fullscreen" : false,
+		"Fullscreen" : true,
 		"OverrideResolution" : false,
 		"OverrideWidth" : 1280,
 		"OverrideHeight" : 720,
-		"UseIntForNonSubPixelRender" : true
+		"UseIntForNonSubPixelRender" : false
 	},
 	"Button" : 
 	{
@@ -88,11 +88,11 @@
 	},
 	"FakeDataMode" : 
 	{
-		"Enable" : true,
+		"Enable" : false,
 		"SourceDataDirectory" : "C:\\Users\\Adam\\Pictures\\pixiv-win" ,
 		"RequestDelay" : 50 ,//ms
 		"MaxPhotos" : 2000,
-		"MaxAlbums" : 0,
+		"MaxAlbums" : 10,
 		"MaxFriends" : 60
 	},
 	"Shake" : 
@@ -399,7 +399,9 @@
 		"ScrollBar" : 
 		{
 			"Height" : 10, //px
-			"WidthFilterRC" : 0.5
+			"WidthFilterRC" : 0.5,
+			"Background" : { "R" : 211,"G" : 211,"B" : 211,"A" : 255},		
+			"Foreground" : { "R" : 105,"G" : 105,"B" : 105,"A" : 255}
 		},
 		"MaximumClickSpeed" : 400, //pixels per second
 		"LoadingBarThickness" : 0,
@@ -431,8 +433,8 @@
 		"AlbumsPerRequest" : 10,
 		"Title" :
 		{
-			"FontSize" : 16,
-			"TextPadding" : 20,
+			"FontSize" : 12,
+			"TextPadding" : 0,
 			"TextColor" : 
 			{
 				"R" : 0,
@@ -456,8 +458,8 @@
 		"PhotosPerRequest" : 10,
 		"Title" :
 		{
-			"FontSize" : 16,
-			"TextPadding" : 20,
+			"FontSize" : 12,
+			"TextPadding" : 0,
 			"TextColor" : 
 			{
 				"R" : 0,
@@ -552,7 +554,7 @@
 		{
 			"RandomizeBackground" : true,
 			"FontSize" : 6,
-			"TextPadding" : 20,
+			"TextPadding" : 0,
 			"TextColor" : 
 			{
 				"R" : 255,
@@ -590,8 +592,8 @@
 			{
 				"Name" : "KeyboardNameSearch",
 				"Text" : "Use the keyboard to search by name",
-				"RightImage" : "Tutorial/keyboard_icon_small.png",
-				"LeftImage" : "Tutorial/keyboard_icon.png",
+				"RightImage" : "Tutorial/keyboard_icon_smaller.png",
+				"LeftImage" : "Tutorial/keyboard_icon_smaller.png",
 				"InvertColor" : false					
 			},
 			{

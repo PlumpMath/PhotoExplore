@@ -5,8 +5,8 @@
 
 ScrollBar::ScrollBar()
 {
-	background = Colors::LightGray;
-	foreground = Colors::DimGray;
+	background = Color(GlobalConfig::tree()->get_child("ScrollView.ScrollBar.Background"));
+	foreground = Color(GlobalConfig::tree()->get_child("ScrollView.ScrollBar.Foreground"));
 	scrollingView = NULL;
 	flyWheel = NULL;
 }

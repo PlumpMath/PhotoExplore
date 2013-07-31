@@ -30,6 +30,10 @@ public:
 		itemsPerRequest = GlobalConfig::tree()->get<int>("FacebookAPI.ItemsPerRequest");
 	}
 
+	virtual State getState() {
+		return state;
+	}
+
 	virtual FBNode * getNext() = 0;
 
 };
@@ -40,18 +44,22 @@ protected:
 	FBNode * node;	
 	FBNode * nextItem;
 	string edgeName;
+	bool ascending;
 
 public:
-	FBSimpleEdgeCursor(FBNode * _node, string _edgeName) :
+	FBSimpleEdgeCursor(FBNode * _node, string _edgeName, bool _ascending = false) :
 		node(_node),
 		nextItem(NULL),
-		edgeName(_edgeName)
+		edgeName(_edgeName),
+		ascending(_ascending)
 	{
 	}
 
 	virtual void loadItems(int items) = 0;
 	void reset();
 	FBNode * getNext();
+	FBNode * getNextAsc();
+	FBNode * getNextDesc();
 };
 
 
@@ -93,11 +101,21 @@ public:
 class FBUserAlbumsCursor : public FBSimpleEdgeCursor {
 
 public:
-	FBUserAlbumsCursor(FBNode * _node) : FBSimpleEdgeCursor(_node,"albums")
+	FBUserAlbumsCursor(FBNode * _node) : FBSimpleEdgeCursor(_node,"albums",true)
 	{}
 
 	void loadItems(int items);
 };
+
+
+//class FBUserPhotosCursor : public FBSimpleEdgeCursor {
+//
+//public:
+//	FBUserPhotosCursor(FBNode * _node) : FBSimpleEdgeCursor(_node,"photos")
+//	{}
+//
+//	void loadItems(int items);
+//};
 
 class FBAlbumPhotosCursor : public FBSimpleEdgeCursor {
 
@@ -106,6 +124,28 @@ public:
 	{}
 
 	void loadItems(int items);
+};
+
+class InterleavingCursor : public FBDataCursor {
+	
+private:
+	int lastCursorIndex; 
+
+public:
+	FBDataCursor * cursor1, * cursor0;
+
+	InterleavingCursor(FBDataCursor * _cursor0, FBDataCursor * _cursor1) :
+		cursor0(_cursor0),
+		cursor1(_cursor1),
+		lastCursorIndex(0)
+	{
+
+	}
+
+	FBNode * getNext();
+
+	State getState();
+
 };
 
 

@@ -119,9 +119,6 @@ public:
 	void update(double delta);
 	void draw();
 		
-
-	void doPreCheck();
-
 	void launchBrowser();
 
 	void elementClicked(LeapElement * element);

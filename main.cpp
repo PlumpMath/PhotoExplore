@@ -33,6 +33,8 @@
 #include "FacebookDataDisplay.hpp"
 #include "FacebookBrowser.hpp"
 
+#include "FBDataCursor.hpp"
+
 //#include <execinfo.h>
 //#include <signal.h>
 //#include <stdlib.h>
@@ -155,7 +157,7 @@ bool init( int window_width, int window_height, bool isFull)
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	glOrtho(0.0f, window_width, window_height, 0.0f, -127.0f, 128.0f);
+	glOrtho(0.0f, window_width, window_height, 0.0f, -300.0, 300.0);
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
@@ -338,17 +340,16 @@ public:
 	IMPLEMENT_REFCOUNTING(MyVisitor);
 };
 
-class Compl : public CefCompletionHandler
+class DeleteComplete : public CefCompletionHandler
 {
 public:
 	void OnComplete()
 	{
-		CefShutdown();
-		
+		CefShutdown();		
 		GraphicsContext::getInstance().invokeApplicationExitCallback();
 	}
 
-	IMPLEMENT_REFCOUNTING(Compl);
+	IMPLEMENT_REFCOUNTING(DeleteComplete);
 };
 
 class DeleteCookieTask : public CefTask {
@@ -357,7 +358,7 @@ public:
 	void Execute()
 	{		
 		CefCookieManager::GetGlobalManager()->DeleteCookies("","");		
-		CefRefPtr<Compl> cc = new Compl();
+		CefRefPtr<DeleteComplete> cc = new DeleteComplete();
 		CefCookieManager::GetGlobalManager()->FlushStore(cc.get());
 	}
 
@@ -377,8 +378,6 @@ public:
 	IMPLEMENT_REFCOUNTING(ShutdownTask);
 
 };
-
-#include "FBDataCursor.hpp"
 
 void runTests()
 {
@@ -435,6 +434,13 @@ void runTests()
 }
 
 
+class PhotoExApp : public CefApp
+{
+
+
+};
+
+
 #ifdef _WIN32
 
 int WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmdShow) 
@@ -458,6 +464,7 @@ int WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmd
 	settings.multi_threaded_message_loop = true;
 #endif
 	settings.command_line_args_disabled = true;
+	settings.single_process = true;
 
 	CefInitialize(mainArgs, settings, NULL);
 	

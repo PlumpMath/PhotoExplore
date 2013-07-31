@@ -16,6 +16,7 @@
 #include "ImageButton.hpp"
 #include "FriendListCursorView.hpp"
 #include "AlbumCursorView.hpp"
+#include "FriendCursorView.hpp"
 
 #include <stack>
 
@@ -32,7 +33,9 @@ private:
 	FacebookIntroView * introView;
 	FriendListCursorView * friendCursorView;
 	AlbumCursorView * albumCursorView;
-	FriendDetailView * friendDetailView;
+	FriendCursorView * friendDetailView;
+
+	//FriendDetailView * friendDetailView;
 	
 	void setTopView(View * topView);
 

@@ -59,31 +59,9 @@ LeapStartScreen::LeapStartScreen(std::string startDir)
 	}
 	else {
 		init();
-		doPreCheck();
 	}
 }
 
-void LeapStartScreen::doPreCheck()
-{
-	//if (state == StartState)
-	//{
-	//	facebookLoginButton->setDrawLoadAnimation(true);
-	//	state = PreCheckState;
-
-	//	facebookPreCheckClient = CefRefPtr<Cefalopod>(new Cefalopod());
-
-	//	CefBrowserSettings browserSettings;
-
-	//	CefWindowInfo info;
-	//	float windowWidth = GlobalConfig::ScreenWidth;
-	//	float windowHeight = GlobalConfig::ScreenHeight;
-	//	
-	//	info.SetAsOffScreen(0);
-
-	//	string fbURL = "https://www.facebook.com/dialog/oauth?client_id=144263362431439&redirect_uri=http://144263362431439.com&scope=user_photos,friends_photos&response_type=token";
-	//	CefBrowserHost::CreateBrowser(info, facebookPreCheckClient.get(),fbURL, browserSettings);
-	//}
-}
 
 void LeapStartScreen::setFinishedCallback(boost::function<void()>  _finishedCallback)
 {
@@ -422,6 +400,10 @@ void LeapStartScreen::update(double delta)
 				GlobalConfig::TestingToken = facebookClient->token;
 				if (GlobalConfig::TestingToken.length() > 0)
 				{
+					if (!DestroyWindow(facebookClient->browserHandle))
+					{
+						Logger::stream("Cefalopod","ERROR") << "Couldn't destroy. " << GetLastError() << endl;
+					}
 					FBNode * root = new FBNode("me");
 					root->setNodeType("me");
 					
@@ -431,13 +413,11 @@ void LeapStartScreen::update(double delta)
 				}
 				else
 				{					
-					//this->logoutButton->setVisible(false);
 					this->facebookLoginButton->setText("Login failed. Tap to retry.");
 					this->facebookLoginButton->reloadText();
 					this->facebookLoginButton->elementClickedCallback = [this](LeapElement * element){
 						this->launchBrowser();
 					};
-					//this->doPreCheck();
 				}
 			}
 		}

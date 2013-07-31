@@ -78,7 +78,7 @@ FriendListCursorView::FriendListCursorView() : DataListActivity(3)
 				searchCursor->lookupName(newText);				
 				this->show(searchCursor);			
 				searchCursor->getNext();
-				showPicturelessFriends = true;
+				//showPicturelessFriends = true;
 			}
 			else
 			{
@@ -112,7 +112,9 @@ void FriendListCursorView::resume()
 void FriendListCursorView::setUserNode(FBNode * node)
 {	
 	editText->setText("");
-	this->lookupDialogState = 0;
+	lookupDialogState = 0;
+	layoutDirty = true;
+
 	showPicturelessFriends = false;
 
 	searchCursor = new FBFriendsFQLCursor("",node);
@@ -151,7 +153,7 @@ FBDataView * FriendListCursorView::getDataView(FBNode * itemNode)
 	{			
 		itemNode->Edges.insert(Edge("tried_load","1"));
 		stringstream load2;
-		load2 << itemNode->getId() << "?fields=photos.fields(id,name,images,album).limit(2),albums.fields(photos.fields(id,name,images,album).limit(1)).limit(2)"; // "?fields=photos.fields(id,name,images).limit(2)";					
+		load2 << itemNode->getId() << "?fields=photos.fields(id,name,images,album).limit(2),albums.fields(photos.fields(id,name,images,album).limit(1)).limit(2)";		
 		FBDataSource::instance->loadField(itemNode,load2.str(),"",[itemNode,this](FBNode * nn)
 		{
 			FriendListCursorView * me = this;
@@ -193,14 +195,6 @@ void FriendListCursorView::getTutorialDescriptor(vector<string> & tutorial)
 	tutorial.push_back("KeyboardNameSearch");
 }
 
-//void FriendListCursorView::onGlobalFocusChanged(bool isFocused)
-//{
-//	if (isFocused)
-//		SwipeGestureDetector::getInstance().setFlyWheel(itemScroll->getFlyWheel());
-//	else
-//		SwipeGestureDetector::getInstance().setFlyWheel(NULL);
-//}
-
 void FriendListCursorView::layout(Vector position, cv::Size2f size)
 {
 	Logger::stream("FriendListCursorView","INFO") << "Layout. Position = " << position.toString() << endl;
@@ -208,13 +202,15 @@ void FriendListCursorView::layout(Vector position, cv::Size2f size)
 	
 	cv::Size2f dialogSize = cv::Size2f(GlobalConfig::tree()->get<float>("FriendLookupView.LookupDialog.Width"),GlobalConfig::tree()->get<float>("FriendLookupView.LookupDialog.Height"));
 	Vector dialogPosition = position + Vector((size.width-dialogSize.width)*.5f,(size.height-dialogSize.height)*.5f,10);
+	
+	float menuHeight = GlobalConfig::tree()->get<float>("Menu.Height");
 
 	if (lookupDialogState == 2)
 	{
 		editText->setLayoutDuration(300);
 		labelText->setLayoutDuration(300);
-		//labelText->setAnimateOnLayout(false);
-		//editText->setAnimateOnLayout(false);
+		labelText->setAnimateOnLayout(false);
+		editText->setAnimateOnLayout(false);
 		
 		auto labelTextConfig = GlobalConfig::tree()->get_child("FriendLookupView.LookupDialog.FriendLookupLabel");
 		labelText->setText(labelTextConfig.get<string>("Text"));
@@ -228,13 +224,10 @@ void FriendListCursorView::layout(Vector position, cv::Size2f size)
 		labelText->setLayoutDuration(600);
 		labelText->setAnimateOnLayout(true);
 
-		float tutorialHeight = GlobalConfig::tree()->get<float>("Tutorial.Height");
-		float scrollBarHeight = GlobalConfig::tree()->get<float>("ScrollView.ScrollBar.Height");
+		//float tutorialHeight = GlobalConfig::tree()->get<float>("Tutorial.Height");
 
-
-		dialogSize.height = (tutorialHeight - scrollBarHeight)*.66f;
-		
-		dialogPosition = position + Vector((size.width - dialogSize.width)*.5f,size.height+(tutorialHeight*.33f)-dialogSize.height*.5f,10);
+		dialogSize.height = (menuHeight)*.5f;
+		dialogPosition = position + Vector((size.width - dialogSize.width)*.5f,-menuHeight + (menuHeight - dialogSize.height)*.5f,10);
 		
 		dialogSize.height -= 10;
 
@@ -246,10 +239,6 @@ void FriendListCursorView::layout(Vector position, cv::Size2f size)
 		}
 		else
 		{	
-
-			//dialogSize.height = (tutorialHeight - scrollBarHeight)*.5f;
-			//dialogPosition = position + Vector((size.width - dialogSize.width)*.5f,size.height,10);
-
 			editText->layout(dialogPosition,cv::Size2f(0,dialogSize.height));
 			labelText->setText("Showing all friends");		
 			labelText->layout(dialogPosition,cv::Size2f(dialogSize.width,dialogSize.height));

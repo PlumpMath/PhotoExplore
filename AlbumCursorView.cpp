@@ -2,8 +2,7 @@
 #include "ViewOrchestrator.hpp"
 
 AlbumCursorView::AlbumCursorView() : DataListActivity(2)
-{
-	
+{	
 	imageDetailView = new ImageDetailView();
 	imageDetailView->setVisible(false);
 	imageDetailView->setFinishedCallback([this](string a){
@@ -11,12 +10,29 @@ AlbumCursorView::AlbumCursorView() : DataListActivity(2)
 		this->imageDetailView->setVisible(false);
 		this->layoutDirty = true;						
 	});
+
+	addChild(imageDetailView);
 }
 
 void AlbumCursorView::setAlbumOwner(FBNode * _albumOwner)
 {
 	this->albumOwner = _albumOwner;
-	this->show(new FBAlbumPhotosCursor(albumOwner));
+
+	FBAlbumPhotosCursor * photosCursor = new FBAlbumPhotosCursor(albumOwner);
+	photosCursor->getNext();
+
+	this->show(photosCursor);
+	
+	TextPanel * albumHeading = dynamic_cast<TextPanel*>(ViewOrchestrator::getInstance()->requestView(albumOwner->getId() + "/name", this));
+
+	if (albumHeading == NULL)
+	{
+		albumHeading = new TextPanel(albumOwner->getAttribute("name"));
+		ViewOrchestrator::getInstance()->registerView(albumOwner->getId() + "/name",albumHeading,this);
+	}
+	albumHeading->setStyle(GlobalConfig::tree()->get_child("AlbumDetailView.Title"));
+
+	setTitlePanel(albumHeading);
 }
 
 FBNode * AlbumCursorView::getAlbumOwner()
@@ -59,6 +75,12 @@ FBDataView * AlbumCursorView::getDataView(FBNode * node)
 	return item;
 }
 
+
+void AlbumCursorView::showPhoto(FBNode * photoNode)
+{
+	((Panel*)getDataView(photoNode))->elementClicked();
+}
+
 void AlbumCursorView::getTutorialDescriptor(vector<string> & tutorial)
 {
 	tutorial.push_back("swipe");
@@ -88,5 +110,15 @@ void AlbumCursorView::onGlobalGesture(const Controller & controller, std::string
 	else if (gestureType.compare("pointing") == 0)
 	{
 		itemScroll->getFlyWheel()->impartVelocity(0);
+	}
+}
+
+void AlbumCursorView::layout(Vector position, cv::Size2f size)
+{
+	DataListActivity::layout(position,size);
+	
+	if (imageDetailView->isVisible())
+	{
+		imageDetailView->layout(position,size);
 	}
 }

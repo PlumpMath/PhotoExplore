@@ -7,32 +7,33 @@
 #include "ScrollBar.hpp"
 #include "FBDataCursor.hpp"
 #include "FBDataView.hpp"
+#include "TextPanel.h"
 
 using namespace Facebook;
 
 class DataListActivity : public ActivityView {
 
 protected: 	
-	void updateLoading();
-	void updatePriorities();
-
 	ViewGroup * itemGroup;
 	ScrollingView * itemScroll;	
 	ScrollBar * scrollBar;
-	View * loadIndicator;
+	
+	TextPanel * loadIndicator;	
+	TextPanel * titlePanel;
 
 	FBDataCursor * cursor;
-
 
 	int rowCount;
 	float currentRightBoundary,lastUpdatePos;
 
-
-	map<FBNode*,FBDataView*> items;
-	
+	map<FBNode*,FBDataView*> items;	
 
 	virtual void addNode(FBNode * node);
 	virtual FBDataView * getDataView(FBNode * node) = 0;
+	
+	void setTitlePanel(TextPanel * titlePanel);
+	void updateLoading();
+	void updatePriorities();
 
 public:
 	DataListActivity(int rowCount);
@@ -47,8 +48,6 @@ public:
 	void layout(Vector position, cv::Size2f size);
 	void draw();
 	void update();
-
-
 };
 
 

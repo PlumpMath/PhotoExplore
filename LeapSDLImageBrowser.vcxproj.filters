@@ -216,13 +216,7 @@
     <ClCompile Include="TextEditPanel.cpp">
       <Filter>Source Files\Panel</Filter>
     </ClCompile>
-    <ClCompile Include="AlbumDetailView.cpp">
-      <Filter>Source Files\NewPanel\DataViews</Filter>
-    </ClCompile>
     <ClCompile Include="FacebookIntroView.cpp">
-      <Filter>Source Files\NewPanel\DataViews</Filter>
-    </ClCompile>
-    <ClCompile Include="FriendDetailView.cpp">
       <Filter>Source Files\NewPanel\DataViews</Filter>
     </ClCompile>
     <ClCompile Include="ImageDetailView.cpp">
@@ -248,6 +242,12 @@
     </ClCompile>
     <ClCompile Include="FBFriendFQLCursor.cpp">
       <Filter>Source Files\DataModel</Filter>
+    </ClCompile>
+    <ClCompile Include="Cefalopod.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FriendCursorView.cpp">
+      <Filter>Source Files\NewPanel\DataViews</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -371,22 +371,13 @@
     <ClInclude Include="FrameView.hpp">
       <Filter>Header Files\NewPanel</Filter>
     </ClInclude>
-    <ClInclude Include="AlbumDetailView.hpp">
-      <Filter>Header Files\NewPanel\DataViews</Filter>
-    </ClInclude>
     <ClInclude Include="FacebookFriendListView.hpp">
       <Filter>Header Files\NewPanel\DataViews</Filter>
     </ClInclude>
     <ClInclude Include="FacebookIntroView.hpp">
       <Filter>Header Files\NewPanel\DataViews</Filter>
     </ClInclude>
-    <ClInclude Include="FriendDetailView.hpp">
-      <Filter>Header Files\NewPanel\DataViews</Filter>
-    </ClInclude>
     <ClInclude Include="FriendPhotoLinkedView.hpp">
-      <Filter>Header Files\NewPanel\DataViews</Filter>
-    </ClInclude>
-    <ClInclude Include="RelevantImageView.hpp">
       <Filter>Header Files\NewPanel\DataViews</Filter>
     </ClInclude>
     <ClInclude Include="AlbumPanel.hpp">
@@ -495,6 +486,9 @@
       <Filter>Header Files\Panel</Filter>
     </ClInclude>
     <ClInclude Include="AlbumCursorView.hpp">
+      <Filter>Header Files\NewPanel\DataViews</Filter>
+    </ClInclude>
+    <ClInclude Include="FriendCursorView.hpp">
       <Filter>Header Files\NewPanel\DataViews</Filter>
     </ClInclude>
   </ItemGroup>

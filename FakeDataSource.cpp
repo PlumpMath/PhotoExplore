@@ -91,24 +91,24 @@ void FakeDataSource::loadWithOffset(FBNode * parent, string edge, int limit, int
 		}
 	} else if (edge.compare("albums") == 0)
 	{
-		for (int i=0;i<limit;i++)
+		if (albumIndex < GlobalConfig::tree()->get<int>("FakeDataMode.MaxAlbums"))
 		{
-			stringstream ss2;
-			ss2 << (30000 + this->albumIndex);
+			for (int i=0;i<limit;i++)
+			{
+				stringstream ss2;
+				ss2 << (30000 + this->albumIndex);
 
-			FBNode * n2 = new FBNode(ss2.str());
-			n2->setNodeType("albums");
+				FBNode * n2 = new FBNode(ss2.str());
+				n2->setNodeType("albums");
 
-			stringstream name;
-			name << "Good album with a very long name"  << albumIndex;
-			n2->Edges.insert(Edge("name",name.str()));
+				stringstream name;
+				name << "Good album with a very long name"  << albumIndex;
+				n2->Edges.insert(Edge("name",name.str()));
 						
-			n2->ReverseEdges.insert(Edge(parent->getNodeType(),parent));
-			parent->Edges.insert(Edge("albums",n2));
-			if (albumIndex >= GlobalConfig::tree()->get<int>("FakeDataMode.MaxAlbums"))
-				parent->loadState["albums"].hasReachedEnd = true;
-
-			albumIndex++;
+				n2->ReverseEdges.insert(Edge(parent->getNodeType(),parent));
+				parent->Edges.insert(Edge("albums",n2));
+				albumIndex++;
+			}
 		}
 	}else if (edge.compare("friends") == 0)
 	{		
@@ -127,18 +127,10 @@ void FakeDataSource::loadWithOffset(FBNode * parent, string edge, int limit, int
 
 				FBNode * n2 = new FBNode(ss2.str());
 				n2->setNodeType("friends");
-			/*	stringstream name;
-				if (std::rand() % 2 == 0)
-					name << "AB friend #"  << friendIndex;
-				else
-					name << "ZY friend #"  << friendIndex;*/
 
 				string billy [] = {"King","Idell","Yun","Felix","Micki","Celine","Blanch","Maira","Fidel",
 					"Carolee","Angle","Bell","Maybelle","Bertram","Jolie","Miguel","Weston","Milo","Hedy","Raphael","Catina","Maryrose","Kathryne","Dallas","Lavenia","Lael","Suellen","Jermaine","Marguerita","Pamala"};
-				
-				//{"Shit","Ass","John","Bill","Penis","Munch","Cum","Sperm","Goblin","Susanna","Elephant", "Wang","Leaf","Holy","What","Cable","Billy","Willy","Milly","Schlong"};
-				
-				
+
 				stringstream name;				
 				name << billy[rand()%20] << " " << billy[rand()%20];
 

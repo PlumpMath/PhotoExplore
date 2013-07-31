@@ -57,6 +57,8 @@ public:
 	float getTextFitPadding();
 	void setVisible(bool v);
 
+	void setStyle(boost::property_tree::ptree configProps);
+
 	int getTextAlignment();
 	void setTextAlignment(int alignment);
 

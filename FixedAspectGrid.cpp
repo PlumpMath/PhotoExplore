@@ -108,7 +108,8 @@ void FixedAspectGrid::layout(Vector position, cv::Size2f _size)
 
 		childPosition += position;		
 		
-		(*it)->layout(childPosition,cv::Size2f(childSize.width - (childPadding[0]+childPadding[2]), childSize.height-(childPadding[1]+childPadding[3])));
+		if ((*it)->isVisible())
+			(*it)->layout(childPosition,cv::Size2f(childSize.width - (childPadding[0]+childPadding[2]), childSize.height-(childPadding[1]+childPadding[3])));
 		
 		if (++row == gridDimensions.height)
 		{

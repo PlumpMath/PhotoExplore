@@ -143,6 +143,7 @@ void PanelBase::animatePanelSize(cv::Size2f targetSize, long duration)
 
 void PanelBase::animatePanelSize(float targetWidth, float targetHeight, long duration)
 {
+	
 	if (duration <= 0)
 		duration = sqrtf(powf(width-targetWidth,2) + pow(height-targetHeight,2));
 
@@ -168,15 +169,20 @@ void PanelBase::animatePanelSize(float targetWidth, float targetHeight, long dur
 		heightAnimation = DoubleAnimation(startHeight,targetHeight,duration, NULL);
 	}
 
-	width = targetWidth;
-	height = targetHeight;
-	this->lastSize = cv::Size2f(targetWidth,targetHeight);
 
 	if (duration > 0)
 	{
-		widthAnimation.start();
-		heightAnimation.start();
+		if (width != targetWidth)
+			widthAnimation.start();
+
+		if (height != targetHeight)
+			heightAnimation.start();
 	}	
+
+	
+	width = targetWidth;
+	height = targetHeight;
+	this->lastSize = cv::Size2f(targetWidth,targetHeight);
 }
 
 void PanelBase::layout(cv::Size2f size)

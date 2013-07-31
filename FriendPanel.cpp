@@ -7,18 +7,18 @@
 FriendPanel::FriendPanel(cv::Size2f targetSize) : 
 	ContentPanel()
 {
-	vector<RowDefinition> gridDefinition;
+	//vector<RowDefinition> gridDefinition;
 
 
-	gridDefinition.push_back(RowDefinition(.5f));
-	gridDefinition.push_back(RowDefinition(.5f));
-	gridDefinition[0].ColumnWidths.push_back(.5f);
-	gridDefinition[0].ColumnWidths.push_back(.5f);
-	gridDefinition[1].ColumnWidths.push_back(1);
+	//gridDefinition.push_back(RowDefinition(.5f));
+	//gridDefinition.push_back(RowDefinition(.5f));
+	//gridDefinition[0].ColumnWidths.push_back(.5f);
+	//gridDefinition[0].ColumnWidths.push_back(.5f);
+	//gridDefinition[1].ColumnWidths.push_back(1);
 
-	layoutGroup = new CustomGrid(gridDefinition, false);
+	layoutGroup = new UniformGrid(cv::Size2i(2,2)); //new CustomGrid(gridDefinition, false);
 
-	friendViewGroup = new UniformGrid(cv::Size2i(2,1));
+	//friendViewGroup = new UniformGrid(cv::Size2i(2,1));
 
 	this->setContentView(layoutGroup);
 
@@ -33,10 +33,11 @@ FriendPanel::FriendPanel(cv::Size2f targetSize) :
 void FriendPanel::setDataPriority(float _dataPriority)
 {
 	this->dataPriority = _dataPriority;
-	for (auto it = friendViewGroup->getChildren()->begin(); it != friendViewGroup->getChildren()->end();it++)
+	for (auto it = layoutGroup->getChildren()->begin(); it != layoutGroup->getChildren()->end();it++)
 	{
 		Panel * imagePanel = dynamic_cast<Panel*>(*it);
-		imagePanel->setDataPriority(dataPriority);
+		if (imagePanel != NULL)
+			imagePanel->setDataPriority(dataPriority);
 	}
 	if (friendPhotoPanel != NULL)
 		friendPhotoPanel->setDataPriority(dataPriority);
@@ -52,7 +53,7 @@ void FriendPanel::show(FBNode * _node)
 {	
 	this->activeNode = _node;
 	
-	View * item = ViewOrchestrator::getInstance()->requestView(activeNode->getId() + "/name", this);
+	View * item = ViewOrchestrator::getInstance()->requestView(activeNode->getId() + "/name_small", this);
 	 
 	if (item != NULL)
 	{
@@ -61,7 +62,7 @@ void FriendPanel::show(FBNode * _node)
 	else
 	{
 		nameText = new TextPanel(activeNode->getAttribute("name")); 
-		ViewOrchestrator::getInstance()->registerView(activeNode->getId() + "/name",nameText,this);
+		ViewOrchestrator::getInstance()->registerView(activeNode->getId() + "/name_small",nameText,this);
 	}
 
 	boost::property_tree::ptree labelConfig = GlobalConfig::tree()->get_child("FriendPanel.NameLabel");
@@ -70,11 +71,11 @@ void FriendPanel::show(FBNode * _node)
 	nameText->setTextColor(Color(labelConfig.get_child("TextColor")));
 	nameText->setBackgroundColor(Color(labelConfig.get_child("BackgroundColor")));
 
-	if (labelConfig.get<bool>("RandomizeBackground"))
-	{
-		float ra = ((float)(std::rand()%20))/40.0f;
-		nameText->getBackgroundColor().setAlpha(.5f + ra);
-	}
+	//if (labelConfig.get<bool>("RandomizeBackground"))
+	//{
+	//	float ra = ((float)(std::rand()%20))/40.0f;
+	//	nameText->getBackgroundColor().setAlpha(.5f + ra);
+	//}
 
 
 	friendPhotoPanel = (Panel*)ViewOrchestrator::getInstance()->requestView(activeNode->getId() + "/friendphoto", this);
@@ -94,9 +95,11 @@ void FriendPanel::show(FBNode * _node)
 	layoutGroup->addChild(nameText);
 	layoutGroup->addChild(friendPhotoPanel);
 
-	layoutGroup->addChild(friendViewGroup);
+	//layoutGroup->addChild(friendViewGroup);
 
 	updateLoading();
+
+	layoutDirty = true;
 }
 
 void FriendPanel::updateLoading()
@@ -153,7 +156,7 @@ void FriendPanel::addNode(FBNode * childNode)
 		}		
 		item->setLayoutParams(LayoutParams(cv::Size2f(),cv::Vec4f(0,0,0,0)));
 		((Panel*)item)->setDataPriority(dataPriority);
-		friendViewGroup->addChild(item);		
+		layoutGroup->addChild(item);		
 	}
 	layoutDirty = true;
 }
@@ -162,9 +165,9 @@ void FriendPanel::addNode(FBNode * childNode)
 
 void FriendPanel::viewOwnershipChanged(View * view, ViewOwner * newOwner)
 {	
-	if (!friendViewGroup->remove(view))	
-	{
-		layoutGroup->remove(view);
-	}
+	/*if (!friendViewGroup->remove(view))	
+	{*/
+	layoutGroup->remove(view);
+	//}
 }
 
