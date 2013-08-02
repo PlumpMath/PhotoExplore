@@ -60,9 +60,9 @@ ShakeGesture * ShakeGestureDetector::getLatestShakeGesture()
 void ShakeGestureDetector::calculateFFT(int pId, list<VelocitySample> & samples)
 {
 
-	glfwPollEvents();
-	int isHint = 0;
-	isHint = glfwGetKey(GLFW_KEY_TAB) == GLFW_PRESS;
+	//glfwPollEvents();
+	int isHint = 1;
+//	isHint = glfwGetKey(GLFW_KEY_TAB) == GLFW_PRESS;
 
 	kiss_fft_cpx data[30];//=  kiss_fft_cpx[30];//samples.size()];
 	kiss_fft_cpx result[30];//= kiss_fft_cpx[30];//samples.size()];

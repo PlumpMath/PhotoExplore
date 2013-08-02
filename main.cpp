@@ -447,6 +447,7 @@ int WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmd
 int main(int argc, char * argv[]){
 		
 	signal(SIGSEGV, handle);
+	signal(SIGBUS, handle);
 	
 #endif
 

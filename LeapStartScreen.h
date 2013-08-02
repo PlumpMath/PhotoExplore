@@ -121,7 +121,7 @@ public:
 		
 	void launchBrowser();
 
-	void elementClicked(LeapElement * element);
+	void startApplication(std::string token);
 	void onFrame(const Controller & controller);
 	
 	bool onLeapGesture(const Controller & controller, const Gesture & gesture);

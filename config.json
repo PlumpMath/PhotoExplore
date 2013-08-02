@@ -1,11 +1,17 @@
 {
+	"ExternalCef" : 
+	{
+		"CefClientPath" : "/Users/adamskubel/lib/cef_binary_3.1453.1255_macosx_fixed/xcodebuild/Debug/cefclient.app/Contents/MacOS/cefclient",
+		"TokenFilePath" : "/Users/adamskubel/lib/cef_binary_3.1453.1255_macosx_fixed/xcodebuild/Debug/cefclient.app/Contents/MacOS/token.out" 
+	},
 	"FacebookAPI" : 
 	{
-		"ItemsPerRequest" : 25		
+		"ItemsPerRequest" : 25,
+		"DebugToken6" : "CAACDNO54yc8BAHgr3J6aNvkLRnycR9JuPQu84T43ACS6jsCgrN819RmLAN1GJp8F8KKecL0ai3eRZCgXZBw9ynuCS0MTr50lSfd6to2f7mtzhsNgiOlSID2daYIcQ9A5j8ctZBxRgbZCc6s9CpVlQZAJoN1ec0y0ZD"
 	},
 	"Logging" : 
 	{
-		"Enabled" : false
+		"Enabled" : true
 	},
 	"Typography" : 
 	{
@@ -17,17 +23,17 @@
 		[
 			{
 				"Name" : "Default",
-				"FontFile" : "./Roboto-Light.ttf", 
+				"FontFile" : "../Roboto-Light.ttf", 
 				"FontScaleModifier" : 1.0
 			},
 			{
 				"Name" : "Regular",
-				"FontFile" : "./Roboto-Regular.ttf",
+				"FontFile" : "../Roboto-Regular.ttf",
 				"FontScaleModifier" : 1.0
 			},
 			{
 				"Name" : "Bold",
-				"FontFile" : "./Roboto-Bold.ttf",
+				"FontFile" : "../Roboto-Bold.ttf",
 				"FontScaleModifier" : 1.0
 			}
 		]
@@ -41,7 +47,7 @@
 		"EnableLineSmoothing" : true,
 		"FSAASamples" : 0,
 		"ShaderDirectory" : ".",
-		"Fullscreen" : true,
+		"Fullscreen" : false,
 		"OverrideResolution" : false,
 		"OverrideWidth" : 1280,
 		"OverrideHeight" : 720,
@@ -70,15 +76,15 @@
 	},
 	"TextureLoading" :
 	{
-		"MaxConcurrentTasks" : 4,
-		"PixelBufferCount" : 4,
+		"MaxConcurrentTasks" : 2,
+		"PixelBufferCount" : 1,
 		"InitialTextureCount" : 200,
 		"MaxTextureCount" : 400
 	},
 	"ResourceCache" : 
 	{
-		"TextureCacheSize" : 512, 	//Megabytes
-		"ImageCacheSize" : 768, 	//Megabytes		
+		"TextureCacheSize" : 128, 	//Megabytes
+		"ImageCacheSize" : 128, 	//Megabytes		
 		"MaxImageSize" : 4,			//Megabytes
 		"CacheGCFrequency" : 5000 ,//milliseconds		
 		"FullCacheGCFrequency" : 2000, //milliseconds
@@ -89,7 +95,7 @@
 	"FakeDataMode" : 
 	{
 		"Enable" : false,
-		"SourceDataDirectory" : "C:\\Users\\Adam\\Pictures\\pixiv-win" ,
+		"SourceDataDirectory" : "/Users/adamskubel/Pictures" ,
 		"RequestDelay" : 50 ,//ms
 		"MaxPhotos" : 2000,
 		"MaxAlbums" : 10,

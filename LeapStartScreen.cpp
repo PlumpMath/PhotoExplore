@@ -299,14 +299,22 @@ void LeapStartScreen::layout(Leap::Vector pos, cv::Size2f size)
 }
 
 void LeapStartScreen::launchBrowser()
-{		
-	if (state != BrowserOpenState)
+{
+	string testToken = GlobalConfig::tree()->get<string>("FacebookAPI.DebugToken","");
+	
+	if (testToken.length() > 0)
+	{
+		startApplication(testToken);
+	}
+	else if (state != BrowserOpenState)
 	{	
 		facebookLoginButton->setText(GlobalConfig::tree()->get<string>("LeapStartScreen.BrowserLoginPrompt"));
 		facebookLoginButton->reloadText();
 
 		GlobalConfig::TestingToken = "";
 		state = BrowserOpenState;
+		
+#ifdef _WIN32
 
 		facebookClient = new Cefalopod();
 
@@ -328,12 +336,39 @@ void LeapStartScreen::launchBrowser()
 
 		string fbURL = "https://www.facebook.com/dialog/oauth?client_id=144263362431439&redirect_uri=http://144263362431439.com&scope=user_photos,friends_photos,user_likes,publish_stream&response_type=token";
 		CefBrowserHost::CreateBrowser(info, facebookClient.get(),fbURL, browserSettings);
+#else
+		string cefPath = GlobalConfig::tree()->get<string>("ExternalCef.CefClientPath");
+		cout << "Running cefclient: " << cefPath << endl;
+		system(cefPath.c_str());
+		
+		
+		
+		string tokenPath = GlobalConfig::tree()->get<string>("ExternalCef.TokenFilePath");
+		ifstream readStream;
+		readStream.open(tokenPath);
+		
+		
+		
+		string tok;
+		readStream >> tok;
+		
+		startApplication(tok);
+#endif
 	}
 }
 
-void LeapStartScreen::elementClicked(LeapElement * element)
+void LeapStartScreen::startApplication(std::string token)
 {
+	
+	GlobalConfig::TestingToken = token;
+	FBNode * root = new FBNode("me");
+	root->setNodeType("me");
+	
+	rootView = (FacebookBrowser*) FacebookDataDisplay::getInstance();
+	FacebookBrowser::getInstance()->displayNode(root,"");
+	state = FinishedState;
 }
+
 
 bool LeapStartScreen::onLeapGesture(const Controller & controller, const Gesture & gesture)
 {
@@ -396,16 +431,11 @@ void LeapStartScreen::update(double delta)
 				};
 			}
 			else if (facebookClient->done)
-			{		
-				GlobalConfig::TestingToken = facebookClient->token;
+			{
+				string token = facebookClient->token;
 				if (GlobalConfig::TestingToken.length() > 0)
 				{
-					FBNode * root = new FBNode("me");
-					root->setNodeType("me");
-					
-					rootView = (FacebookBrowser*) FacebookDataDisplay::getInstance();
-					FacebookBrowser::getInstance()->displayNode(root,"");
-					state = FinishedState;
+					startApplication(token);
 				}
 				else
 				{					
