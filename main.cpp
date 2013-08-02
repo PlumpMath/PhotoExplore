@@ -35,9 +35,9 @@
 
 #include "FBDataCursor.hpp"
 
-//#include <execinfo.h>
-//#include <signal.h>
-//#include <stdlib.h>
+#include <execinfo.h>
+#include <signal.h>
+#include <stdlib.h>
 
 using namespace Leap;
 
@@ -86,7 +86,7 @@ void handleFatalError(string errorText, int sig)
 
 #else
 
-void handler(int sig) {
+void handle(int sig) {
 	void *array[30];
 	size_t size;
 	
@@ -97,6 +97,10 @@ void handler(int sig) {
 	fprintf(stderr, "Error: signal %d:\n", sig);
 	backtrace_symbols_fd(array, size, STDERR_FILENO);
 	exit(1);
+}
+
+void handleFatalError(string errorText, int sig) {
+	handle(sig);
 }
 
 #endif
@@ -434,20 +438,16 @@ void runTests()
 }
 
 
-class PhotoExApp : public CefApp
-{
-
-
-};
-
-
 #ifdef _WIN32
 
-int WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmdShow) 
-{ // int argc, char* argv[] ){
+int WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmdShow) {
+	
 #else
-	int main(int argc, char * argv[]){
-	signal(SIGSEGV, handler);
+	
+int main(int argc, char * argv[]){
+		
+	signal(SIGSEGV, handle);
+	
 #endif
 
 		

@@ -91,7 +91,7 @@ FriendListCursorView::FriendListCursorView() : DataListActivity(3)
 
 				searchCursor->lookupName(newText);		
 				searchCursor->getNext();
-				updateLoading();
+				this->updateLoading();
 			}
 		}
 	});

@@ -1,4 +1,4 @@
-﻿#include "Cefalopod.h"
+#include "Cefalopod.h"
 
 #include <include/cef_browser.h>
 #include <include/cef_client.h>
@@ -23,7 +23,7 @@ CefRefPtr<CefLifeSpanHandler> Cefalopod::GetLifeSpanHandler()
 
 CefRefPtr<CefLoadHandler> Cefalopod::GetLoadHandler()
 {
-	return CefRefPtr<Cefalopod>(this);
+	return CefRefPtr<CefLoadHandler>(this);
 }
 
 bool Cefalopod::OnBeforePopup(CefRefPtr<CefBrowser> browser,
@@ -37,12 +37,6 @@ bool Cefalopod::OnBeforePopup(CefRefPtr<CefBrowser> browser,
                              bool* no_javascript_access) 
 {
 	return true;
-}
-
-HWND Cefalopod::getBrowserHandle()
-{
-	//return browser->GetHost()->GetWindowHandle();
-	return browserHandle;
 }
 
 bool Cefalopod::DoClose(CefRefPtr<CefBrowser> browser)

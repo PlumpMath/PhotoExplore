@@ -189,7 +189,7 @@ HandModel HandProcessor::buildComplexModel(Hand hand, bool isLeft)
 		fingerAngles.push_back(make_pair(f,LeapHelper::GetFingerTipAngle(hand,f)));
 	}
 
-	std::sort(fingerAngles.begin(),fingerAngles.end(),[isLeft](pair<Finger,float> & v0, pair<Finger,float> & v1) -> bool {
+	std::sort(fingerAngles.begin(),fingerAngles.end(),[isLeft](const pair<Finger,float> & v0, const pair<Finger,float> & v1) -> bool {
 		if (isLeft)
 			return v1.second < v0.second;
 		else

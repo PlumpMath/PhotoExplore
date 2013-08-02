@@ -2,14 +2,14 @@
 #define LEAPIMAGE_TEXT_EDIT_PANEL_HPP_
 
 #include "TextPanel.h"
-#include <hash_map>
+#include <unordered_map>
 
 using namespace std;
 
 class TextEditPanel : public TextPanel {
 
 private:
-	hash_map<int,pair<int,long> > keyStateMap;
+	unordered_map<int,pair<int,long> > keyStateMap;
 	boost::function<void(string newText)> textChangedCallback;
 
 	Timer cursorAnimateTimer;

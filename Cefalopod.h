@@ -13,8 +13,6 @@ class Cefalopod : public CefClient, public CefLifeSpanHandler, public CefLoadHan
 public:
 	bool done, loadedEnded, quit;
 
-	HWND browserHandle;
-
 	std::string token;
 
     Cefalopod();
@@ -39,8 +37,6 @@ public:
                              CefBrowserSettings& settings,
                              bool* no_javascript_access);
 	
-	HWND getBrowserHandle();
-
     IMPLEMENT_REFCOUNTING(Cefalopod);
 };
 

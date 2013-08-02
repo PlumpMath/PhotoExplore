@@ -400,10 +400,6 @@ void LeapStartScreen::update(double delta)
 				GlobalConfig::TestingToken = facebookClient->token;
 				if (GlobalConfig::TestingToken.length() > 0)
 				{
-					if (!DestroyWindow(facebookClient->browserHandle))
-					{
-						Logger::stream("Cefalopod","ERROR") << "Couldn't destroy. " << GetLastError() << endl;
-					}
 					FBNode * root = new FBNode("me");
 					root->setNodeType("me");
 					
