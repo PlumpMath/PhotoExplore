@@ -207,7 +207,7 @@ GLuint createShader(string filename,GLenum type)
 	inf.close();
 
 	Logger::stream("MAIN","INFO") << "Compiling shader: " << ss.str() << endl;
-	//fprintf(stderr, "Compiling shader %s\n",ss.str().c_str());
+	fprintf(stderr, "Compiling shader %s\n",ss.str().c_str());
 	
 	string vsStr = ss.str();
 	int vsLength = vsStr.length();
@@ -290,15 +290,15 @@ int initShaders()
 		glLinkProgram(blurPrograms[i]);
 		glGetProgramiv(blurPrograms[i], GL_LINK_STATUS, &link_ok);
 		if (!link_ok) {
-			fprintf(stderr, "glLinkProgram:");
-			cout << blurPrograms[i];
+			fprintf(stderr, "glLinkProgram failed: %d \n",blurPrograms[i]);
+//			s << blurPrograms[i];
 			//return 0;
 		}
 		
 		glValidateProgram(blurPrograms[i]);
 		glGetProgramiv(blurPrograms[i], GL_VALIDATE_STATUS, &validate_ok); 
 		if (!validate_ok) {
-			fprintf(stderr, "glValidateProgram:");
+			fprintf(stderr, "glValidateProgram failed: %d \n",blurPrograms[i]);
 			cout << blurPrograms[i];
 		}
 		
@@ -450,24 +450,53 @@ int main(int argc, char * argv[]){
 	signal(SIGBUS, handle);
 	
 #endif
-
-		
-	try
-	{
+ 
+	
 	
 	CefMainArgs mainArgs;
 	CefSettings settings;
-
-	GlobalConfig::getInstance().loadConfigFile("config.json");
 	
-	
-#if defined(_WIN32) 
+#if defined(_WIN32)
 	settings.multi_threaded_message_loop = true;
 #endif
 	settings.command_line_args_disabled = true;
-	settings.single_process = true;
-
+	//settings.single_process = true;
+	
+	
+	
+	try
+	{
+		
+	GlobalConfig::getInstance().loadConfigFile("config.json");
+		
 	CefInitialize(mainArgs, settings, NULL);
+	
+		
+	glfwInit();
+	
+	GLFWvidmode vidMode;
+	
+	glfwGetDesktopMode(&vidMode);
+	
+	if (!GlobalConfig::tree()->get<bool>("GraphicsSettings.OverrideResolution"))
+	{
+		GlobalConfig::ScreenWidth  = vidMode.Width;
+		GlobalConfig::ScreenHeight = vidMode.Height;
+	}
+	else
+	{
+		GlobalConfig::ScreenWidth  = GlobalConfig::tree()->get<int>("GraphicsSettings.OverrideWidth");
+		GlobalConfig::ScreenHeight = GlobalConfig::tree()->get<int>("GraphicsSettings.OverrideHeight");
+	}
+	
+		
+		
+	if(!init(GlobalConfig::ScreenWidth, GlobalConfig::ScreenHeight, GlobalConfig::tree()->get<bool>("GraphicsSettings.Fullscreen"))) return 1;
+	
+		
+	initShaders();
+		
+
 	
 	if (GlobalConfig::tree()->get<bool>("Cef.PersistentCookiesEnabled"))
 		CefCookieManager::GetGlobalManager()->SetStoragePath(".",true);
@@ -487,27 +516,6 @@ int main(int argc, char * argv[]){
 
 	std::string startDir = "."; 
 
-	glfwInit();
-	
-	GLFWvidmode vidMode;
-
-	glfwGetDesktopMode(&vidMode);
-
-	if (!GlobalConfig::tree()->get<bool>("GraphicsSettings.OverrideResolution"))
-	{
-		GlobalConfig::ScreenWidth  = vidMode.Width;
-		GlobalConfig::ScreenHeight = vidMode.Height;
-	}
-	else
-	{		
-		GlobalConfig::ScreenWidth  = GlobalConfig::tree()->get<int>("GraphicsSettings.OverrideWidth");
-		GlobalConfig::ScreenHeight = GlobalConfig::tree()->get<int>("GraphicsSettings.OverrideHeight");
-	}
-
-    if(!init(GlobalConfig::ScreenWidth, GlobalConfig::ScreenHeight, GlobalConfig::tree()->get<bool>("GraphicsSettings.Fullscreen"))) return 1;
-
-	initShaders();
-	
 
 	//Configure leap and attach listeners
 	Leap::Controller controller = Leap::Controller();	
