@@ -28,6 +28,7 @@ LeapDebug::LeapDebug(HandProcessor * handProcessor)
 	leapNotFocusedPanel->setPosition(Vector(GlobalConfig::ScreenWidth - 450, GlobalConfig::ScreenHeight - 100, 1));
 	leapNotFocusedPanel->layout(Vector(GlobalConfig::ScreenWidth - 500, GlobalConfig::ScreenHeight - 300, 10),cv::Size2f(400,150));
 	leapNotFocusedPanel->setBackgroundColor(Colors::LeapGreen.withAlpha(.7f));
+	leapNotFocusedPanel->setVisible(true);
 	
 	
 	auto labels = GlobalConfig::tree()->get_child("Tutorial.Labels");

@@ -110,6 +110,9 @@ bool init( int window_width, int window_height, bool isFull)
 {
 
 	auto conf = GlobalConfig::tree()->get_child("GraphicsSettings");
+	
+//	glfwOpenWindowHint(GLFW_OPENGL_VERSION_MAJOR,3);
+//	glfwOpenWindowHint(GLFW_OPENGL_VERSION_MINOR,2);
 
 	glfwOpenWindowHint(GLFW_FSAA_SAMPLES,conf.get<int>("FSAASamples"));
 
@@ -124,6 +127,9 @@ bool init( int window_width, int window_height, bool isFull)
 	glfwSetWindowTitle(conf.get<string>("WindowTitle").c_str());
 
 	glfwSwapInterval(1);
+	
+	glfwEnable(GLFW_MOUSE_CURSOR);
+	glfwEnable(GLFW_SYSTEM_KEYS);
 
 			
 	glewExperimental=true;
@@ -204,6 +210,7 @@ GLuint createShader(string filename,GLenum type)
 	inf.open(filename,std::ios::in);	
     stringstream ss;
     ss << inf.rdbuf();
+	ss << "\0";
 	inf.close();
 
 	Logger::stream("MAIN","INFO") << "Compiling shader: " << ss.str() << endl;
@@ -213,7 +220,20 @@ GLuint createShader(string filename,GLenum type)
 	int vsLength = vsStr.length();
 	const GLchar * vs_char = (const GLchar*)vsStr.c_str();
 
-	glShaderSource(shader,1,&vs_char,&vsLength);
+	glShaderSource(shader,1,&vs_char,NULL);
+	glCompileShader(shader);
+	
+	GLsizei length;
+	GLchar * infoLog = new GLchar[1000];
+	glGetShaderInfoLog(shader,1000,&length,infoLog);
+	
+	stringstream shaderInfo;
+	for (int i=0;i<length;i++)
+	{
+		shaderInfo << infoLog[i];
+	}
+	string infoString = shaderInfo.str();
+	fprintf(stderr,"Shader compilation log %s",infoString.c_str());
 
 	return shader;
 }
@@ -467,7 +487,6 @@ int main(int argc, char * argv[]){
 	try
 	{
 		
-	GlobalConfig::getInstance().loadConfigFile("config.json");
 		
 	CefInitialize(mainArgs, settings, NULL);
 	
@@ -477,6 +496,11 @@ int main(int argc, char * argv[]){
 	GLFWvidmode vidMode;
 	
 	glfwGetDesktopMode(&vidMode);
+		
+		
+		printf("Initializing config file \n");
+		GlobalConfig::getInstance().loadConfigFile("./config.json");
+		printf("Done\n");
 	
 	if (!GlobalConfig::tree()->get<bool>("GraphicsSettings.OverrideResolution"))
 	{
@@ -498,13 +522,18 @@ int main(int argc, char * argv[]){
 		
 
 	
-	if (GlobalConfig::tree()->get<bool>("Cef.PersistentCookiesEnabled"))
-		CefCookieManager::GetGlobalManager()->SetStoragePath(".",true);
 
 	if (GlobalConfig::tree()->get<bool>("FakeDataMode.Enable")) 
 		FBDataSource::instance = new FakeDataSource(GlobalConfig::tree()->get<string>("FakeDataMode.SourceDataDirectory"));
 	else
+	{
 		FBDataSource::instance = new FacebookLoader();
+		if (GlobalConfig::tree()->get<bool>("Cef.PersistentCookiesEnabled"))
+		{
+			CefCookieManager::GetGlobalManager()->SetStoragePath(".",true);
+		}
+	}
+		
 
 	FacebookDataDisplay::instance = new FacebookBrowser();
 
@@ -579,6 +608,8 @@ int main(int argc, char * argv[]){
 
 				Timer itemTimer;
 				itemTimer.start();
+				
+				glfwPollEvents();
 
 				if (glfwGetKey(GLFW_KEY_ESC) == GLFW_PRESS)
 					quit[0] = true;
@@ -739,7 +770,7 @@ int main(int argc, char * argv[]){
 		
 	clean_up();
 	glfwCloseWindow();
-	
+	glfwTerminate();
 	std::exit(0);
 
     return 0;

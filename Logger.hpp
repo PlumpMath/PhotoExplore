@@ -23,25 +23,9 @@ class Logger {
 private:	
 
 
-	Logger()
-	{
-		if (GlobalConfig::tree()->get<bool>("Logging.Enabled"))
-		{
-			logTimer.start();
-			logstream.open("photo_explorer.log");
-			logstream.precision(3);
-			logstream.setf(std::ios_base::fixed);
-		}
-	}
+	Logger();
 
-	~Logger()
-	{
-		if (GlobalConfig::tree()->get<bool>("Logging.Enabled"))
-		{
-			logstream.close();
-		}
-	}
-
+	~Logger();
 
 	Logger(Logger const&);
 	void operator=(Logger const&); 
@@ -50,24 +34,14 @@ private:
 
 public:		
 	std::ofstream logstream;
+	std::ofstream nostream;
 
-	static Logger& getInstance()
-	{
-		static Logger instance; 		
-		return instance;
-	}
+	static Logger& getInstance();
 	
 
-	static void log(std::string tag, std::string message)
-	{
-		getInstance().logstream << "[" << tag << "] - " << message << std::endl;
-	}
+	static void log(std::string tag, std::string message);
 
-	static std::ofstream & stream(std::string tag, const char * severity = "INFO")
-	{
-		getInstance().logstream <<  (long)getInstance().logTimer.millis() << " : " << severity << "- [" << tag << "] - " << " ";
-		return getInstance().logstream;
-	}
+	static std::ofstream & stream(std::string tag, const char * severity = "INFO");
 
 
 };

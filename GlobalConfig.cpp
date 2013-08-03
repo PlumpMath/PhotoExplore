@@ -1,4 +1,5 @@
 #include "GlobalConfig.hpp"
+#include <fstream>
 
 
 
@@ -22,8 +23,13 @@ bool GlobalConfig::isLoaded()
 void GlobalConfig::loadConfigFile(string path)
 {
 	using boost::property_tree::ptree;
-	boost::property_tree::read_json(path,getInstance().propertyTree);
+	
+	std::ifstream inf;
+	inf.open(path,std::ios::in);
+	
+	boost::property_tree::read_json(inf,getInstance().propertyTree);
 	propertyFileLoaded = true;
+	inf.close();
 
 	if (tree()->get<bool>("Leap.PreferLeftHand"))
 	{
