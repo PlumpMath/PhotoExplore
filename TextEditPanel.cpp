@@ -1,5 +1,6 @@
 #include "TextEditPanel.hpp"
 #include "GLImport.h"
+#include "GraphicContext.hpp"
 
 
 TextEditPanel::TextEditPanel()
@@ -18,12 +19,12 @@ void TextEditPanel::setMaxLength(int _maxLength)
 	this->maxLength = _maxLength;
 }
 
-bool TextEditPanel::checkKey(int key, double updateTime)
+bool TextEditPanel::checkKey(GLFWwindow * checkWindow, int key, double updateTime)
 {
 	bool trigger = false;
 	static double initialRepeatDelay = GlobalConfig::tree()->get<double>("TextEditPanel.InitialRepeatDelay");
 	static double keyRepeatPeriod = GlobalConfig::tree()->get<double>("TextEditPanel.KeyRepeatPeriod");
-	int newState = glfwGetKey(key);
+	int newState = glfwGetKey(checkWindow,key);
 
 	if (keyStateMap.find(key) != keyStateMap.end())
 	{
@@ -52,20 +53,21 @@ bool TextEditPanel::checkKey(int key, double updateTime)
 
 void TextEditPanel::update()
 {
+	GLFWwindow * checkWindow = GraphicsContext::getInstance().MainWindow;
 	int pressedLetter = -1;
 	double updateTime = keyRepeatTimer.millis();
 	for (int key = 'A'; key <= 'Z'; key++)
 	{
-		if (checkKey(key,updateTime))
+		if (checkKey(checkWindow, key,updateTime))
 			pressedLetter = std::tolower(key);			
 	}
 	
 	set<int> pressedKeys;
 	
-	if (checkKey(GLFW_KEY_BACKSPACE,updateTime))
+	if (checkKey(checkWindow, GLFW_KEY_BACKSPACE,updateTime))
 		pressedKeys.insert(GLFW_KEY_BACKSPACE);
 
-	if (checkKey(GLFW_KEY_SPACE,updateTime))
+	if (checkKey(checkWindow, GLFW_KEY_SPACE,updateTime))
 		pressedLetter = (int)' ';
 
 	
@@ -83,7 +85,7 @@ void TextEditPanel::update()
 	//	keyStateMap[key] = newState;
 	//}
 
-	int modifierKeys [] = {GLFW_KEY_LSHIFT,GLFW_KEY_RSHIFT};
+	int modifierKeys [] = {GLFW_KEY_LEFT_SHIFT,GLFW_KEY_RIGHT_SHIFT};
 	int num = 2;
 
 	bool shiftKey = false;
@@ -91,7 +93,7 @@ void TextEditPanel::update()
 	for (int i=0;i<num;i++)
 	{
 		int key = modifierKeys[i];
-		int newState = glfwGetKey(key);
+		int newState = glfwGetKey(checkWindow,key);
 		if (newState == GLFW_PRESS)
 		{
 			shiftKey = true;

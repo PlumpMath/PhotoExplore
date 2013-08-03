@@ -108,30 +108,26 @@ void handleFatalError(string errorText, int sig) {
 #endif
 
 
-bool init( int window_width, int window_height, bool isFull)
+bool initializeWindow( int window_width, int window_height, bool isFull)
 {
-
 	auto conf = GlobalConfig::tree()->get_child("GraphicsSettings");
 	
-//	glfwOpenWindowHint(GLFW_OPENGL_VERSION_MAJOR,3);
-//	glfwOpenWindowHint(GLFW_OPENGL_VERSION_MINOR,2);
+	glfwWindowHint(GLFW_SAMPLES,conf.get<int>("FSAASamples"));
+	
+	GLFWwindow * handle = glfwCreateWindow(window_width, window_height,conf.get<string>("WindowTitle").c_str(),(isFull) ? glfwGetPrimaryMonitor() : NULL, NULL);
 
-	glfwOpenWindowHint(GLFW_FSAA_SAMPLES,conf.get<int>("FSAASamples"));
-
-	int handle = glfwOpenWindow(window_width, window_height, 8, 8, 8,8,8,0, (isFull) ? GLFW_FULLSCREEN : GLFW_WINDOW);
-
-	if (handle != GL_TRUE)
+	if (handle == NULL)
 	{	
 		handleFatalError("Unable to initialize OpenGL. Please ensure your graphics drivers are up to date.",0);
 		return false;
 	}
-
-	glfwSetWindowTitle(conf.get<string>("WindowTitle").c_str());
+	glfwMakeContextCurrent(handle);
+	GraphicsContext::getInstance().MainWindow = handle;
 
 	glfwSwapInterval(1);
 	
-	glfwEnable(GLFW_MOUSE_CURSOR);
-	glfwEnable(GLFW_SYSTEM_KEYS);
+	//glfwEnable(GLFW_MOUSE_CURSOR);
+	//glfwEnable(GLFW_SYSTEM_KEYS);
 
 			
 	glewExperimental=true;
@@ -178,11 +174,6 @@ bool init( int window_width, int window_height, bool isFull)
     return true;
 } 
 
-void clean_up()
-{
-	//glfwCloseWindow();
-}
-
 void configureController(const Controller & controller)
 {
 
@@ -198,7 +189,7 @@ void configureController(const Controller & controller)
 	con.save();
 	//if (f1_a != f1 || f2_a != f2)
 	//{
-		Logger::stream("Main","ERROR") << "Configured. MinLength =" << f2_a << ", MinVel= " << f1_a << endl;
+	//	Logger::stream("Main","ERROR") << "Configured. MinLength =" << f2_a << ", MinVel= " << f1_a << endl;
 	//}
 	
 	controller.enableGesture(Gesture::Type::TYPE_SWIPE);
@@ -253,9 +244,7 @@ void disposeShaders()
 }
 
 int initShaders()
-{
-	
-
+{	
 	glActiveTexture(GL_TEXTURE0);
 	glGenTextures(2, fbo_texture);
 	glGenFramebuffers(2, fbo);
@@ -313,8 +302,6 @@ int initShaders()
 		glGetProgramiv(blurPrograms[i], GL_LINK_STATUS, &link_ok);
 		if (!link_ok) {
 			fprintf(stderr, "glLinkProgram failed: %d \n",blurPrograms[i]);
-//			s << blurPrograms[i];
-			//return 0;
 		}
 		
 		glValidateProgram(blurPrograms[i]);
@@ -328,27 +315,23 @@ int initShaders()
 		attribute_v_coord_postproc[i] = glGetAttribLocation(blurPrograms[i], attribute_name);
 		if (attribute_v_coord_postproc[i] == -1) {
 			fprintf(stderr, "Could not bind attribute %s\n", attribute_name);
-			//return 0;
 		}
 
 		const char * uniform_name = "s_texture";
 		uniform_fbo_texture[i] = glGetUniformLocation(blurPrograms[i], uniform_name);
 		if (uniform_fbo_texture[i] == -1) {
 			fprintf(stderr, "Could not bind uniform %s\n", uniform_name);
-			//return 0;
 		}
 
 		const char * gauss_name = "gauss_scale";
 		uniformGaussScale[i] = glGetUniformLocation(blurPrograms[i], gauss_name);
 		if (uniformGaussScale[i] == -1) {
 			fprintf(stderr, "Could not bind uniform %s\n", gauss_name);
-			//return 0;
 		}
 
 		uniformColorScale[i] = glGetUniformLocation(blurPrograms[i], "colorScale");
 		if (uniformColorScale[i] == -1) {
 			fprintf(stderr, "Could not bind uniform %s\n", "colorScale");
-			//return 0;
 		}
 	}
 }
@@ -472,136 +455,114 @@ int main(int argc, char * argv[]){
 	signal(SIGBUS, handle);
 	
 #endif
- 
-	
 	
 	CefMainArgs mainArgs;
 	CefSettings settings;
 	
 #if defined(_WIN32)
 	settings.multi_threaded_message_loop = true;
+	settings.single_process = true;
 #endif
 	settings.command_line_args_disabled = true;
-	//settings.single_process = true;
-	
-	
-	
+			
 	try
-	{
+	{		
 		
-		
-	CefInitialize(mainArgs, settings, NULL);
-	
-		
-	glfwInit();
-	
-	GLFWvidmode vidMode;
-	
-	glfwGetDesktopMode(&vidMode);
-		
+		CefInitialize(mainArgs, settings, NULL);		
+
+		glfwInit();
 		
 		printf("Initializing config file \n");
 		GlobalConfig::getInstance().loadConfigFile("./config.json");
 		printf("Done\n");
-	
-	if (!GlobalConfig::tree()->get<bool>("GraphicsSettings.OverrideResolution"))
-	{
-		GlobalConfig::ScreenWidth  = vidMode.Width;
-		GlobalConfig::ScreenHeight = vidMode.Height;
-	}
-	else
-	{
-		GlobalConfig::ScreenWidth  = GlobalConfig::tree()->get<int>("GraphicsSettings.OverrideWidth");
-		GlobalConfig::ScreenHeight = GlobalConfig::tree()->get<int>("GraphicsSettings.OverrideHeight");
-	}
-	
-		
-		
-	if(!init(GlobalConfig::ScreenWidth, GlobalConfig::ScreenHeight, GlobalConfig::tree()->get<bool>("GraphicsSettings.Fullscreen"))) return 1;
-	
-		
-	initShaders();
-		
 
-	
-
-	if (GlobalConfig::tree()->get<bool>("FakeDataMode.Enable")) 
-		FBDataSource::instance = new FakeDataSource(GlobalConfig::tree()->get<string>("FakeDataMode.SourceDataDirectory"));
-	else
-	{
-		FBDataSource::instance = new FacebookLoader();
-		if (GlobalConfig::tree()->get<bool>("Cef.PersistentCookiesEnabled"))
+		if (!GlobalConfig::tree()->get<bool>("GraphicsSettings.OverrideResolution"))
 		{
-			CefCookieManager::GetGlobalManager()->SetStoragePath(".",true);
+			GlobalConfig::ScreenWidth  = glfwGetVideoMode(glfwGetPrimaryMonitor())->width;
+			GlobalConfig::ScreenHeight = glfwGetVideoMode(glfwGetPrimaryMonitor())->height;
 		}
-	}
-		
-
-	FacebookDataDisplay::instance = new FacebookBrowser();
-
-    bool * quit = new bool[1];
-	quit[0] = false;
-    Timer delta;
-	int frameCount = 0, errorCount = 0;
-	long lastFrameId = -1;
-
-	std::string startDir = "."; 
-
-
-	//Configure leap and attach listeners
-	Leap::Controller controller = Leap::Controller();	
-	configureController(controller);	
-	controller.addListener(SwipeGestureDetector::getInstance());
-	controller.addListener(ShakeGestureDetector::getInstance());
-
-	HandProcessor * handProcessor = HandProcessor::getInstance();
-	LeapDebug * leapDebug = new LeapDebug(handProcessor);	
-	LeapDebug::instance = leapDebug;
-
-	LeapStartScreen startScreen(startDir);
-	startScreen.setFinishedCallback([quit](){
-		quit[0] = true;
-	});
-
-	GraphicsContext::getInstance().applicationExitCallback = [quit](){ quit[0] = true; };
+		else
+		{
+			GlobalConfig::ScreenWidth  = GlobalConfig::tree()->get<int>("GraphicsSettings.OverrideWidth");
+			GlobalConfig::ScreenHeight = GlobalConfig::tree()->get<int>("GraphicsSettings.OverrideHeight");
+		}
 	
-	Timer totalTime;
-	totalTime.start();	
-	delta.start();
-	long frameId = 0;		
-	int sampleCount = 2000;
-		
-
+		if(!initializeWindow(GlobalConfig::ScreenWidth, GlobalConfig::ScreenHeight, GlobalConfig::tree()->get<bool>("GraphicsSettings.Fullscreen"))) 
+		{
+			return 1;
+		}
+			
+		GLFWwindow * mainWindow = GraphicsContext::getInstance().MainWindow;
+			
+		initShaders();
 	
-	GraphicsContext::getInstance().globalActionCallback = [&](string s){ 
-		
-		if (s.compare("logout") == 0)
+		if (GlobalConfig::tree()->get<bool>("FakeDataMode.Enable")) 
+			FBDataSource::instance = new FakeDataSource(GlobalConfig::tree()->get<string>("FakeDataMode.SourceDataDirectory"));
+		else
 		{
-			CefRefPtr<CefTaskRunner> runner = CefTaskRunner::GetForThread(TID_IO);
-			CefRefPtr<DeleteCookieTask> dlTask = new DeleteCookieTask();
-			runner->PostTask(dlTask.get());
+			FBDataSource::instance = new FacebookLoader();
+			if (GlobalConfig::tree()->get<bool>("Cef.PersistentCookiesEnabled"))
+			{
+				CefCookieManager::GetGlobalManager()->SetStoragePath(".",true);
+			}
 		}
-		else if (s.compare("exit") == 0)
-		{
-			CefRefPtr<CefTaskRunner> runner = CefTaskRunner::GetForThread(TID_IO);
-			CefRefPtr<ShutdownTask> dlTask = new ShutdownTask();
-			runner->PostTask(dlTask.get());
-		}
-		else if (s.compare("hide_tutorial") == 0)
-		{
-			GlobalConfig::tree()->put<bool>("Tutorial.Enabled",false);
-			vector<string> x;
-			LeapDebug::instance->setTutorialImages(x);
-		}
-	};
+	
+		FacebookDataDisplay::instance = new FacebookBrowser();
 
-	try
-	{
+		bool * quit = new bool[1];
+		quit[0] = false;
+		Timer delta;
+		int frameCount = 0, errorCount = 0;
+		long lastFrameId = -1;
+
+		std::string startDir = "."; 
+	
+		//Configure leap and attach listeners
+		Leap::Controller controller = Leap::Controller();	
+		configureController(controller);	
+		controller.addListener(SwipeGestureDetector::getInstance());
+		controller.addListener(ShakeGestureDetector::getInstance());
+
+		HandProcessor * handProcessor = HandProcessor::getInstance();
+		LeapDebug * leapDebug = new LeapDebug(handProcessor);	
+		LeapDebug::instance = leapDebug;
+
+		LeapStartScreen startScreen(startDir);
+		startScreen.setFinishedCallback([quit](){
+			quit[0] = true;
+		});
+
+		GraphicsContext::getInstance().applicationExitCallback = [quit](){ quit[0] = true; };
+	
+		Timer totalTime;
+		totalTime.start();	
+		delta.start();
+		long frameId = 0;		
+	
+		GraphicsContext::getInstance().globalActionCallback = [&](string s){ 
 		
-#if TEST_MODE
-		runTests();
-#else
-		
+			if (s.compare("logout") == 0)
+			{
+				CefRefPtr<CefTaskRunner> runner = CefTaskRunner::GetForThread(TID_IO);
+				CefRefPtr<DeleteCookieTask> dlTask = new DeleteCookieTask();
+				runner->PostTask(dlTask.get());
+			}
+			else if (s.compare("exit") == 0)
+			{
+				CefRefPtr<CefTaskRunner> runner = CefTaskRunner::GetForThread(TID_IO);
+				CefRefPtr<ShutdownTask> dlTask = new ShutdownTask();
+				runner->PostTask(dlTask.get());
+			}
+			else if (s.compare("hide_tutorial") == 0)
+			{
+				GlobalConfig::tree()->put<bool>("Tutorial.Enabled",false);
+				vector<string> x;
+				LeapDebug::instance->setTutorialImages(x);
+			}
+		};
+
+		try
+		{	
 			while(!(*quit))
 			{
 				stringstream frameOut;
@@ -613,9 +574,10 @@ int main(int argc, char * argv[]){
 				
 				glfwPollEvents();
 
-				if (glfwGetKey(GLFW_KEY_ESC) == GLFW_PRESS)
+				if (glfwGetKey(mainWindow,GLFW_KEY_ESCAPE) == GLFW_PRESS || glfwWindowShouldClose(mainWindow))
+				{
 					quit[0] = true;
-			
+				}			
 			
 				HandProcessor::getInstance()->processFrame(controller.frame());
 				PointableElementManager::getInstance()->processInputEvents();
@@ -632,8 +594,7 @@ int main(int argc, char * argv[]){
 				startScreen.update(deltaTime);
 				frameOut  << "StartScreen = " << itemTimer.millis() << "ms \n";
 				itemTimer.start();
-
-			 
+							 
 				if (GraphicsContext::getInstance().BlurRenderEnabled)
 				{
 					glClearColor(.4f,.4f,.4f, 1);
@@ -718,11 +679,10 @@ int main(int argc, char * argv[]){
 				glFinish();
 				frameOut  << "glFinish = " << itemTimer.millis() << "ms \n";
 				itemTimer.start();
-				glfwSwapBuffers();
+				glfwSwapBuffers(mainWindow);
 				frameOut << "SwapBuffers = " << itemTimer.millis() << "ms \n";
 				itemTimer.start();
-			
-			
+						
 				if (delta.millis() - (1000.0/60.0) > 2)
 				{
 					Logger::stream("MAIN","TIME") << "[" << frameId << "] START \n";
@@ -731,7 +691,6 @@ int main(int argc, char * argv[]){
 				}
 				frameId++;
 			}
-	#endif
 		}	
 		catch( cv::Exception& e )
 		{
@@ -749,6 +708,7 @@ int main(int argc, char * argv[]){
 		}	
 		
 		startScreen.shutdown();
+		glfwDestroyWindow(mainWindow);
 
 	}
 	catch( cv::Exception& e )
@@ -770,8 +730,7 @@ int main(int argc, char * argv[]){
 		handleFatalError("Unhandled and unknown exception",3);
 	}
 		
-	clean_up();
-	glfwCloseWindow();
+	
 	glfwTerminate();
 	std::exit(0);
 

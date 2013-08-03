@@ -3,6 +3,7 @@
 
 #include "TextPanel.h"
 #include <unordered_map>
+#include "GLImport.h"
 
 using namespace std;
 
@@ -18,7 +19,7 @@ private:
 
 	Timer keyRepeatTimer;
 	
-	bool checkKey(int key, double updateTime);
+	bool checkKey(GLFWwindow * checkWindow, int key, double updateTime);
 
 public:
 	TextEditPanel();

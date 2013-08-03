@@ -319,6 +319,9 @@ void LeapStartScreen::launchBrowser()
 
 		facebookClient = new Cefalopod();
 
+		
+		glfwIconifyWindow(GraphicsContext::getInstance().MainWindow);
+
 		CefBrowserSettings browserSettings;
 
 		CefWindowInfo info;
@@ -336,23 +339,23 @@ void LeapStartScreen::launchBrowser()
 	#endif
 
 		string fbURL = "https://www.facebook.com/dialog/oauth?client_id=144263362431439&redirect_uri=http://144263362431439.com&scope=user_photos,friends_photos,user_likes,publish_stream&response_type=token";
-		CefBrowserHost::CreateBrowser(info, facebookClient.get(),fbURL, browserSettings);
+		CefBrowserHost::CreateBrowser(info, facebookClient.get(),fbURL, browserSettings);		
 #else
-		glFinish();
-		glfwIconifyWindow();
+		glFinish();	
+		glfwIconifyWindow(GraphicsContext::getInstance().MainWindow);
 		
-		for (int i=50;i++;i<100)
-		{
-			if (glfwGetWindowParam(GLFW_ICONIFIED) != GL_TRUE)
-			{
-				glFinish();
-				glfwIconifyWindow();
-			}
-			else
-			{
-				break;
-			}
-		}
+		//for (int i=50;i++;i<100)
+		//{
+		//	if (glfwGetWindowParam(GLFW_ICONIFIED) != GL_TRUE)
+		//	{
+		//		glFinish();
+		//		glfwIconifyWindow();
+		//	}
+		//	else
+		//	{
+		//		break;
+		//	}
+		//}
 		
 		
 		new boost::thread([this](){
@@ -460,7 +463,8 @@ void LeapStartScreen::update(double delta)
 		
 #ifdef _WIN32
 			if (facebookClient->quit && !facebookClient->done)
-			{	
+			{					
+				glfwRestoreWindow(GraphicsContext::getInstance().MainWindow);
 				this->facebookLoginButton->setText("Login window closed, tap to retry.");
 				this->facebookLoginButton->reloadText();
 				this->state = StartState;
@@ -470,8 +474,9 @@ void LeapStartScreen::update(double delta)
 			}
 			else if (facebookClient->done)
 			{
+				glfwRestoreWindow(GraphicsContext::getInstance().MainWindow);
 				string token = facebookClient->token;
-				if (GlobalConfig::TestingToken.length() > 0)
+				if (token.length() > 0)
 				{
 					startApplication(token);
 				}

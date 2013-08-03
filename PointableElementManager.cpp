@@ -18,85 +18,85 @@ PointableElementManager::PointableElementManager()
 void PointableElementManager::processInputEvents()
 {
 	return;
-	int x,y;
-	glfwGetMousePos(&x,&y);
-	
-	Pointable fakePointable;
-	
+	//int x,y;
+	//glfwGetMousePos(&x,&y);
+	//
+	//Pointable fakePointable;
+	//
 
-	LeapElement * hit = NULL;
+	//LeapElement * hit = NULL;
 
-	Vector screenPoint = Vector(x,y,0);
+	//Vector screenPoint = Vector(x,y,0);
 
-	int flags = 0;
-	View * topView = dynamic_cast<View*>(globalGestureListenerStack.top());
-	hit = topView->elementAtPoint((int)screenPoint.x,(int)screenPoint.y,flags);
-	
-	if (hit != hitLastFrame)
-	{
-		if (hit != NULL)	
-			hit->pointableEnter(fakePointable);
-	
-		if (hitLastFrame != NULL)
-			hitLastFrame->pointableExit(fakePointable);
-	}
+	//int flags = 0;
+	//View * topView = dynamic_cast<View*>(globalGestureListenerStack.top());
+	//hit = topView->elementAtPoint((int)screenPoint.x,(int)screenPoint.y,flags);
+	//
+	//if (hit != hitLastFrame)
+	//{
+	//	if (hit != NULL)	
+	//		hit->pointableEnter(fakePointable);
+	//
+	//	if (hitLastFrame != NULL)
+	//		hitLastFrame->pointableExit(fakePointable);
+	//}
 
-	hitLastFrame = hit;
+	//hitLastFrame = hit;
 
-	int mouseState = glfwGetMouseButton(GLFW_MOUSE_BUTTON_1);
+	//int mouseState = glfwGetMouseButton(GLFW_MOUSE_BUTTON_1);
 
-	if (mouseButtonState[GLFW_MOUSE_BUTTON_1] != mouseState)
-	{
-		mouseButtonState[GLFW_MOUSE_BUTTON_1] = (bool)mouseState;
-		if (hit != NULL && hit->isClickable() && mouseState == GLFW_PRESS)
-		{
-			hit->elementClicked();
-		}
-	}
+	//if (mouseButtonState[GLFW_MOUSE_BUTTON_1] != mouseState)
+	//{
+	//	mouseButtonState[GLFW_MOUSE_BUTTON_1] = (bool)mouseState;
+	//	if (hit != NULL && hit->isClickable() && mouseState == GLFW_PRESS)
+	//	{
+	//		hit->elementClicked();
+	//	}
+	//}
 
 
-	if (glfwGetKey(GLFW_KEY_BACKSPACE) == GLFW_PRESS)
-	{
-		keyState[GLFW_KEY_BACKSPACE] = true;
-	}
-	else if (keyState[GLFW_KEY_BACKSPACE])
-	{
-		keyState[GLFW_KEY_BACKSPACE] = false;
-		if (globalGestureListenerStack.size() > 0)
-			globalGestureListenerStack.top()->onGlobalGesture(Leap::Controller(), "shake");
-	}
+	//if (glfwGetKey(GLFW_KEY_BACKSPACE) == GLFW_PRESS)
+	//{
+	//	keyState[GLFW_KEY_BACKSPACE] = true;
+	//}
+	//else if (keyState[GLFW_KEY_BACKSPACE])
+	//{
+	//	keyState[GLFW_KEY_BACKSPACE] = false;
+	//	if (globalGestureListenerStack.size() > 0)
+	//		globalGestureListenerStack.top()->onGlobalGesture(Leap::Controller(), "shake");
+	//}
 
-	if (glfwGetKey(GLFW_KEY_LEFT) == GLFW_PRESS)
-	{
-		keyState[GLFW_KEY_LEFT] = true;
-	}
-	else if (keyState[GLFW_KEY_LEFT])
-	{
-		keyState[GLFW_KEY_LEFT] = false;
-		if (globalGestureListenerStack.size() > 0)
-			globalGestureListenerStack.top()->onGlobalGesture(Leap::Controller(), "left_key");
-	}
-	else if (glfwGetKey(GLFW_KEY_RIGHT) == GLFW_PRESS)
-	{
-		keyState[GLFW_KEY_RIGHT] = true;
-	}
-	else if (keyState[GLFW_KEY_RIGHT])
-	{
-		keyState[GLFW_KEY_RIGHT] = false;
-		if (globalGestureListenerStack.size() > 0)
-			globalGestureListenerStack.top()->onGlobalGesture(Leap::Controller(), "right_key");
-	}
+	//if (glfwGetKey(GLFW_KEY_LEFT) == GLFW_PRESS)
+	//{
+	//	keyState[GLFW_KEY_LEFT] = true;
+	//}
+	//else if (keyState[GLFW_KEY_LEFT])
+	//{
+	//	keyState[GLFW_KEY_LEFT] = false;
+	//	if (globalGestureListenerStack.size() > 0)
+	//		globalGestureListenerStack.top()->onGlobalGesture(Leap::Controller(), "left_key");
+	//}
+	//else if (glfwGetKey(GLFW_KEY_RIGHT) == GLFW_PRESS)
+	//{
+	//	keyState[GLFW_KEY_RIGHT] = true;
+	//}
+	//else if (keyState[GLFW_KEY_RIGHT])
+	//{
+	//	keyState[GLFW_KEY_RIGHT] = false;
+	//	if (globalGestureListenerStack.size() > 0)
+	//		globalGestureListenerStack.top()->onGlobalGesture(Leap::Controller(), "right_key");
+	//}
 
-	if (glfwGetKey(GLFW_KEY_DOWN) == GLFW_PRESS)
-	{
-		keyState[GLFW_KEY_DOWN] = true;
-	}
-	else if (keyState[GLFW_KEY_DOWN])
-	{
-		keyState[GLFW_KEY_DOWN] = false;
-		if (globalGestureListenerStack.size() > 0)
-			globalGestureListenerStack.top()->onGlobalGesture(Leap::Controller(), "down_key");
-	}
+	//if (glfwGetKey(GLFW_KEY_DOWN) == GLFW_PRESS)
+	//{
+	//	keyState[GLFW_KEY_DOWN] = true;
+	//}
+	//else if (keyState[GLFW_KEY_DOWN])
+	//{
+	//	keyState[GLFW_KEY_DOWN] = false;
+	//	if (globalGestureListenerStack.size() > 0)
+	//		globalGestureListenerStack.top()->onGlobalGesture(Leap::Controller(), "down_key");
+	//}
 }
 
 void PointableElementManager::enableNonDominantCursor(bool _enable)

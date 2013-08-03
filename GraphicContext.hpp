@@ -4,7 +4,7 @@
 #include <queue>
 #include "Animation.h"
 #include <map>
-
+#include "GLImport.h"
 
 class GraphicsContext {
 
@@ -38,6 +38,8 @@ public:
 	bool BlurRenderEnabled;
 	bool IsBlurCurrentPass;
 	
+	GLFWwindow * MainWindow;
+
 	map<string,float> drawHintMap;
 
 	void setBlurEnabled(bool enabled)
@@ -65,7 +67,7 @@ public:
 		else
 			return 4;
 	}
-
+	
 	void setDrawHint(std::string key,float value)
 	{
 		drawHintMap[key] = value;
