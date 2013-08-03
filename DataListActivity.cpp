@@ -212,11 +212,11 @@ void DataListActivity::updateLoading()
 		((TextPanel*)loadIndicator)->setText("Loading...");
 		((TextPanel*)loadIndicator)->refresh();
 	}
-	else if (cursor->getState() == FBDataCursor::Ended || cursor->state == FBDataCursor::Finished)
-	{
-		((TextPanel*)loadIndicator)->setText("Loading complete.");
-		((TextPanel*)loadIndicator)->refresh();
-	}
+	//else if (cursor->getState() == FBDataCursor::Ended || cursor->state == FBDataCursor::Finished)
+	//{
+	//	((TextPanel*)loadIndicator)->setText("Loading complete.");
+	//	((TextPanel*)loadIndicator)->refresh();
+	//}
 	else 
 	{
 		((TextPanel*)loadIndicator)->setText("");

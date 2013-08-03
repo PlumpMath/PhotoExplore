@@ -7,6 +7,8 @@ TexturePanel::TexturePanel()
 	allowSubPixelRendering = true;
 	textureScaleMode = ScaleMode::Fit;
 	textureTint = Colors::White;
+	horizontalAlignment = AlignmentMode::Center;
+	verticalAlignment = AlignmentMode::Center;
 }
 
 void TexturePanel::setTextureTint(Color _textureTint)
@@ -86,9 +88,12 @@ void TexturePanel::drawTexture(GLuint drawTexId, Vector drawPosition, float draw
 
 	textureWidth =  texWidth;
 	textureHeight = texHeight;
+	
+	if (horizontalAlignment == Center)
+		drawPosition.x += floorf(drawWidth/2.0f);	
 
-	drawPosition.x += floorf(drawWidth/2.0f);	
-	drawPosition.y += floorf(drawHeight/2.0f);
+	if (verticalAlignment == Center)
+		drawPosition.y += floorf(drawHeight/2.0f);
 
 	glBindTexture( GL_TEXTURE_2D, drawTexId);
 	float drawTextureWidth,drawTextureHeight;
@@ -150,25 +155,40 @@ void TexturePanel::drawTexture(GLuint drawTexId, Vector drawPosition, float draw
 		throw "Invalid texture scale mode";
 	}
 
+	float x1,y1;
 
-	float x1 = drawPosition.x - drawTextureWidth/2.0f;
-	if (!allowSubPixelRendering)
-		x1 = floorf(x1);
-
-	float x2 = x1 + drawTextureWidth;
-
-	//if (!allowSubPixelRendering)
-	//	x2 = floorf(x2);
-
-	float y1 = drawPosition.y - drawTextureHeight/2.0f;
-
-	if (!allowSubPixelRendering)
-		y1 = floorf(y1);
-
-	float y2 = y1 + drawTextureHeight;
+	switch (horizontalAlignment)
+	{
+	case Center:
+		x1 = drawPosition.x - drawTextureWidth/2.0f;
+		break;
+	case Left:
+		x1 = drawPosition.x;
+		break;
+	case Right:
+		x1 = drawPosition.x + (drawWidth - drawTextureWidth);
+		break;
+	}
 	
-	//if (!allowSubPixelRendering)
-	//	y2 = floorf(y2);
+	switch (verticalAlignment)
+	{
+	case Center:
+		y1 = drawPosition.y - drawTextureHeight/2.0f;
+		break;
+	case Left:
+		y1 = drawPosition.y;
+		break;
+	case Right:
+		y1 = drawPosition.y + (drawHeight - drawTextureHeight);
+		break;
+	}
+
+	if (!allowSubPixelRendering) y1 = floorf(y1);
+	if (!allowSubPixelRendering) x1 = floorf(x1);
+	float x2 = x1 + drawTextureWidth;
+	float y2 = y1 + drawTextureHeight;
+
+
 
 	float z1 = drawPosition.z + .5f;
 				

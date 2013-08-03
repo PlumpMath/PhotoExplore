@@ -244,11 +244,12 @@
     <ClCompile Include="ImageDetailView.cpp" />
     <ClCompile Include="ImageLoader.cpp" />
     <ClCompile Include="ImagePanel.cpp" />
-    <ClCompile Include="kiss_fft.c" />
+    <ClCompile Include="kiss_fft.cpp" />
     <ClCompile Include="LeapDebug.cpp" />
     <ClCompile Include="LeapElement.cpp" />
     <ClCompile Include="LeapStartScreen.cpp" />
     <ClCompile Include="LinearLayout.cpp" />
+    <ClCompile Include="Logger.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Panel.cpp" />
     <ClCompile Include="PanelBase.cpp" />

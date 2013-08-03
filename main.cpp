@@ -35,9 +35,11 @@
 
 #include "FBDataCursor.hpp"
 
+#ifndef _WIN32
 #include <execinfo.h>
 #include <signal.h>
 #include <stdlib.h>
+#endif
 
 using namespace Leap;
 

@@ -76,7 +76,7 @@ cv::Mat TypographyManager::renderTextFreeType(std::string text, FT_Face fontFace
 
 	if (config.maxLineWidth <= 0)
 	{ 
-		config.maxLineWidth = 10000;
+		return cv::Mat::zeros(2,2,CV_8UC4);
 	}
 
 	long lineSpacing = FT_MulFix(fontFace->height, fontFace->size->metrics.y_scale) >> 6;
@@ -93,10 +93,14 @@ cv::Mat TypographyManager::renderTextFreeType(std::string text, FT_Face fontFace
 
 	int start_x = ((config.maxLineWidth-stringWidth)/2)-boundingBox.xMin;
 	
-	if (config.maxLineWidth == 10000)
+	if (config.alignment == TextLayoutConfig::LeftAligned)
 	{
 		start_x = -boundingBox.xMin;
-		targetWidth = stringWidth;
+	}
+	else if (config.alignment == TextLayoutConfig::RightAligned)
+	{
+		start_x = targetWidth - stringWidth;		
+		start_x -= boundingBox.xMin;
 	}
 
 	int start_y = - boundingBox.yMin; 
@@ -176,6 +180,8 @@ void TypographyManager::computeGlyphs(string text, FT_Face fontFace, cv::Point2i
 	int xOffset = 0;
 
 	int wrapWidth = config.maxLineWidth;
+	if (wrapWidth <= 0)
+		wrapWidth = INT_MAX;
 	
 	bool isCentered = config.alignment == TextLayoutConfig::CenterAligned;
 

@@ -60,7 +60,7 @@ struct TextLayoutConfig {
 		
 	const static int LeftAligned = 0;
 	const static int CenterAligned = 1;
-	//const static int LeftAligned = 2;
+	const static int RightAligned = 2;
 
 	TextLayoutConfig(int _alignment, float _maxLineWidth) :
 		alignment(_alignment),

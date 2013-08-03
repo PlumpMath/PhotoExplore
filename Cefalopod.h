@@ -3,7 +3,7 @@
 
 #include <include/cef_client.h>
 #include "Logger.hpp"
-#ifdef WIN_32_
+#ifdef _WIN32
 #include <Windows.h>
 #endif
 
@@ -12,6 +12,10 @@ class Cefalopod : public CefClient, public CefLifeSpanHandler, public CefLoadHan
 {
 public:
 	bool done, loadedEnded, quit;
+
+#ifdef _WIN32
+	HWND browserHandle;
+#endif
 
 	std::string token;
 

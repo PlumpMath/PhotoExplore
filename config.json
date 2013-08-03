@@ -1,15 +1,12 @@
 {
 	"ExternalCef" : 
 	{
-		//"CefClientPath_x" : "/Users/adamskubel/work/photo-explorer/Contents/MacOS/cefclient",
 		"CefClientPath" : "../MacOS/cefclient",
-		//"TokenFilePath" : "/Users/adamskubel/lib/cef_binary_3.1453.1255_macosx_fixed/xcodebuild/Debug/cefclient.app/Contents/MacOS/token.out" 
 		"TokenFilePath" : "token.out" 
 	},
 	"FacebookAPI" : 
 	{
 		"ItemsPerRequest" : 25
-		//"DebugToken6" : "CAACDNO54yc8BAHgr3J6aNvkLRnycR9JuPQu84T43ACS6jsCgrN819RmLAN1GJp8F8KKecL0ai3eRZCgXZBw9ynuCS0MTr50lSfd6to2f7mtzhsNgiOlSID2daYIcQ9A5j8ctZBxRgbZCc6s9CpVlQZAJoN1ec0y0ZD"
 	},
 	"Logging" : 
 	{
@@ -41,11 +38,11 @@
 		"WindowTitle" : "Photo Explorer for Facebook",
 		"AlphaFunc" : 6, //1 = Less, 2 = Equal, 3 = LEqual, 4 = Greater, 5 = Notequal, 6 = GEqual, 7 = Always
 		"AlphaFuncVal" : 0.0625,
-		"DisablePixelBuffers" : true,
+		"DisablePixelBuffers" : false,
 		"EnableLineSmoothing" : true,
 		"FSAASamples" : 0,
 		"ShaderDirectory" : ".",
-		"Fullscreen" : false,
+		"Fullscreen" : true,
 		"OverrideResolution" : false,
 		"OverrideWidth" : 1280,
 		"OverrideHeight" : 720,
@@ -81,8 +78,8 @@
 	},
 	"ResourceCache" : 
 	{
-		"TextureCacheSize" : 128, 	//Megabytes
-		"ImageCacheSize" : 128, 	//Megabytes		
+		"TextureCacheSize" : 512, 	//Megabytes
+		"ImageCacheSize" : 768, 	//Megabytes		
 		"MaxImageSize" : 4,			//Megabytes
 		"CacheGCFrequency" : 5000 ,//milliseconds		
 		"FullCacheGCFrequency" : 2000, //milliseconds
@@ -92,8 +89,9 @@
 	},
 	"FakeDataMode" : 
 	{
-		"Enable" : false,
-		"SourceDataDirectory" : "/Users/adamskubel/Pictures" ,
+		"Enable" : true,
+		"SourceDataDirectory" : "C:\\Users\\Adam\\Pictures",
+		//"SourceDataDirectory" : "/Users/adamskubel/Pictures" ,
 		"RequestDelay" : 50 ,//ms
 		"MaxPhotos" : 2000,
 		"MaxAlbums" : 10,
@@ -402,7 +400,7 @@
 		},
 		"ScrollBar" : 
 		{
-			"Height" : 10, //px
+			"Height" : 5, //px
 			"WidthFilterRC" : 0.5,
 			"Background" : { "R" : 211,"G" : 211,"B" : 211,"A" : 255},		
 			"Foreground" : { "R" : 105,"G" : 105,"B" : 105,"A" : 255}
@@ -491,64 +489,33 @@
 		"Enable" : true,
 		"LookupDialog" :
 		{
+			"HideTime" : 500,
+			"ShowTime" : 100,
 			"HideAfter" : 3000,
 			"HideAfterWithMovement" : 500,
-			"Height" : 250,
-			"Width" : 450,
+			"Height" : 450,
+			"Width" : 800,
 			"FriendNameTextBox" : 
 			{			
 				"MaxLength" : 50,
 				"TextSize" : 8,
-				"TextColor" :  {"R" : 240,"G" : 240,"B" : 240,"A" : 255},
-				"BackgroundColor" :  {"R" : 30,"G" : 30,"B" : 30,"A" : 240},
-				"BorderColor" :  {"R" : 240,"G" : 240,"B" : 240,"A" : 240},
-				"BorderThickness" : 2,
+				"TextColor" :  {"R" : 70,"G" : 130,"B" : 180,"A" : 255}, // {"R" : 240,"G" : 240,"B" : 240,"A" : 255},
+				"BackgroundColor" :  {"R" : 255,"G" : 255,"B" : 255,"A" : 240},
+				"BorderColor" :  {"R" : 70,"G" : 130,"B" : 180,"A" : 255},
+				"BorderThickness" : 1,
 				"TextAlignment" : 0,
-				"TextPadding" : 4
+				"TextPadding" : 8
 			},
 			"FriendLookupLabel" : 
 			{
-				"Text" : "Filter friends by name:",
-				"TextSize" : 6,
-				"TextColor" :  {"R" : 240,"G" : 240,"B" : 240,"A" : 255},
-				"BackgroundColor" :  {"R" : 30,"G" : 30,"B" : 30,"A" : 230},
-				"BorderColor" :  {"R" : 240,"G" : 240,"B" : 240,"A" : 240},
-				"BorderThickness" : 2,
-				"TextAlignment" : 0,
-				"TextPadding" : 4
-			},			
-			"SearchButton" : 
-			{
-				"Text" : "Search",
-				"TextSize" : 8,
-				"TextColor" :  {"R" : 240,"G" : 240,"B" : 240,"A" : 255},
-				"BackgroundColor" :  {"R" : 30,"G" : 30,"B" : 30,"A" : 240},
-				"BorderColor" :  {"R" : 240,"G" : 240,"B" : 240,"A" : 240},
-				"BorderThickness" : 2,
-				"TextAlignment" : 0,
-				"TextPadding" : 4
-			},			
-			"ClearButton" : 
-			{
-				"Text" : "Show all",
-				"TextSize" : 8,
-				"TextColor" :  {"R" : 240,"G" : 240,"B" : 240,"A" : 255},
-				"BackgroundColor" :  {"R" : 30,"G" : 30,"B" : 30,"A" : 240},
-				"BorderColor" :  {"R" : 240,"G" : 240,"B" : 240,"A" : 240},
-				"BorderThickness" : 2,
-				"TextAlignment" : 1,
-				"TextPadding" : 4
-			},		
-			"CloseButton" : 
-			{
-				"Text" : "Hide",
-				"TextSize" : 8,
-				"TextColor" :  {"R" : 240,"G" : 240,"B" : 240,"A" : 255},
-				"BackgroundColor" :  {"R" : 30,"G" : 30,"B" : 30,"A" : 240},
-				"BorderColor" :  {"R" : 240,"G" : 240,"B" : 240,"A" : 240},
-				"BorderThickness" : 2,
-				"TextAlignment" : 0,
-				"TextPadding" : 4
+				"Text" : "Friends with name ",
+				"TextSize" : 7,
+				"TextColor" : {"R" : 70,"G" : 130,"B" : 180,"A" : 255}, //{"R" : 240,"G" : 240,"B" : 240,"A" : 255},
+				"BackgroundColor" :  {"R" : 30,"G" : 30,"B" : 30,"A" : 0},
+				"BorderColor" :  {"R" : 240,"G" : 240,"B" : 240,"A" : 0},
+				"BorderThickness" : 0,
+				"TextAlignment" : 2,
+				"TextPadding" : 8
 			}
 		}
 	},

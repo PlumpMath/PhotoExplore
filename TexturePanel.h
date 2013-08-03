@@ -5,12 +5,23 @@
 
 class TexturePanel : public PanelBase {
 
+	
+public:
+	
+	enum AlignmentMode{
 
+		Left,
+		Center,
+		Right
+	};
 
 protected:
 	TexturePanel();
 
 	int textureScaleMode;
+	AlignmentMode horizontalAlignment;
+	AlignmentMode verticalAlignment;
+
 	GLuint currentTextureId;
 	float textureWidth,textureHeight;
 	bool allowSubPixelRendering;
@@ -21,8 +32,8 @@ protected:
 	
 	virtual void drawContent(Vector drawPosition, float drawWidth, float drawHeight);
 
-
 public:
+
 	TexturePanel(GLuint textureId)
 	{
 		currentTextureId = textureId;
