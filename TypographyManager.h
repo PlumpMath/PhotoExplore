@@ -64,13 +64,15 @@ struct TextLayoutConfig {
 
 	TextLayoutConfig(int _alignment, float _maxLineWidth) :
 		alignment(_alignment),
-		maxLineWidth(_maxLineWidth)
+		maxLineWidth(_maxLineWidth),
+		fitToText(false)
 	{
 
 	}
 
 	int maxLineWidth;
 	int alignment;
+	bool fitToText;
 
 };
 

@@ -16,12 +16,22 @@ DataListActivity::DataListActivity(int _rowCount) :
 	scrollBar = new ScrollBar();
 	itemScroll = new ScrollingView(itemGroup);
 	scrollBar->setScrollView(itemScroll);
+	
+	float cornerPadding = GlobalConfig::tree()->get<float>("Menu.CornerPadding");
+	loadIndicator = new TextPanel("Loading");
+	loadIndicator->setTextAlignment(1);
+	loadIndicator->setTextSize(GlobalConfig::tree()->get<float>("DataListActivity.LoadingIndicator.TextSize"));
+	loadIndicator->setTextFitMode(true);
+	loadIndicator->setTextFitPadding(cornerPadding);
+	loadIndicator->reloadText();
 
-	loadIndicator = new TextPanel();
-
+	loadIndicator->setAnimateOnLayout(false);
+	loadIndicator->layout(Vector(),cv::Size2f(300,300));
+	
 	addChild(itemScroll);
 	addChild(scrollBar);
 	addChild(loadIndicator);
+	loadIndicatorState = 0;
 }
 
 DataListActivity::~DataListActivity()
@@ -108,12 +118,12 @@ void DataListActivity::layout(Vector position, cv::Size2f size)
 
 	itemScroll->layout(position,scrollSize);
 
-	//float scrollBarWidth = size.width * 0.4f;
-	//scrollBar->layout(position + Vector((size.width-scrollBarWidth)*.5f,size.height+(tutorialHeight*.66f)-(scrollBarHeight*.5f),1),cv::Size2f(scrollBarWidth,scrollBarHeight));
-
 	scrollBar->layout(position + Vector(5,scrollSize.height,1),cv::Size2f(scrollSize.width,scrollBarHeight));
 	
-	loadIndicator->layout(position + Vector(size.width-tutorialHeight*3.0f,size.height,1),cv::Size2f(tutorialHeight*3.0f,tutorialHeight));
+	float loadWidth = tutorialHeight*2.0f;
+	
+	loadIndicator->layout(position + Vector(size.width-loadIndicator->getMeasuredSize().width,size.height,1),cv::Size2f(loadWidth,tutorialHeight));
+	loadIndicator->layout(position + Vector(size.width-loadIndicator->getMeasuredSize().width,size.height,1),cv::Size2f(loadWidth,tutorialHeight));
 
 	layoutDirty = false;
 }
@@ -162,6 +172,8 @@ void DataListActivity::onGlobalFocusChanged(bool isFocused)
 
 void DataListActivity::updateLoading()
 {
+	static double showLoadIndicatorThreshold = GlobalConfig::tree()->get<double>("DataListActivity.LoadingIndicator.LoadTimeDisplayThreshold");
+
 	Timer loadTimer;
 	loadTimer.start();
 
@@ -209,18 +221,24 @@ void DataListActivity::updateLoading()
 
 	if (cursor->getState() == FBDataCursor::Loading)
 	{		
-		((TextPanel*)loadIndicator)->setText("Loading...");
-		((TextPanel*)loadIndicator)->refresh();
+		if (loadIndicatorState == 0)
+		{
+			loadingTime.start();
+			loadIndicatorState = 1;
+		}
+		else if (loadIndicatorState == 1 && loadingTime.millis() > showLoadIndicatorThreshold)
+		{
+			loadIndicatorState = 2;
+		}
+		else if (loadIndicatorState == 2)
+		{
+			loadIndicator->setVisible(true);
+		}
 	}
-	//else if (cursor->getState() == FBDataCursor::Ended || cursor->state == FBDataCursor::Finished)
-	//{
-	//	((TextPanel*)loadIndicator)->setText("Loading complete.");
-	//	((TextPanel*)loadIndicator)->refresh();
-	//}
-	else 
+	else
 	{
-		((TextPanel*)loadIndicator)->setText("");
-		((TextPanel*)loadIndicator)->refresh();
+		loadIndicatorState = 0;
+		loadIndicator->setVisible(false);
 	}
 }
 

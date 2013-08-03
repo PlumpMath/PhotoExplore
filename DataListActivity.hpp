@@ -35,6 +35,10 @@ protected:
 	void updateLoading();
 	void updatePriorities();
 
+	Timer loadingTime;
+
+	int loadIndicatorState;
+
 public:
 	DataListActivity(int rowCount);
 	~DataListActivity();

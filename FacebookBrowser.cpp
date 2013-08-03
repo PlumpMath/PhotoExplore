@@ -20,15 +20,21 @@ FacebookBrowser::FacebookBrowser()
 
 	pathView = new LinearLayout();
 
+	float cornerPadding = GlobalConfig::tree()->get<float>("Menu.CornerPadding");
 	TextPanel * homeButtonText = new Button("Home");
 	homeButtonText->setTextSize(10,false);
 	homeButtonText->setTextColor(Colors::SteelBlue);
-
+	homeButtonText->setTextFitPadding(cornerPadding);
+	homeButtonText->setTextFitMode(true);
+	
 	
 	float menuHeight = GlobalConfig::tree()->get<float>("Menu.Height");
 
 	homeButton = homeButtonText;
-	homeButton->setLayoutParams(LayoutParams(cv::Size2f(menuHeight*1.5f,menuHeight),cv::Vec4f(5,5,5,5)));
+	//((Button*)homeButton)->setTextAlignment(TextPanel::Left);
+
+	
+	homeButton->setLayoutParams(LayoutParams(cv::Size2f(menuHeight*1.5f,menuHeight),cv::Vec4f(0,0,0,0)));
 	homeButton->elementClickedCallback = [this](LeapElement * clicked){		
 		this->displayNode(this->userNode,"");
 	};

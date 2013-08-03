@@ -254,9 +254,9 @@ void LeapDebug::drawPointer(LeapDebugVisual * debugVisual)
 	for (int i=0; i < 3; i++)
 	{
 		glColor4fv(lineColor[i]);
-		glLineWidth(lineWidth[i]);
+		//glLineWidth(lineWidth[i]);
 
-		glBegin(GL_LINE_LOOP);
+/*		glBegin(GL_LINE_LOOP);
 		for (float v=0;v<vertices;v++)
 		{
 			float angle = v*anglePerVertex;
@@ -264,7 +264,22 @@ void LeapDebug::drawPointer(LeapDebugVisual * debugVisual)
 			glVertex3f(sinf(angle-cornerAngle)*length,cosf(angle-cornerAngle)*length,z1+ ((float)i * .1f));	
 			glVertex3f(sinf(angle+cornerAngle)*length,cosf(angle+cornerAngle)*length,z1+ ((float)i * .1f));		
 		}
-		glEnd();		
+		glEnd();*/	
+		glBegin(GL_QUAD_STRIP);
+		for (float v=0;v<(vertices+1);v++)
+		{
+			float angle = v*anglePerVertex;
+			if (v==vertices)
+				angle = 0;
+			angle += angleOffset;
+			float b = lineWidth[i]*.5f;
+			glVertex3f(sinf(angle-cornerAngle)*(length-b),cosf(angle-cornerAngle)*(length-b),z1+ ((float)i * .1f));
+			glVertex3f(sinf(angle-cornerAngle)*(length+b),cosf(angle-cornerAngle)*(length+b),z1+ ((float)i * .1f));
+
+			glVertex3f(sinf(angle+cornerAngle)*(length-b),cosf(angle+cornerAngle)*(length-b),z1+ ((float)i * .1f));	
+			glVertex3f(sinf(angle+cornerAngle)*(length+b),cosf(angle+cornerAngle)*(length+b),z1+ ((float)i * .1f));		
+		}
+		glEnd();
 	}
 	glTranslatef(-debugVisual->screenPoint.x,-debugVisual->screenPoint.y,0);
 

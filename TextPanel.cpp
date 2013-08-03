@@ -26,7 +26,7 @@ void TextPanel::init()
 	this->text = std::string("");
 	textureScaleMode = ScaleMode::None;
 	setAllowSubPixelRendering(false); //fontDefinition.get<bool>("SubPixelTextRendering"));
-	textAlignment = 1;
+	textAlignment = 1;	
 }
 
 void TextPanel::resourceUpdated(ResourceData * data)
@@ -65,29 +65,27 @@ void TextPanel::reloadText()
 	if (textResource == NULL)
 	{
 		TextLayoutConfig config(textAlignment,textureSize.width);
-		currentTextImage = TypographyManager::getInstance()->renderText(text,fontName,textColor,textSize,config,currentTextRect);	
+		config.fitToText = fitToText;
+		cv::Rect_<float> newTextRect;
+		currentTextImage = TypographyManager::getInstance()->renderText(text,fontName,textColor,textSize,config,newTextRect);	
 		if (currentTextImage.data != NULL)
 		{
-			//if (currentResource != NULL)
-			//{
-			//	ResourceManager::getInstance().releaseResource(currentResource->resourceId,this);
-			//}
-
+			currentTextRect = newTextRect;
+			currentTextRect.width = currentTextImage.size().width;			
 			currentResource = ResourceManager::getInstance().loadResource(td.getKey(),currentTextImage,-1,this);
 		}
 	}
-	else if (textResource->TextureState == ResourceState::TextureLoaded)
+	else
 	{
-		//if (currentResource != textResource && currentResource != NULL)
-		//{
-		//	ResourceManager::getInstance().releaseResource(currentResource->resourceId,this);
-		//}
-		currentResource = textResource;
-		//currentResource->priority = -1;
-		currentTextureId = currentResource->textureId;
-
-		//ResourceManager::updateResource(currentResource);
+		if (textResource->TextureState == ResourceState::TextureLoaded)
+		{
+			currentResource = textResource;
+			currentTextureId = currentResource->textureId;
+		}
+		currentTextRect.width = textResource->image.size().width;
 	}
+
+
 
 	textDirty = false;
 }
@@ -183,13 +181,38 @@ void TextPanel::setTextFitMode(bool fitToText)
 
 void TextPanel::layout(Vector position, cv::Size2f size)
 {
-	if (lastSize != size || textDirty)
+	if (fitToText)
 	{
+		if (textDirty)
+		{	
+			reloadText();
+		}
+
+		size.width = currentTextRect.width + textFitPadding * 2.0f;		
+		//size.width += textFitPadding *2.0f;
+		//size.width += textFitPadding *2.0f;
+		
 		lastSize = size;
-		reloadText();
+		lastPosition = position;
+		PanelBase::layout(position,size);
 	}
-	lastPosition = position;
-	PanelBase::layout(position,size);
+	else
+	{
+		if (lastSize != size || textDirty)
+		{
+			lastSize = size;
+			reloadText();
+		}
+		lastPosition = position;
+		PanelBase::layout(position,size);
+
+		//if (lastSize != size || textDirty)
+		//{	
+		//	reloadText();
+		//}
+		//lastSize = size;
+		//PanelBase::layout(position,size);
+	}
 }
 
 bool TextPanel::getTextFitMode()

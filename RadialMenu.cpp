@@ -22,6 +22,9 @@ RadialMenu::RadialMenu(vector<RadialMenuItem> & items)
 	menuLaunchButton =  new Button("Menu"); 
 	((Button*)menuLaunchButton)->setTextSize(10,false);
 	((Button*)menuLaunchButton)->setTextColor(Colors::SteelBlue);
+	((Button*)menuLaunchButton)->setTextAlignment(1);
+	((Button*)menuLaunchButton)->setTextFitMode(true);
+	((Button*)menuLaunchButton)->setTextFitPadding(GlobalConfig::tree()->get<float>("Menu.CornerPadding"));
 
 	//new ImageButton(GlobalConfig::tree()->get<string>("Menu.OpenMenuImage"),GlobalConfig::tree()->get<string>("Menu.OpenMenuOverlay"));	
 	addChild(menuLaunchButton);
@@ -206,7 +209,9 @@ void RadialMenu::itemClicked(string id, Button * menuButton)
 }
 
 void RadialMenu::layout(Vector pos, cv::Size2f size)
-{
+{	
+	static float cornerPadding = GlobalConfig::tree()->get<float>("Menu.CornerPadding");
+
 	this->lastPosition = pos;
 	this->lastSize = size;
 
@@ -247,12 +252,9 @@ void RadialMenu::layout(Vector pos, cv::Size2f size)
 	else if (state == MenuState_ButtonOnly) 
 	{
 		float height = GlobalConfig::tree()->get<float>("Menu.Height");
-		cv::Size2f menuButtonSize = cv::Size2f(height*1.5f,height-10);
-		
-		if (GlobalConfig::tree()->get<bool>("Menu.TopRightButton"))
-			menuLaunchButton->layout(Vector(size.width - (menuButtonSize.width + 5),5,10) + pos,menuButtonSize);
-		else
-			menuLaunchButton->layout(Vector((size.width - menuButtonSize.width)+5,(size.height - menuButtonSize.height)+5,10) + pos,menuButtonSize);
+		cv::Size2f menuButtonSize = cv::Size2f(height*1.5f,height);
+		menuLaunchButton->layout(Vector(size.width - menuLaunchButton->getMeasuredSize().width,0,10) + pos,menuButtonSize);
+		menuLaunchButton->layout(Vector(size.width - menuLaunchButton->getMeasuredSize().width,0,10) + pos,menuButtonSize);
 	}
 	this->layoutDirty = false;
 }

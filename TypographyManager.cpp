@@ -74,7 +74,7 @@ cv::Mat TypographyManager::renderTextFreeType(std::string text, FT_Face fontFace
 	FT_Glyph * glyphArray = new FT_Glyph[numGlyphs];
 	cv::Point2i * positionArray = new cv::Point2i[numGlyphs];
 
-	if (config.maxLineWidth <= 0)
+	if (!config.fitToText && config.maxLineWidth <= 0)
 	{ 
 		return cv::Mat::zeros(2,2,CV_8UC4);
 	}
@@ -88,10 +88,17 @@ cv::Mat TypographyManager::renderTextFreeType(std::string text, FT_Face fontFace
 	float stringWidth  = boundingBox.xMax - boundingBox.xMin;
 	float stringHeight = boundingBox.yMax - boundingBox.yMin;
 
-	float targetWidth = config.maxLineWidth;
+	float targetWidth;
+	
+	if (config.fitToText)
+		targetWidth = stringWidth;
+	else
+		targetWidth = config.maxLineWidth;
+
+
 	float targetHeight = stringHeight;
 
-	int start_x = ((config.maxLineWidth-stringWidth)/2)-boundingBox.xMin;
+	int start_x = ((targetWidth-stringWidth)/2)-boundingBox.xMin;
 	
 	if (config.alignment == TextLayoutConfig::LeftAligned)
 	{
@@ -102,7 +109,7 @@ cv::Mat TypographyManager::renderTextFreeType(std::string text, FT_Face fontFace
 		start_x = targetWidth - stringWidth;		
 		start_x -= boundingBox.xMin;
 	}
-
+	
 	int start_y = - boundingBox.yMin; 
 
 	if (boundingBox.yMax > 0 && targetHeight < lineSpacing)
