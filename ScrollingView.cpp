@@ -87,12 +87,20 @@ void ScrollingView::update()
 void ScrollingView::draw()
 {
 	static float loadingBarThickness = GlobalConfig::tree()->get<float>("ScrollView.LoadingBarThickness");
+	static bool noSubpixelScrolling = GlobalConfig::tree()->get<bool>("GraphicsSettings.NoSubPixelScroll");
 
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();	
 
 	if (scrollOrientation == Horizontal)
-		glTranslatef((float)scrollingFlywheel->getPosition(),0,0);
+	{
+		float offset = (float)scrollingFlywheel->getPosition();
+		if (noSubpixelScrolling)
+		{
+			offset = floor(offset);
+		}
+		glTranslatef(offset,0,0);
+	}
 	else
 		glTranslatef(0,(float)scrollingFlywheel->getPosition(),0);
 	

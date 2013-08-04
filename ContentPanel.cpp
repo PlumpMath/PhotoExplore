@@ -24,6 +24,8 @@ void ContentPanel::drawContent(Vector drawPosition, float drawWidth, float drawH
 			float yNudge =(yAnimation.isRunning()) ? yAnimation.getValue() : 0;
 			float xNudge =(xAnimation.isRunning()) ? xAnimation.getValue() : 0;
 			
+			xNudge = floor(xNudge);
+			yNudge = floor(yNudge);
 
 			glTranslatef(xNudge,yNudge,0);
 			contentView->draw();

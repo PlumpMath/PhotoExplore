@@ -46,7 +46,8 @@
 		"OverrideResolution" : false,
 		"OverrideWidth" : 1280,
 		"OverrideHeight" : 720,
-		"UseIntForNonSubPixelRender" : false
+		"UseIntForNonSubPixelRender" : false,
+		"NoSubPixelScroll" : true
 	},
 	"Button" : 
 	{
