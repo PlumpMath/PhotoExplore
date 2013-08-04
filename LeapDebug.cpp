@@ -44,7 +44,7 @@ LeapDebug::LeapDebug(HandProcessor * handProcessor)
 	float textPadding = labels.get<float>("TextPadding");
 	string fontName = labels.get<string>("FontName");
 
-	cv::Size2f imagePanelSize = cv::Size2f(300,GlobalConfig::tree()->get<float>("Tutorial.Height")*.6f);
+	float imgHeight = GlobalConfig::tree()->get<float>("Tutorial.ImageHeight") / GlobalConfig::tree()->get<float>("Tutorial.Height");
 	
 	auto tutorialIcons = GlobalConfig::tree()->get_child("Tutorial.Icons");
 
@@ -65,8 +65,8 @@ LeapDebug::LeapDebug(HandProcessor * handProcessor)
 		tutorialText->setFontName(fontName);
 
 		vector<RowDefinition> gridDefinition;	
-		gridDefinition.push_back(RowDefinition(.6f));
-		gridDefinition.push_back(RowDefinition(.4f));
+		gridDefinition.push_back(RowDefinition(imgHeight));
+		gridDefinition.push_back(RowDefinition(1.0f -imgHeight));
 		gridDefinition[0].ColumnWidths.push_back(1);
 		gridDefinition[1].ColumnWidths.push_back(1);
 

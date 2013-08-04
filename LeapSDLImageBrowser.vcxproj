@@ -333,6 +333,7 @@
     <ClInclude Include="PackingGrid.hpp" />
     <ClInclude Include="PanelFactory.hpp" />
     <ClInclude Include="PixelBufferPool.hpp" />
+    <ClInclude Include="PointTutorialSteps.hpp" />
     <ClInclude Include="PunchGestureDetector.hpp" />
     <ClInclude Include="RadialMenu.hpp" />
     <ClInclude Include="ScrollBar.hpp" />

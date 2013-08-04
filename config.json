@@ -89,7 +89,7 @@
 	},
 	"FakeDataMode" : 
 	{
-		"Enable" : false,
+		"Enable" : true,
 		"SourceDataDirectory" : "C:\\Users\\Adam\\Pictures",
 		//"SourceDataDirectory" : "/Users/adamskubel/Pictures" ,
 		"RequestDelay" : 50 ,//ms
@@ -599,56 +599,57 @@
 		"InvertedTextColor" :     {     "R" : 200,     "G" : 200,     "B" : 200,     "A" : 255    },
 		"AspectRatio" : 1,
 		"Height" : 100, 
+		"ImageHeight" : 65,
 		"Enabled" : true,
 		"Icons" :
 		[
 			{
 				"Name" : "KeyboardNameSearch",
 				"Text" : "Type to search",
-				"RightImage" : "Tutorial/keyboard_icon_smaller.png",
-				"LeftImage" : "Tutorial/keyboard_icon_smaller.png",
+				"RightImage" : "Tutorial/keyboard.png",
+				"LeftImage" : "Tutorial/keyboard.png",
 				"InvertColor" : false					
 			},
 			{
 				"Name" : "shake",
 				"Text" : "Shake to go back",
-				"RightImage" : "Tutorial/gesture_icon_shake_small.png",
-				"LeftImage" : "Tutorial/gesture_icon_shake_small.png"	,
+				"RightImage" : "Tutorial/shake.png",
+				"LeftImage" : "Tutorial/shake.png"	,
 				"InvertColor" : false								
 			},
 			{
 				"Name" : "shake_inv",
 				"Text" : "Shake to go back",
-				"RightImage" : "Tutorial/gesture_icon_shake_small.png",
-				"LeftImage" : "Tutorial/gesture_icon_shake_small.png"	,
+				"RightImage" : "Tutorial/shake.png",
+				"LeftImage" : "Tutorial/shake.png"	,
 				"InvertColor" : true								
 			},
 			{
 				"Name" : "swipe",
 				"Text" : "Swipe Left or Right",
-				"RightImage" : "Tutorial/gestureicon_swipe.png",
-				"LeftImage" : "Tutorial/swipe_gesture_left.png"	,
+				"RightImage" : "Tutorial/swipe.png",
+				"LeftImage" : "Tutorial/swipe.png"	,
 				"InvertColor" : false								
 			},
 			{
 				"Name" : "point",
 				"Text" : "Tap to select",
-				"RightImage" : "Tutorial/point_gestureicon_small.png",
-				"LeftImage" : "Tutorial/point_gesture_left.png"	,
+				"RightImage" : "Tutorial/point.png",
+				"LeftImage" : "Tutorial/point.png"	,
 				"InvertColor" : false								
 			},
 			{
 				"Name" : "point_stop",
 				"Text" : " Point to stop  \nTap to select",
-				"RightImage" : "Tutorial/point_gestureicon_small.png",
-				"LeftImage" : "Tutorial/point_gesture_left.png"	,
+				"RightImage" : "Tutorial/point.png",
+				"LeftImage" : "Tutorial/point.png"	,
 				"InvertColor" : false								
 			},
 			{
 				"Name" : "stretch",
 				"Text" : " 2 fingers to stretch",	
-				"RightImage" : "tutorial/gestureicon_stretch.png",
-				"LeftImage" : "tutorial/stretch_gesture.png",
+				"RightImage" : "tutorial/stretch.png",
+				"LeftImage" : "tutorial/stretch.png",
 				"InvertColor" : true								
 			}
 		]	
