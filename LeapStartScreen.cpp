@@ -377,7 +377,7 @@ void LeapStartScreen::launchBrowser()
 			string tok;
 			readStream >> tok;
 			
-			glfwRestoreWindow();
+			glfwRestoreWindow(GraphicsContext::getInstance().MainWindow);
 			LeapStartScreen * me = this;
 			this->postTask([me,tok](){
 			
