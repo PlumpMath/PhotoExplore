@@ -1,7 +1,7 @@
 #include <cstdio>
 #include <vector>
 #include <opencv2/opencv.hpp>
-#include "PointableElementManager.h"
+#include "LeapInput.hpp"
 #include "Animation.h"
 #include "Types.h"
 #include "View.hpp"
@@ -20,6 +20,8 @@ protected:
 	float width,height;
 	Color backgroundColor, borderColor;
 	float borderThickness;
+	bool useLineBorder;
+
 	Vector position, offset;
 	
 	long layoutDuration;
@@ -28,6 +30,7 @@ protected:
 	bool panelDirty;
 	bool drawingLoadAnimation;
 	bool animateOnLayout;
+
 
 	PanelBase();
 
@@ -65,6 +68,9 @@ public:
 	
 	void setBorderThickness(float borderThickness);
 	void setBorderColor(Color borderColor);
+
+	void setUseLineBorder(bool useLineBorder);
+	bool isUseLineBorder();
 
 	//void setLayoutParams(cv::Size2f & desiredSize);
 	//void setLayoutParams(LayoutParams & _params);

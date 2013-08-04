@@ -66,7 +66,7 @@ void FriendPanel::show(FBNode * _node)
 	}
 
 	boost::property_tree::ptree labelConfig = GlobalConfig::tree()->get_child("FriendPanel.NameLabel");
-	nameText->setTextSize(labelConfig.get<float>("FontSize"));
+	nameText->setTextSize(labelConfig.get<float>("TextSize"));
 	nameText->setTextFitPadding(labelConfig.get<float>("TextPadding"));
 	nameText->setTextColor(Color(labelConfig.get_child("TextColor")));
 	nameText->setBackgroundColor(Color(labelConfig.get_child("BackgroundColor")));

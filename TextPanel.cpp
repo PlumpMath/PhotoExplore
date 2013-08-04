@@ -238,8 +238,19 @@ void TextPanel::setVisible(bool v)
 
 void TextPanel::setStyle(boost::property_tree::ptree configTree)
 {	
-	setTextSize(configTree.get<float>("FontSize"),true);
-	setTextFitPadding(configTree.get<float>("TextPadding"));
+	if (configTree.count("Text") > 0)
+		setText(configTree.get<string>("Text"));
+
+	setTextSize(configTree.get<float>("TextSize"),true);
+	setTextFitPadding(configTree.get<float>("TextPadding",0));
 	setTextColor(Color(configTree.get_child("TextColor")));
-	setBackgroundColor(Color(configTree.get_child("BackgroundColor")));
+	
+	if (configTree.count("BackgroundColor") > 0)
+		setBackgroundColor(Color(configTree.get_child("BackgroundColor")));
+
+	if (configTree.count("BorderColor") > 0)
+		setBorderColor(Color(configTree.get_child("BorderColor")));
+
+	setBorderThickness(configTree.get<float>("BorderThickness",0));
+	setTextAlignment(configTree.get<int>("TextAlignment",1));
 }

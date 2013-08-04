@@ -6,6 +6,7 @@
 #include "AbsoluteLayout.hpp"
 #include "SwipeGestureDetector.hpp"
 #include "GLImport.h"
+#include "InteractionsTutorial.hpp"
 
 
 #if defined(_WIN32) 
@@ -42,9 +43,6 @@
 LeapStartScreen::LeapStartScreen(std::string startDir)
 {
 	state = StartState;
-	this->startDir = startDir;
-	loggedInNode = NULL;
-	PointableElementManager::getInstance()->requestGlobalGestureFocus(this);
 
 	updateTimer.start();
 	lastHit = NULL;
@@ -61,6 +59,8 @@ LeapStartScreen::LeapStartScreen(std::string startDir)
 	else {
 		init();
 	}
+	
+	LeapInput::getInstance()->requestGlobalGestureFocus(this);
 }
 
 
@@ -85,18 +85,64 @@ LeapElement * LeapStartScreen::elementAtPoint(int x, int y, int & elementStateFl
 	if (hit != NULL)
 		return hit;
 
-	if (state == FinishedState)
-	{
-		return ((FacebookBrowser*)rootView)->elementAtPoint(x,y,elementStateFlags);
-	}
-	else if (!GlobalConfig::tree()->get<bool>("LeapStartScreen.TrainingMode"))
-	{		
-		hit = facebookLoginButton->elementAtPoint(x,y,elementStateFlags);
-		if (hit != NULL)return hit;
+	return ViewGroup::elementAtPoint(x,y,elementStateFlags);
+
+	//if (state == FinishedState)
+	//{
+	//	return ((FacebookBrowser*)rootView)->elementAtPoint(x,y,elementStateFlags);
+	//}
+	//else 
+	////{		
+	//hit = facebookLoginButton->elementAtPoint(x,y,elementStateFlags);
+	//if (hit != NULL)return hit;
+
+	//return mainLayout->elementAtPoint(x,y,elementStateFlags);		
+	//} 
+	//return NULL;
+}
+
+void LeapStartScreen::generateBackgroundPanels()
+{	
+
+	float numPanels = 6;
+	FixedAspectGrid * floatLayout = new FixedAspectGrid(cv::Size2i(0,(int)numPanels),1.0f);
+	float totalWidth = GlobalConfig::ScreenWidth*10.0f;
+
+	floatLayout->setLayoutParams(cv::Size2f(totalWidth,GlobalConfig::ScreenHeight));
+
+	float panelWidth =((float)GlobalConfig::ScreenHeight)/numPanels;
+	
+	int itemCount = ceilf(totalWidth/panelWidth) * numPanels;
 		
-		return mainLayout->elementAtPoint(x,y,elementStateFlags);		
-	} 
-	return NULL;
+	std::srand(10);
+
+	for (int i =0; i < itemCount;i++)
+	{
+		PanelBase * fp;
+		fp = new FloatingPanel(100,100,Vector());
+		if (std::rand() % 5 == 0)
+		{
+			fp->setBackgroundColor(Colors::LightSteelBlue);
+			fp->setBorderColor(Colors::White);
+		}
+		else
+		{
+			fp->setBackgroundColor(Colors::White);
+			fp->setBorderColor(Colors::LightSteelBlue);
+		}
+		
+		float border = .6f;
+		fp->setLayoutParams(LayoutParams(cv::Size2f(0,0),cv::Vec4f(border,border,border,border)));
+		fp->setBorderThickness(border);
+		fp->setUseLineBorder(true);
+		fp->NudgeAnimationEnabled = true;
+
+		floatLayout->addChild(fp);
+	}	
+	
+	floatingPanelsView = new ScrollingView(floatLayout);
+	floatingPanelsView->layout(Vector(),cv::Size2f(GlobalConfig::ScreenWidth,GlobalConfig::ScreenHeight));
+	floatingPanelsView->getFlyWheel()->overrideValue(-GlobalConfig::ScreenWidth*.5f);
 }
 
 void LeapStartScreen::init()
@@ -114,6 +160,7 @@ void LeapStartScreen::init()
 	gridDefinition[3].ColumnWidths.push_back(1);
 	
 	mainLayout = new CustomGrid(gridDefinition);	
+	mainLayout->setEnabled(false);
 	
 	vector<RadialMenuItem> menuItems;
 	radialMenu = new RadialMenu(menuItems);
@@ -144,97 +191,53 @@ void LeapStartScreen::init()
 	mainLayout->addChild(title);
 	mainLayout->addChild(subTitle);
 	mainLayout->addChild(new TextPanel(""));
-		
-	if (!GlobalConfig::tree()->get<bool>("LeapStartScreen.TrainingMode"))
-	{
-
-		facebookLoginButton = new Button(GlobalConfig::tree()->get<string>("LeapStartScreen.StartButtonText"));		
-		facebookLoginButton->setBackgroundColor(Colors::White); //Colors::SteelBlue.withAlpha(.8f));
-		facebookLoginButton->setTextColor(Colors::Black);
-		facebookLoginButton->setTextFitPadding(20);
-		facebookLoginButton->setTextSize(18);	
-		facebookLoginButton->setBorderThickness(1.0f);
-		facebookLoginButton->setBorderColor(Colors::SteelBlue);	
-		facebookLoginButton->NudgeAnimationEnabled = true;
-		//facebookLoginButton->setDrawLoadAnimation(true);
-		facebookLoginButton->loadAnimationColor = Colors::SteelBlue.withAlpha(.3f);
-		facebookLoginButton->elementClickedCallback = [this](LeapElement * element){
-			this->launchBrowser();	
-		};
-		facebookLoginButton->setLayoutParams(LayoutParams(cv::Size2f(600,600),cv::Vec4f(50,50,50,50)));
-
-		noticePanel = new TextPanel(GlobalConfig::tree()->get<string>("LeapStartScreen.InternetNotice"));		
-		noticePanel->setTextColor(Colors::White);
-		noticePanel->setBackgroundColor(Colors::SteelBlue);
-		noticePanel->setTextFitPadding(20);
-		noticePanel->setTextSize(6);	
-	}
 	
+	facebookLoginButton = new Button(GlobalConfig::tree()->get<string>("LeapStartScreen.StartButtonText"));		
+	facebookLoginButton->setBackgroundColor(Colors::White); 
+	facebookLoginButton->setTextColor(Colors::Black);
+	facebookLoginButton->setTextFitPadding(20);
+	facebookLoginButton->setTextSize(18);	
+	facebookLoginButton->setBorderThickness(1.0f);
+	facebookLoginButton->setBorderColor(Colors::SteelBlue);	
+	facebookLoginButton->NudgeAnimationEnabled = true;
+	facebookLoginButton->elementClickedCallback = [this](LeapElement * element){
+		this->launchBrowser();	
+	};
+
+	tutorialButton = new Button("x");
+	tutorialButton->setStyle(GlobalConfig::tree()->get_child("LeapStartScreen.TutorialButton"));
+	tutorialButton->elementClickedCallback = [this](LeapElement * element){
+		this->launchTutorial();	
+	};
+
+
+	noticePanel = new TextPanel(GlobalConfig::tree()->get<string>("LeapStartScreen.InternetNotice"));		
+	noticePanel->setTextColor(Colors::White);
+	noticePanel->setBackgroundColor(Colors::SteelBlue);
+	noticePanel->setTextFitPadding(20);
+	noticePanel->setTextSize(6);	
+
+	generateBackgroundPanels();
+		
+	addChild(floatingPanelsView);
+	addChild(mainLayout);
+	addChild(noticePanel);
+	addChild(facebookLoginButton);
+	addChild(tutorialButton);
 
 	this->layout(Vector(),cv::Size2f(GlobalConfig::ScreenWidth, GlobalConfig::ScreenHeight));
-		
-
-	float numPanels = 6;
-	FixedAspectGrid * floatLayout = new FixedAspectGrid(cv::Size2i(0,(int)numPanels),1.0f);
-	float totalWidth = GlobalConfig::ScreenWidth*10.0f;
-
-	floatLayout->setLayoutParams(cv::Size2f(totalWidth,GlobalConfig::ScreenHeight));
-
-	float panelWidth =((float)GlobalConfig::ScreenHeight)/numPanels;
 	
-	int itemCount = ceilf(totalWidth/panelWidth) * numPanels;
-		
-	std::srand(10);
-
-	for (int i =0; i < itemCount;i++)
-	{
-		PanelBase * fp;
-		fp = new FloatingPanel(100,100,Vector());
-
-		if (std::rand() % 5 == 0)
-		{
-			fp->setBackgroundColor(Colors::LightSteelBlue);
-			fp->setBorderColor(Colors::White);
-		}
-		else
-		{
-			fp->setBackgroundColor(Colors::White);
-			fp->setBorderColor(Colors::LightSteelBlue);
-		}
-
-		fp->setBorderThickness(.6f);
-		fp->NudgeAnimationEnabled = true;
-
-		floatLayout->addChild(fp);
-	}	
-	
-	floatingPanelsView = new ScrollingView(floatLayout);
-	floatingPanelsView->layout(Vector(),cv::Size2f(GlobalConfig::ScreenWidth,GlobalConfig::ScreenHeight));
-	floatingPanelsView->getFlyWheel()->overrideValue(-GlobalConfig::ScreenWidth*.5f);
-
-	SwipeGestureDetector::getInstance().setFlyWheel(floatingPanelsView->getFlyWheel());
-	//	.setSwipeDetectedListener([this](Hand swipingHand, Vector swipeVector){
-
-	//	float currentVelocity = floatingPanelsView->getFlyWheel()->getVelocity();
-
-	//	if (abs(swipeVector.x) > abs(currentVelocity))
-	//		floatingPanelsView->getFlyWheel()->setVelocity(swipeVector.x);
-
-	//});
 }	
 
-void FloatingPanel::update(double deltaTime)
-{		
+void LeapStartScreen::launchTutorial()
+{
+	state = FinishedState;
+	this->rootView = new InteractionsTutorial();
 }
 
-void FloatingPanel::drawContent(Vector pos, float w, float h)
+void LeapStartScreen::onGlobalFocusChanged(bool focused)
 {
-
-}
-
-void FloatingPanel::draw()
-{
-	PanelBase::draw();
+	SwipeGestureDetector::getInstance().setFlyWheel(floatingPanelsView->getFlyWheel());
 }
 	
 class MyVisitor : public CefCookieVisitor
@@ -264,22 +267,19 @@ void LeapStartScreen::onFrame(const Controller & controller)
 	{
 		((FacebookBrowser*)rootView)->onFrame(controller);
 	}
-	else if (state == StartState)
-	{
-		Frame frame = controller.frame();
-		HandModel * handModel = HandProcessor::LastModel();
-		
-		Pointable intentPointable = frame.pointable(handModel->IntentFinger);
-		
-		Vector pt = LeapHelper::FindScreenPoint(controller,intentPointable);
-		int flags = 0;
-		LeapElement * element = floatingPanelsView->elementAtPoint((int)pt.x,(int)pt.y,flags);
-		if (element != NULL)
-			element->OnPointableEnter(intentPointable);
-
-
-	}
-
+	//else if (state == StartState)
+	//{
+	//	Frame frame = controller.frame();
+	//	HandModel * handModel = HandProcessor::LastModel();
+	//	
+	//	Pointable intentPointable = frame.pointable(handModel->IntentFinger);
+	//	
+	//	Vector pt = LeapHelper::FindScreenPoint(controller,intentPointable);
+	//	int flags = 0;
+	//	LeapElement * element = floatingPanelsView->elementAtPoint((int)pt.x,(int)pt.y,flags);
+	//	if (element != NULL)
+	//		element->OnPointableEnter(intentPointable);
+	//}
 }
 
 void LeapStartScreen::layout(Leap::Vector pos, cv::Size2f size)
@@ -289,14 +289,17 @@ void LeapStartScreen::layout(Leap::Vector pos, cv::Size2f size)
 
 	mainLayout->layout(pos+Vector(0,0,2),size);
 
-	if (!GlobalConfig::tree()->get<bool>("LeapStartScreen.TrainingMode"))
-	{
-		cv::Size2f buttonSize = cv::Size2f(size.width*.4f,size.height*.35f);
-		facebookLoginButton->layout(Vector((size.width-buttonSize.width)*.5f,size.height*.30f,2)+pos,buttonSize);
+	cv::Size2f buttonSize = cv::Size2f(size.width*.4f,size.height*.35f);
+	facebookLoginButton->layout(Vector((size.width-buttonSize.width)*.5f,size.height*.30f,2)+pos,buttonSize);
 
-		buttonSize = cv::Size2f(size.width*.3f,size.height*.15f);
-		noticePanel->layout(Vector((size.width-buttonSize.width)*.5f,size.height*.70f,2)+pos,buttonSize);
-	}
+	buttonSize = cv::Size2f(size.width*.3f,size.height*.15f);
+	noticePanel->layout(Vector((size.width-buttonSize.width)*.5f,size.height*.70f,2)+pos,buttonSize);
+	
+	float rightEdge = (size.width + buttonSize.width)*.5f;
+	buttonSize.width = (size.width-rightEdge) *.5f; 
+	float x = rightEdge + (size.width-rightEdge)*.5f - buttonSize.width*.5f;
+	tutorialButton->layout(Vector(x,size.height*.30f,2)+pos,buttonSize);
+
 }
 
 void LeapStartScreen::launchBrowser()
@@ -411,15 +414,6 @@ void LeapStartScreen::startApplication(std::string token)
 
 bool LeapStartScreen::onLeapGesture(const Controller & controller, const Gesture & gesture)
 {
-	if (radialMenu->checkMenuOpenGesture(gesture))
-	{
-		radialMenu->show();
-		return true;
-	}
-	//else
-	//{
-	//	return floatingPanelsView->onLeapGesture(controller,gesture);	
-	//}
 	return false;
 }
 
@@ -489,13 +483,8 @@ void LeapStartScreen::update(double delta)
 					};
 				}
 			}
-#else
-		
-		
 #endif
 		}
-
-		mainLayout->update();
 	}
 }
 
@@ -508,13 +497,15 @@ void LeapStartScreen::draw()
 	}
 	else
 	{
-		floatingPanelsView->draw();
-		mainLayout->draw();		
-		if (!GlobalConfig::tree()->get<bool>("LeapStartScreen.TrainingMode") && facebookLoginButton->isVisible())
-		{
-			facebookLoginButton->draw();
-			noticePanel->draw();
-		}
+		ViewGroup::draw();
+		//floatingPanelsView->draw();
+		//mainLayout->draw();		
+		//if (facebookLoginButton->isVisible())
+		//{
+		//	tutorialButton->draw();
+		//	facebookLoginButton->draw();
+		//	noticePanel->draw();
+		//}
 
 	}
 

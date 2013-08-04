@@ -44,6 +44,11 @@ void SwipeGestureDetector::setFlyWheel(FlyWheel * _flyWheel)
 	flyWheelMutex.unlock();
 }
 
+FlyWheel * SwipeGestureDetector::getFlyWheel()
+{	
+	return this->flyWheel;
+}
+
 
 void SwipeGestureDetector::doGestureScrolling(const Controller & controller)
 {	

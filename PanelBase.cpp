@@ -19,6 +19,7 @@ PanelBase::PanelBase()
 	loadAnimationColor = Colors::DimGray.withAlpha(.3f);
 
 	desiredSize = cv::Size2f(0,0);
+	useLineBorder = false;
 }
 
 void PanelBase::setBackgroundColor(Color color)
@@ -41,6 +42,17 @@ void PanelBase::setBorderThickness(float b)
 	this->borderThickness = b;
 	beforeSelectionBorderThickness = b;
 }
+
+void PanelBase::setUseLineBorder(bool _useLineBorder)
+{
+	this->useLineBorder = _useLineBorder;
+}
+
+bool PanelBase::isUseLineBorder()
+{
+	return this->useLineBorder;
+}
+
 
 Vector PanelBase::getPosition()
 {
@@ -496,97 +508,99 @@ void PanelBase::drawBackground(Vector drawPosition, float drawWidth, float drawH
 	float y2 = y1 + drawHeight;
 	float z1 = drawPosition.z;
 
-			
+
 	glColor4fv(backgroundColor.getFloat());
-	
+
 	glLineWidth(0);		
 	glBindTexture( GL_TEXTURE_2D, NULL);
 
 	glBegin( GL_QUADS );
-		glVertex3f(x1,y1,z1);
-		glVertex3f(x2,y1,z1);
-		glVertex3f(x2,y2,z1);
-		glVertex3f(x1,y2,z1);
+	glVertex3f(x1,y1,z1);
+	glVertex3f(x2,y1,z1);
+	glVertex3f(x2,y2,z1);
+	glVertex3f(x1,y2,z1);
 	glEnd();
 
-	
+
 	if (borderThickness > 0)
 	{
-		glColor4fv(borderColor.getFloat());
-		
-		float b = borderThickness;
-		
-		//Left edge
-		glBegin( GL_QUADS );
+		if (!useLineBorder)
+		{
+			glColor4fv(borderColor.getFloat());
+
+			float b = borderThickness;
+
+			//Left edge
+			glBegin( GL_QUADS );
 
 			glVertex3f(x1-b,y1,z1);
 			glVertex3f(x1,y1,z1);
 			glVertex3f(x1,y2,z1);
 			glVertex3f(x1-b,y2,z1);
 
-		//Right Edge
+			//Right Edge
 			glVertex3f(x2,y1,z1);
 			glVertex3f(x2+b,y1,z1);
 			glVertex3f(x2+b,y2,z1);
 			glVertex3f(x2,y2,z1);
-				
-		//Top Edge
+
+			//Top Edge
 			glVertex3f(x1-b,y1-b,z1);
 			glVertex3f(x1-b,y1,z1);
 			glVertex3f(x2+b,y1,z1);
 			glVertex3f(x2+b,y1-b,z1);
 
-		//Bottom Edge
+			//Bottom Edge
 			glVertex3f(x1-b,y2,z1);
 			glVertex3f(x1-b,y2+b,z1);
 			glVertex3f(x2+b,y2+b,z1);
 			glVertex3f(x2+b,y2,z1);
 
-		glEnd();
-
-		
-		//float b = borderThickness *.5f;
-		////Left edge
-		//glBegin( GL_QUADS );
-
-		//	glVertex3f(x1-b,y1,z1);
-		//	glVertex3f(x1+b,y1,z1);
-		//	glVertex3f(x1+b,y2,z1);
-		//	glVertex3f(x1-b,y2,z1);
-
-		////Right Edge
-		//	glVertex3f(x2-b,y1,z1);
-		//	glVertex3f(x2+b,y1,z1);
-		//	glVertex3f(x2+b,y2,z1);
-		//	glVertex3f(x2-b,y2,z1);
-		//		
-		////Top Edge
-		//	glVertex3f(x1-b,y1-b,z1);
-		//	glVertex3f(x1-b,y1+b,z1);
-		//	glVertex3f(x2+b,y1+b,z1);
-		//	glVertex3f(x2+b,y1-b,z1);
-
-		////Bottom Edge
-		//	glVertex3f(x1-b,y2-b,z1);
-		//	glVertex3f(x1-b,y2+b,z1);
-		//	glVertex3f(x2+b,y2+b,z1);
-		//	glVertex3f(x2+b,y2-b,z1);
-
-		//glEnd();
+			glEnd();
 
 
+			//float b = borderThickness *.5f;
+			////Left edge
+			//glBegin( GL_QUADS );
 
-		//glLineWidth(borderThickness);	
-		//glColor4fv(borderColor.getFloat());
-		//glBegin( GL_LINE_LOOP);
-		//	glVertex3f(x1,y1,z1);
-		//	glVertex3f(x2,y1,z1);
-		//	glVertex3f(x2,y2,z1);
-		//	glVertex3f(x1,y2,z1);
-		//glEnd();
+			//	glVertex3f(x1-b,y1,z1);
+			//	glVertex3f(x1+b,y1,z1);
+			//	glVertex3f(x1+b,y2,z1);
+			//	glVertex3f(x1-b,y2,z1);
+
+			////Right Edge
+			//	glVertex3f(x2-b,y1,z1);
+			//	glVertex3f(x2+b,y1,z1);
+			//	glVertex3f(x2+b,y2,z1);
+			//	glVertex3f(x2-b,y2,z1);
+			//		
+			////Top Edge
+			//	glVertex3f(x1-b,y1-b,z1);
+			//	glVertex3f(x1-b,y1+b,z1);
+			//	glVertex3f(x2+b,y1+b,z1);
+			//	glVertex3f(x2+b,y1-b,z1);
+
+			////Bottom Edge
+			//	glVertex3f(x1-b,y2-b,z1);
+			//	glVertex3f(x1-b,y2+b,z1);
+			//	glVertex3f(x2+b,y2+b,z1);
+			//	glVertex3f(x2+b,y2-b,z1);
+
+			//glEnd();
+		}
+		else
+		{
+			glLineWidth(borderThickness);	
+			glColor4fv(borderColor.getFloat());
+			glBegin( GL_LINE_LOOP);
+			glVertex3f(x1,y1,z1);
+			glVertex3f(x2,y1,z1);
+			glVertex3f(x2,y2,z1);
+			glVertex3f(x1,y2,z1);
+			glEnd();
+		}
 	}
 
-	
 }
 
 

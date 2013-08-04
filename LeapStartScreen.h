@@ -26,6 +26,8 @@
 #include "Cefalopod.h"
 
 #include "ScrollingView.hpp"
+#include "ColorPanel.hpp"
+//#include "AbsoluteLayout.hpp"
 
 #ifndef LEAP_START_SCREEN_H_
 #define LEAP_START_SCREEN_H_
@@ -34,43 +36,6 @@
 using namespace Leap;
 
 
-class FloatingPanel : public PanelBase {
-
-	Vector startPosition;
-	Vector gravityWellPosition;
-	bool gravityWellPresent;
-	float startSize;
-
-public:
-	FloatingPanel(float _width, float _height, Vector _position) : PanelBase()
-	{				
-		startSize = _width;
-		gravityWellPresent = false;
-		startPosition = _position;
-
-		setPanelSize(_width,_height);
-		setPosition(_position);
-	}
-
-
-	void update(double deltaTime);
-
-	void inputGravityWell(Vector wellPosition)
-	{
-		gravityWellPresent = true;
-		wellPosition.z = this->startPosition.z;
-		gravityWellPosition = wellPosition;		
-	}
-
-	void clearGravityWell()
-	{
-		gravityWellPresent = false;
-	}
-	
-	void draw();
-	void drawContent(Vector drawPosition, float drawWidth, float drawHeight);
-
-};
 
 
 class LeapStartScreen : public ActivityView {
@@ -80,27 +45,21 @@ private:
 	const static int StartState = 0;
 	const static int BrowserOpenState = 1;
 	const static int FinishedState = 2;
+	const static int TutorialState = 4;
 
-	const static int PreCheckState = 3;
 
+	Button * facebookLoginButton, * tutorialButton;
 
-	TextPanel * facebookLoginButton;
 	TextPanel * noticePanel;
-	Button * logoutButton;
 	CustomGrid * mainLayout;
 	View * rootView; 
 	RadialMenu * radialMenu;
-	TextPanel * statusPanel;
-	
+			
 	LeapElement * lastHit;
-	std::string startDir;	
-
-	FBNode * loggedInNode;
 
 	int state;
 	
-	CefRefPtr<CefFileBrowser> fileBrowserCallback;	
-	CefRefPtr<Cefalopod> facebookClient,facebookPreCheckClient;
+	CefRefPtr<Cefalopod> facebookClient;
 
 	//Members
 	void deleteCookies();
@@ -110,6 +69,11 @@ private:
 	boost::function<void()> finishedCallback;
 
 	ScrollingView * floatingPanelsView;
+	void generateBackgroundPanels();
+
+	void launchTutorial();
+	void launchBrowser();
+
 
 public:
 	LeapStartScreen(std::string startDir);
@@ -119,14 +83,13 @@ public:
 	void update(double delta);
 	void draw();
 		
-	void launchBrowser();
-
 	void startApplication(std::string token);
 	void onFrame(const Controller & controller);
 	
 	bool onLeapGesture(const Controller & controller, const Gesture & gesture);
 	void onGlobalGesture(const Controller & controller, std::string gestureType);
 	void getTutorialDescriptor(vector<string> & tutorial);
+	void onGlobalFocusChanged(bool focused);
 
 	void setFinishedCallback(boost::function<void()> finishedCallback);
 

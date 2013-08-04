@@ -6,7 +6,7 @@ AlbumCursorView::AlbumCursorView() : DataListActivity(2)
 	imageDetailView = new ImageDetailView();
 	imageDetailView->setVisible(false);
 	imageDetailView->setFinishedCallback([this](string a){
-		PointableElementManager::getInstance()->releaseGlobalGestureFocus(this->imageDetailView);	
+		LeapInput::getInstance()->releaseGlobalGestureFocus(this->imageDetailView);	
 		this->imageDetailView->setVisible(false);
 		this->layoutDirty = true;						
 	});
@@ -68,7 +68,7 @@ FBDataView * AlbumCursorView::getDataView(FBNode * node)
 
 		this->imageDetailView->setImagePanel(item);										
 		this->imageDetailView->setVisible(true);
-		PointableElementManager::getInstance()->requestGlobalGestureFocus(this->imageDetailView);
+		LeapInput::getInstance()->requestGlobalGestureFocus(this->imageDetailView);
 		this->layoutDirty = true;			
 	};
 

@@ -44,7 +44,7 @@ void DataListActivity::show(FBDataCursor * _cursor)
 {
 	Logger::stream("DataListActivity","INFO") << "Showing new cursor" << endl;
 
-	PointableElementManager::getInstance()->requestGlobalGestureFocus(this);
+	LeapInput::getInstance()->requestGlobalGestureFocus(this);
 
 	if (this->cursor != NULL)
 		this->cursor->cursorChangedCallback = [](){};
@@ -77,7 +77,7 @@ void DataListActivity::setTitlePanel(TextPanel * _titlePanel)
 
 void DataListActivity::suspend()
 {
-	PointableElementManager::getInstance()->releaseGlobalGestureFocus(this);
+	LeapInput::getInstance()->releaseGlobalGestureFocus(this);
 
 	float targetPriority = 100;
 	for (auto it = itemGroup->getChildren()->begin(); it != itemGroup->getChildren()->end();it++)
@@ -89,7 +89,7 @@ void DataListActivity::suspend()
 
 void DataListActivity::resume()
 {
-	PointableElementManager::getInstance()->requestGlobalGestureFocus(this);
+	LeapInput::getInstance()->requestGlobalGestureFocus(this);
 
 	for (auto it = items.begin(); it != items.end(); it++)
 	{

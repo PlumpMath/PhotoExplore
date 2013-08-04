@@ -51,7 +51,7 @@ struct InteractionState {
 	
 };
 
-class PointableElementManager {
+class LeapInput {
 	
 private:
 	stack<ActivityView*> globalGestureListenerStack;
@@ -61,9 +61,9 @@ private:
 	map<int,bool> mouseButtonState;
 	map<int,bool> keyState;
 
-	static PointableElementManager * instance;
+	static LeapInput * instance;
 
-	PointableElementManager();
+	LeapInput();
 
 	const static int EnterEvent = 0;
 	const static int ExitEvent = 1;
@@ -85,10 +85,10 @@ private:
 	
 	
 public:
-	static PointableElementManager * getInstance()
+	static LeapInput * getInstance()
 	{
 		if (instance == NULL)
-			instance = new PointableElementManager();
+			instance = new LeapInput();
 		return instance;
 	}
 

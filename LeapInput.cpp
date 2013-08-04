@@ -1,4 +1,4 @@
-#include "PointableElementManager.h"
+#include "LeapInput.hpp"
 #include "LeapHelper.h"
 #include "HandModel.h"
 #include "LeapDebug.h"
@@ -7,7 +7,7 @@
 #include "RadialMenu.hpp"
 #include "FacebookDataDisplay.hpp"
 
-PointableElementManager::PointableElementManager()
+LeapInput::LeapInput()
 {
 	shakeGestureState = -1;
 	pointingGestureState = 0;
@@ -15,7 +15,12 @@ PointableElementManager::PointableElementManager()
 	drawNonDominant = false;
 }
 
-void PointableElementManager::processInputEvents()
+InteractionState LeapInput::getInteractionState()
+{
+	return this->currentState;
+}
+
+void LeapInput::processInputEvents()
 {
 	return;
 	//int x,y;
@@ -99,7 +104,7 @@ void PointableElementManager::processInputEvents()
 	//}
 }
 
-void PointableElementManager::enableNonDominantCursor(bool _enable)
+void LeapInput::enableNonDominantCursor(bool _enable)
 {
 	this->drawNonDominant = _enable;
 }
@@ -136,7 +141,7 @@ static int determineHandState(const Controller & controller, Frame frame, Hand h
 	return handState;
 }
 
-void PointableElementManager::processFrame(const Controller & controller, Frame frame)
+void LeapInput::processFrame(const Controller & controller, Frame frame)
 {	
 	static float maxRadialClickVelocity = GlobalConfig::tree()->get<float>("Leap.TouchDistance.MaxRadialClickVelocity");
 	static float maxLongitudalClickVelocity = GlobalConfig::tree()->get<float>("Leap.TouchDistance.MaxLongitudalClickVelocity");
@@ -429,7 +434,7 @@ void PointableElementManager::processFrame(const Controller & controller, Frame 
 }
 
 
-void PointableElementManager::handleGlobalGestures(const Controller & controller)
+void LeapInput::handleGlobalGestures(const Controller & controller)
 {
 	int nigger = 0;
 	if (globalGestureListenerStack.size() > 0)
@@ -476,7 +481,7 @@ void PointableElementManager::handleGlobalGestures(const Controller & controller
 	}
 }
 
-void PointableElementManager::requestGlobalGestureFocus(ActivityView * globalListener)
+void LeapInput::requestGlobalGestureFocus(ActivityView * globalListener)
 {
 	if (globalGestureListenerStack.empty() || globalGestureListenerStack.top() != globalListener)
 	{
@@ -492,7 +497,7 @@ void PointableElementManager::requestGlobalGestureFocus(ActivityView * globalLis
 	}
 }
 
-void PointableElementManager::releaseGlobalGestureFocus(ActivityView * globalListener)
+void LeapInput::releaseGlobalGestureFocus(ActivityView * globalListener)
 {
 	if (globalGestureListenerStack.size() > 0 && globalGestureListenerStack.top() == globalListener)
 	{

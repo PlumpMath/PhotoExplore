@@ -9,7 +9,7 @@
 #include "SDLTimer.h"
 #include <sstream>
 #include "Leap.h"
-#include "PointableElementManager.h"
+#include "LeapInput.hpp"
 #include "LeapDebug.h"
 #include "LeapListenerImpl.h"
 #include "LeapStartScreen.h"
@@ -57,7 +57,7 @@ HandProcessor * HandProcessor::instance = NULL;
 FileManager * FileManager::instance = NULL;
 FBDataSource * FBDataSource::instance = NULL;
 FacebookDataDisplay * FacebookDataDisplay::instance = NULL;
-PointableElementManager * PointableElementManager::instance = NULL;
+LeapInput * LeapInput::instance = NULL;
 
 LeapDebug * LeapDebug::instance = NULL;
  
@@ -580,8 +580,8 @@ int main(int argc, char * argv[]){
 				}			
 			
 				HandProcessor::getInstance()->processFrame(controller.frame());
-				PointableElementManager::getInstance()->processInputEvents();
-				PointableElementManager::getInstance()->processFrame(controller,controller.frame());
+				LeapInput::getInstance()->processInputEvents();
+				LeapInput::getInstance()->processFrame(controller,controller.frame());
 				frameOut  << "PointableEvents = " << itemTimer.millis() << "ms \n";
 					
 				startScreen.onFrame(controller);

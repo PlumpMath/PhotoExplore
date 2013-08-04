@@ -110,7 +110,7 @@ void FacebookIntroView::getTutorialDescriptor(vector<string> & tutorial)
 
 void FacebookIntroView::show(FBNode * node)
 {	
-	PointableElementManager::getInstance()->requestGlobalGestureFocus(this);	
+	LeapInput::getInstance()->requestGlobalGestureFocus(this);	
 	friendPhotoGrid->clearChildren();
 	myPhotoGrid->clearChildren();
 

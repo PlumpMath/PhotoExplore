@@ -219,6 +219,7 @@
     <ClCompile Include="Button.cpp" />
     <ClCompile Include="Cefalopod.cpp" />
     <ClCompile Include="Color.cpp" />
+    <ClCompile Include="ColorPanel.cpp" />
     <ClCompile Include="DataListActivity.cpp" />
     <ClCompile Include="FakeDataSource.cpp" />
     <ClCompile Include="FastSeekBar.cpp" />
@@ -244,7 +245,9 @@
     <ClCompile Include="ImageDetailView.cpp" />
     <ClCompile Include="ImageLoader.cpp" />
     <ClCompile Include="ImagePanel.cpp" />
+    <ClCompile Include="InteractionsTutorial.cpp" />
     <ClCompile Include="kiss_fft.cpp" />
+    <ClCompile Include="LeapCursor.cpp" />
     <ClCompile Include="LeapDebug.cpp" />
     <ClCompile Include="LeapElement.cpp" />
     <ClCompile Include="LeapStartScreen.cpp" />
@@ -254,7 +257,7 @@
     <ClCompile Include="Panel.cpp" />
     <ClCompile Include="PanelBase.cpp" />
     <ClCompile Include="PanelFactory.cpp" />
-    <ClCompile Include="PointableElementManager.cpp" />
+    <ClCompile Include="LeapInput.cpp" />
     <ClCompile Include="PunchGestureDetector.cpp" />
     <ClCompile Include="RadialMenu.cpp" />
     <ClCompile Include="ResourceManager.cpp" />
@@ -284,6 +287,7 @@
     <ClInclude Include="Cefalopod.h" />
     <ClInclude Include="CefDownloadClient.h" />
     <ClInclude Include="CefFileBrowser.h" />
+    <ClInclude Include="ColorPanel.hpp" />
     <ClInclude Include="FBDataCursor.hpp" />
     <ClInclude Include="DataListActivity.hpp" />
     <ClInclude Include="EmptyView.hpp" />
@@ -291,6 +295,7 @@
     <ClInclude Include="FakeDataSource.hpp" />
     <ClInclude Include="FastSeekBar.hpp" />
     <ClInclude Include="FBDataView.hpp" />
+    <ClInclude Include="FrictionTutorialSteps.hpp" />
     <ClInclude Include="FriendCursorView.hpp" />
     <ClInclude Include="FriendListCursorView.hpp" />
     <ClInclude Include="GlobalConfig.hpp" />
@@ -320,6 +325,8 @@
     <ClInclude Include="ImageLoadingURLClient.h" />
     <ClInclude Include="ImageLoader.hpp" />
     <ClInclude Include="ImagePanel.hpp" />
+    <ClInclude Include="InteractionsTutorial.hpp" />
+    <ClInclude Include="LeapCursor.hpp" />
     <ClInclude Include="LeapElement.hpp" />
     <ClInclude Include="LinearLayout.hpp" />
     <ClInclude Include="Logger.hpp" />
@@ -332,6 +339,7 @@
     <ClInclude Include="ScrollingView.hpp" />
     <ClInclude Include="SeekVisual.hpp" />
     <ClInclude Include="ShakeGestureDetector.hpp" />
+    <ClInclude Include="SwipeTutorialSteps.hpp" />
     <ClInclude Include="SwipeGestureDetector.hpp" />
     <ClInclude Include="TextEditPanel.hpp" />
     <ClInclude Include="TextureLoader.hpp" />
@@ -345,7 +353,7 @@
     <ClInclude Include="LeapHelper.h" />
     <ClInclude Include="NodeBase.h" />
     <ClInclude Include="Panel.h" />
-    <ClInclude Include="PointableElementManager.h" />
+    <ClInclude Include="LeapInput.hpp" />
     <ClInclude Include="ResourceManager.h" />
     <ClInclude Include="ResourceManagerTypes.h" />
     <ClInclude Include="SDLTimer.h" />

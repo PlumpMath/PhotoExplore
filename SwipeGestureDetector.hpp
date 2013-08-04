@@ -115,6 +115,8 @@ public:
 	void draw();
 
 	void setFlyWheel(FlyWheel * flyWheel);
+	FlyWheel * getFlyWheel();
+
 	void setSwipeDetectedListener(boost::function<void(Hand swipingHand, Vector swipeVector)>);
 
 };

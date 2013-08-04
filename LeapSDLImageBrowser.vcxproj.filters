@@ -70,6 +70,18 @@
     <Filter Include="Source Files\NewPanel\DataViews">
       <UniqueIdentifier>{a0f2ad91-cfb7-4cf4-ae82-7a6aeefbffdb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Tutorial">
+      <UniqueIdentifier>{073bf6c4-f6c0-4fec-a552-ead7de19e3c4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Overlay">
+      <UniqueIdentifier>{e352cda4-d9cf-466b-9d43-a1e029021362}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Overlay">
+      <UniqueIdentifier>{353a86db-ab57-445d-bc53-1603eeaf376a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Tutorial">
+      <UniqueIdentifier>{8295b39b-e735-4c2a-b7c5-47647fb723c8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -79,9 +91,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Animation.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="PointableElementManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="LeapDebug.cpp">
@@ -252,6 +261,18 @@
     <ClCompile Include="FacebookIntroView.cpp">
       <Filter>Source Files\NewPanel\DataPanels</Filter>
     </ClCompile>
+    <ClCompile Include="ColorPanel.cpp">
+      <Filter>Source Files\Panel</Filter>
+    </ClCompile>
+    <ClCompile Include="InteractionsTutorial.cpp">
+      <Filter>Source Files\Tutorial</Filter>
+    </ClCompile>
+    <ClCompile Include="LeapCursor.cpp">
+      <Filter>Source Files\Overlay</Filter>
+    </ClCompile>
+    <ClCompile Include="LeapInput.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Types.h">
@@ -271,9 +292,6 @@
     </ClInclude>
     <ClInclude Include="HandRotationGestureDetector.h">
       <Filter>Header Files\LeapUtil</Filter>
-    </ClInclude>
-    <ClInclude Include="LeapDebug.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="LeapHelper.h">
       <Filter>Header Files\LeapUtil</Filter>
@@ -354,9 +372,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="LeapElement.hpp">
-      <Filter>Header Files\EventHandling</Filter>
-    </ClInclude>
-    <ClInclude Include="PointableElementManager.h">
       <Filter>Header Files\EventHandling</Filter>
     </ClInclude>
     <ClInclude Include="ContentPanel.hpp">
@@ -493,6 +508,27 @@
     </ClInclude>
     <ClInclude Include="FriendCursorView.hpp">
       <Filter>Header Files\NewPanel\DataViews</Filter>
+    </ClInclude>
+    <ClInclude Include="ColorPanel.hpp">
+      <Filter>Header Files\Panel</Filter>
+    </ClInclude>
+    <ClInclude Include="LeapCursor.hpp">
+      <Filter>Header Files\Overlay</Filter>
+    </ClInclude>
+    <ClInclude Include="LeapInput.hpp">
+      <Filter>Header Files\EventHandling</Filter>
+    </ClInclude>
+    <ClInclude Include="SwipeTutorialSteps.hpp">
+      <Filter>Header Files\Tutorial</Filter>
+    </ClInclude>
+    <ClInclude Include="InteractionsTutorial.hpp">
+      <Filter>Header Files\Tutorial</Filter>
+    </ClInclude>
+    <ClInclude Include="LeapDebug.h">
+      <Filter>Header Files\Overlay</Filter>
+    </ClInclude>
+    <ClInclude Include="FrictionTutorialSteps.hpp">
+      <Filter>Header Files\Tutorial</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -262,7 +262,7 @@ void RadialMenu::layout(Vector pos, cv::Size2f size)
 void RadialMenu::show()
 {
 	state = MenuState_DisplayFull;
-	PointableElementManager::getInstance()->requestGlobalGestureFocus(this);
+	LeapInput::getInstance()->requestGlobalGestureFocus(this);
 	blurWasEnabled = GraphicsContext::getInstance().BlurRenderEnabled;
 	GraphicsContext::getInstance().setBlurEnabled(true);
 	menuLaunchButton->setVisible(false);
@@ -272,7 +272,7 @@ void RadialMenu::show()
 void RadialMenu::dismiss()
 {
 	state = MenuState_ButtonOnly;
-	PointableElementManager::getInstance()->releaseGlobalGestureFocus(this);
+	LeapInput::getInstance()->releaseGlobalGestureFocus(this);
 	if (!blurWasEnabled)
 		GraphicsContext::getInstance().setBlurEnabled(false);	
 	menuLaunchButton->setVisible(true);

@@ -26,17 +26,9 @@ CefRefPtr<CefLoadHandler> Cefalopod::GetLoadHandler()
 	return CefRefPtr<CefLoadHandler>(this);
 }
 
-bool Cefalopod::OnBeforePopup(CefRefPtr<CefBrowser> browser,
-                             CefRefPtr<CefFrame> frame,
-                             const CefString& target_url,
-                             const CefString& target_frame_name,
-                             const CefPopupFeatures& popupFeatures,
-                             CefWindowInfo& windowInfo,
-                             CefRefPtr<CefClient>& client,
-                             CefBrowserSettings& settings,
-                             bool* no_javascript_access) 
+CefRefPtr<CefRequestHandler> Cefalopod::GetRequestHandler()
 {
-	return true;
+	return CefRefPtr<CefRequestHandler>(this);
 }
 
 bool Cefalopod::DoClose(CefRefPtr<CefBrowser> browser)
@@ -101,6 +93,25 @@ static string extractToken(const CefString & urlString, bool & success)
 	}
 	return token;
 }
+
+
+bool Cefalopod::OnBeforeResourceLoad(CefRefPtr<CefBrowser> browser,CefRefPtr<CefFrame> frame,CefRefPtr<CefRequest> request)
+{
+	Logger::stream("Cefalopod","INFO") << "OnBeforeResourceLoad" << endl;
+
+	if (!done)
+		token = extractToken(request->GetURL(),done);
+
+	if (done)
+	{
+		CefRefPtr<CefTaskRunner> runner = CefTaskRunner::GetForThread(TID_IO);
+		CefRefPtr<SaveCookies> dlTask = new SaveCookies();
+		dlTask->hostToClose = browser->GetHost();
+		runner->PostTask(dlTask.get());
+	}
+	return done;
+}
+
 
 void Cefalopod::OnLoadError(CefRefPtr<CefBrowser> browser,CefRefPtr<CefFrame> frame,ErrorCode errorCode,const CefString& errorText,const CefString& failedUrl)
 {		

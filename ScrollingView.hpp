@@ -7,7 +7,7 @@
 
 #include "View.hpp"
 #include "Flywheel.h"
-#include "PointableElementManager.h"
+#include "LeapInput.hpp"
 
 
 typedef int ScrollOrientation;

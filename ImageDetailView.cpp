@@ -55,7 +55,7 @@ void ImageDetailView::initButtonBar()
 	photoComment->setAnimateOnLayout(false);
 	photoComment->setTextColor(GlobalConfig::tree()->get_child("ImageDetailView.Comment.TextColor"));
 	photoComment->setBackgroundColor(Colors::Transparent);
-	photoComment->setTextSize(GlobalConfig::tree()->get<float>("ImageDetailView.Comment.FontSize"));
+	photoComment->setTextSize(GlobalConfig::tree()->get<float>("ImageDetailView.Comment.TextSize"));
 	photoComment->setTextFitPadding(12);
 	
 
@@ -69,7 +69,7 @@ void ImageDetailView::onGlobalGesture(const Controller & controller, std::string
 	if (gestureType.compare("shake") == 0)
 	{
 		this->setImagePanel(NULL);
-		PointableElementManager::getInstance()->releaseGlobalGestureFocus(this);
+		LeapInput::getInstance()->releaseGlobalGestureFocus(this);
 		this->finishedCallback("");
 	}
 }
@@ -86,7 +86,7 @@ bool ImageDetailView::onLeapGesture(const Controller & controller, const Gesture
 			if (swipe.direction().angleTo(Vector::down()) < PI/4.0f)
 			{
 				this->setImagePanel(NULL);
-				PointableElementManager::getInstance()->releaseGlobalGestureFocus(this);
+				LeapInput::getInstance()->releaseGlobalGestureFocus(this);
 				this->finishedCallback("");
 				return true;
 			}
@@ -104,7 +104,7 @@ void ImageDetailView::getTutorialDescriptor(vector<string> & tutorial)
 void ImageDetailView::OnElementClicked(Pointable & pointable)
 {
 	this->setImagePanel(NULL);
-	PointableElementManager::getInstance()->releaseGlobalGestureFocus(this);
+	LeapInput::getInstance()->releaseGlobalGestureFocus(this);
 	this->finishedCallback("");
 }
 
@@ -287,7 +287,7 @@ void ImageDetailView::setVisible(bool _visible)
 
 	layoutDirty = true;
 
-	PointableElementManager::getInstance()->enableNonDominantCursor(_visible);
+	LeapInput::getInstance()->enableNonDominantCursor(_visible);
 }
 
 

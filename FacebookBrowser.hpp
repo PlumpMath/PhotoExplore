@@ -4,7 +4,7 @@
 #include <Leap.h>
 #include <boost/function.hpp>
 
-#include "PointableElementManager.h"
+#include "LeapInput.hpp"
 #include "FacebookIntroView.hpp"
 #include "FacebookFriendListView.hpp"
 #include "RelevantImageView.hpp"

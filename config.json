@@ -42,7 +42,7 @@
 		"EnableLineSmoothing" : true,
 		"FSAASamples" : 0,
 		"ShaderDirectory" : ".",
-		"Fullscreen" : true,
+		"Fullscreen" : false,
 		"OverrideResolution" : false,
 		"OverrideWidth" : 1280,
 		"OverrideHeight" : 720,
@@ -198,7 +198,7 @@
 	"Overlay" : 
 	{
 		"CornerAngle": 2.5,
-		"BaseCursorSize" : 41,
+		"BaseCursorSize" : 61,
 		"VertexCount" : 4,
 		"AngleOffset" : 45
 	},
@@ -368,7 +368,7 @@
 		"MaxCommentLength" : 180,		
 		"Comment" : 
 		{
-			"FontSize" : 8,
+			"TextSize" : 8,
 			"TextColor" : 	{"R" : 240,"G" : 240,"B" : 240,"A" : 150}
 		},
 		"LikeButton" : 
@@ -418,12 +418,60 @@
 			"HomeButtonOvr" : "Images/Home_Overlay.png"
 		}
 	},
+	"InteractiveTutorial":
+	{
+		"ActiveStepColor" :{"R" : 144,"G" : 238,"B" : 144,"A" : 200},
+		"FinishedStepColor" :{"R" :144,"G" : 238,"B" : 144,"A" : 220},
+		"StepStyle" : 
+		{
+			"TextSize" : 8,
+			"TextColor" : {"R" : 70,"G" : 130,"B" : 180,"A" : 255}, //{"R" : 240,"G" : 240,"B" : 240,"A" : 255},
+			"BackgroundColor" :  {"R" : 230,"G" : 230,"B" :230,"A" : 0},
+			"BorderThickness" : 0,
+			"TextAlignment" : 0,
+			"TextPadding" : 8
+		},
+		"NextButton" : 
+		{
+			"Text" : "Next",
+			"TextSize" : 8,
+			"TextColor" : {"R" : 70,"G" : 130,"B" : 180,"A" : 255}, //{"R" : 240,"G" : 240,"B" : 240,"A" : 255},
+			"BackgroundColor" :  {"R" : 230,"G" : 230,"B" :230,"A" : 0},
+			"BorderThickness" : 0,
+			"TextAlignment" : 1,
+			"TextPadding" : 8
+		},
+		"Swipe" : 
+		{
+			"Step3" : 
+			{
+				"TravelDistance" : 1000
+			}
+		},
+		"Friction" : 
+		{
+			"SlowWheel" : 
+			{
+				"StartSpeed" : 2000
+			}
+		}
+	},
 	"LeapStartScreen" :
 	{
 		"TrainingMode" : false,
 		"StartButtonText" : "Start Exploring",
 		"BrowserLoginPrompt" : "Please login using the browser window",
-		"InternetNotice" : "Tap the button above to open Facebook in a browser window, then login using this window to continue. This application will require an internet connection throughout its use."		
+		"InternetNotice" : "Tap the button above to open Facebook in a browser window, then login using this window to continue. This application will require an internet connection throughout its use.",	
+		"TutorialButton" :
+		{
+			"Text" : "Tutorial",
+			"TextSize" : 7,
+			"TextColor" : {"R" : 70,"G" : 130,"B" : 180,"A" : 255}, //{"R" : 240,"G" : 240,"B" : 240,"A" : 255},
+			"BackgroundColor" :  {"R" : 230,"G" : 230,"B" :230,"A" : 255},
+			"BorderThickness" : 0,
+			"TextAlignment" : 1,
+			"TextPadding" : 8
+		}
 	},
 	"DataListActivity" :	
 	{
@@ -441,22 +489,10 @@
 		"AlbumsPerRequest" : 10,
 		"Title" :
 		{
-			"FontSize" : 12,
+			"TextSize" : 12,
 			"TextPadding" : 0,
-			"TextColor" : 
-			{
-				"R" : 0,
-				"G" : 0,
-				"B" : 0,
-				"A" : 255
-			},
-			"BackgroundColor" : 
-			{
-				"R" : 255,
-				"G" : 255,
-				"B" : 255,
-				"A" : 0
-			}
+			"TextColor" : {"R" : 0,"G" : 0,"B" : 0,"A" : 255},
+			"BackgroundColor" : {"R" : 255,"G" : 255,"B" : 255,"A" : 0}
 		}
 	},
 	"AlbumDetailView" :
@@ -466,7 +502,7 @@
 		"PhotosPerRequest" : 10,
 		"Title" :
 		{
-			"FontSize" : 12,
+			"TextSize" : 12,
 			"TextPadding" : 0,
 			"TextColor" : 
 			{
@@ -530,7 +566,7 @@
 		"NameLabel" :
 		{
 			"RandomizeBackground" : true,
-			"FontSize" : 6,
+			"TextSize" : 6,
 			"TextPadding" : 0,
 			"TextColor" : 
 			{
@@ -546,7 +582,7 @@
 	{
 		"Labels" :
 		{
-			"FontSize" : 3,
+			"TextSize" : 3,
 			"FontName" : "Regular",
 			"TextPadding" : 5.0,
 			"Color" : 
