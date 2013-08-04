@@ -4,7 +4,7 @@ CXXFLAGS=-m32 -w -g -std=c++0x
 LIB=Leap freetype json_spirit cef cef_dll_wrapper glfw3 GLEW opencv_core opencv_imgproc opencv_highgui opencv_video boost_date_time boost_thread boost_filesystem boost_system
 LIB_PARAMS=$(foreach d,$(LIB),-l$d)
 
-LIBDIR=/opt/local/lib/gcc45 /usr/lib/ /usr/local/lib /Users/adamskubel/lib/boost/boost_1_53_0/stage/lib /Users/adamskubel/lib/opencv-2.4.5/release/lib /Users/adamskubel/lib/LeapSDK/lib /Users/adamskubel/lib/cef_binary_3.1453.1255_macosx_fixed/Release
+LIBDIR=/opt/local/lib/gcc45 /usr/lib/ /usr/local/lib /Users/adamskubel/lib/boost/boost_1_53_0/stage/lib /Users/adamskubel/lib/opencv-2.4.5/release/lib /Users/adamskubel/lib/LeapSDK/lib /Users/adamskubel/lib/cef_binary_3.1453.1255_macosx/Release
 LIB_DIR_PARAMS=$(foreach l, $(LIBDIR),-L$l)
 
 INC=/Users/adamskubel/lib/cef_binary_3.1453.1255_macosx /usr/local/include/freetype2 /usr/local/include /usr/include /Users/adamskubel/lib/boost/boost_1_53_0 /Users/adamskubel/lib/LeapSDK/include /Users/adamskubel/lib/opencv-2.4.5/include /Users/adamskubel/lib/glfw-3.0.1/include

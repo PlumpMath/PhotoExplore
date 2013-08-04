@@ -461,9 +461,9 @@ int main(int argc, char * argv[]){
 	
 #if defined(_WIN32)
 	settings.multi_threaded_message_loop = true;
-	settings.single_process = true;
 #endif
 	settings.command_line_args_disabled = true;
+	settings.single_process = false;
 			
 	try
 	{		
@@ -501,10 +501,12 @@ int main(int argc, char * argv[]){
 		else
 		{
 			FBDataSource::instance = new FacebookLoader();
+#ifdef _WIN32
 			if (GlobalConfig::tree()->get<bool>("Cef.PersistentCookiesEnabled"))
 			{
 				CefCookieManager::GetGlobalManager()->SetStoragePath(".",true);
 			}
+#endif
 		}
 	
 		FacebookDataDisplay::instance = new FacebookBrowser();
@@ -572,6 +574,7 @@ int main(int argc, char * argv[]){
 				Timer itemTimer;
 				itemTimer.start();
 				
+//				glfwMakeContextCurrent(mainWindow);
 				glfwPollEvents();
 
 				if (glfwGetKey(mainWindow,GLFW_KEY_ESCAPE) == GLFW_PRESS || glfwWindowShouldClose(mainWindow))

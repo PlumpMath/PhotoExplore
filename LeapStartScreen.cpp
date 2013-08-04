@@ -46,10 +46,13 @@ LeapStartScreen::LeapStartScreen(std::string startDir)
 
 	updateTimer.start();
 	lastHit = NULL;
-
+	
 	if (GlobalConfig::tree()->get<bool>("FakeDataMode.Enable")) {
 		
 		init();
+		
+		LeapInput::getInstance()->requestGlobalGestureFocus(this);
+		
 		FBNode * root =new FBNode("human");
 		root->setNodeType("me");
 		FacebookDataDisplay::getInstance()->displayNode(root,"");
@@ -58,9 +61,9 @@ LeapStartScreen::LeapStartScreen(std::string startDir)
 	}
 	else {
 		init();
+		LeapInput::getInstance()->requestGlobalGestureFocus(this);
 	}
 	
-	LeapInput::getInstance()->requestGlobalGestureFocus(this);
 }
 
 
@@ -80,25 +83,21 @@ LeapStartScreen::~LeapStartScreen()
 }
 
 LeapElement * LeapStartScreen::elementAtPoint(int x, int y, int & elementStateFlags)
-{	
+{
+
 	LeapElement * hit = RadialMenu::instance->elementAtPoint(x,y,elementStateFlags);
 	if (hit != NULL)
 		return hit;
-
-	return ViewGroup::elementAtPoint(x,y,elementStateFlags);
-
-	//if (state == FinishedState)
-	//{
-	//	return ((FacebookBrowser*)rootView)->elementAtPoint(x,y,elementStateFlags);
-	//}
-	//else 
-	////{		
-	//hit = facebookLoginButton->elementAtPoint(x,y,elementStateFlags);
-	//if (hit != NULL)return hit;
-
-	//return mainLayout->elementAtPoint(x,y,elementStateFlags);		
-	//} 
-	//return NULL;
+	
+	
+	if (state == FinishedState)
+	{
+		return rootView->elementAtPoint(x,y,elementStateFlags);
+	}
+	else
+	{		
+		return ViewGroup::elementAtPoint(x,y,elementStateFlags);
+	}
 }
 
 void LeapStartScreen::generateBackgroundPanels()
@@ -237,7 +236,10 @@ void LeapStartScreen::launchTutorial()
 
 void LeapStartScreen::onGlobalFocusChanged(bool focused)
 {
-	SwipeGestureDetector::getInstance().setFlyWheel(floatingPanelsView->getFlyWheel());
+	if (focused && floatingPanelsView != NULL)
+	{
+		SwipeGestureDetector::getInstance().setFlyWheel(floatingPanelsView->getFlyWheel());
+	}
 }
 	
 class MyVisitor : public CefCookieVisitor
@@ -267,19 +269,6 @@ void LeapStartScreen::onFrame(const Controller & controller)
 	{
 		((FacebookBrowser*)rootView)->onFrame(controller);
 	}
-	//else if (state == StartState)
-	//{
-	//	Frame frame = controller.frame();
-	//	HandModel * handModel = HandProcessor::LastModel();
-	//	
-	//	Pointable intentPointable = frame.pointable(handModel->IntentFinger);
-	//	
-	//	Vector pt = LeapHelper::FindScreenPoint(controller,intentPointable);
-	//	int flags = 0;
-	//	LeapElement * element = floatingPanelsView->elementAtPoint((int)pt.x,(int)pt.y,flags);
-	//	if (element != NULL)
-	//		element->OnPointableEnter(intentPointable);
-	//}
 }
 
 void LeapStartScreen::layout(Leap::Vector pos, cv::Size2f size)
@@ -310,7 +299,7 @@ void LeapStartScreen::launchBrowser()
 	{
 		startApplication(testToken);
 	}
-	else if (state != BrowserOpenState)
+	else if (state != BrowserOpenState && state != FinishedState)
 	{	
 		facebookLoginButton->setText(GlobalConfig::tree()->get<string>("LeapStartScreen.BrowserLoginPrompt"));
 		facebookLoginButton->reloadText();
@@ -377,10 +366,10 @@ void LeapStartScreen::launchBrowser()
 			string tok;
 			readStream >> tok;
 			
-			glfwRestoreWindow(GraphicsContext::getInstance().MainWindow);
 			LeapStartScreen * me = this;
 			this->postTask([me,tok](){
-			
+				
+				glfwRestoreWindow(GraphicsContext::getInstance().MainWindow);
 				if (tok.length() > 0)
 				{
 					Logger::stream("LeapStartScreen","INFO") << "Starting app with token " << tok << endl;
