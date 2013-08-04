@@ -353,18 +353,21 @@ void LeapStartScreen::launchBrowser()
 		new boost::thread([this](){
 			
 			string cefPath = GlobalConfig::tree()->get<string>("ExternalCef.CefClientPath");
-			Logger::stream("LeapStartScreen","INFO") << "Running cefclient: " << cefPath << endl;
+//			Logger::stream("LeapStartScreen","INFO") << "Running cefclient: " << cefPath << endl;
 			int code = system(cefPath.c_str());
-			Logger::stream("LeapStartScreen","INFO") << "cefclient terminated with code " << code << endl;
+//			Logger::stream("LeapStartScreen","INFO") << "cefclient terminated with code " << code << endl;
 					
 			string tokenPath = GlobalConfig::tree()->get<string>("ExternalCef.TokenFilePath");
-			Logger::stream("LeapStartScreen","INFO") << "Loading token file " << tokenPath << endl;
+//			Logger::stream("LeapStartScreen","INFO") << "Loading token file " << tokenPath << endl;
 			ifstream readStream;
 			readStream.open(tokenPath);
-			Logger::stream("LeapStartScreen","INFO") << "Opened token file " << tokenPath << endl;
+//			Logger::stream("LeapStartScreen","INFO") << "Opened token file " << tokenPath << endl;
 			
 			string tok;
 			readStream >> tok;
+			
+			readStream.close();
+			std::remove(tokenPath.c_str());
 			
 			LeapStartScreen * me = this;
 			this->postTask([me,tok](){
@@ -372,12 +375,12 @@ void LeapStartScreen::launchBrowser()
 				glfwRestoreWindow(GraphicsContext::getInstance().MainWindow);
 				if (tok.length() > 0)
 				{
-					Logger::stream("LeapStartScreen","INFO") << "Starting app with token " << tok << endl;
+//					Logger::stream("LeapStartScreen","INFO") << "Starting app with token " << tok << endl;
 					me->startApplication(tok);
 				}
 				else
 				{
-					Logger::stream("LeapStartScreen","INFO") << "Starting app with token " << tok << endl;
+//					Logger::stream("LeapStartScreen","INFO") << "Starting app with token " << tok << endl;
 					me->facebookLoginButton->setText("Login failed, tap to retry");
 					me->facebookLoginButton->reloadText();
 					me->state = StartState;	

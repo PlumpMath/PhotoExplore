@@ -545,15 +545,25 @@ int main(int argc, char * argv[]){
 		
 			if (s.compare("logout") == 0)
 			{
+#ifdef _WIN32
 				CefRefPtr<CefTaskRunner> runner = CefTaskRunner::GetForThread(TID_IO);
 				CefRefPtr<DeleteCookieTask> dlTask = new DeleteCookieTask();
 				runner->PostTask(dlTask.get());
+#else
+				remove("Cookies");
+				remove("Cookies-Journal");
+				quit[0] = true;
+#endif
 			}
 			else if (s.compare("exit") == 0)
 			{
+#ifdef _WIN32
 				CefRefPtr<CefTaskRunner> runner = CefTaskRunner::GetForThread(TID_IO);
 				CefRefPtr<ShutdownTask> dlTask = new ShutdownTask();
 				runner->PostTask(dlTask.get());
+#else
+				quit[0] = true;
+#endif
 			}
 			else if (s.compare("hide_tutorial") == 0)
 			{
