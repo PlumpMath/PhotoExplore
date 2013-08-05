@@ -310,17 +310,17 @@ void LeapInput::processFrame(const Controller & controller, Frame frame)
 
 	if (ldvIntent == NULL)
 	{
-		ldvIntent =new LeapDebugVisual(screenPoint,1,LeapDebugVisual::LiveForever,cursorDimension,GlobalConfig::tree()->get_child("Leap.IntentControl.ScrollVisual.Color"));
+		ldvIntent =new LeapDebugVisual(cursorDimension,GlobalConfig::tree()->get_child("Leap.IntentControl.ScrollVisual.Color"));
 		ldvIntent->depth=10;
 		LeapDebug::instance->addDebugVisual(ldvIntent);
 
-		ldvNonDominant = new LeapDebugVisual(screenPoint,1,LeapDebugVisual::LiveForever,0,GlobalConfig::tree()->get_child("Leap.IntentControl.NonDominant.FillColor"));
+		ldvNonDominant = new LeapDebugVisual(0,GlobalConfig::tree()->get_child("Leap.IntentControl.NonDominant.FillColor"));
 		ldvNonDominant->depth=10;
 		ldvNonDominant->lineWidth =GlobalConfig::tree()->get<float>("Leap.IntentControl.NonDominant.LineWidth");
 		ldvNonDominant->lineColor = Color(GlobalConfig::tree()->get_child("Leap.IntentControl.NonDominant.LineColor"));
 		LeapDebug::instance->addDebugVisual(ldvNonDominant);
 		
-		ldvNonDominantTD = new LeapDebugVisual(screenPoint,1,LeapDebugVisual::LiveForever,0,GlobalConfig::tree()->get_child("Leap.IntentControl.NonDominantTD.FillColor"));
+		ldvNonDominantTD = new LeapDebugVisual(0,GlobalConfig::tree()->get_child("Leap.IntentControl.NonDominantTD.FillColor"));
 		ldvNonDominantTD->depth=10;
 		ldvNonDominantTD->lineWidth =GlobalConfig::tree()->get<float>("Leap.IntentControl.NonDominantTD.LineWidth");
 		ldvNonDominantTD->lineColor = Color(GlobalConfig::tree()->get_child("Leap.IntentControl.NonDominantTD.LineColor"));
@@ -336,12 +336,10 @@ void LeapInput::processFrame(const Controller & controller, Frame frame)
 		{
 			Vector ndPt = LeapHelper::FindScreenPoint(controller,nonDomPnt);
 			ldvNonDominant->size = cursorDimension;
-			ldvNonDominant->screenPoint.x = ndPt.x;
-			ldvNonDominant->screenPoint.y = ndPt.y;
+			ldvNonDominant->trackPointableId = nonDomPnt.id();
 			
 			ldvNonDominantTD->size =  cursorDimension*(1.0f + max<float>(minimumDrawDistance,nonDomPnt.touchDistance()));
-			ldvNonDominantTD->screenPoint.x = ndPt.x;
-			ldvNonDominantTD->screenPoint.y = ndPt.y;
+			ldvNonDominantTD->trackPointableId = nonDomPnt.id();
 						
 			Color c = Color(GlobalConfig::tree()->get_child("Leap.IntentControl.NonDominantTD.FillColor"));
 			float alphaMod = 0;
@@ -371,23 +369,17 @@ void LeapInput::processFrame(const Controller & controller, Frame frame)
 		ldvIntent->lineColor = Color(GlobalConfig::tree()->get_child("Leap.IntentControl.ScrollVisual.LineColor"));
 	}
 	
-	ldvIntent->screenPoint.x =screenPoint.x;
-	ldvIntent->screenPoint.y =screenPoint.y;
+	ldvIntent->trackPointableId = testPointable.id();
 	
 
 
 	for (int i=0;i<touchDistanceVisuals.size();i++)
 		touchDistanceVisuals.at(i)->size = 0;
-
-	//for (int i=0;i<hand.pointables().count();i++)
-	//{
-	//	Finger f = hand.fingers()[i];
-
-
+	
 	int i = 0;
 	if (touchDistanceVisuals.size() <= i)
 	{
-		LeapDebugVisual * distanceVisual =new LeapDebugVisual(Vector(-100,-100,0),1,LeapDebugVisual::LiveForever,0,Color(GlobalConfig::tree()->get_child("Leap.TouchDistance.Visual.FillColor")));
+		LeapDebugVisual * distanceVisual =new LeapDebugVisual(0,Color(GlobalConfig::tree()->get_child("Leap.TouchDistance.Visual.FillColor")));
 		distanceVisual->lineColor = Color(GlobalConfig::tree()->get_child("Leap.TouchDistance.Visual.LineColor"));
 		distanceVisual->lineWidth = GlobalConfig::tree()->get<float>("Leap.TouchDistance.Visual.LineWidth");
 		distanceVisual->depth=11;
@@ -395,12 +387,11 @@ void LeapInput::processFrame(const Controller & controller, Frame frame)
 		touchDistanceVisuals.push_back(distanceVisual);
 	}
 
-	//if (drawIntentOnly && f.id() != testPointable.id()) continue;
 
 	float drawTD = min<float>(1.0f,testPointable.touchDistance());
 	touchDistanceVisuals.at(i)->size = cursorDimension*(1.0f + max<float>(minimumDrawDistance,drawTD));
 
-	touchDistanceVisuals.at(i)->screenPoint = LeapHelper::FindScreenPoint(controller,testPointable);
+	touchDistanceVisuals.at(i)->trackPointableId = testPointable.id();
 
 	if (canPointableClick)
 	{				

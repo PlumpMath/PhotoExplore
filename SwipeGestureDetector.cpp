@@ -14,6 +14,8 @@ SwipeGestureDetector::SwipeGestureDetector()
 	((TextPanel*)infoText)->setTextAlignment(1);
 	state = IdleState;
 	currentScrollVelocity = 0;
+	touchScrollingEnabled = true;
+	swipeScrollingEnabled = true;
 }
 
 SwipeGestureDetector::~SwipeGestureDetector()
@@ -24,6 +26,19 @@ SwipeGestureDetector& SwipeGestureDetector::getInstance()
 {
 	static SwipeGestureDetector instance; 
 	return instance;
+}
+
+
+void SwipeGestureDetector::setTouchScrollingEnabled(bool _touchScrollingEnabled)
+{
+	this->touchScrollingEnabled = _touchScrollingEnabled;
+	state = IdleState;
+}
+
+void SwipeGestureDetector::setSwipeScrollingEnabled(bool _swipeScrolllingEnabled)
+{
+	this->swipeScrollingEnabled = _swipeScrolllingEnabled;
+	state = IdleState;
 }
 
 void SwipeGestureDetector::setSwipeDetectedListener(boost::function<void(Hand swipingHand, Vector swipeVector)> _swipeDetectedListener)
@@ -204,22 +219,6 @@ static Vector getCentroid(const Controller & controller, Hand hand)
 }
 
 
-static int findClosestPointable(const Controller & controller, Hand hand)
-{
-	float minTouchDistance = 1;
-	int minTouchPointable = -1;
-	for (int i=0;i<hand.pointables().count(); i++)
-	{
-		Pointable p = hand.pointables()[i];
-		if (p.touchDistance() < minTouchDistance)
-		{
-			minTouchDistance = p.touchDistance();
-			minTouchPointable = p.id();
-		}
-	}
-	return minTouchPointable;
-}
-
 
 void SwipeGestureDetector::doTouchZoneScrolling(const Controller & controller)
 {	
@@ -264,7 +263,7 @@ void SwipeGestureDetector::doTouchZoneScrolling(const Controller & controller)
 				Hand scrollingHand = frame.hand(scrollingHandId);
 				if (scrollingHand.isValid())
 				{
-					scrollingPointable = frame.pointable(findClosestPointable(controller,scrollingHand));
+					scrollingPointable = frame.pointable(LeapHelper::FindPointableClosestToTouchZone(controller,scrollingHand));
 					if (scrollingPointable.isValid() && scrollingPointable.touchDistance() < maxContinueScrollDistance)
 					{
 						startScrollScreenPoint = LeapHelper::FindScreenPoint(controller, scrollingPointable);
@@ -364,7 +363,7 @@ void SwipeGestureDetector::doTouchZoneScrolling(const Controller & controller)
 
 		if (scrollPointVisuals.size() <= i)
 		{
-			LeapDebugVisual * scrollPointVisual = new LeapDebugVisual(Vector(),1,LeapDebugVisual::LiveForever,0,Color(scrollConfig.get_child("VisualBackgroundColor")));
+			LeapDebugVisual * scrollPointVisual = new LeapDebugVisual(0,Color(scrollConfig.get_child("VisualBackgroundColor")));
 			scrollPointVisual->lineColor = Color(scrollConfig.get_child("VisualLineColor"));
 			scrollPointVisual->lineWidth = 2.0f;
 			scrollPointVisual->depth = 13;
@@ -377,7 +376,7 @@ void SwipeGestureDetector::doTouchZoneScrolling(const Controller & controller)
 		if (state == TouchScrolling) // || tipVelocityFriction > 0)
 		{
 			scrollPointVisuals.at(i)->size = cursorDimension;
-			scrollPointVisuals.at(i)->screenPoint = LeapHelper::FindScreenPoint(controller,p);		
+			scrollPointVisuals.at(i)->trackPointableId = p.id();
 			
 			//Color bg = Color(scrollConfig.get_child("VisualBackgroundColor"));
 			//if (tipVelocityFriction > 0)
@@ -413,9 +412,10 @@ void SwipeGestureDetector::onFrame(const Controller & controller)
 			return;
 		}
 
-		doTouchZoneScrolling(controller);
+		if (touchScrollingEnabled)
+			doTouchZoneScrolling(controller);
 	
-		if (state != TouchScrolling)
+		if (swipeScrollingEnabled && state != TouchScrolling)
 			doGestureScrolling(controller);
 
 	

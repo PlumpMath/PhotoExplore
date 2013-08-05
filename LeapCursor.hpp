@@ -3,71 +3,40 @@
 
 #include <Leap.h>
 #include "GLImport.h"
+#include "Types.h"
+
+using namespace Leap;
 
 class LeapDebugVisual {
-
+		
 private:
-	void drawPointer(LeapDebugVisual * ldv);
-	
-public:
-	LeapDebugVisual()
-	{
-	}
+	Vector drawPoint;
 
-	
-	LeapDebugVisual(Vector _screenPoint, int timeToLive,  int wayOfLife, double size, Color fillColor)
+public:	
+	int trackPointableId;
+	Color fillColor,lineColor;
+	double size;
+	float depth, lineWidth;
+
+	LeapDebugVisual(Pointable _trackPointable, double size, Color fillColor)
 	{
-		this->screenPoint = _screenPoint;
+		this->trackPointableId = _trackPointable.id();
 		this->size = size;
 		this->fillColor = fillColor;
-		this->timeToLive = timeToLive;
-		this->wayOfLife = wayOfLife;
 		this->depth= 10;
 		this->lineWidth = 1;
 	}
 
-
-	void iterateLife(int count = 1)
+	LeapDebugVisual(double size, Color fillColor)
 	{
-		switch (wayOfLife)
-		{
-		case LiveForever:
-			break;
-		case LiveBySize:
-			size -= 1.0*count;
-			break;
-		case LiveByTime:
-			timeToLive -= count;
-			break;
-		}
+		this->size = size;
+		this->fillColor = fillColor;
+		this->depth= 10;
+		this->lineWidth = 1;
 	}
 
-	bool isAlive()
-	{
-		switch (wayOfLife)
-		{
-		case LiveForever:
-			return true;
-		case LiveBySize:
-			return (size > 0);			
-		case LiveByTime:
-			return timeToLive > 0;
-		} 
-	}
-
-	Leap::Vector screenPoint;
-	Color fillColor,lineColor;
-	double size;
-	int timeToLive, wayOfLife;
-	float depth, lineWidth;
-
-	const static int LiveForever = 0;
-	const static int LiveBySize = 1;
-	const static int LiveByTime = 2;
-
-
+	void onFrame(const Controller & controller);
 	void draw();
-
 };
 
 #endif

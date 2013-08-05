@@ -403,8 +403,8 @@ bool ImageDetailView::handleImageManipulation(const Controller & controller)
 	
 	if (ldv1 == NULL)
 	{
-		ldv1 = new LeapDebugVisual(Vector(),1,LeapDebugVisual::LiveForever,0,Colors::MediumVioletRed.withAlpha(.7f));
-		ldv2 = new LeapDebugVisual(Vector(),1,LeapDebugVisual::LiveForever,0,Colors::MediumVioletRed.withAlpha(.7f));
+		ldv1 = new LeapDebugVisual(0,Colors::MediumVioletRed.withAlpha(.7f));
+		ldv2 = new LeapDebugVisual(0,Colors::MediumVioletRed.withAlpha(.7f));
 		
 		//LeapDebug::instance->addDebugVisual(ldv1);
 		//LeapDebug::instance->addDebugVisual(ldv2);

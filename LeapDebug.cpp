@@ -4,11 +4,11 @@
 #include "CustomGrid.hpp"
 #include "ImagePanel.hpp"
 
-LeapDebug::LeapDebug(HandProcessor * handProcessor)
+LeapDebug::LeapDebug()
 {
 	this->backgroundColor = Colors::Black;
 	backgroundColor.setAlpha(.5);
-	this->handProcessor = handProcessor;
+
 	leapDisconnectedPanel = new TextPanel();
 	leapDisconnectedPanel->setLayoutParams(LayoutParams(cv::Size2f(400,200)));
 	leapDisconnectedPanel->setText(GlobalConfig::tree()->get<string>("Strings.LeapOverlay.DisconnectedMessage"));
@@ -135,6 +135,11 @@ void LeapDebug::onFrame(const Controller& controller)
 	if (frame.id() == lastFrame.id())
 		return;
 
+	for (int i=0;i<persistentVisuals.size();i++)
+	{
+		persistentVisuals.at(i)->onFrame(controller);
+	}
+
 	lastFrame = frame;
 	static map<int,LeapDebugVisual*> ldv_intent;
 }
@@ -178,26 +183,12 @@ void LeapDebug::draw()
 	if (leapNotFocusedPanel->isVisible())
 		leapNotFocusedPanel->draw();
 		
-	for (auto it = pointableList.begin(); it != pointableList.end(); it++)
-	{
-		it->second.draw();
-	}
-	
+
 	for (int i = 0;i< persistentVisuals.size();i++)
 	{
-		LeapDebugVisual * ldv = persistentVisuals.at(i);
-
-		ldv->draw();
-
-		ldv->iterateLife();
-
-		if (!ldv->isAlive())
-		{
-			persistentVisuals.erase(persistentVisuals.begin()+i);
-			i--;
-			delete ldv;
-		}
+		persistentVisuals.at(i)->draw();
 	}
+	
 
 	if (tutorialPanel->isVisible())
 	{

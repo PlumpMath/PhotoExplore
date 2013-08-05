@@ -90,7 +90,7 @@
 	},
 	"FakeDataMode" : 
 	{
-		"Enable" : true,
+		"Enable" : false,
 		"SourceDataDirectory" : "C:\\Users\\Adam\\Pictures",
 		//"SourceDataDirectory" : "/Users/adamskubel/Pictures" ,
 		"RequestDelay" : 50 ,//ms
@@ -421,26 +421,90 @@
 	},
 	"InteractiveTutorial":
 	{
-		"ActiveStepColor" :{"R" : 144,"G" : 238,"B" : 144,"A" : 200},
-		"FinishedStepColor" :{"R" :144,"G" : 238,"B" : 144,"A" : 220},
-		"StepStyle" : 
-		{
+		"ActiveStepColor" :{"R" : 100,"G" : 238,"B" : 100,"A" : 150},
+		"FinishedStepColor" :{"R" :100,"G" : 238,"B" : 100,"A" : 150},
+		"TitlePanel" : 
+		{			
+			"TextSize" : 14,
+			"AbsoluteTextSize" : true,
+			"TextColor" :   {"R" : 70,"G" : 130,"B" : 180,"A" : 255},
+			"BackgroundColor" :  {"R" : 0,"G" : 0,"B" :0,"A" : 0},	
+			"BorderThickness" : 0,
+			"TextAlignment" : 1,
+			"TextPadding" : 8
+		},		
+		"InfoPanel" : 
+		{			
 			"TextSize" : 8,
-			"TextColor" : {"R" : 70,"G" : 130,"B" : 180,"A" : 255}, //{"R" : 240,"G" : 240,"B" : 240,"A" : 255},
-			"BackgroundColor" :  {"R" : 230,"G" : 230,"B" :230,"A" : 0},
+			"TextColor" :  {"R" : 255,"G" : 255,"B" : 255,"A" : 255},
+			"BackgroundColor" :  {"R" : 0,"G" : 0,"B" :0,"A" : 150},	
 			"BorderThickness" : 0,
 			"TextAlignment" : 0,
 			"TextPadding" : 8
 		},
+		"StepStyle" : 
+		{
+			"TextSize" : 8,
+			"TextColor" :  {"R" : 255,"G" : 255,"B" : 255,"A" : 255},//{"R" : 70,"G" : 130,"B" : 180,"A" : 255}, //{"R" : 240,"G" : 240,"B" : 240,"A" : 255},
+			"BackgroundColor" :  {"R" : 0,"G" : 0,"B" :0,"A" : 100},
+			"BorderThickness" : 0,
+			"TextAlignment" : 0,
+			"TextPadding" : 8
+		},
+		"CompletedStepStyle" : 
+		{
+			"TextSize" : 8,
+			"TextColor" :  {"R" : 255,"G" : 255,"B" : 255,"A" : 255},
+			"BackgroundColor" :  {"R" :100,"G" : 238,"B" : 100,"A" : 150},
+			"BorderThickness" : 0,
+			"TextAlignment" : 0,
+			"TextPadding" : 8
+		},
+		"ActiveStepStyle" : 
+		{
+			"TextSize" : 8,
+			"TextColor" :  {"R" : 255,"G" : 255,"B" : 255,"A" : 255},
+			"BackgroundColor" :  {"R" : 0,"G" : 0,"B" :0,"A" : 150},
+			"BorderColor" :{"R" : 100,"G" : 238,"B" : 100,"A" : 150},		
+			"BorderThickness" : 2,
+			"TextAlignment" : 0,
+			"TextPadding" : 8,
+			"UseQuadBorder" : true
+		},
 		"NextButton" : 
 		{
 			"Text" : "Next",
-			"TextSize" : 8,
-			"TextColor" : {"R" : 70,"G" : 130,"B" : 180,"A" : 255}, //{"R" : 240,"G" : 240,"B" : 240,"A" : 255},
-			"BackgroundColor" :  {"R" : 230,"G" : 230,"B" :230,"A" : 0},
+			"TextSize" :  12,
+			"TextColor" : 		{"R" : 255,"G" : 255,"B" : 255,"A" : 255},
+			"BackgroundColor" :	{"R" : 0,"G" : 0,"B" :0,"A" : 100},
 			"BorderThickness" : 0,
 			"TextAlignment" : 1,
-			"TextPadding" : 8
+			"TextPadding" : 8,
+			"UseQuadBorder" : true
+		},		
+		"NextButtonActive" : 
+		{
+			"Text" : "Next ",
+			"TextSize" :  14,
+			"TextColor" : 		{"R" : 255,"G" : 255,"B" : 255,"A" : 255},
+			"BackgroundColor" :	{"R" : 0,"G" : 0,"B" : 0,"A" : 180},
+			"BorderColor" :		{"R" : 240,"G" : 240,"B" : 240,"A" : 200},		
+			"BorderThickness" : 2,
+			"TextAlignment" : 1,
+			"TextPadding" : 8,
+			"UseQuadBorder" : true
+		},			
+		"ExitButton" : 
+		{
+			"Text" : "Exit Tutorial",
+			"TextSize" :  14,
+			"TextColor" : 		{"R" : 255,"G" : 255,"B" : 255,"A" : 255},
+			"BackgroundColor" :	{"R" : 100,"G" : 0,"B" : 0,"A" : 100},
+			"BorderColor" :		{"R" : 100,"G" : 240,"B" : 240,"A" : 200},		
+			"BorderThickness" : 2,
+			"TextAlignment" : 1,
+			"TextPadding" : 8,
+			"UseQuadBorder" : true
 		},
 		"Swipe" : 
 		{
@@ -547,7 +611,8 @@
 				"BorderColor" :  {"R" : 70,"G" : 130,"B" : 180,"A" : 255},
 				"BorderThickness" : 1,
 				"TextAlignment" : 0,
-				"TextPadding" : 8
+				"TextPadding" : 8,
+				"UseQuadBorder" : true
 			},
 			"FriendLookupLabel" : 
 			{

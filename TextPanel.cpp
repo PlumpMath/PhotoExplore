@@ -241,7 +241,8 @@ void TextPanel::setStyle(boost::property_tree::ptree configTree)
 	if (configTree.count("Text") > 0)
 		setText(configTree.get<string>("Text"));
 
-	setTextSize(configTree.get<float>("TextSize"),true);
+	setTextSize(configTree.get<float>("TextSize"),!configTree.get<bool>("AbsoluteTextSize",false));
+
 	setTextFitPadding(configTree.get<float>("TextPadding",0));
 	setTextColor(Color(configTree.get_child("TextColor")));
 	
@@ -250,6 +251,9 @@ void TextPanel::setStyle(boost::property_tree::ptree configTree)
 
 	if (configTree.count("BorderColor") > 0)
 		setBorderColor(Color(configTree.get_child("BorderColor")));
+
+	setUseLineBorder(!configTree.get<bool>("UseQuadBorder",false));
+
 
 	setBorderThickness(configTree.get<float>("BorderThickness",0));
 	setTextAlignment(configTree.get<int>("TextAlignment",1));

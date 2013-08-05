@@ -108,46 +108,23 @@ public:
 		return c.frame().interactionBox().normalizePoint(position,false);
 	}
 
-	//static Screen ClosestScreen(const Controller & c, Vector position)
-	//{
-	//	if (GlobalConfig::PreferredScreenIndex() < 0)
-	//		return c.calibratedScreens().closestScreen(position);
-	//	else
-	//		return c.calibratedScreens()[GlobalConfig::PreferredScreenIndex()];
-	//}
 
-
-	//static Vector FindClosestNormalizedScreenPoint(const Controller & c, Vector position, Screen & screen)
-	//{
-	//	if (GlobalConfig::PreferredScreenIndex() < 0)
-	//		screen = c.calibratedScreens().closestScreen(position);
-	//	else
-	//		screen = c.calibratedScreens()[GlobalConfig::PreferredScreenIndex()];
-
-	//	return screen.project(position, true);
-	//}
-
-
-	//static Vector FindClosestScreenPoint(const Controller & c, Vector point, bool make2D = !false)
-	//{
-	//	Screen screen;
-	//	Vector screenPoint = FindClosestNormalizedScreenPoint(c, point, screen);
-
-	//	if (make2D)
-	//	{
-	//		float x = screen.widthPixels() * screenPoint.x;
-	//		float y = screen.heightPixels() * (1.0f - screenPoint.y);
-	//		return Vector(x, y, 0);
-	//	}
-	//	else
-	//	{
-	//		float x = screen.widthPixels() * screenPoint.x;
-	//		float y = screen.heightPixels() * screenPoint.y;
-	//		return Vector(x, y, 0);
-	//	}
-	//}
-
-
+	static int FindPointableClosestToTouchZone(const Controller & controller, Hand hand)
+	{
+		float minTouchDistance = 1;
+		int minTouchPointable = -1;
+		for (int i=0;i<hand.pointables().count(); i++)
+		{
+			Pointable p = hand.pointables()[i];
+			if (p.touchDistance() < minTouchDistance)
+			{
+				minTouchDistance = p.touchDistance();
+				minTouchPointable = p.id();
+			}
+		}
+		return minTouchPointable;
+	}
+	
 	static Vector GetHandPlaneProjection(Vector point, Hand hand)
 	{
 		Vector v = point;// -hand.palmPosition();

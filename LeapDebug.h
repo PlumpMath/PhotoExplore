@@ -8,6 +8,7 @@
 #include <sstream>
 #include "TextPanel.h"
 #include "ContentPanel.hpp"
+#include "LeapCursor.hpp"
 
 
 #ifndef LeapDebug_H
@@ -36,7 +37,7 @@ private:
 	ContentPanel * tutorialPanel;
 
 public:
-	LeapDebug(HandProcessor * handProcessor);
+	LeapDebug();
 
 	void onFrame(const Controller&  controller);
 	void draw();

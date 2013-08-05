@@ -82,7 +82,7 @@ private:
 
 	map<int,TrackedSwipe> swipeMap;
 
-	bool DrawingEnabled;
+	bool DrawingEnabled, touchScrollingEnabled, swipeScrollingEnabled;
 	int sampleCount;
 	int state;
 
@@ -116,6 +116,9 @@ public:
 
 	void setFlyWheel(FlyWheel * flyWheel);
 	FlyWheel * getFlyWheel();
+
+	void setTouchScrollingEnabled(bool touchScrollingEnabled);
+	void setSwipeScrollingEnabled(bool swipeScrolllingEnabled);
 
 	void setSwipeDetectedListener(boost::function<void(Hand swipingHand, Vector swipeVector)>);
 

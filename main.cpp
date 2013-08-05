@@ -165,7 +165,7 @@ bool initializeWindow( int window_width, int window_height, bool isFull)
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	glOrtho(0.0f, window_width, window_height, 0.0f, -300.0, 300.0);
+	glOrtho(0.0f, window_width, window_height, 0.0f, -100, 256.0);
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
@@ -519,15 +519,18 @@ int main(int argc, char * argv[]){
 
 		std::string startDir = "."; 
 	
+
+		HandProcessor * handProcessor = HandProcessor::getInstance();
+		LeapDebug leapDebug;
+		LeapDebug::instance = &leapDebug;
+
+		
 		//Configure leap and attach listeners
 		Leap::Controller controller = Leap::Controller();	
 		configureController(controller);	
 		controller.addListener(SwipeGestureDetector::getInstance());
 		controller.addListener(ShakeGestureDetector::getInstance());
-
-		HandProcessor * handProcessor = HandProcessor::getInstance();
-		LeapDebug * leapDebug = new LeapDebug(handProcessor);	
-		LeapDebug::instance = leapDebug;
+		controller.addListener(leapDebug);
 
 		LeapStartScreen startScreen(startDir);
 		startScreen.setFinishedCallback([quit](){
@@ -598,8 +601,7 @@ int main(int argc, char * argv[]){
 				frameOut  << "PointableEvents = " << itemTimer.millis() << "ms \n";
 					
 				startScreen.onFrame(controller);
-				leapDebug->onFrame(controller);
-			
+							
 				ResourceManager::getInstance().update();
 				frameOut  << "RMan = " << itemTimer.millis() << "ms \n";
 				itemTimer.start();
@@ -684,7 +686,7 @@ int main(int argc, char * argv[]){
 				frameOut << "MainDraw= " << itemTimer.millis() << "ms \n";
 				itemTimer.start();
 	 
-				leapDebug->draw();
+				leapDebug.draw();
 				frameOut << "DebugDraw = " << itemTimer.millis() << "ms \n";
 				itemTimer.start();
 					

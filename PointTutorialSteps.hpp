@@ -10,7 +10,16 @@ namespace PointTutorial
 		int state;
 		Timer pointTimer;
 		
-		void reset() { state = 0;}
+		void reset()
+		{	
+			//SwipeGestureDetector::getInstance().getFlyWheel()->setFriction(0);
+			//SwipeGestureDetector::getInstance().getFlyWheel()->setVelocity(-500);
+
+			SwipeGestureDetector::getInstance().setTouchScrollingEnabled(false);
+			SwipeGestureDetector::getInstance().setSwipeScrollingEnabled(false);			
+			state = 0;
+		}
+
 		int getFirstDependent() {return 0;}
 		float getProgress() { return (float)(pointTimer.millis()/100.0);}
 
@@ -24,7 +33,10 @@ namespace PointTutorial
 					state = 1;
 				}
 				else if (state == 1 && pointTimer.millis() > 100)
+				{
+					SwipeGestureDetector::getInstance().getFlyWheel()->setVelocity(0);					
 					return true;
+				}
 			}
 			else
 			{
@@ -45,4 +57,94 @@ namespace PointTutorial
 		}
 
 	};
+
+	struct Press : public TutorialStep
+	{	
+		Timer pressTimer;
+		float clickProgress;
+
+		void reset()
+		{
+			SwipeGestureDetector::getInstance().setTouchScrollingEnabled(false);
+			SwipeGestureDetector::getInstance().setSwipeScrollingEnabled(false);
+			clickProgress = 0;
+		}
+
+		int getFirstDependent() {return 0;}
+		float getProgress() { return clickProgress;}
+
+		bool onFrame(const Controller & controller)
+		{			
+			HandModel * hm = HandProcessor::getInstance()->lastModel();
+			if (hm->HandId >= 0)
+			{
+				Pointable clicking = controller.frame().pointable(hm->IntentFinger);				
+				if (clicking.isValid())
+				{
+					clickProgress = 0.8f - clicking.touchDistance();
+					if (clicking.touchDistance() < -0.2f)
+					{
+						return true;
+					}
+				}
+			}
+			return false;
+		}
+		
+		bool isComplete(const Controller & controller)
+		{
+			return true;
+		}
+
+		string getDescription()
+		{
+			return "Step 2 - Tap and hold.";
+		}
+	};
+
+	struct Release : public TutorialStep
+	{	
+		Timer pressTimer;
+		float clickProgress;
+
+		void reset()
+		{
+			SwipeGestureDetector::getInstance().setTouchScrollingEnabled(false);
+			SwipeGestureDetector::getInstance().setSwipeScrollingEnabled(false);
+			clickProgress = 0;
+		}
+
+		int getFirstDependent() {return 2;}
+		float getProgress() { return clickProgress;}
+
+		bool onFrame(const Controller & controller)
+		{			
+			HandModel * hm = HandProcessor::getInstance()->lastModel();
+			if (hm->HandId >= 0)
+			{
+				Pointable clicking = controller.frame().pointable(hm->IntentFinger);				
+				if (clicking.isValid())
+				{
+					clickProgress = 0.8f + clicking.touchDistance();
+					if (clicking.touchDistance() > 0.2f)
+					{
+						return true;
+					}
+				}
+			}
+			return false;
+		}
+		
+		bool isComplete(const Controller & controller)
+		{
+			return true;
+		}
+
+		string getDescription()
+		{
+			return "Step 3 - Release to select.";
+		}
+	};
 }
+
+#endif

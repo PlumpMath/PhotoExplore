@@ -341,6 +341,7 @@
     <ClInclude Include="SeekVisual.hpp" />
     <ClInclude Include="ShakeGestureDetector.hpp" />
     <ClInclude Include="SwipeTutorialSteps.hpp" />
+    <ClInclude Include="TouchScrollSteps.hpp" />
     <ClInclude Include="SwipeGestureDetector.hpp" />
     <ClInclude Include="TextEditPanel.hpp" />
     <ClInclude Include="TextureLoader.hpp" />

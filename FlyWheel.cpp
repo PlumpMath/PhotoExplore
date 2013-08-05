@@ -14,6 +14,7 @@ FlyWheel::FlyWheel(double startPosition)
 	position = startPosition;
 	tmpFriction = 0;
 	wheelTimer.start();
+	boundaryMode = BounceBack;
 }
 
 double FlyWheel::getMaxValue()
@@ -57,6 +58,16 @@ double FlyWheel::getFriction()
 }
 
 
+FlyWheel::BoundaryMode FlyWheel::getBoundaryMode()
+{
+	return boundaryMode;
+}
+
+void FlyWheel::setBoundaryMode(FlyWheel::BoundaryMode _mode)
+{
+	this->boundaryMode = _mode;
+}
+
 void FlyWheel::update(double elapsedSeconds)
 {
 	static float max_Kp = GlobalConfig::tree()->get<float>("ScrollView.FlyWheel.MaxBoundLimiter.Proportional");
@@ -80,30 +91,53 @@ void FlyWheel::update(double elapsedSeconds)
 		position += (velocity * elapsedSeconds);
 	}
 	
-	if (max_Kp > 0 && min_Kp > 0)
+	if (boundaryMode == BounceBack)
 	{
-		if (position > maxValue)
+		if (max_Kp > 0 && min_Kp > 0)
 		{
-			velocity =  velocity*max_alpha +  (max_Kp  * (maxValue-position))*(1.0f - max_alpha);
+			if (position > maxValue)
+			{
+				velocity =  velocity*max_alpha +  (max_Kp  * (maxValue-position))*(1.0f - max_alpha);
+			}
+			else if (position < minValue)
+			{
+				velocity =  velocity*min_alpha + (min_Kp  * (minValue-position))*(1.0f - min_alpha);
+			}
 		}
-		else if (position < minValue)
+		else
 		{
-			velocity =  velocity*min_alpha + (min_Kp  * (minValue-position))*(1.0f - min_alpha);
+			if (position > maxValue)
+			{
+				position = maxValue;
+				if (velocity > 0)
+					velocity = 0;
+			}
+			else if (position <= minValue)
+			{
+				position = minValue;
+				if (velocity < 0)
+					velocity = 0;
+			}  
 		}
 	}
-	else
+	else if (boundaryMode == WrapAround)
 	{
 		if (position > maxValue)
 		{
-			position = maxValue;
-			if (velocity > 0)
-				velocity = 0;
+			double d = position-maxValue;
+
+			position = minValue + d;
+
+			//if (velocity > 0)
+				//velocity = 0;
 		}
 		else if (position <= minValue)
 		{
-			position = minValue;
-			if (velocity < 0)
-				velocity = 0;
+			double d = position-minValue;
+			position = maxValue+d;
+
+			//if (velocity < 0)
+				//velocity = 0;
 		}  
 	}
 }

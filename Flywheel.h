@@ -10,15 +10,25 @@
 
 class FlyWheel {
 
+public:
+	enum BoundaryMode
+	{
+		BounceBack,
+		WrapAround
+	};
+
+private:
 	volatile double position,velocity, minValue, maxValue, minVelocity, maxVelocity, friction;
 	volatile double tmpFriction;
-private:
+	BoundaryMode boundaryMode;
+
 	Timer wheelTimer;
 	void update(double deltaTicks);
 	DoubleAnimation scrollAnimation;
 	double currentTarget;
 
 public:
+	
 	FlyWheel(double startPosition = 0);
 	void impartVelocity(double velocity);
 	void moveTowards(double targetPosition, double deltaTime);
@@ -29,6 +39,9 @@ public:
 	double getVelocity();
 	void setVelocity(double velocity);
 	
+	BoundaryMode getBoundaryMode();
+	void setBoundaryMode(BoundaryMode _mode);
+
 	double getFriction();
 	void setFriction(double friction);
 

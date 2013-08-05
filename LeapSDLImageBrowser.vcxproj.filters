@@ -271,7 +271,7 @@
       <Filter>Source Files\Overlay</Filter>
     </ClCompile>
     <ClCompile Include="LeapInput.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\EventHandling</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -518,9 +518,6 @@
     <ClInclude Include="LeapInput.hpp">
       <Filter>Header Files\EventHandling</Filter>
     </ClInclude>
-    <ClInclude Include="SwipeTutorialSteps.hpp">
-      <Filter>Header Files\Tutorial</Filter>
-    </ClInclude>
     <ClInclude Include="InteractionsTutorial.hpp">
       <Filter>Header Files\Tutorial</Filter>
     </ClInclude>
@@ -531,6 +528,12 @@
       <Filter>Header Files\Tutorial</Filter>
     </ClInclude>
     <ClInclude Include="PointTutorialSteps.hpp">
+      <Filter>Header Files\Tutorial</Filter>
+    </ClInclude>
+    <ClInclude Include="TouchScrollSteps.hpp">
+      <Filter>Header Files\Tutorial</Filter>
+    </ClInclude>
+    <ClInclude Include="SwipeTutorialSteps.hpp">
       <Filter>Header Files\Tutorial</Filter>
     </ClInclude>
   </ItemGroup>

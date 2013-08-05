@@ -48,7 +48,8 @@ private:
 	View * selectedView;
 	void setActiveStep(int index);
 
-	Button * nextTutorialButton;
+	Button * nextTutorialButton, * exitButton;
+	TextPanel * titlePanel, * infoPanel;
 
 public:
 	InteractionsTutorial();

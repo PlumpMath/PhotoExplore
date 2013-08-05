@@ -23,6 +23,10 @@ public:
 	{
 	}
 	
+	virtual void setViewFinishedCallback(boost::function<void(std::string)> _viewFinishedCallback) {
+		this->viewFinishedCallback = _viewFinishedCallback;
+	}
+
 	virtual bool onLeapGesture(const Controller & controller, const Gesture & gesture) { return false; }
 
 	virtual void onGlobalGesture(const Controller & controller, std::string gestureType) = 0;
@@ -40,6 +44,8 @@ public:
 	{
 		return this->viewState;
 	}
+
+
 
 
 

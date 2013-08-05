@@ -1,19 +1,27 @@
-#include "LeapDebug.h"
+#include "LeapCursor.hpp"
+#include "LeapHelper.h"
+
+
+void LeapDebugVisual::onFrame(const Controller & controller)
+{	
+	Pointable drawPointable = controller.frame().pointable(trackPointableId);
+	
+	if (drawPointable.isValid())
+	{
+		drawPoint = LeapHelper::FindScreenPoint(controller,drawPointable);
+	}
+	else
+		drawPoint = Vector(0,0,0);
+}
 
 void LeapDebugVisual::draw()
 {
-	drawPointer(this);
-}
-
-void LeapDebugVisual::drawPointer(LeapDebugVisual * debugVisual)
-{
 	float drawWidth,drawHeight,x1,x2,y1,y2, z1;
 
-	z1 = debugVisual->depth + 60;
-		
-	drawHeight = drawWidth = debugVisual->size;	
+	z1 = depth + 60;		
+	drawHeight = drawWidth = size;	
 
-	if (drawHeight == 0 || (debugVisual->screenPoint.x == 0 && debugVisual->screenPoint.y == 0))
+	if (drawHeight == 0 || (drawPoint.x == 0 && drawPoint.y == 0))
 		return;
 
 	static float vertices = GlobalConfig::tree()->get<float>("Overlay.VertexCount");
@@ -22,12 +30,11 @@ void LeapDebugVisual::drawPointer(LeapDebugVisual * debugVisual)
 
 	float length = drawHeight*.5f;
 	float anglePerVertex = (Leap::PI*2.0f)/vertices;
-
-
-	glColor4fv(debugVisual->fillColor.getFloat());
+	
+	glColor4fv(fillColor.getFloat());
 	glBindTexture( GL_TEXTURE_2D, NULL);
 	glLineWidth(0);
-	glTranslatef(debugVisual->screenPoint.x,debugVisual->screenPoint.y,0);
+	glTranslatef(drawPoint.x,drawPoint.y,0);
 	glBegin(GL_POLYGON);
 	for (float v=0;v<vertices;v++)
 	{
@@ -37,15 +44,15 @@ void LeapDebugVisual::drawPointer(LeapDebugVisual * debugVisual)
 	}
 	glEnd();
 
-	float alphaScale = debugVisual->lineColor.colorArray[3];
+	float alphaScale = lineColor.colorArray[3];
 
-	float lineWidth [] = {debugVisual->lineWidth*3.0f,debugVisual->lineWidth*2.0f,debugVisual->lineWidth};
-	float * lineColor [] = {debugVisual->lineColor.withAlpha(.2f*alphaScale).getFloat(),debugVisual->lineColor.withAlpha(.4f*alphaScale).getFloat(),debugVisual->lineColor.withAlpha(1.0f*alphaScale).getFloat()};
+	float lineWidths [] = {lineWidth*3.0f,lineWidth*2.0f,lineWidth};
+	float * lineColors [] = {lineColor.withAlpha(.2f*alphaScale).getFloat(),lineColor.withAlpha(.4f*alphaScale).getFloat(),lineColor.withAlpha(1.0f*alphaScale).getFloat()};
 
 	for (int i=0; i < 3; i++)
 	{
-		glColor4fv(lineColor[i]);
-		glLineWidth(lineWidth[i]);
+		glColor4fv(lineColors[i]);
+		glLineWidth(lineWidths[i]);
 
 		glBegin(GL_LINE_LOOP);
 		for (float v=0;v<vertices;v++)
@@ -73,6 +80,6 @@ void LeapDebugVisual::drawPointer(LeapDebugVisual * debugVisual)
 		//}
 		//glEnd();
 	}
-	glTranslatef(-debugVisual->screenPoint.x,-debugVisual->screenPoint.y,0);
+	glTranslatef(-drawPoint.x,-drawPoint.y,0);
 
 }

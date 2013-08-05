@@ -231,7 +231,13 @@ void LeapStartScreen::init()
 void LeapStartScreen::launchTutorial()
 {
 	state = FinishedState;
-	this->rootView = new InteractionsTutorial();
+	InteractionsTutorial * t = new InteractionsTutorial();
+	t->setViewFinishedCallback([this](string s){
+		rootView = NULL;
+		this->state = StartState;
+		LeapInput::getInstance()->requestGlobalGestureFocus(this);
+	});
+	rootView = t;
 }
 
 void LeapStartScreen::onGlobalFocusChanged(bool focused)
@@ -335,20 +341,6 @@ void LeapStartScreen::launchBrowser()
 #else
 		glFinish();	
 		glfwIconifyWindow(GraphicsContext::getInstance().MainWindow);
-		
-		//for (int i=50;i++;i<100)
-		//{
-		//	if (glfwGetWindowParam(GLFW_ICONIFIED) != GL_TRUE)
-		//	{
-		//		glFinish();
-		//		glfwIconifyWindow();
-		//	}
-		//	else
-		//	{
-		//		break;
-		//	}
-		//}
-		
 		
 		new boost::thread([this](){
 			
