@@ -118,7 +118,7 @@ void PanelBase::measure(cv::Size2f & measuredSize)
 
 void PanelBase::layout(Vector layoutPosition, cv::Size2f layoutSize)
 {
-	static long animationTime = GlobalConfig::tree()->get<long>("Panel.AnimateLayoutDuration");
+	static long animationTime = GlobalConfig::tree()->get<long>("PicturePanel.AnimateLayoutDuration");
 
 	if (layoutDuration <= 0)
 		layoutDuration = animationTime;
@@ -507,20 +507,22 @@ void PanelBase::drawBackground(Vector drawPosition, float drawWidth, float drawH
 	float y1 = drawPosition.y ;//- drawHeight/2.0f;
 	float y2 = y1 + drawHeight;
 	float z1 = drawPosition.z;
-
-
-	glColor4fv(backgroundColor.getFloat());
-
-	glLineWidth(0);		
+	
 	glBindTexture( GL_TEXTURE_2D, NULL);
 
-	glBegin( GL_QUADS );
-	glVertex3f(x1,y1,z1);
-	glVertex3f(x2,y1,z1);
-	glVertex3f(x2,y2,z1);
-	glVertex3f(x1,y2,z1);
-	glEnd();
+	if (backgroundColor.colorArray[3] > 0.0f)
+	{
+		glColor4fv(backgroundColor.getFloat());
 
+		glLineWidth(0);		
+
+		glBegin( GL_QUADS );
+		glVertex3f(x1,y1,z1);
+		glVertex3f(x2,y1,z1);
+		glVertex3f(x2,y2,z1);
+		glVertex3f(x1,y2,z1);
+		glEnd();
+	}
 
 	if (borderThickness > 0)
 	{

@@ -3,7 +3,9 @@
 #include "LeapInput.hpp"
 #include "TouchScrollSteps.hpp"
 #include "SwipeTutorialSteps.hpp"
+#include "ShakeTutorialSteps.hpp"
 #include "PointTutorialSteps.hpp"
+#include "CustomGrid.hpp"
 
 InteractionsTutorial::InteractionsTutorial()
 {
@@ -18,33 +20,54 @@ InteractionsTutorial::InteractionsTutorial()
 
 	exitButton = new Button(" ");
 	exitButton->setStyle(GlobalConfig::tree()->get_child("InteractiveTutorial.ExitButton"));
-	addChild(exitButton);
 	exitButton->elementClickedCallback = [this](LeapElement * e){
 		this->viewFinishedCallback("done");
 	};
 
 	init();
-	addChild(indicatorPanel);
 
-	addChild(activeStepPanel);
-	loadTutorial("select");
+	loadTutorial("intro");
 }
 
 void InteractionsTutorial::loadTutorial(string name)
 {	
-	currentTutorial.clear();
+	//if (!completionDelay.elapsed())
+	//	return;
 
-	if (name.compare("touchscroll") == 0)
+	currentTutorial.clear();
+	
+	startTutorialButton->setText("Begin");	
+	startTutorialButton->elementClickedCallback = [this](LeapElement * clicked){
+		this->state = Tutorial;
+		this->startCurrentTutorial();
+		this->layoutDirty = true;
+	};
+	nextTutorialButton->setText("Skip");
+
+	vector<string> tutorialImages;
+	if (name.compare("intro") == 0)
+	{
+		titlePanel->setText("Photo Explorer Tutorial");
+		infoPanel->setText(GlobalConfig::tree()->get<string>("InteractiveTutorial.InfoStrings.Intro"));
+		
+		startTutorialButton->elementClickedCallback = [this](LeapElement * clicked){
+			this->loadTutorial("swipe");
+		};
+		nextTutorialButton->elementClickedCallback = [this](LeapElement * clicked){
+			this->loadTutorial("swipe");
+		};
+	}
+	else if (name.compare("touchscroll") == 0)
 	{
 		titlePanel->setText("Touch Scrolling");
+		infoPanel->setText(GlobalConfig::tree()->get<string>("InteractiveTutorial.InfoStrings.TouchScroll"));
+
 		currentTutorial.push_back(new TouchScrollTutorial::SpreadHand());
 		currentTutorial.push_back(new TouchScrollTutorial::Step2());
 		currentTutorial.push_back(new TouchScrollTutorial::Step3());
 		currentTutorial.push_back(new TouchScrollTutorial::Step4());
 
-		vector<string> tutorialImages;
 		tutorialImages.push_back("swipe");
-		LeapDebug::instance->setTutorialImages(tutorialImages);
 
 		nextTutorialButton->elementClickedCallback = [this](LeapElement * clicked){
 			this->loadTutorial("swipe");
@@ -53,39 +76,70 @@ void InteractionsTutorial::loadTutorial(string name)
 	else if (name.compare("swipe") == 0)
 	{		
 		titlePanel->setText("Swiping");
+		infoPanel->setText(GlobalConfig::tree()->get<string>("InteractiveTutorial.InfoStrings.Swipe"));		
+
 		currentTutorial.push_back(new TouchScrollTutorial::SpreadHand());
 		currentTutorial.push_back(new SwipeTutorial::SwipeLeft());
 		currentTutorial.push_back(new SwipeTutorial::SwipeRight());
 		currentTutorial.push_back(new SwipeTutorial::SwipeLeftFast());
 				
-		vector<string> tutorialImages;
 		tutorialImages.push_back("swipe");
-		LeapDebug::instance->setTutorialImages(tutorialImages);
 
 		nextTutorialButton->elementClickedCallback = [this](LeapElement * clicked){
-			this->loadTutorial("select");
+			this->loadTutorial("shake");
 		};
 	}	
-	else if (name.compare("select") == 0)
-	{		
-		titlePanel->setText("Selecting");
-		currentTutorial.push_back(new PointTutorial::PointHand());
-		currentTutorial.push_back(new PointTutorial::Press());
-		currentTutorial.push_back(new PointTutorial::Release());
-				
-		vector<string> tutorialImages;
-		tutorialImages.push_back("point");
-		LeapDebug::instance->setTutorialImages(tutorialImages);
+	//else if (name.compare("select") == 0)
+	//{		
+	//	titlePanel->setText("Selecting");
+	//	currentTutorial.push_back(new PointTutorial::PointHand());
+	//	currentTutorial.push_back(new PointTutorial::Press());
+	//	currentTutorial.push_back(new PointTutorial::Release());
+	//			
+	//	vector<string> tutorialImages;
+	//	tutorialImages.push_back("point");
+	//	LeapDebug::instance->setTutorialImages(tutorialImages);
 
+	//	nextTutorialButton->elementClickedCallback = [this](LeapElement * clicked){
+	//		this->loadTutorial("touchscroll");
+	//	};
+	//}
+	else if (name.compare("shake") == 0)
+	{		
+		titlePanel->setText("Shake");
+		infoPanel->setText(GlobalConfig::tree()->get<string>("InteractiveTutorial.InfoStrings.Shake"));
+
+		currentTutorial.push_back(new TouchScrollTutorial::SpreadHand());
+		currentTutorial.push_back(new ShakeTutorial::PullBack());
+		currentTutorial.push_back(new ShakeTutorial::Shake());
+				
+		tutorialImages.push_back("shake");
+		
+		nextTutorialButton->elementClickedCallback = [this](LeapElement * clicked){
+			this->loadTutorial("complete");
+		};
+	}
+	else if (name.compare("complete") == 0)
+	{
+		infoPanel->setText(GlobalConfig::tree()->get<string>("InteractiveTutorial.InfoStrings.Complete"));
+		startTutorialButton->setText("Exit Tutorial");
+		nextTutorialButton->setText("Repeat Tutorial");
 		nextTutorialButton->elementClickedCallback = [this](LeapElement * clicked){
 			this->loadTutorial("touchscroll");
+		};
+
+		startTutorialButton->elementClickedCallback = [this](LeapElement * clicked){
+			this->viewFinishedCallback("done");
 		};
 	}
 	else
 	{
 		throw new std::runtime_error("Invalid tutorial name " + name);
 	}
-	startCurrentTutorial();
+
+	LeapDebug::instance->setTutorialImages(tutorialImages);
+	state = Dialog;
+	this->layoutDirty = true;
 }
 
 void InteractionsTutorial::init()
@@ -97,12 +151,42 @@ void InteractionsTutorial::init()
 	titlePanel->setStyle(GlobalConfig::tree()->get_child("InteractiveTutorial.TitlePanel"));
 	addChild(titlePanel);
 
-	infoPanel = new TextPanel();
+	infoPanel = new TextPanel("");
+	infoPanel->setStyle(GlobalConfig::tree()->get_child("InteractiveTutorial.InfoPanel"));
+	//infoPanel->setLayoutParams(LayoutParams(cv::Size2f(0,0),cv::Vec4f(5,5,5,5)));
 
+	startTutorialButton = new Button("");
+	startTutorialButton->setStyle(GlobalConfig::tree()->get_child("InteractiveTutorial.StartButton"));
+	startTutorialButton->elementClickedCallback = [this](LeapElement * clicked){
+		this->state = Tutorial;
+		this->startCurrentTutorial();
+		this->layoutDirty = true;
+	};
+	startTutorialButton->setLayoutParams(LayoutParams(cv::Size2f(0,0),cv::Vec4f(0,2,0,0)));
+	
+	vector<RowDefinition> gridDefinition;	
+	gridDefinition.push_back(RowDefinition(.7f));
+	gridDefinition.push_back(RowDefinition(.3f));
+	gridDefinition[0].ColumnWidths.push_back(1);
+	gridDefinition[1].ColumnWidths.push_back(1);
+
+	infoDialog = new CustomGrid(gridDefinition);
+
+	infoDialog->addChild(infoPanel);
+	infoDialog->addChild(startTutorialButton);
+	
+	addChild(infoDialog);
+	
 	nextTutorialButton = new Button("");
 	nextTutorialButton->setStyle(GlobalConfig::tree()->get_child("InteractiveTutorial.NextButton"));
 
 	tutorialStepGrid = new UniformGrid(cv::Size2i(1,5));
+		
+	addChild(indicatorPanel);
+	addChild(activeStepPanel);
+	addChild(exitButton);
+	addChild(nextTutorialButton);
+
 	addChild(tutorialStepGrid);
 	
 	float menuHeight = GlobalConfig::tree()->get<float>("Menu.Height");
@@ -140,9 +224,9 @@ void InteractionsTutorial::generatePanels(cv::Size2i gridSize)
 		float angle = anglePerRow * (float)(i/((int)numPanels));
 
 
-		float r = 0; //180 + (20.0f*abs(sinf(angle*2.0f*GeomConstants::DegToRad)));
-		float g = 0;// 180 + (20.0f*abs(sinf(angle*4.0f*GeomConstants::DegToRad)));
-		float b = 100 + 155.0f*abs(sinf(angle*2.0f*GeomConstants::DegToRad));
+		float r = 50; //180 + (20.0f*abs(sinf(angle*2.0f*GeomConstants::DegToRad)));
+		float g = 50;// 180 + (20.0f*abs(sinf(angle*4.0f*GeomConstants::DegToRad)));
+		float b = 150 + 105.0f*abs(sinf(angle*2.0f*GeomConstants::DegToRad));
 		float a = 100 + 155.0f*abs(sinf(angle*.5f*GeomConstants::DegToRad));
 		fp->setBackgroundColor(Color((int)r,(int)g,(int)b,(int)a));
 
@@ -155,6 +239,7 @@ void InteractionsTutorial::generatePanels(cv::Size2i gridSize)
 	scrollView = new ScrollingView(floatLayout);
 	scrollView->layout(Vector(0,menuHeight,0),cv::Size2f(GlobalConfig::ScreenWidth,totalHeight));
 	scrollView->getFlyWheel()->setBoundaryMode(FlyWheel::WrapAround);
+	scrollView->getFlyWheel()->overrideValue(scrollView->getFlyWheel()->getMinValue()/2.0f);
 	addChild(scrollView);
 }
 
@@ -162,64 +247,70 @@ void InteractionsTutorial::layout(Vector position, cv::Size2f size)
 {	
 	
 	float menuHeight = GlobalConfig::tree()->get<float>("Menu.Height");
+	float progressBarRC = GlobalConfig::tree()->get<float>("InteractiveTutorial.ProgressBarRC");
 
 	lastPosition = position;
 	lastSize = size;
-	tutorialStepGrid->layout(position + Vector(size.width*.5f,size.height*.2f,10),cv::Size2f(size.width*.4f,size.height*.6f));
 	
 	cv::Size2f titleSize = cv::Size2f(size.width*.4f,menuHeight);
 	titlePanel->layout(position + Vector((size.width-titleSize.width)*.5f,-menuHeight+10,0),titleSize);
 
-	cv::Size2f exitButtonSize = cv::Size2f(size.width*.1f,size.height*.1f);
+	cv::Size2f exitButtonSize = cv::Size2f(size.width*.2f,size.height*.2f);
 	exitButton->layout(position + Vector(0,size.height - exitButtonSize.height,1),exitButtonSize);
-		
-	//if (stepNum > 0 && stepNum < currentTutorial.size()+1)
-	//{
-	//	PanelBase * selectedPanel = dynamic_cast<PanelBase*>(tutorialStepGrid->getChildren()->at(stepNum-1));
-	//	if (selectedPanel != NULL)
-	//	{
-	//		//indicatorPanel->setVisible(true);
-	//		indicatorPanel->setAnimateOnLayout(false);
-	//		cv::Size2f indicatorSize = selectedPanel->getMeasuredSize();
-	//		//indicatorSize.width *= .06f;
-	//		indicatorSize.height += (selectedPanel->getLastPosition().y - tutorialStepGrid->getLastPosition().y);
-	//		((TextPanel*)selectedPanel)->setStyle(GlobalConfig::tree()->get_child("InteractiveTutorial.CompletedStepStyle"));
-	//		//indicatorPanel->layout(tutorialStepGrid->getLastPosition() - Vector(indicatorSize.width,0,1),indicatorSize);
-	//		//indicatorPanel->layout(tutorialStepGrid->getLastPosition()+Vector(0,0,9),indicatorSize);
-	//	}
-	//}
-	//else
-	//{
-	//	indicatorPanel->setVisible(false);
-	//}
 
-	if (stepNum >= 0 && stepNum < currentTutorial.size())
+	exitButtonSize = cv::Size2f(size.width*.2f,size.height*.2f);
+	nextTutorialButton->layout(position + Vector(size.width - exitButtonSize.width,size.height - exitButtonSize.height,1),exitButtonSize);
+
+	cv::Size2f infoPanelSize = cv::Size2f(size.width*.3f,size.height*.5f);
+	if (state == Dialog)
 	{
-		PanelBase * selectedPanel  = dynamic_cast<PanelBase*>(tutorialStepGrid->getChildren()->at(stepNum));
-		if (selectedPanel != NULL)
-		{
-			TutorialStep * activeStep = currentTutorial.at(stepNum);
-			activeStepPanel->setVisible(true);
-
-
-			cv::Size2f indicatorSize = selectedPanel->getMeasuredSize();
-			
-			((TextPanel*)selectedPanel)->setStyle(GlobalConfig::tree()->get_child("InteractiveTutorial.ActiveStepStyle"));
-			selectedPanel->setBackgroundColor(Colors::Transparent);
-
-			indicatorPanel->setBackgroundColor(Color(GlobalConfig::tree()->get_child("InteractiveTutorial.ActiveStepStyle.BackgroundColor")));
-			indicatorPanel->layout(selectedPanel->getLastPosition()+Vector(0,0,-6),indicatorSize);
-
-			indicatorSize.width *= min<float>(1.0f,activeStep->getProgress());
-			indicatorSize.width = max<float>(0.0f,indicatorSize.width);
-
-			activeStepPanel->layout(selectedPanel->getLastPosition()+Vector(0,0,-3),indicatorSize);
-		}
+		infoDialog->layout(position + Vector(size.width*.5f - infoPanelSize.width*.5f,size.height*.2,10),infoPanelSize);
+		tutorialStepGrid->layout(position + Vector(size.width*1.2f,size.height*.2f,10),cv::Size2f(size.width*.4f,size.height*.6f));
+		indicatorPanel->setVisible(false);
+		activeStepPanel->setVisible(false);
 	}
 	else
 	{
-		activeStepPanel->setVisible(false);
+		infoDialog->layout(position + Vector(-infoPanelSize.width*1.2f,size.height*.2,10),infoPanelSize);		
+		tutorialStepGrid->layout(position + Vector(size.width*.5f,size.height*.2f,10),cv::Size2f(size.width*.4f,size.height*.6f));
+
+		if (stepNum >= 0 && stepNum < currentTutorial.size() && stepNum < tutorialStepGrid->getChildren()->size())
+		{
+			PanelBase * selectedPanel  = dynamic_cast<PanelBase*>(tutorialStepGrid->getChildren()->at(stepNum));
+			if (selectedPanel != NULL)
+			{
+				TutorialStep * activeStep = currentTutorial.at(stepNum);
+				activeStepPanel->setVisible(true);
+				indicatorPanel->setVisible(true);
+
+				cv::Size2f indicatorSize = selectedPanel->getMeasuredSize();
+
+				((TextPanel*)selectedPanel)->setStyle(GlobalConfig::tree()->get_child("InteractiveTutorial.ActiveStepStyle"));
+				selectedPanel->setBackgroundColor(Colors::Transparent);
+
+				float targetWidth = indicatorSize.width;
+
+				indicatorSize.width *= min<float>(1.0f,activeStep->getProgress());
+				indicatorSize.width = max<float>(0.0f,indicatorSize.width);
+
+				LeapHelper::lowpass(activeStepPanel->getWidth(),indicatorSize.width,progressBarRC,layoutTime.millis());
+
+				activeStepPanel->layout(selectedPanel->getLastPosition()+Vector(0,0,0),indicatorSize);
+
+				cv::Size2f backgroundSize = indicatorSize;
+				backgroundSize.width = targetWidth - indicatorSize.width;
+
+				indicatorPanel->setBackgroundColor(Color(GlobalConfig::tree()->get_child("InteractiveTutorial.ActiveStepStyle.BackgroundColor")));
+				indicatorPanel->layout(selectedPanel->getLastPosition()+Vector(indicatorSize.width,0,0),backgroundSize);
+			}
+		}
+		else
+		{
+			indicatorPanel->setVisible(false);
+			activeStepPanel->setVisible(false);
+		}
 	}
+	layoutTime.start();
 }
 
 void InteractionsTutorial::onFrame(const Controller & controller)
@@ -249,11 +340,19 @@ void InteractionsTutorial::onFrame(const Controller & controller)
 			}
 		}
 	}
+	else if (completionDelay.elapsed() && state == Tutorial)
+	{		
+		nextTutorialButton->elementClicked();
+	}
 }
 
 void InteractionsTutorial::onGlobalGesture(const Controller & controller, std::string gestureType)
 {
-
+	if (stepNum < currentTutorial.size())
+	{
+		TutorialStep * activeStep = currentTutorial.at(stepNum);
+		activeStep->onGlobalGesture(gestureType);
+	}
 }
 
 void InteractionsTutorial::getTutorialDescriptor(vector<string> & tutorial)
@@ -270,6 +369,7 @@ void InteractionsTutorial::onGlobalFocusChanged(bool focused)
 
 void InteractionsTutorial::startCurrentTutorial()
 {	
+	scrollView->getFlyWheel()->overrideValue(scrollView->getFlyWheel()->getMinValue()/2.0f);
 	tutorialStepGrid->clearChildren();
 	float b = 10;
 	for (auto it = currentTutorial.begin(); it != currentTutorial.end();it++)
@@ -281,7 +381,7 @@ void InteractionsTutorial::startCurrentTutorial()
 	}
 	
 	nextTutorialButton->setStyle(GlobalConfig::tree()->get_child("InteractiveTutorial.NextButton"));
-	tutorialStepGrid->addChild(nextTutorialButton);
+	//tutorialStepGrid->addChild(nextTutorialButton);
 	stepNum = -1;
 	nextStep();
 }
@@ -314,12 +414,12 @@ void InteractionsTutorial::nextStep()
 	else
 	{
 		stepNum = currentTutorial.size();
-		for (int i=0;i<=stepNum && i<currentTutorial.size(); i++)
+		for (int i=0;i<=stepNum && i<currentTutorial.size() && i < tutorialStepGrid->getChildren()->size(); i++)
 		{
 			TextPanel * stepView = (TextPanel*)tutorialStepGrid->getChildren()->at(i);
 			stepView->setStyle(GlobalConfig::tree()->get_child("InteractiveTutorial.CompletedStepStyle"));
 		}
-		nextTutorialButton->setStyle(GlobalConfig::tree()->get_child("InteractiveTutorial.NextButtonActive"));
+		completionDelay.countdown(1000);
 	}
 	this->layoutDirty = true;
 }

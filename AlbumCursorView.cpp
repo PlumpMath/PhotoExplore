@@ -44,16 +44,16 @@ FBDataView * AlbumCursorView::getDataView(FBNode * node)
 {
 	View * v= ViewOrchestrator::getInstance()->requestView(node->getId(), this);
 
-	Panel * item = NULL;
+	PicturePanel * item = NULL;
 	if (v == NULL)
 	{
-		item = new Panel(0,0);
+		item = new PicturePanel();
 		item->show(node);
 		ViewOrchestrator::getInstance()->registerView(node->getId(),item, this);
 	}
 	else
 	{
-		item = dynamic_cast<Panel*>(v);
+		item = dynamic_cast<PicturePanel*>(v);
 	}
 
 	item->setLayoutParams(LayoutParams(cv::Size2f(),cv::Vec4f(5,5,5,5)));
@@ -78,7 +78,7 @@ FBDataView * AlbumCursorView::getDataView(FBNode * node)
 
 void AlbumCursorView::showPhoto(FBNode * photoNode)
 {
-	((Panel*)getDataView(photoNode))->elementClicked();
+	((PicturePanel*)getDataView(photoNode))->elementClicked();
 }
 
 void AlbumCursorView::getTutorialDescriptor(vector<string> & tutorial)

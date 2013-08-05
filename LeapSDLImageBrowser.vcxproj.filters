@@ -210,9 +210,6 @@
     <ClCompile Include="FriendPanel.cpp">
       <Filter>Source Files\NewPanel\DataPanels</Filter>
     </ClCompile>
-    <ClCompile Include="Panel.cpp">
-      <Filter>Source Files\NewPanel\DataPanels</Filter>
-    </ClCompile>
     <ClCompile Include="AlbumPanel.cpp">
       <Filter>Source Files\NewPanel\DataPanels</Filter>
     </ClCompile>
@@ -272,6 +269,9 @@
     </ClCompile>
     <ClCompile Include="LeapInput.cpp">
       <Filter>Source Files\EventHandling</Filter>
+    </ClCompile>
+    <ClCompile Include="PicturePanel.cpp">
+      <Filter>Source Files\NewPanel\DataPanels</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -488,9 +488,6 @@
     <ClInclude Include="DataListActivity.hpp">
       <Filter>Header Files\NewPanel</Filter>
     </ClInclude>
-    <ClInclude Include="Panel.h">
-      <Filter>Header Files\NewPanel\DataPanels</Filter>
-    </ClInclude>
     <ClInclude Include="FBDataView.hpp">
       <Filter>Header Files\NewPanel\DataPanels</Filter>
     </ClInclude>
@@ -534,6 +531,12 @@
       <Filter>Header Files\Tutorial</Filter>
     </ClInclude>
     <ClInclude Include="SwipeTutorialSteps.hpp">
+      <Filter>Header Files\Tutorial</Filter>
+    </ClInclude>
+    <ClInclude Include="PicturePanel.hpp">
+      <Filter>Header Files\NewPanel\DataPanels</Filter>
+    </ClInclude>
+    <ClInclude Include="ShakeTutorialSteps.hpp">
       <Filter>Header Files\Tutorial</Filter>
     </ClInclude>
   </ItemGroup>

@@ -254,10 +254,10 @@
     <ClCompile Include="LinearLayout.cpp" />
     <ClCompile Include="Logger.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Panel.cpp" />
     <ClCompile Include="PanelBase.cpp" />
     <ClCompile Include="PanelFactory.cpp" />
     <ClCompile Include="LeapInput.cpp" />
+    <ClCompile Include="PicturePanel.cpp" />
     <ClCompile Include="PunchGestureDetector.cpp" />
     <ClCompile Include="RadialMenu.cpp" />
     <ClCompile Include="ResourceManager.cpp" />
@@ -332,6 +332,7 @@
     <ClInclude Include="Logger.hpp" />
     <ClInclude Include="PackingGrid.hpp" />
     <ClInclude Include="PanelFactory.hpp" />
+    <ClInclude Include="PicturePanel.hpp" />
     <ClInclude Include="PixelBufferPool.hpp" />
     <ClInclude Include="PointTutorialSteps.hpp" />
     <ClInclude Include="PunchGestureDetector.hpp" />
@@ -340,6 +341,7 @@
     <ClInclude Include="ScrollingView.hpp" />
     <ClInclude Include="SeekVisual.hpp" />
     <ClInclude Include="ShakeGestureDetector.hpp" />
+    <ClInclude Include="ShakeTutorialSteps.hpp" />
     <ClInclude Include="SwipeTutorialSteps.hpp" />
     <ClInclude Include="TouchScrollSteps.hpp" />
     <ClInclude Include="SwipeGestureDetector.hpp" />
@@ -354,7 +356,6 @@
     <ClInclude Include="LeapDebug.h" />
     <ClInclude Include="LeapHelper.h" />
     <ClInclude Include="NodeBase.h" />
-    <ClInclude Include="Panel.h" />
     <ClInclude Include="LeapInput.hpp" />
     <ClInclude Include="ResourceManager.h" />
     <ClInclude Include="ResourceManagerTypes.h" />

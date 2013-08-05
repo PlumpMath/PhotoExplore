@@ -6,7 +6,7 @@
 #include "UniformGrid.hpp"
 #include "FBNode.h"
 #include "ViewOrchestrator.hpp"
-#include "Panel.h"
+#include "PicturePanel.hpp"
 #include "TextPanel.h"
 #include "FBDataView.hpp"
 

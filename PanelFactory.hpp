@@ -1,7 +1,7 @@
 #ifndef LEAPIMAGE_PANEL_FACTORY_HPP_
 #define LEAPIMAGE_PANEL_FACTORY_HPP_
 
-#include "Panel.h"
+#include "PicturePanel.hpp"
 #include "TextPanel.h"
 #include "NodeBase.h"
 
@@ -31,7 +31,7 @@ private:
 	void operator=(PanelFactory const&); 
 
 public:
-	Panel * buildImagePanel(NodeBase * imageNode);
+	PicturePanel * buildImagePanel(NodeBase * imageNode);
 
 	TextPanel * buildTextPanel(string text, Style_ style = 0);
 	void setStyle(TextPanel * target, Style_ style);

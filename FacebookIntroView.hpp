@@ -5,7 +5,7 @@
 #include "UniformGrid.hpp"
 #include "DataViewGenerator.hpp"
 #include "ViewOrchestrator.hpp"
-#include "Panel.h"
+#include "PicturePanel.hpp"
 #include "ScrollingView.hpp"
 #include "Button.hpp"
 #include "RadialMenu.hpp"

@@ -33,12 +33,18 @@ void SwipeGestureDetector::setTouchScrollingEnabled(bool _touchScrollingEnabled)
 {
 	this->touchScrollingEnabled = _touchScrollingEnabled;
 	state = IdleState;
+	swipeMap.clear();
+	for (int i=0;i<scrollPointVisuals.size();i++)
+		scrollPointVisuals.at(i)->size = 0;
 }
 
 void SwipeGestureDetector::setSwipeScrollingEnabled(bool _swipeScrolllingEnabled)
 {
 	this->swipeScrollingEnabled = _swipeScrolllingEnabled;
 	state = IdleState;
+	swipeMap.clear();
+	for (int i=0;i<scrollPointVisuals.size();i++)
+		scrollPointVisuals.at(i)->size = 0;
 }
 
 void SwipeGestureDetector::setSwipeDetectedListener(boost::function<void(Hand swipingHand, Vector swipeVector)> _swipeDetectedListener)
@@ -373,17 +379,10 @@ void SwipeGestureDetector::doTouchZoneScrolling(const Controller & controller)
 
 		if (drawIntentOnly && p.id() != handModel->IntentFinger) continue;
 		
-		if (state == TouchScrolling) // || tipVelocityFriction > 0)
+		if (state == TouchScrolling)
 		{
 			scrollPointVisuals.at(i)->size = cursorDimension;
 			scrollPointVisuals.at(i)->trackPointableId = p.id();
-			
-			//Color bg = Color(scrollConfig.get_child("VisualBackgroundColor"));
-			//if (tipVelocityFriction > 0)
-			//{
-			//	bg.setAlpha(min<float>(1.0f,tipVelocityFriction/2.0f)*bg.colorArray[3]);
-			//}
-			//scrollPointVisuals.at(i)->fillColor = bg;
 		} 
 		else
 		{			

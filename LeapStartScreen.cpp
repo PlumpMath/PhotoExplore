@@ -130,9 +130,9 @@ void LeapStartScreen::generateBackgroundPanels()
 			fp->setBorderColor(Colors::LightSteelBlue);
 		}
 		
-		float border = .6f;
+		float border = 0;
 		fp->setLayoutParams(LayoutParams(cv::Size2f(0,0),cv::Vec4f(border,border,border,border)));
-		fp->setBorderThickness(border);
+		fp->setBorderThickness(0.6f);
 		fp->setUseLineBorder(true);
 		fp->NudgeAnimationEnabled = true;
 
@@ -204,6 +204,7 @@ void LeapStartScreen::init()
 	};
 
 	tutorialButton = new Button("x");
+	tutorialButton->NudgeAnimationEnabled = true;
 	tutorialButton->setStyle(GlobalConfig::tree()->get_child("LeapStartScreen.TutorialButton"));
 	tutorialButton->elementClickedCallback = [this](LeapElement * element){
 		this->launchTutorial();	
@@ -287,13 +288,14 @@ void LeapStartScreen::layout(Leap::Vector pos, cv::Size2f size)
 	cv::Size2f buttonSize = cv::Size2f(size.width*.4f,size.height*.35f);
 	facebookLoginButton->layout(Vector((size.width-buttonSize.width)*.5f,size.height*.30f,2)+pos,buttonSize);
 
-	buttonSize = cv::Size2f(size.width*.3f,size.height*.15f);
-	noticePanel->layout(Vector((size.width-buttonSize.width)*.5f,size.height*.70f,2)+pos,buttonSize);
 	
 	float rightEdge = (size.width + buttonSize.width)*.5f;
 	buttonSize.width = (size.width-rightEdge) *.5f; 
 	float x = rightEdge + (size.width-rightEdge)*.5f - buttonSize.width*.5f;
 	tutorialButton->layout(Vector(x,size.height*.30f,2)+pos,buttonSize);
+		
+	buttonSize = cv::Size2f(size.width*.3f,size.height*.15f);
+	noticePanel->layout(Vector((size.width-buttonSize.width)*.5f,size.height*.70f,2)+pos,buttonSize);
 
 }
 

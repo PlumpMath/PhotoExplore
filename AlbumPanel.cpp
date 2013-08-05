@@ -81,14 +81,14 @@ void AlbumPanel::viewChanged(string viewIdentifier, vector<FBNode*> & viewData)
 
 		if (item == NULL)
 		{
-			Panel * p = new Panel(0,0);
+			PicturePanel * p = new PicturePanel();
 			p->show(childNode);
 			p->setVisible(true);
 			item = p;
 			ViewOrchestrator::getInstance()->registerView(childNode->getId(),item, this);
 		}
 		item->setLayoutParams(LayoutParams(cv::Size2f(),cv::Vec4f(2,2,2,2)));
-		((Panel*)item)->setDataPriority(currentDataPriority);
+		((PicturePanel*)item)->setDataPriority(currentDataPriority);
 		albumGroup->addChild(item);					
 	}
 
@@ -106,7 +106,7 @@ void AlbumPanel::setDataPriority(float dataPriority)
 
 		for (auto it = albumGroup->getChildren()->begin(); it != albumGroup->getChildren()->end();it++)
 		{
-			Panel * imagePanel = dynamic_cast<Panel*>(*it);
+			PicturePanel * imagePanel = dynamic_cast<PicturePanel*>(*it);
 			if (imagePanel != NULL)
 				imagePanel->setDataPriority(dataPriority);
 		}

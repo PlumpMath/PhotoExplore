@@ -6,9 +6,9 @@ PanelFactory::PanelFactory()
 	;
 }
 
-Panel * PanelFactory::buildImagePanel(NodeBase * imageNode)
+PicturePanel * PanelFactory::buildImagePanel(NodeBase * imageNode)
 {
-	Panel * p = new Panel(0,0);
+	PicturePanel * p = new PicturePanel();
 	return p;
 }
 

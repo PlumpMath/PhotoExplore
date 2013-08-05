@@ -2,7 +2,7 @@
 #define LEAPIMAGE_IMAGE_DETAIL_VIEW_HPP_
 
 #include "View.hpp"
-#include "Panel.h"
+#include "PicturePanel.hpp"
 #include "LeapDebug.h"
 #include "UniformGrid.hpp"
 #include "Button.hpp"
@@ -17,13 +17,13 @@ struct PanelInteraction {
 
 	}
 
-	PanelInteraction(Panel * _panel) :
+	PanelInteraction(PicturePanel * _panel) :
 	panel(_panel)
 	{
 		pointableRange = 0;
 	}
 
-	Panel * panel;
+	PicturePanel * panel;
 	Vector translation, scale;
 	Vector pointableCentroid;
 	float pointableRange;
@@ -37,7 +37,7 @@ class ImageDetailView : public ActivityView {
 
 private:	
 	boost::function<void(std::string)> finishedCallback;
-	Panel * imagePanel;
+	PicturePanel * imagePanel;
 
 	//ViewGroup * buttonBar;
 	//ContentPanel * buttonBarPanel;
@@ -67,8 +67,8 @@ public:
 	
 	void setFinishedCallback(const boost::function<void(std::string)> & callback);
 	
-	void setImagePanel(Panel * imagePanel);
-	Panel * getImagePanel();
+	void setImagePanel(PicturePanel * imagePanel);
+	PicturePanel * getImagePanel();
 
 	void onFrame(const Controller & controller);
 

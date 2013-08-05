@@ -136,7 +136,7 @@ void TextureLoadTask::initializeTexture()
 	
 	initTimer.start();
 	glBindTexture(GL_TEXTURE_2D, textureInfo.textureId);
-	glTexImage2D(GL_TEXTURE_2D,0,textureInfo.bytesPerPixel,textureInfo.width,textureInfo.height,0,textureInfo.format,GL_UNSIGNED_BYTE,0);
+	glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,textureInfo.width,textureInfo.height,0,textureInfo.format,GL_UNSIGNED_BYTE,0);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	float color [] = {1.0f,1.0f,1.0f,0.0f};

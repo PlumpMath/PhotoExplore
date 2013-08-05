@@ -13,7 +13,13 @@ namespace TouchScrollTutorial
 		
 		void reset() { state = 0;}
 		int getFirstDependent() {return 0;}
-		float getProgress() { return (float)(spreadTimer.millis()/100.0);}
+		float getProgress()
+		{
+			if (state == 0)
+				return 0;
+			else
+				return (float)(spreadTimer.millis()/100.0);
+		}
 
 		bool onFrame(const Controller & controller)
 		{

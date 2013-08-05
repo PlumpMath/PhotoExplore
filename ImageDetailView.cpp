@@ -17,38 +17,18 @@ void ImageDetailView::notifyOffsetChanged(Leap::Vector _offset)
 
 void ImageDetailView::initButtonBar()
 {
-
-	Color likeBackgroundColor = Color(GlobalConfig::tree()->get_child("ImageDetailView.LikeButton.Background"));
-	Color likeTextColor = Color(GlobalConfig::tree()->get_child("ImageDetailView.LikeButton.TextColor"));
-	Color likeBorderColor = Color(GlobalConfig::tree()->get_child("ImageDetailView.LikeButton.BorderColor"));
-	float borderThickness = GlobalConfig::tree()->get<float>("ImageDetailView.LikeButton.BorderThickness");
-	float likeTextSize = GlobalConfig::tree()->get<float>("ImageDetailView.LikeButton.TextSize");
-
+	
 	likeButton = new Button("Like this photo?");
-	likeButton->setBackgroundColor(likeBackgroundColor);
-	likeButton->setBorderColor(likeBorderColor);
-	likeButton->setTextColor(likeTextColor);
-	likeButton->setBorderThickness(borderThickness);
-	likeButton->setTextSize(likeTextSize);
 	likeButton->setVisible(false);
 	likeButton->setAnimateOnLayout(false);
-	likeButton->setTextFitPadding(6);
+	likeButton->setStyle(GlobalConfig::tree()->get_child("ImageDetailView.LikeButton"));
 
 	
 	alreadyLikedButton = new Button("You like this.");
+	alreadyLikedButton->setStyle(GlobalConfig::tree()->get_child("ImageDetailView.LikeButton"));
 	alreadyLikedButton->setBackgroundColor(Colors::HoloBlueBright.withAlpha(.5f));
-	alreadyLikedButton->setBorderColor(likeBorderColor);
-	alreadyLikedButton->setTextColor(likeTextColor);
-	alreadyLikedButton->setBorderThickness(borderThickness);
-	alreadyLikedButton->setTextSize(likeTextSize);
 	alreadyLikedButton->setVisible(false);
 	alreadyLikedButton->setAnimateOnLayout(false);
-	alreadyLikedButton->setTextFitPadding(6);
-	
-	//likeButton->layout(likeButton->getPosition(),cv::Size2f(250,200));
-
-	//likeButton->setBorderThickness(1);
-	//likeButton->setBorderColor(Colors::HoloBlueBright);
 
 	photoComment = new TextPanel("");
 	photoComment->setLayoutParams(LayoutParams(cv::Size2f(400,100),cv::Vec4f(20,20,20,80)));
@@ -204,7 +184,7 @@ void ImageDetailView::setImageMetaData()
 	}
 }
 
-void ImageDetailView::setImagePanel(Panel * _imagePanel)
+void ImageDetailView::setImagePanel(PicturePanel * _imagePanel)
 {
 	if (imagePanel != NULL)
 	{
@@ -212,7 +192,7 @@ void ImageDetailView::setImagePanel(Panel * _imagePanel)
 		this->imagePanel->setVisible(true);
 		this->imagePanel->setClickable(true);
 		this->imagePanel->setDataPriority(0);
-		this->imagePanel->setFullscreenMode(false);
+		this->imagePanel->setMaxResolutionMode(false);
 		this->imagePanel->setTextureWindow(Vector(),Vector(1,1,1));
 		remove(imagePanel);
 
@@ -234,13 +214,13 @@ void ImageDetailView::setImagePanel(Panel * _imagePanel)
 		this->imagePanel->NudgeAnimationEnabled = false;
 		this->imagePanel->setVisible(false);
 		this->imagePanel->setClickable(false);
-		this->imagePanel->setFullscreenMode(true);
+		this->imagePanel->setMaxResolutionMode(true);
 		setImageMetaData();
 	}
 	layoutDirty = true;
 }
 
-Panel * ImageDetailView::getImagePanel()
+PicturePanel * ImageDetailView::getImagePanel()
 {
 	return this->imagePanel;
 }
@@ -283,7 +263,7 @@ void ImageDetailView::setVisible(bool _visible)
 	View::setVisible(_visible);
 
 	if (imagePanel != NULL)
-		imagePanel->setFullscreenMode(isVisible());	
+		imagePanel->setMaxResolutionMode(isVisible());	
 
 	layoutDirty = true;
 
@@ -385,7 +365,7 @@ static bool getNewPanelInteraction(const Controller & controller, Frame frame, P
 		{
 			activePanelInteraction.translation = Vector(0,0,0);
 			activePanelInteraction.scale = Vector(1,1,1);
-			activePanelInteraction.panel = (Panel*)panel;
+			activePanelInteraction.panel = (PicturePanel*)panel;
 		}				
 		processed = canStartInteraction;
 	}

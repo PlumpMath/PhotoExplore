@@ -80,5 +80,5 @@ FBDataView * FriendCursorView::getDataView(FBNode * node)
 
 void FriendCursorView::showPhoto(FBNode * photoNode)
 {
-	((Panel*)getDataView(photoNode))->elementClicked();
+	((PicturePanel*)getDataView(photoNode))->elementClicked();
 }

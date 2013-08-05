@@ -35,7 +35,7 @@ void FriendPanel::setDataPriority(float _dataPriority)
 	this->dataPriority = _dataPriority;
 	for (auto it = layoutGroup->getChildren()->begin(); it != layoutGroup->getChildren()->end();it++)
 	{
-		Panel * imagePanel = dynamic_cast<Panel*>(*it);
+		PicturePanel * imagePanel = dynamic_cast<PicturePanel*>(*it);
 		if (imagePanel != NULL)
 			imagePanel->setDataPriority(dataPriority);
 	}
@@ -78,10 +78,10 @@ void FriendPanel::show(FBNode * _node)
 	//}
 
 
-	friendPhotoPanel = (Panel*)ViewOrchestrator::getInstance()->requestView(activeNode->getId() + "/friendphoto", this);
+	friendPhotoPanel = (PicturePanel*)ViewOrchestrator::getInstance()->requestView(activeNode->getId() + "/friendphoto", this);
 	if (friendPhotoPanel == NULL)
 	{
-		friendPhotoPanel = new Panel(0,0);
+		friendPhotoPanel = new PicturePanel();
 		friendPhotoPanel->show(activeNode);
 		ViewOrchestrator::getInstance()->registerView(activeNode->getId() + "/friendphoto",friendPhotoPanel, this);
 	}
@@ -148,14 +148,14 @@ void FriendPanel::addNode(FBNode * childNode)
 		View * item = ViewOrchestrator::getInstance()->requestView(childNode->getId(), this);
 		if (item == NULL)
 		{
-			Panel * p = new Panel(0,0);
+			PicturePanel * p = new PicturePanel();
 			p->show(childNode);
 			p->setVisible(true);
 			item = p;			
 			ViewOrchestrator::getInstance()->registerView(childNode->getId(),item, this);
 		}		
 		item->setLayoutParams(LayoutParams(cv::Size2f(),cv::Vec4f(0,0,0,0)));
-		((Panel*)item)->setDataPriority(dataPriority);
+		((PicturePanel*)item)->setDataPriority(dataPriority);
 		layoutGroup->addChild(item);		
 	}
 	layoutDirty = true;

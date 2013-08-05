@@ -10,7 +10,7 @@ class PixelBufferPool {
 private:
 	PixelBufferPool()
 	{
-		if (GlobalConfig::tree()->get<bool>("GraphicsSettings.DisablePixelBuffers"))
+		if (GlobalConfig::tree()->get<bool>("GraphicsSettings.EnablePixelBuffers"))
 		{
 			pixelBufferSupportExists = glewIsSupported("GL_ARB_pixel_buffer_object");
 			if (!pixelBufferSupportExists)

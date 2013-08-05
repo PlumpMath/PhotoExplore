@@ -21,6 +21,8 @@ struct TutorialStep
 	virtual string getDescription() = 0;	
 	virtual bool onFrame(const Controller & controller)  = 0;
 	virtual bool isComplete(const Controller & controller) = 0;
+	
+	virtual void onGlobalGesture(string gestureType) { }
 };
 
 
@@ -28,6 +30,14 @@ class InteractionsTutorial : public ActivityView
 {
 private:	
 	
+	enum State {		
+		Dialog,
+		Tutorial,
+		Waiting
+	};
+
+	int state;
+
 	ScrollingView * scrollView;
 	UniformGrid * tutorialStepGrid;
 
@@ -50,6 +60,12 @@ private:
 
 	Button * nextTutorialButton, * exitButton;
 	TextPanel * titlePanel, * infoPanel;
+	Button * startTutorialButton;
+
+	ViewGroup * infoDialog;
+
+	Timer completionDelay;
+	Timer layoutTime;
 
 public:
 	InteractionsTutorial();

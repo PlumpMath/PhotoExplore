@@ -6,7 +6,7 @@
 #include "UniformGrid.hpp"
 #include "FBNode.h"
 #include "ViewOrchestrator.hpp"
-#include "Panel.h"
+#include "PicturePanel.hpp"
 #include "TextPanel.h"
 #include "PanelFactory.hpp"
 #include "FBDataView.hpp"
@@ -20,7 +20,7 @@ private:
 	ViewGroup * friendViewGroup;
 	ViewGroup * layoutGroup;
 	TextPanel * nameText;
-	Panel * friendPhotoPanel;
+	PicturePanel * friendPhotoPanel;
 
 	Pointable activePointable;
 

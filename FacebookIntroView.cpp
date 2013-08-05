@@ -63,7 +63,7 @@ void FacebookIntroView::buttonClicked(LeapElement * element)
 {
 	for (auto it =  friendPhotoGrid->getChildren()->begin(); it != friendPhotoGrid->getChildren()->end();it++)
 	{
-		Panel * p = dynamic_cast<Panel*>(*it);
+		PicturePanel * p = dynamic_cast<PicturePanel*>(*it);
 
 		if (p != NULL)
 			p->setDataPriority(100);
@@ -72,7 +72,7 @@ void FacebookIntroView::buttonClicked(LeapElement * element)
 
 	for (auto it =  myPhotoGrid->getChildren()->begin(); it != myPhotoGrid->getChildren()->end();it++)
 	{
-		Panel * p = dynamic_cast<Panel*>(*it);
+		PicturePanel * p = dynamic_cast<PicturePanel*>(*it);
 
 		if (p != NULL)
 			p->setDataPriority(100);
@@ -269,7 +269,7 @@ void FacebookIntroView::viewChanged(string viewIdentifier, vector<FBNode*> viewD
 
 			if (item == NULL)
 			{
-				Panel * p = new Panel(0,0);
+				PicturePanel * p = new PicturePanel();
 				p->show(node);
 				p->setVisible(true);
 				item = p;				
@@ -278,8 +278,8 @@ void FacebookIntroView::viewChanged(string viewIdentifier, vector<FBNode*> viewD
 
 
 
-			((Panel*)item)->setClickable(true);
-			((Panel*)item)->setDataPriority(0);
+			((PicturePanel*)item)->setClickable(true);
+			((PicturePanel*)item)->setDataPriority(0);
 			item->setLayoutParams(LayoutParams(cv::Size2f(),cv::Vec4f(5,5,5,5)));
 			item->elementClickedCallback = [node](LeapElement * element){
 				FacebookDataDisplay::getInstance()->displayNode(node,"");
