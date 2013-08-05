@@ -23,11 +23,16 @@ PicturePanel::PicturePanel()
 	loadAnimTimer.start();
 
 	currentResource = NULL;
+
+	maxResolutionMode = false;
 }
 
 
 void PicturePanel::prepareResource()
 {	
+	if (getWidth() <= 0 || getHeight() <= 0 || !isVisible())
+		return;
+
 	string newResourceURI = "";
 	cv::Size2i newResourceSize(0,0);
 	if (GlobalConfig::tree()->get<bool>("FakeDataMode.Enable"))
@@ -67,10 +72,14 @@ void PicturePanel::prepareResource()
 				int targetDimension = max<int>((int)getWidth(),(int)getHeight());
 				for (auto it = areaImageMap.begin(); it != areaImageMap.end(); it++)
 				{
+					if (!maxResolutionMode && areaImageMap.size() > 1 && it->second.second.find("_o.jpg") != string::npos)
+						continue;
+
+					newResourceURI = it->second.second;
+					newResourceSize = it->second.first;
 					if (it->first > targetDimension)
 					{
-						newResourceURI = it->second.second;
-						newResourceSize = it->second.first;
+						break;
 					}
 				}
 			}
@@ -88,12 +97,13 @@ void PicturePanel::prepareResource()
 	}
 	if (currentResource == NULL || currentResource->imageURI.compare(newResourceURI) != 0)
 	{
-		Logger::stream("PicturePanel","INFO") << "Selected new resource: " << newResourceURI << endl;
+		Logger::stream("PicturePanel","INFO") << "Selected new resource: " << newResourceURI << " with size = [" << newResourceSize.width << "," << newResourceSize.height << "] , my size is [" << getWidth() << "," << getHeight() << "]" << endl;
 		if (currentResource != NULL)
 		{
 			currentResource->priority = 100;
 		}
-
+		
+		pictureSize = newResourceSize;
 		if (newResourceSize.area() > 0)
 		{
 			textureWidth = newResourceSize.width;
@@ -154,6 +164,13 @@ void PicturePanel::resourceUpdated(ResourceData * data)
 	else
 	{
 		currentTextureId = data->textureId;
+
+		glBindTexture(GL_TEXTURE_2D,currentTextureId);
+		int texWidth,texHeight;
+		glGetTexLevelParameteriv(GL_TEXTURE_2D,0,GL_TEXTURE_WIDTH,&texWidth);
+		glGetTexLevelParameteriv(GL_TEXTURE_2D,0,GL_TEXTURE_HEIGHT,&texHeight);
+
+		pictureSize = cv::Size2i((int)texWidth,(int)texHeight);
 	}
 }
 
@@ -171,6 +188,8 @@ void PicturePanel::fitPanelToBoundary(Vector targetPosition, float maxWidth, flo
 	float targetWidth = maxWidth, targetHeight =maxHeight;
 
 	TexturePanel::setTextureWindow(Vector(),Vector(1,1,1));
+
+	float textureWidth = pictureSize.width,textureHeight = pictureSize.height;
 
 	if (!fill)
 	{		

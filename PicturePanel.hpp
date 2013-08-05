@@ -22,6 +22,8 @@ private:
 	void prepareResource();
 
 	bool maxResolutionMode;
+
+	cv::Size2i pictureSize;
 		
 public:	
 	PicturePanel();

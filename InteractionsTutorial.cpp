@@ -51,10 +51,10 @@ void InteractionsTutorial::loadTutorial(string name)
 		infoPanel->setText(GlobalConfig::tree()->get<string>("InteractiveTutorial.InfoStrings.Intro"));
 		
 		startTutorialButton->elementClickedCallback = [this](LeapElement * clicked){
-			this->loadTutorial("swipe");
+			this->loadTutorial("touchscroll");
 		};
 		nextTutorialButton->elementClickedCallback = [this](LeapElement * clicked){
-			this->loadTutorial("swipe");
+			this->loadTutorial("touchscroll");
 		};
 	}
 	else if (name.compare("touchscroll") == 0)
@@ -162,7 +162,7 @@ void InteractionsTutorial::init()
 		this->startCurrentTutorial();
 		this->layoutDirty = true;
 	};
-	startTutorialButton->setLayoutParams(LayoutParams(cv::Size2f(0,0),cv::Vec4f(0,2,0,0)));
+	startTutorialButton->setLayoutParams(LayoutParams(cv::Size2f(0,0),cv::Vec4f(2,2,2,2)));
 	
 	vector<RowDefinition> gridDefinition;	
 	gridDefinition.push_back(RowDefinition(.7f));
@@ -364,6 +364,11 @@ void InteractionsTutorial::onGlobalFocusChanged(bool focused)
 {
 	if (focused)
 		SwipeGestureDetector::getInstance().setFlyWheel(scrollView->getFlyWheel());
+	else
+	{
+		SwipeGestureDetector::getInstance().setSwipeScrollingEnabled(true);
+		SwipeGestureDetector::getInstance().setTouchScrollingEnabled(true);
+	}
 }
 
 

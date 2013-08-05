@@ -10,7 +10,8 @@
 	},
 	"Logging" : 
 	{
-		"File" : "/Users/adamskubel/photo_explorer.log",
+		//"File" : "/Users/adamskubel/photo_explorer.log",
+		"File" : "C:\\Users\\Adam\\Desktop\\PhotoExplorer\\photo_explorer.log",
 		"Enabled" : true
 	},
 	"Typography" : 
@@ -428,11 +429,11 @@
 		"FinishedStepColor" :{"R" :0,"G" : 100,"B" : 0,"A" : 220},
 		"InfoStrings" : 
 		{
-			"Intro" : "Welcome to the Photo Explorer tutorial. This tutorial will show you how to navigate around Photo Explorer.",
-			"TouchScroll" : "Touch scrolling lets you precisely move through the photos.",
-			"Swipe" : "Swiping is a way to scroll through a lot of photos at once.",
-			"Shake" : "The Shake gesture will take you back to the last page you were on.",
-			"Complete" : "Tutorial completed. Have fun exploring!"
+			"Intro" : "Welcome to Photo Explorer. This tutorial will show you how to navigate through photos.",
+			"TouchScroll" : "1. Touch scrolling lets you precisely move through your photos.",
+			"Swipe" : "2. The second way to scroll through photos is by swiping. Swiping will let you quickly browse through lots of photos.",
+			"Shake" : "3. The shake gesture will take you back to the last page you were on.",
+			"Complete" : "You have completed the tutorial. Have fun exploring!"
 		},
 		"TitlePanel" : 
 		{			
