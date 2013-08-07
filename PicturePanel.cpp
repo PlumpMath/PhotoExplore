@@ -1,5 +1,5 @@
 #include "PicturePanel.hpp"
-
+#include <boost/filesystem.hpp>
 
 PicturePanel::PicturePanel()
 {
@@ -33,11 +33,12 @@ void PicturePanel::prepareResource()
 	if (getWidth() <= 0 || getHeight() <= 0 || !isVisible())
 		return;
 
-	string newResourceURI = "";
+	string newResourceURI = "", resourceId = "";
 	cv::Size2i newResourceSize(0,0);
 	if (GlobalConfig::tree()->get<bool>("FakeDataMode.Enable"))
 	{
 		newResourceURI = pictureNode->Edges.find("fake_uri")->Value;
+		resourceId = pictureNode->getId() + boost::filesystem::path(newResourceURI).filename().string();
 	}
 	else
 	{
@@ -84,9 +85,12 @@ void PicturePanel::prepareResource()
 				}
 			}
 		}
-
+		
+		resourceId = newResourceURI;
 		if (newResourceURI.size() == 0)
-		{
+		{			
+			resourceId = pictureNode->getId();
+
 			std::stringstream urlStream;
 			urlStream << "https://graph.facebook.com/";
 			urlStream << pictureNode->getId() << "/picture?width=600&height=600&";
@@ -110,7 +114,7 @@ void PicturePanel::prepareResource()
 			textureHeight = newResourceSize.height;
 		}
 
-		currentResource = ResourceManager::getInstance().loadResource(newResourceURI,newResourceURI,dataPriority,this);
+		currentResource = ResourceManager::getInstance().loadResource(resourceId,newResourceURI,dataPriority,this);
 	}
 }
 
@@ -226,8 +230,12 @@ void PicturePanel::fitPanelToBoundary(Vector targetPosition, float maxWidth, flo
 
 void PicturePanel::drawContent(Vector drawPosition, float drawWidth, float drawHeight)
 {		
-	if (currentTextureId != NULL)
+	
+
+	//if (currentTextureId != NULL)
+	if (currentResource != NULL && currentResource->textureId != NULL)
 	{
+		currentTextureId = currentResource->textureId;
 		TexturePanel::drawTexture(currentTextureId,drawPosition,drawWidth,drawHeight);
 	}		
 	else
@@ -272,8 +280,7 @@ void PicturePanel::drawContent(Vector drawPosition, float drawWidth, float drawH
 			case ResourceState::TextureLoadError:
 				loadAnimationColor = Colors::OrangeRed;
 				break;
-			}
-			
+			}			
 
 			drawLoadTimer(drawPosition + Vector(0,drawHeight/2.0f,0),drawWidth,drawHeight/2.0f);
 		}
@@ -299,7 +306,7 @@ void PicturePanel::drawPanel(Vector drawPosition, float drawWidth, float drawHei
 	{
 		Color t = getBackgroundColor();
 		setBackgroundColor(Colors::HoloBlueBright);
-		drawBackground(drawPosition,drawWidth*.1f,drawHeight*(min<float>(1.0f,dataPriority*.1f)));
+		drawBackground(drawPosition+Vector(0,0,2),drawWidth*.1f,drawHeight*(min<float>(1.0f,dataPriority*.1f)));
 		setBackgroundColor(t);
 	}
 }

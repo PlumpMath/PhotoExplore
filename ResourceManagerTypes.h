@@ -49,7 +49,8 @@ struct ResourceData
 	ResourceData(string _resourceId, float _priority, string _imageURI) :
 		resourceId(_resourceId),
 		priority(_priority),
-		imageURI(_imageURI)
+		imageURI(_imageURI),
+		textureId(0)
 	{
 
 	}
@@ -57,7 +58,8 @@ struct ResourceData
 	ResourceData(string _resourceId, float _priority, cv::Mat & _image) :
 		resourceId(_resourceId),
 		priority(_priority),
-		image(_image)
+		image(_image),
+		textureId(0)
 	{
 
 	}

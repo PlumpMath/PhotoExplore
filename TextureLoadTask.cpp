@@ -10,7 +10,7 @@
 using namespace std;
 using namespace LoadTaskState;
 
-#define  MaxBytesPerFrame 1048576
+//#define  MaxBytesPerFrame 1048576
 
 int TextureLoadTask::taskId = 0;
 
@@ -22,6 +22,9 @@ TextureLoadTask::TextureLoadTask(std::string _resourceId, float _priority, cv::M
 	resourceId(_resourceId),
 	callback(_callback)
 {
+	MaxBytesPerFrame = (int)(GlobalConfig::tree()->get<double>("GraphicsSettings.TextureLoading.MaxMBPerFrame")*1048576.0);
+
+
 	if (cvImage.data == NULL || cvImage.size().area() == 0)
 		throw new std::runtime_error("Invalid image");
 

@@ -365,6 +365,7 @@
     <ClInclude Include="TexturePool.h" />
     <ClInclude Include="Types.h" />
     <ClInclude Include="TypographyManager.h" />
+    <ClInclude Include="WinHelper.hpp" />
     <ClInclude Include="_kiss_fft_guts.h" />
   </ItemGroup>
   <ItemGroup>

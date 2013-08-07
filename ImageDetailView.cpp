@@ -385,9 +385,6 @@ bool ImageDetailView::handleImageManipulation(const Controller & controller)
 	{
 		ldv1 = new LeapDebugVisual(0,Colors::MediumVioletRed.withAlpha(.7f));
 		ldv2 = new LeapDebugVisual(0,Colors::MediumVioletRed.withAlpha(.7f));
-		
-		//LeapDebug::instance->addDebugVisual(ldv1);
-		//LeapDebug::instance->addDebugVisual(ldv2);
 	}
 
 	if (panel != NULL)

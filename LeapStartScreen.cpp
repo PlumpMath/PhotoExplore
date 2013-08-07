@@ -7,38 +7,8 @@
 #include "SwipeGestureDetector.hpp"
 #include "GLImport.h"
 #include "InteractionsTutorial.hpp"
+#include "WinHelper.hpp"
 
-
-#if defined(_WIN32) 
-	struct EnumWindowsCallbackArgs {
-		EnumWindowsCallbackArgs( DWORD p ) : pid( p ) { }
-		const DWORD pid;
-		std::vector<HWND> handles;
-	};
-
-	static BOOL CALLBACK EnumWindowsCallback( HWND hnd, LPARAM lParam )
-	{
-		EnumWindowsCallbackArgs *args = (EnumWindowsCallbackArgs *)lParam;
-
-		DWORD windowPID;
-		(void)::GetWindowThreadProcessId( hnd, &windowPID );
-		if ( windowPID == args->pid ) {
-			args->handles.push_back( hnd );
-		}
-
-		return TRUE;
-	}
-
-	std::vector<HWND> getToplevelWindows()
-	{
-		EnumWindowsCallbackArgs args( ::GetCurrentProcessId() );
-		if ( ::EnumWindows( &EnumWindowsCallback, (LPARAM) &args ) == FALSE ) {
-			// XXX Log error here
-			return std::vector<HWND>();
-		}
-		return args.handles;
-	}
-#endif
 
 LeapStartScreen::LeapStartScreen(std::string startDir)
 {
@@ -330,7 +300,7 @@ void LeapStartScreen::launchBrowser()
 
 
 	#if defined(_WIN32) // Windows
-		vector<HWND> myHandles = getToplevelWindows();			
+		//vector<HWND> myHandles = getToplevelWindows();			
 		info.SetAsPopup(0,"Login");
 		info.width = (int)windowWidth;
 		info.height = (int)windowHeight;

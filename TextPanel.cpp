@@ -62,8 +62,15 @@ void TextPanel::reloadText()
 	TextDefinition td(text, textColor, textSize, textureSize);
 	
 	ResourceData * textResource = ResourceManager::getInstance().watchResource(td.getKey(),this);	
-	if (textResource == NULL)
+	if (currentResource != NULL && currentResource == textResource)
 	{
+		//Do nothing
+	}
+	else if (textResource == NULL)
+	{
+		//if (currentResource != NULL)
+		//	ResourceManager::getInstance().releaseResource(currentResource->resourceId,this);
+
 		TextLayoutConfig config(textAlignment,textureSize.width);
 		config.fitToText = fitToText;
 		cv::Rect_<float> newTextRect;
@@ -71,7 +78,7 @@ void TextPanel::reloadText()
 		if (currentTextImage.data != NULL)
 		{
 			currentTextRect = newTextRect;
-			currentTextRect.width = currentTextImage.size().width;			
+			currentTextRect.width = currentTextImage.size().width;		
 			currentResource = ResourceManager::getInstance().loadResource(td.getKey(),currentTextImage,-1,this);
 		}
 	}
@@ -79,13 +86,16 @@ void TextPanel::reloadText()
 	{
 		if (textResource->TextureState == ResourceState::TextureLoaded)
 		{
+			//if (currentResource != NULL)
+			//{
+			//	ResourceManager::getInstance().releaseResource(currentResource->resourceId,this);
+			//}
+
 			currentResource = textResource;
 			currentTextureId = currentResource->textureId;
 		}
 		currentTextRect.width = textResource->image.size().width;
 	}
-
-
 
 	textDirty = false;
 }

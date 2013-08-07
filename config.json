@@ -12,7 +12,7 @@
 	{
 		//"File" : "/Users/adamskubel/photo_explorer.log",
 		"File" : "C:\\Users\\Adam\\Desktop\\PhotoExplorer\\photo_explorer.log",
-		"Enabled" : true
+		"Enabled" : false
 	},
 	"Typography" : 
 	{
@@ -48,7 +48,11 @@
 		"OverrideWidth" : 1280,
 		"OverrideHeight" : 720,
 		"UseIntForNonSubPixelRender" : false,
-		"NoSubPixelScroll" : true
+		"NoSubPixelScroll" : true,
+		"TextureLoading" : 
+		{
+			"MaxMBPerFrame" : 0.5
+		}
 	},
 	"Button" : 
 	{
@@ -57,8 +61,8 @@
 	"PicturePanel" :
 	{
 		"AnimateLayoutDuration" : 400,
-		"DebugLoading" : false,
-		"DebugPriority" : false
+		"DebugLoading" : true,
+		"DebugPriority" : true
 	},
 	"TextEditPanel" : 
 	{
@@ -83,15 +87,30 @@
 		"TextureCacheSize" : 512, 	//Megabytes
 		"ImageCacheSize" : 768, 	//Megabytes		
 		"MaxImageSize" : 30,			//Megabytes
-		"CacheGCFrequency" : 5000 ,//milliseconds		
+		"CacheGCFrequency" : 10000 ,//milliseconds		
 		"FullCacheGCFrequency" : 2000, //milliseconds
 		"TextureCacheGCCollectRatio" : 0.8,
 		"ImageCacheGCCollectRatio" : 0.8,
 		"DebugLogging" : false
 	},
+	"WindowsDebugPanel" :
+	{
+		"Enable" : true,
+		"DesktopParent" : false,
+		"Width" : 400,
+		"Height" : 200		
+	},
+	"DebugPlot" : 
+	{
+		"Enable" : true,
+		"Width" : 300,
+		"LineWidth" : 4,
+		"YOffset" : 1200,		
+		"XOffset" : 300		
+	},
 	"FakeDataMode" : 
 	{
-		"Enable" : false,
+		"Enable" : true,
 		"SourceDataDirectory" : "C:\\Users\\Adam\\Pictures",
 		//"SourceDataDirectory" : "/Users/adamskubel/Pictures" ,
 		"RequestDelay" : 50 ,//ms

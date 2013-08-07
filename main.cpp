@@ -585,7 +585,6 @@ int main(int argc, char * argv[]){
 				delta.start();
 
 				Timer itemTimer;
-				itemTimer.start();
 				
 //				glfwMakeContextCurrent(mainWindow);
 				glfwPollEvents();
@@ -595,15 +594,18 @@ int main(int argc, char * argv[]){
 					quit[0] = true;
 				}			
 			
+				itemTimer.start();
 				HandProcessor::getInstance()->processFrame(controller.frame());
 				LeapInput::getInstance()->processInputEvents();
 				LeapInput::getInstance()->processFrame(controller,controller.frame());
-				frameOut  << "PointableEvents = " << itemTimer.millis() << "ms \n";
-					
+				leapDebug.plotValue("Input",Colors::LimeGreen,itemTimer.millis() * 20);
+									
 				startScreen.onFrame(controller);
 							
+				itemTimer.start();
 				ResourceManager::getInstance().update();
-				frameOut  << "RMan = " << itemTimer.millis() << "ms \n";
+				leapDebug.plotValue("RMan",Colors::Red,itemTimer.millis() * 20);
+
 				itemTimer.start();
 
 				startScreen.update(deltaTime);
@@ -695,15 +697,19 @@ int main(int argc, char * argv[]){
 				frameOut  << "glFinish = " << itemTimer.millis() << "ms \n";
 				itemTimer.start();
 				glfwSwapBuffers(mainWindow);
-				frameOut << "SwapBuffers = " << itemTimer.millis() << "ms \n";
+				leapDebug.plotValue("Swap",Colors::PrettyPurple, itemTimer.millis() * 20);
 				itemTimer.start();
 						
-				if (delta.millis() - (1000.0/60.0) > 2)
-				{
-					Logger::stream("MAIN","TIME") << "[" << frameId << "] START \n";
-					Logger::stream("MAIN","TIME") << frameOut.str();
-					Logger::stream("MAIN","TIME") << "[" << frameId << "] = " << delta.millis() << "ms \n"; //@ " << totalTime.seconds() << "s \n";
-				}
+				//if (delta.millis() - (1000.0/60.0) > 2)
+				//{
+				//	Logger::stream("MAIN","TIME") << "[" << frameId << "] START \n";
+				//	Logger::stream("MAIN","TIME") << frameOut.str();
+				//	Logger::stream("MAIN","TIME") << "[" << frameId << "] = " << delta.millis() << "ms \n"; //@ " << totalTime.seconds() << "s \n";
+				//}
+
+				leapDebug.showValue("01. FPS",1.0 / delta.seconds());
+				leapDebug.plotValue("zFPS",Colors::HoloBlueBright, delta.millis() * 20);
+				//leapDebug.showValue("02. FPS",delta.millis()/60.0);
 				frameId++;
 			}
 		}	

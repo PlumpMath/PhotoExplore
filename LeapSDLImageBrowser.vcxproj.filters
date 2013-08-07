@@ -539,6 +539,9 @@
     <ClInclude Include="ShakeTutorialSteps.hpp">
       <Filter>Header Files\Tutorial</Filter>
     </ClInclude>
+    <ClInclude Include="WinHelper.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="postproc.v.glsl">

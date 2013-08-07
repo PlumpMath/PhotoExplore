@@ -78,6 +78,7 @@ private:
 
 	void copyBufferToTexture();
 
+	int MaxBytesPerFrame;
 	static int taskId;
 
 public:

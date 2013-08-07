@@ -3,6 +3,8 @@
 #include "ImageLoader.hpp"
 #include "GlobalConfig.hpp"
 #include "TexturePool.h"
+#include "LeapDebug.h"
+#include <boost/filesystem.hpp>
 
 
 ResourceManager::ResourceManager()
@@ -235,8 +237,13 @@ void ResourceManager::updateImageState(ResourceData * data, bool load)
 
 void ResourceManager::updateResource(ResourceData * data)
 {	
-	updateImageState(data, data->priority <= imageLoadThreshold);
-	updateTextureState(data, data->priority <= textureLoadThreshold);
+	if (data->priority <= imageLoadThreshold)
+		updateImageState(data, true);
+	
+	if (data->priority <= textureLoadThreshold)
+		updateTextureState(data, true);
+
+	resourcesChanged = true;
 }
 
 int compareResourcePriority(const void * a, const void * b) 
@@ -284,14 +291,25 @@ void ResourceManager::cleanupCache()
 	Timer cacheTimer;
 	cacheTimer.start();
 
+
+	int permObjects = 0;
+	int transientObjects = 0;
+	int loadedImages = 0, loadedTextures = 0;
+	int priorityZeroObjects = 0;
+
 	//ResourceData ** resources = new ResourceData*[size];
 	vector<ResourceData*> rVector;
 	for (auto cache = resourceCache.get<IdIndex>().begin(); cache != resourceCache.get<IdIndex>().end(); cache++)
 	{
+
 		if (cache->Data->priority >= 0)
 			rVector.push_back(cache->Data);
+		else
+			permObjects++;
 		//resources[i++] = cache->Data;
 	}
+
+	transientObjects = rVector.size();
 
 	//std::qsort(resources,size,sizeof(resources[0]),compareResourcePriority);
 
@@ -305,6 +323,10 @@ void ResourceManager::cleanupCache()
 	long imageCacheSize = 0, textureCacheSize = 0;
 	bool imgCacheFull = false, textureCacheFull = false;
 
+	stringstream debugStream;
+	debugStream.precision(2);
+	debugStream.width(4);
+
 	for (int i=0; i<rVector.size();i++)
 	{
 		string changed = "";
@@ -317,11 +339,10 @@ void ResourceManager::cleanupCache()
 		{				
 			if (imageCacheSize < imageCacheMaxSize)
 			{ 
-				if (debugLogging) changed += "(+I)";
-				updateImageState(data,true);
+				loadedImages++;
 				imageCacheSize += resourceSize;
 			}
-			else  //if (imgCacheFull || imageCacheSize >= imageCacheMaxSize)
+			else 
 			{
 				updateImageState(data,false);
 				if (!imgCacheFull)
@@ -335,14 +356,17 @@ void ResourceManager::cleanupCache()
 					changed += "(-I)";
 				}
 			}
-			//else
-			//{
-			//	imageCacheSize += resourceSize;
-			//}
+		}
+		else if (imageCacheSize < imageCacheMaxSize)
+		{ 
+			if (debugLogging) changed += "(+I)";
+			loadedImages++;
+			updateImageState(data,true);
+			imageCacheSize += resourceSize;
 		}
 
 		if (data->TextureState == ResourceState::TextureLoaded || data->TextureState == ResourceState::TextureLoading)
-		{				
+		{			
 			if (textureCacheFull || textureCacheSize >= textureCacheMaxSize)
 			{
 				updateTextureState(data,false);
@@ -358,22 +382,56 @@ void ResourceManager::cleanupCache()
 			}
 			else
 			{
+				if (data->priority == 100)
+					priorityZeroObjects++;
+				loadedTextures++;
 				textureCacheSize += resourceSize;
 			}
 		}
 		else if (!textureCacheFull && textureCacheSize  < textureCacheMaxSize)
 		{
+			if (data->priority == 100)
+				priorityZeroObjects++;
+			loadedTextures++;
 			updateTextureState(data,true);
 			textureCacheSize += resourceSize;			
 			if (debugLogging) changed += " (+T)";
 		}
+
 		if (debugLogging)
-			Logger::stream("ResourceManager","DEBUG") << changed << "  IMG[" << data->ImageState << "] TEX[" << data->TextureState << "] \t\t SIZE[" << resourceSize/BytesToMB << "] \t\t P [" << data->priority << "] " << data->resourceId << 
-			" ICache[" << ((double)imageCacheSize/BytesToMB) << "] TCache[" << ((double)textureCacheSize/BytesToMB) << "] " << endl;
+		{			
+			debugStream.setf( std::ios::fixed, std:: ios::floatfield );
+			debugStream << changed << "  IMG[" << data->ImageState << "] TEX[" << data->TextureState << "] \t\t SIZE[" << resourceSize/BytesToMB << "] \t\t P [" << data->priority << "] " << data->resourceId
+			<<" I[" << ((double)imageCacheSize/BytesToMB) << "] Tc[" << ((double)textureCacheSize/BytesToMB) << "]" 
+			<< "\r\n";
+		}
 	}	
 	currentTextureCacheSize = textureCacheSize;
 	currentImageCacheSize = imageCacheSize;
 	
+	LeapDebug::instance->showValue("1. Loaded images",loadedImages);
+	LeapDebug::instance->showValue("2. Loaded textures",loadedTextures);
+	LeapDebug::instance->showValue("3. Perm objects",permObjects);
+	LeapDebug::instance->showValue("4. Temp objects",transientObjects);
+	LeapDebug::instance->showValue("5. P100 objects",priorityZeroObjects);
+
+	LeapDebug::instance->showValue("6. Total objects",permObjects+transientObjects);
+
+	stringstream ss;
+	ss << currentTextureCacheSize/BytesToMB;
+	LeapDebug::instance->showValue("7. Texture cache", ss.str());
+	
+	stringstream ss2;
+	ss2 <<  currentImageCacheSize/BytesToMB;
+	LeapDebug::instance->showValue("8. Image cache",ss2.str());
+
+	
+	LeapDebug::instance->showValue("9. Img PT",imageLoadThreshold);
+	LeapDebug::instance->showValue("10. Tex PT",textureLoadThreshold);
+
+	
+	LeapDebug::instance->showValue("99. CacheState \r\n",debugStream.str());
+
 	Logger::stream("ResourceManager","TIME") << "Cache clean took " << cacheTimer.millis() << " ms" << endl;
 	Logger::stream("ResourceManager","INFO") << "Clean complete. TexCacheSize= " << currentTextureCacheSize/BytesToMB  << " ImageCacheSize = " << currentImageCacheSize/BytesToMB << endl;
 	//Logger::stream("ResourceManager","INFO") << "Texture threshold set to: " << textureLoadThreshold << " Img threshold set to : " << imageLoadThreshold << endl;
@@ -414,9 +472,10 @@ void ResourceManager::update()
 	
 	bool cacheFull = (currentTextureCacheSize >= textureCacheMaxSize || currentImageCacheSize > imageCacheMaxSize);
 
-	if (cacheCleanupTimer.millis() > GlobalConfig::tree()->get<double>("ResourceCache.CacheGCFrequency") || 
+	if ((resourcesChanged && cacheCleanupTimer.millis() > GlobalConfig::tree()->get<double>("ResourceCache.CacheGCFrequency")) || 
 		(cacheFull && cacheCleanupTimer.millis() > GlobalConfig::tree()->get<double>("ResourceCache.FullCacheGCFrequency")))
 	{
+		resourcesChanged = false;
 		cleanupCache();
 		cacheCleanupTimer.start();
 	}

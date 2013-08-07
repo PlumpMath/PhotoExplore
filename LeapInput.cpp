@@ -161,23 +161,6 @@ void LeapInput::processFrame(const Controller & controller, Frame frame)
 		topView->onFrame(controller);
 	}
 
-	//if (this->globalGestureListenerStack.size() > 0)
-	//{
-	//	GestureList gestureList = frame.gestures(lastFrame);
-	//	for (int i=0;i< gestureList.count(); i++)
-	//	{
-	//		Gesture g = gestureList[i];
-
-	//		if (processedGestures.count(g.id()) == 0)
-	//		{
-	//			if (globalGestureListenerStack.top()->onLeapGesture(controller, g))
-	//			{
-	//				processedGestures.insert(g.id());
-	//			}
-	//		}
-	//	}	
-	//}
-
 	if (processedGestures.size() > 0)
 	{	
 		for (auto it = processedGestures.begin(); it != processedGestures.end();it++)
@@ -426,8 +409,7 @@ void LeapInput::processFrame(const Controller & controller, Frame frame)
 
 
 void LeapInput::handleGlobalGestures(const Controller & controller)
-{
-	int nigger = 0;
+{	
 	if (globalGestureListenerStack.size() > 0)
 	{
 		if (!GlobalConfig::tree()->get<bool>("Shake.Disabled"))

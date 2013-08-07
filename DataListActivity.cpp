@@ -82,7 +82,7 @@ void DataListActivity::suspend()
 	float targetPriority = 100;
 	for (auto it = itemGroup->getChildren()->begin(); it != itemGroup->getChildren()->end();it++)
 	{		
-		FBDataView * dataView= (FBDataView*)*it;	
+		FBDataView * dataView= dynamic_cast<FBDataView*>(*it);	
 		dataView->setDataPriority(targetPriority);	
 	}
 }
