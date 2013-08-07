@@ -23,7 +23,8 @@ TextureLoadTask::TextureLoadTask(std::string _resourceId, float _priority, cv::M
 	callback(_callback)
 {
 	MaxBytesPerFrame = (int)(GlobalConfig::tree()->get<double>("GraphicsSettings.TextureLoading.MaxMBPerFrame")*1048576.0);
-
+	
+	useCompression = true; // GlobalConfig::tree()->get<bool>("GraphicsSettings.TextureLoading.Compression.Enable");
 
 	if (cvImage.data == NULL || cvImage.size().area() == 0)
 		throw new std::runtime_error("Invalid image");
@@ -118,6 +119,20 @@ void TextureLoadTask::startTask()
 			state = Initialized;
 			update();
 		}
+	}
+	else if (useCompression)
+	{
+		glBindTexture(GL_TEXTURE_2D, textureInfo.textureId);
+		glTexImage2D(GL_TEXTURE_2D,0, GL_COMPRESSED_RGBA_ARB, textureInfo.width,textureInfo.height,0,textureInfo.format,GL_UNSIGNED_BYTE,cvImage.data);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		state = Complete;
+		
+		int result;
+		glGetTexLevelParameteriv(GL_TEXTURE_2D,0,GL_TEXTURE_COMPRESSED_ARB,&result);
+		
+		glBindTexture(GL_TEXTURE_2D, NULL);
+		Logger::stream("TextureLoadTask","INFO") << "Texture compression result " << result << endl;
 	}
 	else
 	{

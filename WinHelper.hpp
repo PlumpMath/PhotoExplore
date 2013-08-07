@@ -1,6 +1,7 @@
 #ifndef LEAPIMAGE_WINDOWS_WINHELPER_HPP_
 #define LEAPIMAGE_WINDOWS_WINHELPER_HPP_
 
+#ifdef _WIN32
 #include <Windows.h>	
 #include <vector>
 
@@ -37,5 +38,7 @@ public:
 	}
 
 };
+
+#endif
 
 #endif

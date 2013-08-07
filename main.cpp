@@ -497,7 +497,7 @@ int main(int argc, char * argv[]){
 		initShaders();
 	
 		if (GlobalConfig::tree()->get<bool>("FakeDataMode.Enable")) 
-			FBDataSource::instance = new FakeDataSource(GlobalConfig::tree()->get<string>("FakeDataMode.SourceDataDirectory"));
+			FBDataSource::instance = new FakeDataSource();
 		else
 		{
 			FBDataSource::instance = new FacebookLoader();

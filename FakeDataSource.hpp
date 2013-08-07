@@ -24,7 +24,7 @@ public:
 	std::queue<boost::function<void()> > taskQueue;
 	vector<path> dirContents;
 
-	FakeDataSource(string fakeDataPath);
+	FakeDataSource();
 
 	static void runThread(boost::mutex * taskMutex, std::queue<boost::function<void()> > * taskQueue);
 

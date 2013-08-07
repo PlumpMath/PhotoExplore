@@ -2,31 +2,36 @@
 #include "tinydir.h"
 #include <boost/date_time/posix_time/posix_time.hpp>
 
-FakeDataSource::FakeDataSource(string fakeDataPath)
+FakeDataSource::FakeDataSource()
 {
 	srand(boost::posix_time::microsec_clock::local_time().time_of_day().total_microseconds());
 
 
 	photoIndex = albumIndex = friendIndex = 0;
 //	boost::filesystem::path fakePath = boost::filesystem::path(
-	fakeDataPath = GlobalConfig::tree()->get<string>("FakeDataMode.SourceDataDirectory");
-//	copy(directory_iterator(fakePath), directory_iterator(), back_inserter(dirContents));
-
-	tinydir_dir dir;
-	tinydir_open(&dir, fakeDataPath.c_str());
+	auto fakeDataPaths = GlobalConfig::tree()->get_child("FakeDataMode.ImageDirectories");
 	
-	while (dir.has_next)
+	for (auto it=fakeDataPaths.begin(); it != fakeDataPaths.end(); it++)
 	{
-		tinydir_file file;
-		tinydir_readfile(&dir, &file);
-
-		Logger::stream("FAKEDATA","INFO") << file.name << endl;
-		dirContents.push_back(boost::filesystem::path(file.path));
+		string fakeDataPath = it->second.data();
+		tinydir_dir dir;
+		tinydir_open(&dir, fakeDataPath.c_str());
+		Logger::stream("FAKEDATA","INFO") << "Loading images from " << fakeDataPath << endl;
 		
-		tinydir_next(&dir);
+		while (dir.has_next)
+		{
+			tinydir_file file;
+			tinydir_readfile(&dir, &file);
+
+//			Logger::stream("FAKEDATA","INFO") << file.name << endl;
+			dirContents.push_back(boost::filesystem::path(file.path));
+			
+			tinydir_next(&dir);
+		}
+		
+		tinydir_close(&dir);
 	}
 	
-	tinydir_close(&dir);
 	
 	new boost::thread([this](){
 		runThread(&taskMutex,&taskQueue);

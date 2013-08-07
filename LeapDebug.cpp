@@ -7,7 +7,9 @@
 
 LeapDebug::LeapDebug()
 {
+#ifdef _WIN32
 	initDebugBox();
+#endif
 	this->backgroundColor = Colors::Black;
 	backgroundColor.setAlpha(.5);
 
@@ -117,8 +119,6 @@ void LeapDebug::initDebugBox()
 	}
 }
 
-#endif
-
 void LeapDebug::updateDebugBox()
 {
 	
@@ -156,6 +156,18 @@ void LeapDebug::showValue(string key, double value)
 
 	debugValues[key] = ss.str();
 	updateDebugBox();
+}
+
+#endif
+
+void LeapDebug::showValue(string key, string value)
+{
+
+}
+
+void LeapDebug::showValue(string key, double value)
+{
+
 }
 
 void LeapDebug::plotValue(string key, Color color, float value)

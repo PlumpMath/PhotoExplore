@@ -14,7 +14,6 @@ public:
 	int size, bytesPerPixel;
 	int textureType;
 
-
 	double textureSizeMB;
 
 	TextureInfo()
@@ -62,8 +61,9 @@ private:
 	
 	unsigned char* loading_source;
 	GLubyte * loading_target;
-		
-		
+	
+	bool useCompression;
+	
 	
 
 	void startTask();
