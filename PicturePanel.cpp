@@ -88,15 +88,21 @@ void PicturePanel::prepareResource()
 		
 		resourceId = newResourceURI;
 		if (newResourceURI.size() == 0)
-		{			
-			resourceId = pictureNode->getId();
-
-			std::stringstream urlStream;
-			urlStream << "https://graph.facebook.com/";
-			urlStream << pictureNode->getId() << "/picture?width=600&height=600&";
-			urlStream << "method=get&redirect=true&access_token=" << GlobalConfig::TestingToken;
-
-			newResourceURI = urlStream.str();			
+		{						
+			if (pictureNode->getAttribute("picture").length() > 0)
+			{
+				resourceId = pictureNode->getAttribute("picture");
+				newResourceURI = resourceId;
+			}
+			else
+			{
+				std::stringstream urlStream;
+				urlStream << "https://graph.facebook.com/";
+				urlStream << pictureNode->getId() << "/picture?width=600&height=600&";
+				urlStream << "method=get&redirect=true&access_token=" << GlobalConfig::TestingToken;
+				resourceId = pictureNode->getId();
+				newResourceURI = urlStream.str();			
+			}
 		}
 	}
 	if (currentResource == NULL || currentResource->imageURI.compare(newResourceURI) != 0)

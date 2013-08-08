@@ -457,9 +457,10 @@ int main(int argc, char * argv[]){
 	
 #if defined(_WIN32)
 	settings.multi_threaded_message_loop = true;
+	settings.single_process = true;
 #endif
 	settings.command_line_args_disabled = true;
-	settings.single_process = false;
+	
 			
 	try
 	{		

@@ -313,7 +313,7 @@ void LeapStartScreen::launchBrowser()
 		info.SetAsOffScreen(0);
 	#endif
 
-		string fbURL = "https://www.facebook.com/dialog/oauth?client_id=144263362431439&redirect_uri=http://144263362431439.com&scope=user_photos,friends_photos,user_likes,publish_stream&response_type=token";
+		string fbURL = "https://www.facebook.com/dialog/oauth?client_id=144263362431439&redirect_uri=http://144263362431439.com&scope=user_photos,friends_photos,user_likes,read_stream,publish_stream&response_type=token";
 		CefBrowserHost::CreateBrowser(info, facebookClient.get(),fbURL, browserSettings);		
 #else
 		glFinish();	

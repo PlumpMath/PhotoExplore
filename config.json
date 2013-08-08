@@ -12,7 +12,7 @@
 	{
 //		"File" : "/Users/adamskubel/photo_explorer.log",
 		"File" : "C:\\Users\\Adam\\Desktop\\PhotoExplorer\\photo_explorer.log",
-		"Enabled" : true
+		"Enabled" : false
 	},
 	"Typography" : 
 	{
@@ -44,12 +44,12 @@
 		"FSAASamples" : 0,
 		"ShaderDirectory" : ".",
 		"Fullscreen" : false,
-		"OverrideResolution" : false,
+		"OverrideResolution" : true,
 		"OverrideWidth" : 1280,
 		"OverrideHeight" : 720,
 		"UseIntForNonSubPixelRender" : false,
 		"NoSubPixelScroll" : true,
-		"ExecuteGLFinish": false,
+		"ExecuteGLFinish": true,
 		"TextureLoading" : 
 		{		
 			"Compression" : 
@@ -70,8 +70,8 @@
 	"PicturePanel" :
 	{
 		"AnimateLayoutDuration" : 400,
-		"DebugLoading" : true,
-		"DebugPriority" : true
+		"DebugLoading" : false,
+		"DebugPriority" : false
 	},
 	"TextEditPanel" : 
 	{
@@ -93,7 +93,7 @@
 	},
 	"ResourceCache" : 
 	{
-		"TextureCacheSize" : 512, 	//Megabytes
+		"TextureCacheSize" : 64, 	//Megabytes
 		"ImageCacheSize" : 768, 	//Megabytes		
 		"MaxImageSize" : 30,			//Megabytes
 		"CacheGCFrequency" : 10000 ,//milliseconds		
@@ -720,6 +720,7 @@
 		"AspectRatio" : 1,
 		"Height" : 100, 
 		"ImageHeight" : 65,
+		"BaseIconWidth" : 100,
 		"Enabled" : true,
 		"Icons" :
 		[
@@ -728,7 +729,8 @@
 				"Text" : "Type to search \n   ",
 				"RightImage" : "Tutorial/half_keyboard.png",
 				"LeftImage" : "Tutorial/half_keyboard.png",
-				"InvertColor" : false					
+				"InvertColor" : false,
+				"IconWidth" : 142
 			},
 			{
 				"Name" : "shake",

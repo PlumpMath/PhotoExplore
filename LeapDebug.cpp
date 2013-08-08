@@ -55,13 +55,19 @@ LeapDebug::LeapDebug()
 	string fontName = labels.get<string>("FontName");
 
 	float imgHeight = GlobalConfig::tree()->get<float>("Tutorial.ImageHeight") / GlobalConfig::tree()->get<float>("Tutorial.Height");
+
 	
+	float defaultIconWidth = GlobalConfig::tree()->get<float>("Tutorial.BaseIconWidth");
 	auto tutorialIcons = GlobalConfig::tree()->get_child("Tutorial.Icons");
+	
+
+	cv::Size2f tutorialSize = cv::Size2f(300,GlobalConfig::tree()->get<float>("Tutorial.Height"));
 
 	for (auto tutIt = tutorialIcons.begin(); tutIt != tutorialIcons.end(); tutIt++)
-	{
-
+	{		
+		float iconWidth = tutIt->second.get<float>("IconWidth", defaultIconWidth);
 		ImagePanel  * tutorialImage = new ImagePanel(tutIt->second.get<string>("RightImage"));
+
 		tutorialImage->setScaleMode(ScaleMode::None);
 		tutorialImage->setAllowSubPixelRendering(false);
 
@@ -73,26 +79,25 @@ LeapDebug::LeapDebug()
 		tutorialText->setBackgroundColor(textBackground);
 		tutorialText->setTextSize(tutorialTextSize,false);
 		tutorialText->setFontName(fontName);
-
+		
 		vector<RowDefinition> gridDefinition;	
 		gridDefinition.push_back(RowDefinition(imgHeight));
 		gridDefinition.push_back(RowDefinition(1.0f -imgHeight));
 		gridDefinition[0].ColumnWidths.push_back(1);
 		gridDefinition[1].ColumnWidths.push_back(1);
 
-		CustomGrid * tutorialLayout = new CustomGrid(gridDefinition);
-		tutorialLayout->addChild(tutorialImage);
-		tutorialLayout->addChild(tutorialText);
+		CustomGrid * tutorialIconLayout = new CustomGrid(gridDefinition);
+		tutorialIconLayout->addChild(tutorialImage);
+		tutorialIconLayout->addChild(tutorialText);
+		tutorialIconLayout->setLayoutParams(LayoutParams(cv::Size2f(iconWidth,tutorialSize.height),cv::Vec4f(0,0,0,0)));
 
-		tutorialPanels.insert(make_pair(tutIt->second.get<string>("Name"),tutorialLayout));	
+		tutorialPanels.insert(make_pair(tutIt->second.get<string>("Name"),tutorialIconLayout));	
 	}
 
-	tutorialLayout = new FixedAspectGrid(cv::Size2f(0,1),GlobalConfig::tree()->get<float>("Tutorial.AspectRatio"));
+	tutorialLayout = new LinearLayout();
 	tutorialPanel = new ContentPanel(tutorialLayout);
-
-	cv::Size2f size = cv::Size2f(300,GlobalConfig::tree()->get<float>("Tutorial.Height"));
-	tutorialLayout->measure(size);
-	tutorialLayout->layout(Vector(0,GlobalConfig::ScreenHeight+100,10),size);
+	tutorialLayout->measure(tutorialSize);
+	tutorialLayout->layout(Vector(0,GlobalConfig::ScreenHeight+100,10),tutorialSize);
 
 
 	if (debugPlotEnabled)

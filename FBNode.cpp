@@ -36,7 +36,14 @@ FBNode::FBNode(string id)
 	{
 		try
 		{
-			this->numericId = boost::lexical_cast<unsigned long long>(id);
+			int us = id.find("_");
+			if (us != string::npos)
+			{
+				string s2 = id.substr(us+1);
+				this->numericId = boost::lexical_cast<unsigned long long>(s2);			
+			}
+			else
+				this->numericId = boost::lexical_cast<unsigned long long>(id);
 		}
 		catch (boost::bad_lexical_cast & b)
 		{

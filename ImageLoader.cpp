@@ -261,9 +261,18 @@ void ImageLoader::handleCompletedTask(ImgTaskQueue::ImageLoadTask loadTask, vect
 		resourceChangedCallback(loadTask.resourceId,(loadTask.success) ? ResourceState::ImageLoaded : ResourceState::ImageLoadError,imgMat);
 
 	}
-	catch (std::exception & e)
-	{		
+	catch( cv::Exception& e )
+	{
 		Logger::stream("ImageLoader","ERROR") << "Exception decoding image: " << e.what() << endl;				
+		resourceChangedCallback(loadTask.resourceId,ResourceState::ImageLoadError,cv::Mat());
+	} catch (std::exception & e)
+	{
+		Logger::stream("ImageLoader","ERROR") << "Exception decoding image: " << e.what() << endl;				
+		resourceChangedCallback(loadTask.resourceId,ResourceState::ImageLoadError,cv::Mat());
+	}
+	catch (...)
+	{
+		Logger::stream("ImageLoader","ERROR") << "Unexpected exception" << endl;			
 		resourceChangedCallback(loadTask.resourceId,ResourceState::ImageLoadError,cv::Mat());
 	}
 }

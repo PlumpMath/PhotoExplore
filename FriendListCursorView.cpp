@@ -9,7 +9,7 @@ FriendListCursorView::FriendListCursorView() : DataListActivity(3)
 	auto editTextConfig = GlobalConfig::tree()->get_child("FriendLookupView.LookupDialog.FriendNameTextBox");
 
 	editText = new TextEditPanel();
-	editText->setTextSize(editTextConfig.get<float>("TextSize"),false);
+	editText->setTextSize(editTextConfig.get<float>("TextSize"),true);
 	editText->setTextColor(Color(editTextConfig.get_child("TextColor")));
 	editText->setBackgroundColor(Color(editTextConfig.get_child("BackgroundColor")));
 	editText->setBorderColor(Color(editTextConfig.get_child("BorderColor")));
@@ -29,7 +29,7 @@ FriendListCursorView::FriendListCursorView() : DataListActivity(3)
 	editTextConfig = GlobalConfig::tree()->get_child("FriendLookupView.LookupDialog.FriendLookupLabel");
 
 	labelText = new TextPanel(editTextConfig.get<string>("Text"));
-	labelText->setTextSize(editTextConfig.get<float>("TextSize"),false);
+	labelText->setTextSize(editTextConfig.get<float>("TextSize"),true);
 	labelText->setTextColor(Color(editTextConfig.get_child("TextColor")));
 	labelText->setBackgroundColor(Color(editTextConfig.get_child("BackgroundColor")));
 	labelText->setBorderColor(Color(editTextConfig.get_child("BorderColor")));
