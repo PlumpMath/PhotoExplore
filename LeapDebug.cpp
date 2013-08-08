@@ -11,6 +11,10 @@ LeapDebug::LeapDebug()
 #ifdef _WIN32
 	initDebugBox();
 #endif
+
+	debugPlotEnabled = GlobalConfig::tree()->get<bool>("DebugPlot.Enable");
+
+
 	this->backgroundColor = Colors::Black;
 	backgroundColor.setAlpha(.5);
 
@@ -90,7 +94,9 @@ LeapDebug::LeapDebug()
 	tutorialLayout->measure(size);
 	tutorialLayout->layout(Vector(0,GlobalConfig::ScreenHeight+100,10),size);
 
-	plotLegend = new LinearLayout();
+
+	if (debugPlotEnabled)
+		plotLegend = new LinearLayout();
 }
 
 
@@ -175,26 +181,29 @@ void LeapDebug::showValue(string key, double value)
 
 void LeapDebug::plotValue(string key, Color color, float value)
 {
-	static int maxSize = GlobalConfig::tree()->get<int>("DebugPlot.Width");
-
-	if (plots.count(key) == 0)
+	if (debugPlotEnabled)
 	{
-		float yOffset = GlobalConfig::tree()->get<float>("DebugPlot.YOffset");
-		float xOffset = GlobalConfig::tree()->get<float>("DebugPlot.XOffset");
+		static int maxSize = GlobalConfig::tree()->get<int>("DebugPlot.Width");
 
-		TextPanel * legendText = new TextPanel(key);
-		legendText->setTextColor(color);
-		((ViewGroup*)plotLegend)->addChild(legendText);
-		cv::Size2f legendSize(0,50);
-		plotLegend->measure(legendSize);
-		plotLegend->layout(Vector(xOffset,yOffset,40),legendSize);
+		if (plots.count(key) == 0)
+		{
+			float yOffset = GlobalConfig::tree()->get<float>("DebugPlot.YOffset");
+			float xOffset = GlobalConfig::tree()->get<float>("DebugPlot.XOffset");
+
+			TextPanel * legendText = new TextPanel(key);
+			legendText->setTextColor(color);
+			((ViewGroup*)plotLegend)->addChild(legendText);
+			cv::Size2f legendSize(0,50);
+			plotLegend->measure(legendSize);
+			plotLegend->layout(Vector(xOffset,yOffset,40),legendSize);
+		}
+
+		plots[key].values.push_back(value);
+		plots[key].color = color;
+
+		if (plots[key].values.size() > maxSize)
+			plots[key].values.pop_front();
 	}
-
-	plots[key].values.push_back(value);
-	plots[key].color = color;
-
-	if (plots[key].values.size() > maxSize)
-		plots[key].values.pop_front();
 }
 
 void LeapDebug::onFrame(const Controller& controller)
@@ -207,17 +216,13 @@ void LeapDebug::onFrame(const Controller& controller)
 
 		if (isControllerConnected)
 		{
-			leapDisconnectedPanel->setVisible(false);
-			
+			leapDisconnectedPanel->setVisible(false);			
 			leapNotFocusedPanel->setVisible(false);
 		}
 		else
 		{			
 			leapNotFocusedPanel->setVisible(false);
 			leapDisconnectedPanel->setVisible(true);
-
-
-			//leapDisconnectedPanel->layout(Vector(GlobalConfig::ScreenWidth - 500, GlobalConfig::ScreenHeight - 300, 10),cv::Size2f(400,150));
 		}
 	}
 
@@ -227,16 +232,12 @@ void LeapDebug::onFrame(const Controller& controller)
 		if (isControllerFocused)
 		{
 			leapDisconnectedPanel->setVisible(false);
-			//leapDisconnectedPanel->layout(Vector(GlobalConfig::ScreenWidth - 500, GlobalConfig::ScreenHeight - 300, 10),cv::Size2f(0,150));
-
 			leapNotFocusedPanel->setVisible(false);
-			//leapNotFocusedPanel->layout(Vector(GlobalConfig::ScreenWidth - 500, GlobalConfig::ScreenHeight - 300, 10),cv::Size2f(0,150));
 		}
 		else
 		{
 			leapNotFocusedPanel->setVisible(true);
 			leapDisconnectedPanel->setVisible(false);			
-			//leapNotFocusedPanel->layout(Vector(GlobalConfig::ScreenWidth - 500, GlobalConfig::ScreenHeight - 300, 10),cv::Size2f(400,150));
 		}
 	}
 
@@ -312,14 +313,13 @@ void LeapDebug::draw()
 			it->second->draw();
 		}
 	}
-
-	bool debugPlotEnabled = true;
-	static float yOffset = GlobalConfig::tree()->get<float>("DebugPlot.YOffset");
-	static float xOffset = GlobalConfig::tree()->get<float>("DebugPlot.XOffset");
-	static float defaultLineWidth = GlobalConfig::tree()->get<float>("DebugPlot.LineWidth");
-
 	if (debugPlotEnabled)
-	{
+	{		
+		static float yOffset = GlobalConfig::tree()->get<float>("DebugPlot.YOffset");
+		static float xOffset = GlobalConfig::tree()->get<float>("DebugPlot.XOffset");
+		static float defaultLineWidth = GlobalConfig::tree()->get<float>("DebugPlot.LineWidth");
+
+
 		glBindTexture(GL_TEXTURE_2D,NULL);
 		float z = 40;
 		for (auto it = plots.begin(); it != plots.end(); it++)

@@ -60,14 +60,17 @@ int TextureLoadTask::getState()
 
 void TextureLoadTask::cancel()
 {	
-	if (textureInfo.textureId != NULL)
+	if (!active)
 	{
-		TexturePool::getInstance().releaseTexture(textureInfo.textureId);
-		textureInfo.textureId = NULL;
-	}
+		if (textureInfo.textureId != NULL)
+		{
+			TexturePool::getInstance().releaseTexture(textureInfo.textureId);
+			textureInfo.textureId = NULL;
+		}
 
-	state = Error;
-	cleanup();
+		state = Error;
+		cleanup();
+	}
 }
 
 
@@ -193,13 +196,16 @@ void TextureLoadTask::copyBufferToTexture_TM_update()
 	glBindBufferARB(GL_PIXEL_UNPACK_BUFFER_ARB, sourceBuffer);
 	glBindTexture(GL_TEXTURE_2D, textureInfo.textureId);
 	
-	int loadHeight = min<int>(textureInfo.height,dataLoaded+100);
+	int loadRows = 100;
+	int loadHeight = min<int>(textureInfo.height,loadedRows+loadRows);
+	loadHeight -= loadedRows;
 	
-	glTexSubImage2D(GL_TEXTURE_2D,0,0,0, textureInfo.width,loadHeight,textureInfo.format,GL_UNSIGNED_BYTE, (const GLvoid*)dataLoaded);
-	dataLoaded += loadHeight;
+	glTexSubImage2D(GL_TEXTURE_2D,0,0,loadedRows, textureInfo.width,loadHeight,textureInfo.format,GL_UNSIGNED_BYTE, (const GLvoid*)(loadedRows*textureInfo.width*4));
+	loadedRows += loadHeight;
+
 	glBindBufferARB(GL_PIXEL_UNPACK_BUFFER_ARB,NULL);
 	
-	if (loadHeight == textureInfo.height)
+	if (loadedRows == textureInfo.height)
 	{
 		state = Waiting;
 	}
@@ -207,9 +213,9 @@ void TextureLoadTask::copyBufferToTexture_TM_update()
 
 void TextureLoadTask::copyBufferToTexture_TM_start()
 {
-	dataLoaded = 0;
+	loadedRows = 0;
 	state  = LoadingTexture;
-	copyBufferToTexture_TM_update();
+	//copyBufferToTexture_TM_update();
 }
 
 void TextureLoadTask::copyBufferToTexture()
@@ -247,8 +253,9 @@ void TextureLoadTask::copyMemoryToBuffer_async_start()
 	if(ptr && data)
 	{
 		state = LoadingBuffer;
+		this->active = true;
 		boost::thread([this,data,ptr](){
-			this->active = true;
+			Logger::stream("TextureLoadTask","DEBUG") << "async_memory_copy - TexID = " << this->textureInfo.textureId << " bufferId = " << this->sourceBuffer << " taskId = " << this->taskId << endl;
 			memcpy(ptr,data,this->textureInfo.size);
 			this->active = false;
 		});		

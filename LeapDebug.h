@@ -42,6 +42,8 @@ private:
 	std::vector<LeapDebugVisual*> persistentVisuals;
 	HandProcessor * handProcessor;
 
+	bool debugPlotEnabled;
+
 	Frame lastFrame;
 	View * leapNotFocusedPanel;
 	View * leapDisconnectedPanel;

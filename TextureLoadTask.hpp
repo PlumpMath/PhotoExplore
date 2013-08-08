@@ -60,6 +60,7 @@ private:
 	GLuint sourceBuffer;
 	cv::Mat cvImage;
 	int dataLoaded, state;
+	int loadedRows;
 	
 	unsigned char* loading_source;
 	GLubyte * loading_target;

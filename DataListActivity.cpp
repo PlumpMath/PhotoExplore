@@ -164,6 +164,7 @@ void DataListActivity::onGlobalFocusChanged(bool isFocused)
 	}
 	else
 	{
+		itemScroll->getFlyWheel()->setVelocity(0);
 		SwipeGestureDetector::getInstance().setFlyWheel(NULL);
 	}
 }

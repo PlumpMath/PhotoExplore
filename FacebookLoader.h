@@ -72,7 +72,7 @@ public:
 			urlStream << "&";
 		}
 
-		urlStream << "method=" << methodName << "&redirect=true&access_token=";
+		urlStream << "method=" << methodName << "&redirect=true&date_format=U&access_token=";
 		urlStream << token;		
 		return urlStream.str();
 	}

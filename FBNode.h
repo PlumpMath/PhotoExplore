@@ -15,9 +15,12 @@
 #include <boost/multi_index/mem_fun.hpp>
 
 #include <boost/function.hpp>
-
+#include <boost/date_time.hpp>
+#include <time.h>
 
 using namespace std;
+
+typedef std::time_t facebook_time;
 
 namespace Facebook {
 
@@ -39,11 +42,9 @@ namespace Facebook {
 
 		string Type;		
 		FBNode * Node;
-
+		
 		string Value;
 		json_spirit::Value JsonValue;
-		//map<string,string> ObjectValue;
-		//vector<map<string,string> > ObjectArray;
 
 		Edge(string _Type, FBNode * _Node) :
 			Type(_Type),
@@ -63,27 +64,16 @@ namespace Facebook {
 			Node(NULL)
 		{}
 
-		//Edge(string _Type, const map<string,string> & _ObjectValue) :
-		//	Type(_Type),
-		//	Node(NULL),
-		//	ObjectValue(_ObjectValue)
-		//{}
-
-		//Edge(string _Type, const vector<map<string,string> > & _ObjectArray) :
-		//	Type(_Type),
-		//	Node(NULL),
-		//	ObjectArray(_ObjectArray)
-		//{}
-
 
 		string id() const;
-
 		
 		unsigned long long numericId() const;
+		facebook_time timestamp() const;
 	};
 		
 	struct EdgeTypeIndex {};
-	struct AscEdgeTypeIndex {};
+	struct TimeOrderedEdgeType {};
+	struct AscTimeOrderedEdgeType {};
 	
 	typedef boost::multi_index_container
 		<
@@ -98,26 +88,42 @@ namespace Facebook {
 						Edge, 
 						boost::multi_index::member<Edge,string,&Edge::Type>,
 						boost::multi_index::const_mem_fun<Edge, unsigned long long, &Edge::numericId> 
-						//boost::multi_index::const_mem_fun<Edge, string, &Edge::id> 
 					>,
 					boost::multi_index::composite_key_compare<
 						std::less<std::string>,   
 						std::less<unsigned long long> 
 					>
-				>,								
+				>,									
 				boost::multi_index::ordered_unique
 				<
-					boost::multi_index::tag<AscEdgeTypeIndex>,
+					boost::multi_index::tag<TimeOrderedEdgeType>,
 					boost::multi_index::composite_key
 					<
 						Edge, 
 						boost::multi_index::member<Edge,string,&Edge::Type>,
+						boost::multi_index::const_mem_fun<Edge,facebook_time,&Edge::timestamp>,
 						boost::multi_index::const_mem_fun<Edge, unsigned long long, &Edge::numericId> 
-						//boost::multi_index::const_mem_fun<Edge, string, &Edge::id> 
 					>,
 					boost::multi_index::composite_key_compare<
 						std::less<std::string>,   
-						std::greater<unsigned long long> 
+						std::greater<facebook_time>,						
+						std::less<unsigned long long> 
+					>
+				>,							
+				boost::multi_index::ordered_unique
+				<
+					boost::multi_index::tag<AscTimeOrderedEdgeType>,
+					boost::multi_index::composite_key
+					<
+						Edge, 
+						boost::multi_index::member<Edge,string,&Edge::Type>,
+						boost::multi_index::const_mem_fun<Edge,facebook_time,&Edge::timestamp>,
+						boost::multi_index::const_mem_fun<Edge, unsigned long long, &Edge::numericId> 
+					>,
+					boost::multi_index::composite_key_compare<
+						std::less<std::string>,   
+						std::less<facebook_time>,						
+						std::less<unsigned long long> 
 					>
 				>
 			>
@@ -155,7 +161,7 @@ namespace Facebook {
 		boost::function<void()> loadCompleteDelegate;
 
 	public:
-		static string tryExtractId(vector<json_spirit::Pair> & obj, bool & success);
+		static string tryExtractId(vector<json_spirit::Pair> & obj, bool & success, facebook_time & timestamp);
 
 	public:
 		map<string,EdgeLoadSpec> loadState;
@@ -170,6 +176,7 @@ namespace Facebook {
 		}
 
 		unsigned long long getNumericId();
+		facebook_time getTimestamp();
 
 		std::string getURI()
 		{
@@ -193,10 +200,13 @@ namespace Facebook {
 		string getNodeType();
 		void setNodeType(string nodeType);
 
+		void setTimestamp(facebook_time timestamp);
+
 	protected:
 		string id;
 		string nodeType;
 		unsigned long long numericId;
+		facebook_time timestamp;
 
 
 	};

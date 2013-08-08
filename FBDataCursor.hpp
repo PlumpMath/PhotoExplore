@@ -101,29 +101,29 @@ public:
 class FBUserAlbumsCursor : public FBSimpleEdgeCursor {
 
 public:
-	FBUserAlbumsCursor(FBNode * _node) : FBSimpleEdgeCursor(_node,"albums",true)
+	FBUserAlbumsCursor(FBNode * _node) : FBSimpleEdgeCursor(_node,"albums")
 	{}
 
 	void loadItems(int items);
 };
 
-
-//class FBUserPhotosCursor : public FBSimpleEdgeCursor {
-//
-//public:
-//	FBUserPhotosCursor(FBNode * _node) : FBSimpleEdgeCursor(_node,"photos")
-//	{}
-//
-//	void loadItems(int items);
-//};
-
 class FBAlbumPhotosCursor : public FBSimpleEdgeCursor {
 
 public:
-	FBAlbumPhotosCursor(FBNode * _node) : FBSimpleEdgeCursor(_node,"photos")
+	FBAlbumPhotosCursor(FBNode * _node) : FBSimpleEdgeCursor(_node,"photos",true)
+	{}
+
+	FBAlbumPhotosCursor(FBNode * _node, bool ascending) : FBSimpleEdgeCursor(_node,"photos",ascending)
 	{}
 
 	void loadItems(int items);
+};
+
+class FBUserPhotosCursor : public FBAlbumPhotosCursor {
+
+public:
+	FBUserPhotosCursor(FBNode * _node) : FBAlbumPhotosCursor(_node,false)
+	{}
 };
 
 class InterleavingCursor : public FBDataCursor {

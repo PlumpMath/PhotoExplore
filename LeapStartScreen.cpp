@@ -13,9 +13,7 @@
 LeapStartScreen::LeapStartScreen(std::string startDir)
 {
 	state = StartState;
-
-	updateTimer.start();
-	lastHit = NULL;
+	tutorialButton = NULL;
 	
 	if (GlobalConfig::tree()->get<bool>("FakeDataMode.Enable")) {
 		
@@ -173,13 +171,15 @@ void LeapStartScreen::init()
 		this->launchBrowser();	
 	};
 
-	tutorialButton = new Button("x");
-	tutorialButton->NudgeAnimationEnabled = true;
-	tutorialButton->setStyle(GlobalConfig::tree()->get_child("LeapStartScreen.TutorialButton"));
-	tutorialButton->elementClickedCallback = [this](LeapElement * element){
-		this->launchTutorial();	
-	};
-
+	if (GlobalConfig::tree()->get<bool>("InteractiveTutorial.Enabled"))
+	{
+		tutorialButton = new Button("x");
+		tutorialButton->NudgeAnimationEnabled = true;
+		tutorialButton->setStyle(GlobalConfig::tree()->get_child("LeapStartScreen.TutorialButton"));
+		tutorialButton->elementClickedCallback = [this](LeapElement * element){
+			this->launchTutorial();	
+		};
+	}
 
 	noticePanel = new TextPanel(GlobalConfig::tree()->get<string>("LeapStartScreen.InternetNotice"));		
 	noticePanel->setTextColor(Colors::White);
@@ -193,7 +193,9 @@ void LeapStartScreen::init()
 	addChild(mainLayout);
 	addChild(noticePanel);
 	addChild(facebookLoginButton);
-	addChild(tutorialButton);
+	
+	if (tutorialButton != NULL)
+		addChild(tutorialButton);
 
 	this->layout(Vector(),cv::Size2f(GlobalConfig::ScreenWidth, GlobalConfig::ScreenHeight));
 	
@@ -259,11 +261,14 @@ void LeapStartScreen::layout(Leap::Vector pos, cv::Size2f size)
 	facebookLoginButton->layout(Vector((size.width-buttonSize.width)*.5f,size.height*.30f,2)+pos,buttonSize);
 
 	
-	float rightEdge = (size.width + buttonSize.width)*.5f;
-	buttonSize.width = (size.width-rightEdge) *.5f; 
-	float x = rightEdge + (size.width-rightEdge)*.5f - buttonSize.width*.5f;
-	tutorialButton->layout(Vector(x,size.height*.30f,2)+pos,buttonSize);
-		
+	if (tutorialButton != NULL)
+	{
+		float rightEdge = (size.width + buttonSize.width)*.5f;
+		buttonSize.width = (size.width-rightEdge) *.5f; 
+		float x = rightEdge + (size.width-rightEdge)*.5f - buttonSize.width*.5f;
+		tutorialButton->layout(Vector(x,size.height*.30f,2)+pos,buttonSize);
+	}
+
 	buttonSize = cv::Size2f(size.width*.3f,size.height*.15f);
 	noticePanel->layout(Vector((size.width-buttonSize.width)*.5f,size.height*.70f,2)+pos,buttonSize);
 

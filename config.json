@@ -10,8 +10,8 @@
 	},
 	"Logging" : 
 	{
-		"File" : "/Users/adamskubel/photo_explorer.log",
-//		"File" : "C:\\Users\\Adam\\Desktop\\PhotoExplorer\\photo_explorer.log",
+//		"File" : "/Users/adamskubel/photo_explorer.log",
+		"File" : "C:\\Users\\Adam\\Desktop\\PhotoExplorer\\photo_explorer.log",
 		"Enabled" : true
 	},
 	"Typography" : 
@@ -43,7 +43,7 @@
 		"EnableLineSmoothing" : true,
 		"FSAASamples" : 0,
 		"ShaderDirectory" : ".",
-		"Fullscreen" : true,
+		"Fullscreen" : false,
 		"OverrideResolution" : false,
 		"OverrideWidth" : 1280,
 		"OverrideHeight" : 720,
@@ -86,8 +86,8 @@
 	},
 	"TextureLoading" :
 	{
-		"MaxConcurrentTasks" : 2,
-		"PixelBufferCount" : 10,
+		"MaxConcurrentTasks" : 5,
+		"PixelBufferCount" : 5,
 		"InitialTextureCount" : 200,
 		"MaxTextureCount" : 400
 	},
@@ -111,7 +111,7 @@
 	},
 	"DebugPlot" : 
 	{
-		"Enable" : true,
+		"Enable" : false,
 		"Width" : 400,
 		"LineWidth" : 4,
 		"YOffset" : 800,		
@@ -119,10 +119,12 @@
 	},
 	"FakeDataMode" : 
 	{
-		"Enable" : true,
+		"Enable" : false,
 		"ImageDirectories" :
 		[ 
 			"C:\\Users\\Adam\\Pictures",		
+			"C:\\Users\\Adam\\Pictures\\pixiv-win",	
+			"C:\\Users\\Adam\\Pictures\\camera",					
 			"/Users/adamskubel/Pictures" 
 		],
 		"RequestDelay" : 50 ,//ms
@@ -455,6 +457,7 @@
 	},
 	"InteractiveTutorial":
 	{
+		"Enabled" : false,
 		"ProgressBarRC" : 10,
 		"ActiveStepColor" :{"R" : 0,"G" : 100,"B" : 0,"A" : 220},
 		"FinishedStepColor" :{"R" :0,"G" : 100,"B" : 0,"A" : 220},
@@ -728,9 +731,9 @@
 		[
 			{
 				"Name" : "KeyboardNameSearch",
-				"Text" : "Type to search",
-				"RightImage" : "Tutorial/keyboard.png",
-				"LeftImage" : "Tutorial/keyboard.png",
+				"Text" : "Type to search \n   ",
+				"RightImage" : "Tutorial/half_keyboard.png",
+				"LeftImage" : "Tutorial/half_keyboard.png",
 				"InvertColor" : false					
 			},
 			{

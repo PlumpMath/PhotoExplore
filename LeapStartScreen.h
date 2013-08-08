@@ -55,8 +55,6 @@ private:
 	View * rootView; 
 	RadialMenu * radialMenu;
 			
-	LeapElement * lastHit;
-
 	int state;
 	
 	CefRefPtr<Cefalopod> facebookClient;
@@ -64,8 +62,6 @@ private:
 	//Members
 	void deleteCookies();
 	
-	Timer updateTimer;
-
 	boost::function<void()> finishedCallback;
 
 	ScrollingView * floatingPanelsView;

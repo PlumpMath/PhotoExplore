@@ -534,7 +534,7 @@ int main(int argc, char * argv[]){
 		});
 
 
-		bool doFinish = GlobalConfig::tree()->get<bool>("GrpahicsSettings.ExecuteGLFinish");
+		bool doFinish = GlobalConfig::tree()->get<bool>("GraphicsSettings.ExecuteGLFinish");
 
 		GraphicsContext::getInstance().applicationExitCallback = [quit](){ quit[0] = true; };
 	

@@ -1,5 +1,6 @@
 #include "FBNode.h"
 #include "Logger.hpp"
+#include <boost/date_time.hpp>
 
 using namespace json_spirit;
 using namespace Facebook;
@@ -16,6 +17,14 @@ unsigned long long Edge::numericId() const
 {
 	if (Node != NULL)
 		return Node->getNumericId();
+	else
+		return 0;
+}
+
+facebook_time Edge::timestamp() const
+{
+	if (Node != NULL)
+		return Node->getTimestamp();
 	else
 		return 0;
 }
@@ -43,7 +52,46 @@ unsigned long long FBNode::getNumericId()
 	return numericId;
 }
 
-string FBNode::tryExtractId(vector<Pair> & obj, bool & success)
+facebook_time FBNode::getTimestamp()
+{
+	return timestamp;
+}
+
+//namespace bt = boost::posix_time;
+//const std::locale formats[] = { 
+//	//2012-05-10T11:15:51+0000
+////std::locale(std::locale::classic(),new bt::time_input_facet("%Y-%m-%d %H:%M:%S")),
+////std::locale(std::locale::classic(),new bt::time_input_facet("%Y/%m/%d %H:%M:%S")),
+////std::locale(std::locale::classic(),new bt::time_input_facet("%d.%m.%Y %H:%M:%S")),
+//std::locale(std::locale::classic(),new bt::time_input_facet("%Y-%m-%dT%H:%M:%S"))
+//};
+//const size_t formats_n = sizeof(formats)/sizeof(formats[0]);
+
+//static std::time_t pt_to_time_t(const bt::ptime& pt)
+//{
+//    bt::ptime timet_start(boost::gregorian::date(1970,1,1));
+//    bt::time_duration diff = pt - timet_start;
+//    return diff.ticks()/bt::time_duration::rep_type::ticks_per_second;
+//
+//}
+//static facebook_time seconds_from_epoch(const std::string& s)
+//{
+//    bt::ptime pt;
+//    for(size_t i=0; i<formats_n; ++i)
+//    {
+//        std::istringstream is(s);
+//        is.imbue(formats[i]);
+//        is >> pt;
+//        if(pt != bt::ptime()) break;
+//    }
+//    //std::cout << " ptime is " << pt << '\n';
+//    //std::cout << " seconds from epoch are " << pt_to_time_t(pt) << '\n';
+//
+//	return pt_to_time_t(pt);
+//}
+
+
+string FBNode::tryExtractId(vector<Pair> & obj, bool & success, facebook_time & childTimestamp)
 {
 	string childId;
 	json_spirit::Value idVal = find_value(obj,"id");
@@ -66,6 +114,15 @@ string FBNode::tryExtractId(vector<Pair> & obj, bool & success)
 	{
 		childId = idVal.get_str();
 		success = true;
+	}
+
+	json_spirit::Value timeVal = find_value(obj,"updated_time");
+	if (timeVal.is_null())
+		timeVal = find_value(obj,"created_time");
+
+	if (timeVal.type() == json_spirit::int_type)
+	{
+		childTimestamp =  timeVal.get_int64();
 	}
 	return childId;
 }
@@ -92,6 +149,11 @@ void FBNode::setNodeType(string _nodeType)
 	this->nodeType = _nodeType;
 }
 
+void FBNode::setTimestamp(facebook_time _timestamp)
+{
+	this->timestamp = _timestamp;
+}
+
 string FBNode::getAttribute(string key)
 {
 	auto res = Edges.get<EdgeTypeIndex>().find(key);
@@ -103,11 +165,13 @@ string FBNode::getAttribute(string key)
 FBNode * FBNode::buildChildFromJSON(string edge, vector<json_spirit::Pair> & obj)
 {
 	bool result;
-	string childId = tryExtractId(obj,result);
+	facebook_time childTimestamp;
+	string childId = tryExtractId(obj,result,childTimestamp);
 	if (!result)
 		return NULL;
 
 	FBNode * newChild = new FBNode(childId);
+	newChild->setTimestamp(childTimestamp);
 	newChild->setNodeType(edge);
 
 	newChild->addJSON("",obj);
@@ -118,7 +182,8 @@ FBNode * FBNode::buildChildFromJSON(string edge, vector<json_spirit::Pair> & obj
 void FBNode::addJSON(string edge, vector<json_spirit::Pair> & obj)
 {	
 	bool result;
-	string childId = tryExtractId(obj,result);
+	facebook_time childTimestamp;
+	string childId = tryExtractId(obj,result,childTimestamp);
 
 	if (result && obj.size() == 1)
 	{

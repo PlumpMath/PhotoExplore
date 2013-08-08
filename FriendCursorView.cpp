@@ -11,7 +11,7 @@ void FriendCursorView::setFriendNode(FBNode * _friendNode)
 	this->friendNode = _friendNode;
 
 	FBUserAlbumsCursor * userAlbumsCursor = new FBUserAlbumsCursor(friendNode);	
-	FBAlbumPhotosCursor * userPhotosCursor = new FBAlbumPhotosCursor(friendNode);
+	FBUserPhotosCursor * userPhotosCursor = new FBUserPhotosCursor(friendNode);
 		
 	InterleavingCursor * iCursor = new InterleavingCursor(userAlbumsCursor,userPhotosCursor);
 
