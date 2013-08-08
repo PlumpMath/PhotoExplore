@@ -93,7 +93,8 @@ void DataListActivity::resume()
 
 	for (auto it = items.begin(); it != items.end(); it++)
 	{
-		it->second->show(it->first);
+		if (it->second != NULL)
+			it->second->show(it->first);
 	}
 
 	updatePriorities();	

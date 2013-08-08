@@ -86,6 +86,7 @@ FriendListCursorView::FriendListCursorView() : DataListActivity(3)
 				lastUpdatePos = 100000;
 				itemScroll->getFlyWheel()->overrideValue(0);
 
+				pendingItems.clear();
 				items.clear();
 				itemGroup->clearChildren();
 
@@ -152,16 +153,19 @@ FBDataView * FriendListCursorView::getDataView(FBNode * itemNode)
 	else if (itemNode->getAttribute("tried_load").length() == 0)
 	{			
 		FBDataView * nullView = NULL;
-		items.insert(make_pair(itemNode,nullView));
+		pendingItems.insert(itemNode);
 		itemNode->Edges.insert(Edge("tried_load","1"));
 		stringstream load2;
 		load2 << itemNode->getId() << "?fields=photos.fields(id,name,images,album).limit(2),albums.fields(name,updated_time,photos.fields(id,name,images,album).limit(4)).limit(2)";		
 		FBDataSource::instance->loadField(itemNode,load2.str(),"",[itemNode,this](FBNode * nn)
 		{
 			FriendListCursorView * me = this;
-			this->postTask([me,nn](){	
-				if (me->items.count(nn) != 0)
+			this->postTask([me,nn](){
+				if (me->pendingItems.count(nn) > 0)
+				{
+					me->pendingItems.erase (nn);
 					me->addNode(nn);
+				}
 			});
 		}); 
 	}
@@ -177,7 +181,20 @@ void FriendListCursorView::onGlobalGesture(const Controller & controller, std::s
 {
 	if (gestureType.compare("shake") == 0)
 	{
-		viewFinishedCallback("done");
+		if (lookupDialogState != 0 && this->cursor == searchCursor)
+		{
+			lookupDialogState = 0;
+			layoutDirty = true;
+			
+			((FBFriendsCursor*)allFriendsCursor)->reset();
+			this->show(allFriendsCursor);
+			allFriendsCursor->getNext();
+			this->editText->setText("");
+		}
+		else
+		{
+			viewFinishedCallback("done");
+		}
 	} 
 	else if (gestureType.compare("pointing") == 0)
 	{

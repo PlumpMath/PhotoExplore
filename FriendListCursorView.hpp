@@ -9,6 +9,8 @@
 #include "FBDataCursor.hpp"
 #include "SDLTimer.h"
 
+#include <set>
+
 class FriendListCursorView : public DataListActivity, public ViewOwner {
 
 private:
@@ -25,6 +27,8 @@ private:
 	Timer lookupDialogMovementTimer;
 
 	bool showPicturelessFriends;
+	
+	set<FBNode*> pendingItems;
 
 public:
 	FriendListCursorView();

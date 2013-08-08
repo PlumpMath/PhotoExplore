@@ -9,6 +9,8 @@ using namespace cv;
 
 FacebookIntroView::FacebookIntroView()
 {
+	viewDefined = false;
+	
 	friendPhotoGrid = new UniformGrid(Size2i(4,4));	
 	friendPhotoGrid->setLayoutParams(LayoutParams(cv::Size2f(),cv::Vec4f(0,0,10,0)));
 
@@ -109,7 +111,8 @@ void FacebookIntroView::getTutorialDescriptor(vector<string> & tutorial)
 }
 
 void FacebookIntroView::show(FBNode * node)
-{	
+{
+	viewDefined = false;
 	LeapInput::getInstance()->requestGlobalGestureFocus(this);	
 	friendPhotoGrid->clearChildren();
 	myPhotoGrid->clearChildren();
@@ -165,7 +168,7 @@ void FacebookIntroView::show(FBNode * node)
 
 	vector<FBNode*> localMyFriendList;
 	NodeQuerySpec friendConfig_local(2);	
-	friendConfig_local.layers[0].insert(make_pair("friends",SelectionConfig(200)));
+	friendConfig_local.layers[0].insert(make_pair("friends",SelectionConfig(100)));
 	friendConfig_local.layers[1].insert(make_pair("photos",SelectionConfig(1)));
 	DataViewGenerator::getInstance()->SelectNodes(node,friendConfig_local,localMyFriendList);
 
@@ -199,8 +202,9 @@ void FacebookIntroView::show(FBNode * node)
 						{
 							FacebookIntroView * v3= v2;
 							v2->postTask([v3,photoList](){
-								if (v3->friendPhotoGrid->getChildren()->size() < 16)
-									v3->viewChanged("friend_photos",photoList);
+								if (!v3->viewDefined)
+								{
+									v3->viewChanged("friend_photos",photoList);								}
 							});
 						}
 					});
@@ -272,7 +276,10 @@ void FacebookIntroView::viewChanged(string viewIdentifier, vector<FBNode*> viewD
 		{
 			int size = friendPhotoGrid->getChildren()->size() ;
 			if (size >= 16)
+			{
+				viewDefined = true;
 				break;
+			}
 			else if (size == 5 || size == 6 || size == 9 || size == 10)
 			{
 				friendPhotoGrid->addChild(new EmptyView());
@@ -328,6 +335,10 @@ void FacebookIntroView::viewChanged(string viewIdentifier, vector<FBNode*> viewD
 		}
 	}
 
+	if (friendPhotoGrid->getChildren()->size() >= 16)
+		viewDefined = true;
+
+	
 	layoutDirty = true;
 }
 

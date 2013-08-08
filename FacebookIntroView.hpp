@@ -23,6 +23,7 @@ private:
 	Button * photoButton, *friendListButton;
 	
 	boost::function<void(std::string)> finishedCallback;
+	bool viewDefined;
 
 	FBNode * activeNode;
 
