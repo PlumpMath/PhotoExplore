@@ -627,15 +627,9 @@
 		"PhotosPerRequest" : 10,
 		"Title" :
 		{
-			"TextSize" : 12,
-			"TextPadding" : 0,
-			"TextColor" : 
-			{
-				"R" : 0,
-				"G" : 0,
-				"B" : 0,
-				"A" : 255
-			},
+			"TextSize" : 10,
+			"TextPadding" : 0,			
+			"TextColor" :  {"R" : 0,"G" : 0,"B" : 0,"A" : 255}, //{"R" : 70,"G" : 130,"B" : 180,"A" : 255},
 			"BackgroundColor" : 
 			{
 				"R" : 255,
@@ -660,8 +654,8 @@
 			"ShowTime" : 100,
 			"HideAfter" : 3000,
 			"HideAfterWithMovement" : 500,
-			"Height" : 450,
-			"Width" : 800,
+			"Height" : 0.4,
+			"Width" : 0.3,
 			"FriendNameTextBox" : 
 			{			
 				"MaxLength" : 50,

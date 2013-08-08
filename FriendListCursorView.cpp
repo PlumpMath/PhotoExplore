@@ -200,9 +200,6 @@ void FriendListCursorView::layout(Vector position, cv::Size2f size)
 	Logger::stream("FriendListCursorView","INFO") << "Layout. Position = " << position.toString() << endl;
 	DataListActivity::layout(position,size);
 
-	cv::Size2f dialogSize = cv::Size2f(GlobalConfig::tree()->get<float>("FriendLookupView.LookupDialog.Width"),GlobalConfig::tree()->get<float>("FriendLookupView.LookupDialog.Height"));
-	Vector dialogPosition = position + Vector((size.width-dialogSize.width)*.5f,(size.height-dialogSize.height)*.5f,10);
-
 	float menuHeight = GlobalConfig::tree()->get<float>("Menu.Height");
 	
 	static long hideTime = GlobalConfig::tree()->get<long>("FriendLookupView.LookupDialog.HideTime");
@@ -223,9 +220,12 @@ void FriendListCursorView::layout(Vector position, cv::Size2f size)
 		labelText->setLayoutDuration(hideTime);
 		labelText->setAnimateOnLayout(hideTime > 0);
 	}
+	
+	cv::Size2f dialogSize = cv::Size2f(GlobalConfig::tree()->get<float>("FriendLookupView.LookupDialog.Width"),GlobalConfig::tree()->get<float>("FriendLookupView.LookupDialog.Height"));
+	dialogSize.width *= size.width;
+	dialogSize.height *= menuHeight;
 
-	dialogSize.height = (menuHeight)*.5f;
-	dialogPosition = position + Vector((size.width - dialogSize.width)*.5f,-menuHeight + (menuHeight - dialogSize.height)*.5f,10);
+	Vector dialogPosition = position + Vector((size.width - dialogSize.width)*.5f,-menuHeight + (menuHeight - dialogSize.height)*.5f,10);
 
 	if (lookupDialogState == 0)
 	{
