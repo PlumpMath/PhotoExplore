@@ -36,15 +36,15 @@
 	},
 	"GraphicsSettings" :
 	{
-		"WindowTitle" : "Photo Explorer for Facebook",
+		"WindowTitle" : "PhotoExplore",
 		"AlphaFunc" : 6, //1 = Less, 2 = Equal, 3 = LEqual, 4 = Greater, 5 = Notequal, 6 = GEqual, 7 = Always
 		"AlphaFuncVal" : 0.0625,
 		"EnablePixelBuffers" : true,
 		"EnableLineSmoothing" : true,
 		"FSAASamples" : 0,
 		"ShaderDirectory" : ".",
-		"Fullscreen" : false,
-		"OverrideResolution" : true,
+		"Fullscreen" : true,
+		"OverrideResolution" : false,
 		"OverrideWidth" : 1280,
 		"OverrideHeight" : 720,
 		"UseIntForNonSubPixelRender" : false,
@@ -93,7 +93,7 @@
 	},
 	"ResourceCache" : 
 	{
-		"TextureCacheSize" : 64, 	//Megabytes
+		"TextureCacheSize" : 512, 	//Megabytes
 		"ImageCacheSize" : 768, 	//Megabytes		
 		"MaxImageSize" : 30,			//Megabytes
 		"CacheGCFrequency" : 10000 ,//milliseconds		
@@ -127,7 +127,8 @@
 			"C:\\Users\\Adam\\Pictures\\camera",					
 			"/Users/adamskubel/Pictures" 
 		],
-		"RequestDelay" : 50 ,//ms
+		"RequestDelay" : 100 ,//ms
+		"DelayVariance" : 250 ,//ms
 		"MaxPhotos" : 2000,
 		"MaxAlbums" : 10,
 		"MaxFriends" : 60
@@ -654,7 +655,7 @@
 			"ShowTime" : 100,
 			"HideAfter" : 3000,
 			"HideAfterWithMovement" : 500,
-			"Height" : 0.3,
+			"Height" : 0.4,
 			"Width" : 0.3,
 			"FriendNameTextBox" : 
 			{			
@@ -687,7 +688,7 @@
 		{
 			"RandomizeBackground" : true,
 			"TextSize" : 6,
-			"TextPadding" : 0,
+			"TextPadding" : 3,
 			"TextColor" : 
 			{
 				"R" : 255,

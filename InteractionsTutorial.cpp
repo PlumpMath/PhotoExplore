@@ -47,7 +47,7 @@ void InteractionsTutorial::loadTutorial(string name)
 	vector<string> tutorialImages;
 	if (name.compare("intro") == 0)
 	{
-		titlePanel->setText("Photo Explorer Tutorial");
+		titlePanel->setText("PhotoExplore Tutorial");
 		infoPanel->setText(GlobalConfig::tree()->get<string>("InteractiveTutorial.InfoStrings.Intro"));
 		
 		startTutorialButton->elementClickedCallback = [this](LeapElement * clicked){

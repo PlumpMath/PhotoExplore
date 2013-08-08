@@ -151,14 +151,17 @@ FBDataView * FriendListCursorView::getDataView(FBNode * itemNode)
 	}
 	else if (itemNode->getAttribute("tried_load").length() == 0)
 	{			
+		FBDataView * nullView = NULL;
+		items.insert(make_pair(itemNode,nullView));
 		itemNode->Edges.insert(Edge("tried_load","1"));
 		stringstream load2;
-		load2 << itemNode->getId() << "?fields=photos.fields(id,name,images,album).limit(2),albums.fields(updated_time,photos.fields(id,name,images,album).limit(4)).limit(2)";		
+		load2 << itemNode->getId() << "?fields=photos.fields(id,name,images,album).limit(2),albums.fields(name,updated_time,photos.fields(id,name,images,album).limit(4)).limit(2)";		
 		FBDataSource::instance->loadField(itemNode,load2.str(),"",[itemNode,this](FBNode * nn)
 		{
 			FriendListCursorView * me = this;
-			this->postTask([me,nn](){				
-				me->addNode(nn);
+			this->postTask([me,nn](){	
+				if (me->items.count(nn) != 0)
+					me->addNode(nn);
 			});
 		}); 
 	}

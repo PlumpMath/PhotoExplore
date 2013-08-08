@@ -90,6 +90,9 @@ FBNode * FBFriendsFQLCursor::getNext()
 			result = NULL;
 		}
 	}		
+	if (result != NULL)
+		Logger::stream("FBFriendFQLCursor","INFO") << "Returning friend matching '" << searchName << "' with name = " << result->getAttribute("name") << endl;
+
 	return result;
 }
 
@@ -147,7 +150,7 @@ void FBFriendsFQLCursor::loadItems(int friends)
 					v->state = FBDataCursor::Local;					
 				}
 
-				v->getNext();
+				//v->getNext();
 				if (!v->cursorChangedCallback.empty())
 					v->cursorChangedCallback();
 				

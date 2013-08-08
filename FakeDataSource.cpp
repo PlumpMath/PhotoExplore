@@ -60,7 +60,12 @@ void FakeDataSource::runThread(boost::mutex * taskMutex, std::queue<boost::funct
 
 void FakeDataSource::loadWithOffset(FBNode * parent, string edge, int limit, int offset)
 {
-	boost::this_thread::sleep(boost::posix_time::milliseconds(GlobalConfig::tree()->get<int>("FakeDataMode.RequestDelay")));
+	int delay = GlobalConfig::tree()->get<int>("FakeDataMode.RequestDelay");
+	int delayVariance = GlobalConfig::tree()->get<int>("FakeDataMode.DelayVariance");
+
+	delay += (rand() & 2*delayVariance) - delayVariance;
+
+	boost::this_thread::sleep(boost::posix_time::milliseconds(delay+delayVariance));
 
 	if (edge.compare("photos") == 0)
 	{

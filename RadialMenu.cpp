@@ -13,7 +13,7 @@ RadialMenu * RadialMenu::instance = NULL;
 RadialMenu::RadialMenu(vector<RadialMenuItem> & items)
 {			
 	items.push_back(RadialMenuItem("Exit and Logout","logout", Colors::DarkRed));
-	items.push_back(RadialMenuItem("Exit Photo Explorer","exit",Colors::OrangeRed));
+	items.push_back(RadialMenuItem("Exit PhotoExplore","exit",Colors::OrangeRed));
 	//items.push_back(RadialMenuItem("Hide Tutorial","hide_tutorial", Colors::DarkTurquoise));
 	//items.push_back(RadialMenuItem("Tap mode = On Press","toggle_tap", Colors::DarkTurquoise));
 	items.push_back(RadialMenuItem("Privacy Information","show_privacy_info", Colors::DodgerBlue));
