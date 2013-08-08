@@ -143,7 +143,7 @@ void LeapStartScreen::init()
 	radialMenu->layout(Vector(0,0,50),cv::Size2f(GlobalConfig::ScreenWidth,GlobalConfig::ScreenHeight));
 
 
-	TextPanel * title = new TextPanel("Photo Explorer");
+	TextPanel * title = new TextPanel("PhotoExplore");
 	title->setTextFitPadding(10);
 	title->setTextSize(30);
 	title->setTextColor(Colors::Black);

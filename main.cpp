@@ -82,7 +82,7 @@ GLuint attribute_v_coord_postproc[2], uniform_fbo_texture[2], uniformGaussScale[
 
 void handleFatalError(string errorText, int sig)
 {
-	string error = "Photo Explorer encountered a fatal error :(";
+	string error = "PhotoExplore encountered a fatal error :(";
 	MessageBox(NULL,errorText.c_str(),error.c_str(),0);
 }
 

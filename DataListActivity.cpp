@@ -245,7 +245,9 @@ void DataListActivity::updateLoading()
 
 void DataListActivity::addNode(FBNode * node)
 {
-	if (items.count(node) == 0)
+	auto it = items.find(node);
+
+	if (it == items.end() || (it->second) == NULL)
 	{
 		FBDataView * dataView = getDataView(node);
 		
