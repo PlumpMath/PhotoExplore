@@ -125,10 +125,6 @@ bool initializeWindow( int window_width, int window_height, bool isFull)
 	GraphicsContext::getInstance().MainWindow = handle;
 
 	glfwSwapInterval(1);
-	
-	//glfwEnable(GLFW_MOUSE_CURSOR);
-	//glfwEnable(GLFW_SYSTEM_KEYS);
-
 			
 	glewExperimental=true;
 	glewInit();
@@ -537,6 +533,9 @@ int main(int argc, char * argv[]){
 			quit[0] = true;
 		});
 
+
+		bool doFinish = GlobalConfig::tree()->get<bool>("GrpahicsSettings.ExecuteGLFinish");
+
 		GraphicsContext::getInstance().applicationExitCallback = [quit](){ quit[0] = true; };
 	
 		Timer totalTime;
@@ -597,10 +596,9 @@ int main(int argc, char * argv[]){
 				itemTimer.start();
 				HandProcessor::getInstance()->processFrame(controller.frame());
 				LeapInput::getInstance()->processInputEvents();
-				LeapInput::getInstance()->processFrame(controller,controller.frame());
-				//mleapDebug.plotValue("Input",Colors::LimeGreen,itemTimer.millis() * 20);
-									
+				LeapInput::getInstance()->processFrame(controller,controller.frame());									
 				startScreen.onFrame(controller);
+				leapDebug.plotValue("Input",Colors::White,itemTimer.millis() * 20);
 							
 				itemTimer.start();
 				ResourceManager::getInstance().update();
@@ -675,41 +673,31 @@ int main(int argc, char * argv[]){
 					glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);			
 
 					glMatrixMode( GL_MODELVIEW );			
-					ShakeGestureDetector::getInstance().draw();		
-					SwipeGestureDetector::getInstance().draw();
-					if (GlobalConfig::tree()->get<bool>("Leap.HandModel.DrawDebug"))
-						HandProcessor::getInstance()->draw();
+					//ShakeGestureDetector::getInstance().draw();		
+					//SwipeGestureDetector::getInstance().draw();
+					//if (GlobalConfig::tree()->get<bool>("Leap.HandModel.DrawDebug"))
+					//	HandProcessor::getInstance()->draw();
+
 					startScreen.draw();
-				
 
 				}
 				//End
-			
-				frameOut << "MainDraw= " << itemTimer.millis() << "ms \n";
-				itemTimer.start();
-	 
+				 
 				leapDebug.draw();
-				frameOut << "DebugDraw = " << itemTimer.millis() << "ms \n";
-				itemTimer.start();
+				leapDebug.plotValue("Draw",Colors::HotPink,itemTimer.millis() * 20);
+
 					
 				itemTimer.start();
-				glFinish();
-				frameOut  << "glFinish = " << itemTimer.millis() << "ms \n";
+				if (doFinish)
+					glFinish();
+				leapDebug.plotValue("Finish",Colors::Magenta,itemTimer.millis() * 20);
+
 				itemTimer.start();
 				glfwSwapBuffers(mainWindow);
 				leapDebug.plotValue("Swap",Colors::PrettyPurple, itemTimer.millis() * 20);
 				itemTimer.start();
 						
-				//if (delta.millis() - (1000.0/60.0) > 2)
-				//{
-				//	Logger::stream("MAIN","TIME") << "[" << frameId << "] START \n";
-				//	Logger::stream("MAIN","TIME") << frameOut.str();
-				//	Logger::stream("MAIN","TIME") << "[" << frameId << "] = " << delta.millis() << "ms \n"; //@ " << totalTime.seconds() << "s \n";
-				//}
-
-				leapDebug.showValue("01. FPS",1.0 / delta.seconds());
-				leapDebug.plotValue("zFPS",Colors::HoloBlueBright, delta.millis() * 20);
-				//leapDebug.showValue("02. FPS",delta.millis()/60.0);
+				leapDebug.plotValue("aFPS",Colors::HoloBlueBright, delta.millis() * 20);
 				frameId++;
 			}
 		}	

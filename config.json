@@ -49,11 +49,16 @@
 		"OverrideHeight" : 720,
 		"UseIntForNonSubPixelRender" : false,
 		"NoSubPixelScroll" : true,
+		"ExecuteGLFinish": false,
 		"TextureLoading" : 
-		{
+		{		
 			"Compression" : 
 			{
 				"Enable" : true
+			},
+			"BufferToTexture" : 
+			{
+				"TimeMultiplex" : false
 			},
 			"MaxMBPerFrame" : 0.5
 		}
@@ -99,7 +104,7 @@
 	},
 	"WindowsDebugPanel" :
 	{
-		"Enable" : true,
+		"Enable" : false,
 		"DesktopParent" : false,
 		"Width" : 400,
 		"Height" : 200		
@@ -107,8 +112,8 @@
 	"DebugPlot" : 
 	{
 		"Enable" : true,
-		"Width" : 300,
-		"LineWidth" : 2,
+		"Width" : 400,
+		"LineWidth" : 4,
 		"YOffset" : 800,		
 		"XOffset" : 300		
 	},

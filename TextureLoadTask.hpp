@@ -66,6 +66,7 @@ private:
 	
 	bool useCompression;
 	bool asyncLoading;
+	bool timeMultiplexBufferToTextureTransfer;
 	
 	volatile bool active;
 	

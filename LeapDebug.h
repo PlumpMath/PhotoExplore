@@ -56,6 +56,8 @@ private:
 
 	map<string,PlotValue> plots;
 
+	View * plotLegend;
+
 #ifdef _WIN32
 	void updateDebugBox();
 	void initDebugBox();

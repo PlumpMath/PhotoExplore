@@ -6,6 +6,7 @@
 #include "TexturePool.h"
 #include "PixelBufferPool.hpp"
 #include "Logger.hpp"
+#include "LeapDebug.h"
 
 using namespace std;
 using namespace LoadTaskState;
@@ -25,6 +26,7 @@ TextureLoadTask::TextureLoadTask(std::string _resourceId, float _priority, cv::M
 	MaxBytesPerFrame = (int)(GlobalConfig::tree()->get<double>("GraphicsSettings.TextureLoading.MaxMBPerFrame")*1048576.0);
 	
 	useCompression = true; // GlobalConfig::tree()->get<bool>("GraphicsSettings.TextureLoading.Compression.Enable");
+	timeMultiplexBufferToTextureTransfer = GlobalConfig::tree()->get<bool>("GraphicsSettings.TextureLoading.BufferToTexture.TimeMultiplex");
 
 	if (cvImage.data == NULL || cvImage.size().area() == 0)
 		throw new std::runtime_error("Invalid image");
@@ -83,7 +85,10 @@ void TextureLoadTask::update()
 		copyMemoryToBuffer_async_update();
 		break;
 	case BufferLoaded:
-		copyBufferToTexture_TM_start();
+		if (timeMultiplexBufferToTextureTransfer)
+			copyBufferToTexture_TM_start();
+		else
+			copyBufferToTexture();
 		break;
 	case LoadingTexture:
 		copyBufferToTexture_TM_update();
@@ -217,10 +222,11 @@ void TextureLoadTask::copyBufferToTexture()
 	glTexSubImage2D(GL_TEXTURE_2D,0,0,0, textureInfo.width,textureInfo.height,textureInfo.format,GL_UNSIGNED_BYTE, 0);
 	glBindBufferARB(GL_PIXEL_UNPACK_BUFFER_ARB,NULL);
 	
-	if (TEXTURE_LOGGING)
+	//if (TEXTURE_LOGGING)
 	{
-		if (timer.millis() > 2)
-			Logger::stream("TextureLoadTask","INFO") << "Copied to texture. TexID = " << textureInfo.textureId << " Took " << timer.millis() << " ms" << endl;
+		LeapDebug::instance->plotValue("PBO",Colors::Blue,timer.millis()*20);
+		//if (timer.millis() > 2)
+			//Logger::stream("TextureLoadTask","INFO") << "Copied to texture. TexID = " << textureInfo.textureId << " Took " << timer.millis() << " ms" << endl;
 	}
 	
 	state  = Waiting;
@@ -241,10 +247,10 @@ void TextureLoadTask::copyMemoryToBuffer_async_start()
 	if(ptr && data)
 	{
 		state = LoadingBuffer;
-		boost::thread([this,data,ptr,textureInfo](){
-			active = true;
-			memcpy(ptr,data,textureInfo.size);
-			active = false;
+		boost::thread([this,data,ptr](){
+			this->active = true;
+			memcpy(ptr,data,this->textureInfo.size);
+			this->active = false;
 		});		
 	}
 	else

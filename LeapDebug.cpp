@@ -4,6 +4,7 @@
 #include "CustomGrid.hpp"
 #include "ImagePanel.hpp"
 #include "TextPanel.h"
+#include "LinearLayout.hpp"
 
 LeapDebug::LeapDebug()
 {
@@ -88,6 +89,8 @@ LeapDebug::LeapDebug()
 	cv::Size2f size = cv::Size2f(300,GlobalConfig::tree()->get<float>("Tutorial.Height"));
 	tutorialLayout->measure(size);
 	tutorialLayout->layout(Vector(0,GlobalConfig::ScreenHeight+100,10),size);
+
+	plotLegend = new LinearLayout();
 }
 
 
@@ -157,8 +160,7 @@ void LeapDebug::showValue(string key, double value)
 	debugValues[key] = ss.str();
 	updateDebugBox();
 }
-
-#endif
+#else
 
 void LeapDebug::showValue(string key, string value)
 {
@@ -169,10 +171,24 @@ void LeapDebug::showValue(string key, double value)
 {
 
 }
+#endif
 
 void LeapDebug::plotValue(string key, Color color, float value)
 {
 	static int maxSize = GlobalConfig::tree()->get<int>("DebugPlot.Width");
+
+	if (plots.count(key) == 0)
+	{
+		float yOffset = GlobalConfig::tree()->get<float>("DebugPlot.YOffset");
+		float xOffset = GlobalConfig::tree()->get<float>("DebugPlot.XOffset");
+
+		TextPanel * legendText = new TextPanel(key);
+		legendText->setTextColor(color);
+		((ViewGroup*)plotLegend)->addChild(legendText);
+		cv::Size2f legendSize(0,50);
+		plotLegend->measure(legendSize);
+		plotLegend->layout(Vector(xOffset,yOffset,40),legendSize);
+	}
 
 	plots[key].values.push_back(value);
 	plots[key].color = color;
@@ -323,6 +339,8 @@ void LeapDebug::draw()
 			}
 			glEnd();
 		}
+		
+		plotLegend->draw();
 	}
 
 	glPopMatrix();	
