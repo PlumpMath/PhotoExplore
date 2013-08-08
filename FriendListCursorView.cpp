@@ -153,7 +153,7 @@ FBDataView * FriendListCursorView::getDataView(FBNode * itemNode)
 	{			
 		itemNode->Edges.insert(Edge("tried_load","1"));
 		stringstream load2;
-		load2 << itemNode->getId() << "?fields=photos.fields(id,name,images,album).limit(2),albums.fields(photos.fields(id,name,images,album).limit(1)).limit(2)";		
+		load2 << itemNode->getId() << "?fields=photos.fields(id,name,images,album).limit(2),albums.fields(updated_time,photos.fields(id,name,images,album).limit(4)).limit(2)";		
 		FBDataSource::instance->loadField(itemNode,load2.str(),"",[itemNode,this](FBNode * nn)
 		{
 			FriendListCursorView * me = this;

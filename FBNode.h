@@ -40,15 +40,18 @@ namespace Facebook {
 
 	struct Edge {
 
+		long RowNumber;
+
 		string Type;		
 		FBNode * Node;
 		
 		string Value;
 		json_spirit::Value JsonValue;
 
-		Edge(string _Type, FBNode * _Node) :
+		Edge(string _Type, FBNode * _Node, long _RowNumber) :
 			Type(_Type),
-			Node(_Node)
+			Node(_Node),
+			RowNumber(_RowNumber)
 		{}
 
 		Edge(string _Type, const string & _Value) :
@@ -74,6 +77,7 @@ namespace Facebook {
 	struct EdgeTypeIndex {};
 	struct TimeOrderedEdgeType {};
 	struct AscTimeOrderedEdgeType {};
+	struct EdgeTypeRowNumIndex {};
 	
 	typedef boost::multi_index_container
 		<
@@ -124,6 +128,20 @@ namespace Facebook {
 						std::less<std::string>,   
 						std::less<facebook_time>,						
 						std::less<unsigned long long> 
+					>
+				>,						
+				boost::multi_index::ordered_unique
+				<
+					boost::multi_index::tag<EdgeTypeRowNumIndex>,
+					boost::multi_index::composite_key
+					<
+						Edge, 
+						boost::multi_index::member<Edge,string,&Edge::Type>,
+						boost::multi_index::member<Edge,long,&Edge::RowNumber>
+					>,
+					boost::multi_index::composite_key_compare<
+						std::less<std::string>,   
+						std::less<long>
 					>
 				>
 			>

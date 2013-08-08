@@ -45,6 +45,7 @@ protected:
 	FBNode * nextItem;
 	string edgeName;
 	bool ascending;
+	long nextItemNumber;
 
 public:
 	FBSimpleEdgeCursor(FBNode * _node, string _edgeName, bool _ascending = false) :

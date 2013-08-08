@@ -185,12 +185,6 @@ void FBNode::addJSON(string edge, vector<json_spirit::Pair> & obj)
 	facebook_time childTimestamp;
 	string childId = tryExtractId(obj,result,childTimestamp);
 
-	if (result && obj.size() == 1)
-	{
-		//cout << "Empty object returned for edge: " << edge << endl;
-		loadState[edge].hasReachedEnd = true;
-	}
-
 	if (id.compare("me") == 0 && result)
 		id = childId;
 	
@@ -242,8 +236,9 @@ void FBNode::addJSON(string edge, vector<json_spirit::Pair> & obj)
 
 		if (child != NULL)
 		{
-			child->ReverseEdges.insert(Edge(this->getNodeType(),this));
-			Edges.insert(Edge(edge,child));
+			child->ReverseEdges.insert(Edge(this->getNodeType(),this,0));
+			long rowNum = Edges.count(child->getNodeType());
+			Edges.insert(Edge(edge,child,rowNum));
 		}
 	}
 }

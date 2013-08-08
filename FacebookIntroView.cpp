@@ -195,7 +195,7 @@ void FacebookIntroView::show(FBNode * node)
 	if (localMyPhotoList.size() < 12)
 	{
 		stringstream myPhotoQuery;
-		myPhotoQuery << node->getId() << "?fields=photos.limit(5),albums.limit(10).fields(photos.limit(5).fields(id,name,images),id,name)";
+		myPhotoQuery << node->getId() << "?fields=photos.limit(5),albums.limit(10).fields(updated_time,photos.limit(5).fields(id,name,images),id,name)";
 		FBDataSource::instance->loadField(node,myPhotoQuery.str(),"",[this](FBNode * loaded){
 
 			NodeQuerySpec myConfig(2);

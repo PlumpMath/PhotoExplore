@@ -85,9 +85,9 @@ void FakeDataSource::loadWithOffset(FBNode * parent, string edge, int limit, int
 
 			n2->Edges.insert(Edge("name","Fake photo name " + ss2.str()));
 			
-			n2->ReverseEdges.insert(Edge(parent->getNodeType(),parent));
+			n2->ReverseEdges.insert(Edge(parent->getNodeType(),parent,-1));
 
-			parent->Edges.insert(Edge("photos",n2));
+			parent->Edges.insert(Edge("photos",n2,photoIndex));
 
 			if (photoIndex >= GlobalConfig::tree()->get<int>("FakeDataMode.MaxPhotos"))
 				parent->loadState["photos"].hasReachedEnd = true;
@@ -110,8 +110,8 @@ void FakeDataSource::loadWithOffset(FBNode * parent, string edge, int limit, int
 				name << "Good album with a very long name"  << albumIndex;
 				n2->Edges.insert(Edge("name",name.str()));
 						
-				n2->ReverseEdges.insert(Edge(parent->getNodeType(),parent));
-				parent->Edges.insert(Edge("albums",n2));
+				n2->ReverseEdges.insert(Edge(parent->getNodeType(),parent,-1));
+				parent->Edges.insert(Edge("albums",n2,albumIndex));
 				albumIndex++;
 			}
 		}
@@ -143,8 +143,8 @@ void FakeDataSource::loadWithOffset(FBNode * parent, string edge, int limit, int
 				n2->Edges.insert(Edge("fake_uri",this->dirContents.at(friendIndex%dirContents.size()).string()));
 				n2->Edges.insert(Edge("fake_uri_high",""));
 
-				n2->ReverseEdges.insert(Edge(parent->getNodeType(),parent));
-				parent->Edges.insert(Edge("friends",n2));
+				n2->ReverseEdges.insert(Edge(parent->getNodeType(),parent,0));
+				parent->Edges.insert(Edge("friends",n2,friendIndex));
 
 				friendIndex++;
 			}
