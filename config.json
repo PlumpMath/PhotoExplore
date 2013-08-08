@@ -39,7 +39,7 @@
 		"WindowTitle" : "Photo Explorer for Facebook",
 		"AlphaFunc" : 6, //1 = Less, 2 = Equal, 3 = LEqual, 4 = Greater, 5 = Notequal, 6 = GEqual, 7 = Always
 		"AlphaFuncVal" : 0.0625,
-		"EnablePixelBuffers" : false,
+		"EnablePixelBuffers" : true,
 		"EnableLineSmoothing" : true,
 		"FSAASamples" : 0,
 		"ShaderDirectory" : ".",
@@ -82,7 +82,7 @@
 	"TextureLoading" :
 	{
 		"MaxConcurrentTasks" : 2,
-		"PixelBufferCount" : 2,
+		"PixelBufferCount" : 10,
 		"InitialTextureCount" : 200,
 		"MaxTextureCount" : 400
 	},

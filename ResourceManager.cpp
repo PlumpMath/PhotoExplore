@@ -448,9 +448,7 @@ void ResourceManager::update()
 	Timer updateTimer;
 	updateTimer.start();
 	ImageLoader::getInstance().update();
-	
-	if (updateTimer.millis() > 0)
-		Logger::stream("ResourceManager","TIME") << "Image manager update took " << updateTimer.millis() << " ms " << endl;
+	LeapDebug::instance->plotValue("ImgCache",Colors::LimeGreen,updateTimer.millis() * 20);
 
 	
 	updateTimer.start();
@@ -462,13 +460,16 @@ void ResourceManager::update()
 	}
 	updateTaskMutex.unlock();
 	if (updateTimer.millis() > 0)
+	{
 		Logger::stream("ResourceManager","TIME") << "Task updates took " << updateTimer.millis() << " ms " << endl;
-
+	}
 
 	updateTimer.start();
-	TextureLoader::getInstance().update();
-	if (updateTimer.millis() > 0)
-		Logger::stream("ResourceManager","TIME") << "TextureLoader update took " << updateTimer.millis() << " ms " << endl;
+	TextureLoader::getInstance().update();	
+	LeapDebug::instance->plotValue("Tex",Colors::Yellow,updateTimer.millis() * 20);
+	
+	//if (updateTimer.millis() > 0)
+	//	Logger::stream("ResourceManager","TIME") << "TextureLoader update took " << updateTimer.millis() << " ms " << endl;
 	
 	bool cacheFull = (currentTextureCacheSize >= textureCacheMaxSize || currentImageCacheSize > imageCacheMaxSize);
 

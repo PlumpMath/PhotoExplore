@@ -598,7 +598,7 @@ int main(int argc, char * argv[]){
 				HandProcessor::getInstance()->processFrame(controller.frame());
 				LeapInput::getInstance()->processInputEvents();
 				LeapInput::getInstance()->processFrame(controller,controller.frame());
-				leapDebug.plotValue("Input",Colors::LimeGreen,itemTimer.millis() * 20);
+				//mleapDebug.plotValue("Input",Colors::LimeGreen,itemTimer.millis() * 20);
 									
 				startScreen.onFrame(controller);
 							

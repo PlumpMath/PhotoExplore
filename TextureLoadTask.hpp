@@ -1,9 +1,10 @@
-﻿#ifndef LEAPIMAGE_RESOURCE_MANAGER_TEXTURE_LOAD_TASK_HPP_
+#ifndef LEAPIMAGE_RESOURCE_MANAGER_TEXTURE_LOAD_TASK_HPP_
 #define LEAPIMAGE_RESOURCE_MANAGER_TEXTURE_LOAD_TASK_HPP_
 
 #include "GLImport.h"
 #include <opencv2/opencv.hpp>
 #include <boost/function.hpp>
+#include <boost/thread.hpp>
 
 struct TextureInfo {
 
@@ -47,6 +48,7 @@ namespace LoadTaskState {
 	static const int Initialized = 6;
 	static const int LoadingBuffer = 1;
 	static const int BufferLoaded = 3;
+	static const int LoadingTexture = 7;
 	static const int Waiting = 4;
 	static const int Complete = 5;
 }
@@ -63,6 +65,9 @@ private:
 	GLubyte * loading_target;
 	
 	bool useCompression;
+	bool asyncLoading;
+	
+	volatile bool active;
 	
 	
 
@@ -73,6 +78,12 @@ private:
 	void beginCopyMemoryToBuffer();
 	void copyMemoryToBuffer_TM_update();
 	void copyMemoryToBuffer_TM_start();
+	
+	void copyMemoryToBuffer_async_update();
+	void copyMemoryToBuffer_async_start();
+	
+	void copyBufferToTexture_TM_start();
+	void copyBufferToTexture_TM_update();
 
 	void copyMemoryToBuffer();
 
