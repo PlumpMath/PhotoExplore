@@ -29,6 +29,7 @@ public:
 
 	LeapDebugVisual(double size, Color fillColor)
 	{
+		trackPointableId = -1;
 		this->size = size;
 		this->fillColor = fillColor;
 		this->depth= 10;

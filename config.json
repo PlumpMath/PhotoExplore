@@ -12,7 +12,7 @@
 	{
 //		"File" : "/Users/adamskubel/photo_explorer.log",
 		"File" : "C:\\Users\\Adam\\Desktop\\PhotoExplorer\\photo_explorer.log",
-		"Enabled" : false
+		"Enabled" : true
 	},
 	"Typography" : 
 	{
@@ -43,7 +43,7 @@
 		"EnableLineSmoothing" : true,
 		"FSAASamples" : 0,
 		"ShaderDirectory" : ".",
-		"Fullscreen" : true,
+		"Fullscreen" : false,
 		"OverrideResolution" : false,
 		"OverrideWidth" : 1280,
 		"OverrideHeight" : 720,

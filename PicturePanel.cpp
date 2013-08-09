@@ -30,7 +30,7 @@ PicturePanel::PicturePanel()
 
 void PicturePanel::prepareResource()
 {	
-	if (getWidth() <= 0 || getHeight() <= 0 || !isVisible())
+	if (getWidth() <= 0 || getHeight() <= 0)
 		return;
 
 	string newResourceURI = "", resourceId = "";
