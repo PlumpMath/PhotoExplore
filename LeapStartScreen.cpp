@@ -40,11 +40,6 @@ void LeapStartScreen::setFinishedCallback(boost::function<void()>  _finishedCall
 	this->finishedCallback = _finishedCallback;
 }
 
-void LeapStartScreen::shutdown()
-{
-
-}
-
 LeapStartScreen::~LeapStartScreen()
 {
 
@@ -52,11 +47,9 @@ LeapStartScreen::~LeapStartScreen()
 
 LeapElement * LeapStartScreen::elementAtPoint(int x, int y, int & elementStateFlags)
 {
-
 	LeapElement * hit = RadialMenu::instance->elementAtPoint(x,y,elementStateFlags);
 	if (hit != NULL)
-		return hit;
-	
+		return hit;	
 	
 	if (state == FinishedState)
 	{
@@ -219,27 +212,10 @@ void LeapStartScreen::onGlobalFocusChanged(bool focused)
 	{
 		SwipeGestureDetector::getInstance().setFlyWheel(floatingPanelsView->getFlyWheel());
 	}
-}
-	
-class MyVisitor : public CefCookieVisitor
-{
-public:
-	bool Visit( const CefCookie& cookie, int count, int total, bool& deleteCookie )
+	else if (!focused)
 	{
-		deleteCookie = true;
-		//cout << "Cookie[" << count << "]: Value = " << CefString(cookie.value.str).ToString() << " Domain = " << CefString(cookie.path.str).ToString() << "  Path = " << CefString(cookie.path.str).ToString() <<  "\n";
-		return true;
+		SwipeGestureDetector::getInstance().setFlyWheel(NULL);
 	}
-
-	IMPLEMENT_REFCOUNTING(MyVisitor);
-};
-
-
-void LeapStartScreen::deleteCookies()
-{
-	CefRefPtr<MyVisitor> v = new MyVisitor();
-	CefCookieManager::GetGlobalManager()->VisitAllCookies(v.get());
-
 }
 
 void LeapStartScreen::onFrame(const Controller & controller)
@@ -291,9 +267,7 @@ void LeapStartScreen::launchBrowser()
 		state = BrowserOpenState;
 		
 #ifdef _WIN32
-
 		facebookClient = new Cefalopod();
-
 		
 		glfwIconifyWindow(GraphicsContext::getInstance().MainWindow);
 
@@ -303,15 +277,9 @@ void LeapStartScreen::launchBrowser()
 		float windowWidth = GlobalConfig::ScreenWidth;
 		float windowHeight = GlobalConfig::ScreenHeight;
 
-
-	#if defined(_WIN32) // Windows
-		//vector<HWND> myHandles = getToplevelWindows();			
 		info.SetAsPopup(0,"Login");
 		info.width = (int)windowWidth;
 		info.height = (int)windowHeight;
-	#else			
-		info.SetAsOffScreen(0);
-	#endif
 
 		string fbURL = "https://www.facebook.com/dialog/oauth?client_id=144263362431439&redirect_uri=http://144263362431439.com&scope=user_photos,friends_photos,user_likes,publish_stream&response_type=token";
 		CefBrowserHost::CreateBrowser(info, facebookClient.get(),fbURL, browserSettings);		
@@ -361,8 +329,7 @@ void LeapStartScreen::launchBrowser()
 }
 
 void LeapStartScreen::startApplication(std::string token)
-{
-	
+{	
 	GlobalConfig::TestingToken = token;
 	FBNode * root = new FBNode("me");
 	root->setNodeType("me");
@@ -397,8 +364,6 @@ void LeapStartScreen::getTutorialDescriptor(vector<string> & tutorial)
 {	
 	tutorial.push_back("point");
 }
-
-
 
 void LeapStartScreen::update(double delta)
 {
@@ -459,15 +424,6 @@ void LeapStartScreen::draw()
 	else
 	{
 		ViewGroup::draw();
-		//floatingPanelsView->draw();
-		//mainLayout->draw();		
-		//if (facebookLoginButton->isVisible())
-		//{
-		//	tutorialButton->draw();
-		//	facebookLoginButton->draw();
-		//	noticePanel->draw();
-		//}
-
 	}
 
 	radialMenu->draw();

@@ -1,7 +1,5 @@
 #include "AlbumPanel.hpp"
 #include "CustomGrid.hpp"
-#include "PanelFactory.hpp"
-
 
 AlbumPanel::AlbumPanel() : ContentPanel()
 {

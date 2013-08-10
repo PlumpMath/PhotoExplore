@@ -5,35 +5,30 @@
 #include "GLImport.h"
 
 #include <string>
-#include "FileManager.h"
-#include "SDLTimer.h"
 #include <sstream>
-#include "Leap.h"
-#include "LeapInput.hpp"
-#include "LeapDebug.h"
-#include "LeapListenerImpl.h"
-#include "LeapStartScreen.h"
+#include <Leap.h>
 
 #include <include/cef_browser.h>
 #include <include/cef_client.h>
 #include <include/cef_app.h>
 #include <include/cef_urlrequest.h>
 
+#include <boost/filesystem.hpp>
+
+#include "LeapInput.hpp"
+#include "LeapDebug.h"
+#include "LeapStartScreen.h"
 #include "FBNode.h"
 #include "FacebookLoader.h"
-
-#include <boost/filesystem.hpp>
 #include "ShakeGestureDetector.hpp"
-
 #include "GraphicContext.hpp"
-
 #include "GlobalConfig.hpp"
 #include "SwipeGestureDetector.hpp"
 #include "FakeDataSource.hpp"
 #include "FacebookDataDisplay.hpp"
-#include "FacebookBrowser.hpp"
-
+#include "SDLTimer.h"
 #include "FBDataCursor.hpp"
+#include "FacebookBrowser.hpp"
 
 #ifndef _WIN32
 #include <execinfo.h>
@@ -43,24 +38,17 @@
 
 using namespace Leap;
 
-
 int GlobalConfig::ScreenWidth = 1920;
 int GlobalConfig::ScreenHeight = 1080;
-float GlobalConfig::SteadyVelocity = 100;
 bool GlobalConfig::LeftHanded = false;
-bool GlobalConfig::AllowSingleHandInteraction = !true;
-float GlobalConfig::SelectCircleMinRadius = 50.0f;
-float GlobalConfig::MinimumInteractionScreenDistance = 400.0f;
 std::string GlobalConfig::TestingToken = std::string("");
 
 HandProcessor * HandProcessor::instance = NULL;
-FileManager * FileManager::instance = NULL;
 FBDataSource * FBDataSource::instance = NULL;
 FacebookDataDisplay * FacebookDataDisplay::instance = NULL;
 LeapInput * LeapInput::instance = NULL;
-
 LeapDebug * LeapDebug::instance = NULL;
- 
+
 
 GLuint fbo[2], fbo_texture[2], rbo_depth[2];
 GLuint vbo_fbo_vertices;
@@ -74,9 +62,6 @@ GLfloat fbo_vertices[] = {
 	1,  1,
 };
 GLuint attribute_v_coord_postproc[2], uniform_fbo_texture[2], uniformGaussScale[2],uniformColorScale[2];
-
-
-
 
 #ifdef _WIN32
 
@@ -182,12 +167,7 @@ void configureController(const Controller & controller)
 	float f1_a = con.getFloat("Gesture.Swipe.MinVelocity");
 	float f2_a = con.getFloat("Gesture.Swipe.MinLength");
 
-	con.save();
-	//if (f1_a != f1 || f2_a != f2)
-	//{
-	//	Logger::stream("Main","ERROR") << "Configured. MinLength =" << f2_a << ", MinVel= " << f1_a << endl;
-	//}
-	
+	con.save();	
 	controller.enableGesture(Gesture::Type::TYPE_SWIPE);
 }
 
@@ -717,7 +697,6 @@ int main(int argc, char * argv[]){
 			handleFatalError(error.str(),3);
 		}	
 		
-		startScreen.shutdown();
 		glfwDestroyWindow(mainWindow);
 
 	}

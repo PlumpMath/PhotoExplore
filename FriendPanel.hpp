@@ -8,7 +8,6 @@
 #include "ViewOrchestrator.hpp"
 #include "PicturePanel.hpp"
 #include "TextPanel.h"
-#include "PanelFactory.hpp"
 #include "FBDataView.hpp"
 
 class FriendPanel : public ContentPanel, public ViewOwner, public FBDataView {

@@ -1,3 +1,6 @@
+#ifndef LEAP_START_SCREEN_H_
+#define LEAP_START_SCREEN_H_
+
 #include <Leap.h>
 #include <LeapMath.h>
 #include "HandModel.h"
@@ -5,7 +8,6 @@
 #include "SDLTimer.h"
 #include <opencv2/opencv.hpp>
 #include <set>
-#include "FileNode.h"
 #include "FBNode.h"
 #include "TextPanel.h"
 #include "Types.h"
@@ -22,20 +24,13 @@
 #include <include/cef_app.h>
 #include <include/cef_urlrequest.h>
 
-#include "CefFileBrowser.h"
 #include "Cefalopod.h"
 
 #include "ScrollingView.hpp"
 #include "ColorPanel.hpp"
-//#include "AbsoluteLayout.hpp"
-
-#ifndef LEAP_START_SCREEN_H_
-#define LEAP_START_SCREEN_H_
 
 
 using namespace Leap;
-
-
 
 
 class LeapStartScreen : public ActivityView {
@@ -92,8 +87,6 @@ public:
 	void layout(Leap::Vector pos, cv::Size2f size);
 
 	LeapElement * elementAtPoint(int x, int y, int & elementStateFlags);
-
-	void shutdown();
 };
 
 #endif

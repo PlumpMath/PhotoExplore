@@ -170,13 +170,13 @@ FBNode * InterleavingCursor::getNext()
 	FBNode * result = NULL;
 	if (lastCursorIndex == 0)
 	{
-		if (cursor0->getState() != State::Finished)
+		if (cursor0->getState() != FBDataCursor::Finished)
 		{
 			result = cursor0->getNext();			
 			Logger::stream("InterleavingCursor","DEBUG") << "0_C0 = " << ((result==NULL) ? "NULL" : result->getId()) << endl;
 		}
 		
-		if (result == NULL && cursor0->getState() == State::Finished && cursor1->getState() != State::Finished)
+		if (result == NULL && cursor0->getState() == FBDataCursor::Finished && cursor1->getState() != FBDataCursor::Finished)
 		{
 			result = cursor1->getNext();
 			Logger::stream("InterleavingCursor","DEBUG") << "0_C1 = " << ((result==NULL) ? "NULL" : result->getId()) << endl;
@@ -185,12 +185,12 @@ FBNode * InterleavingCursor::getNext()
 	}
 	else
 	{
-		if (cursor1->getState() != State::Finished)
+		if (cursor1->getState() != FBDataCursor::Finished)
 		{	result = cursor1->getNext();			
 			Logger::stream("InterleavingCursor","DEBUG") << "1_C1 = " << ((result==NULL) ? "NULL" : result->getId()) << endl;
 		}
 		
-		if (result == NULL && cursor1->getState() == State::Finished && cursor0->getState() != State::Finished)
+		if (result == NULL && cursor1->getState() == FBDataCursor::Finished && cursor0->getState() != FBDataCursor::Finished)
 		{
 			result = cursor0->getNext();		
 			Logger::stream("InterleavingCursor","DEBUG") << "1_C0 = " << ((result==NULL) ? "NULL" : result->getId()) << endl;

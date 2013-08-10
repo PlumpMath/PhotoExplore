@@ -35,23 +35,18 @@ private:
 	GlobalConfig(GlobalConfig const&);
 	void operator=(GlobalConfig const&); 
 
-	//map<string,ConfigValue> configMap;
 	boost::property_tree::ptree propertyTree;
 
 	bool propertyFileLoaded;
 
 public:
-	static int PreferredScreenIndex();
-
 	bool isLoaded();
 
 	static std::string TestingToken;
 	static int ScreenWidth,ScreenHeight;	
-	static float SteadyVelocity, SelectCircleMinRadius, MinimumInteractionScreenDistance;
-	static bool LeftHanded,AllowSingleHandInteraction;
+	static bool LeftHanded;
 
 	void loadConfigFile(string configFilePath);
-
 };
 
 

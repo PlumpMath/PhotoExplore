@@ -295,17 +295,6 @@ void RadialMenu::onGlobalGesture(const Controller & controller, std::string gest
 
 bool RadialMenu::onLeapGesture(const Controller & controller, const Gesture & gesture)
 {
-	if (GlobalConfig::tree()->get<bool>("Menu.AllowSwipeDownExit") && 
-		(gesture.type() == Gesture::Type::TYPE_SWIPE && (gesture.state() == Gesture::State::STATE_UPDATE|| gesture.state() == Gesture::State::STATE_UPDATE)))
-	{
-		SwipeGesture swipe(gesture);
-
-		if (swipe.direction().angleTo(Vector::down()) < PI/4.0f)
-		{
-			this->setVisible(false);
-			return true;
-		}
-	}
 	return false;
 }
 

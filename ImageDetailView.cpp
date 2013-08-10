@@ -311,7 +311,7 @@ void ImageDetailView::draw()
 
 static bool isValidInteractionPointable(const Controller & controller, Pointable p)
 {
-	return p.isValid() && (p.touchDistance() < GlobalConfig::tree()->get<float>("ImageDetailView.Resize.MaxTouchDistance"));
+	return p.isValid() && (p.touchDistance() < GlobalConfig::tree()->get<float>("ImageDetailView.ResizeInteraction.MaxTouchDistance"));
 }
 
 static bool getNewPanelInteraction(const Controller & controller, Frame frame, PanelBase * panel, PanelInteraction & activePanelInteraction, Vector hostOffset)
@@ -348,7 +348,8 @@ static bool getNewPanelInteraction(const Controller & controller, Frame frame, P
 		for (int i=0;i<interactionPointables.size();i++)
 		{
 			bool iterationSuccess = false;
-			if (isValidInteractionPointable(controller, interactionPointables[i]) && interactionPointables.at(i).tipVelocity().magnitude() < GlobalConfig::SteadyVelocity)
+			float steadyVelocity = GlobalConfig::tree()->get<float>("ImageDetailView.ResizeInteraction.SteadyVelocity");
+			if (isValidInteractionPointable(controller, interactionPointables[i]) && interactionPointables.at(i).tipVelocity().magnitude() < steadyVelocity)
 			{						
 				Vector imgPoint = LeapHelper::FindScreenPoint(controller,interactionPointables[i]);		
 				activePanelInteraction.interactingPointables.push_back(make_pair(interactionPointables[i].id(),imgPoint));		

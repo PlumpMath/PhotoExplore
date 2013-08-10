@@ -6,14 +6,9 @@
 
 #include "LeapInput.hpp"
 #include "FacebookIntroView.hpp"
-#include "FacebookFriendListView.hpp"
-#include "RelevantImageView.hpp"
 #include "SDLTimer.h"
-#include "FriendPhotoLinkedView.hpp"
 #include "FacebookDataDisplay.hpp"
-#include "AlbumDetailView.hpp"
 #include "ActivityView.hpp"
-#include "ImageButton.hpp"
 #include "FriendListCursorView.hpp"
 #include "AlbumCursorView.hpp"
 #include "FriendCursorView.hpp"
@@ -34,8 +29,6 @@ private:
 	FriendListCursorView * friendCursorView;
 	AlbumCursorView * albumCursorView;
 	FriendCursorView * friendDetailView;
-
-	//FriendDetailView * friendDetailView;
 	
 	void setTopView(View * topView);
 

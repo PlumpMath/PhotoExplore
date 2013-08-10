@@ -222,7 +222,6 @@
     <ClCompile Include="ColorPanel.cpp" />
     <ClCompile Include="DataListActivity.cpp" />
     <ClCompile Include="FakeDataSource.cpp" />
-    <ClCompile Include="FastSeekBar.cpp" />
     <ClCompile Include="FBDataCursorImpl.cpp" />
     <ClCompile Include="FBFriendFQLCursor.cpp" />
     <ClCompile Include="FriendCursorView.cpp" />
@@ -230,14 +229,12 @@
     <ClCompile Include="GlobalConfig.cpp" />
     <ClCompile Include="ContentPanel.cpp" />
     <ClCompile Include="CustomGrid.cpp" />
-    <ClCompile Include="DynamicGrid.cpp" />
     <ClCompile Include="FacebookIntroView.cpp" />
     <ClCompile Include="DataViewGenerator.cpp" />
     <ClCompile Include="FacebookBrowser.cpp" />
     <ClCompile Include="FBNode.cpp" />
     <ClCompile Include="FixedAspectGrid.cpp" />
     <ClCompile Include="FlyWheel.cpp" />
-    <ClCompile Include="FrameView.cpp" />
     <ClCompile Include="FriendPanel.cpp" />
     <ClCompile Include="HandModel.cpp" />
     <ClCompile Include="HandRotationGestureDetector.cpp" />
@@ -255,7 +252,6 @@
     <ClCompile Include="Logger.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="PanelBase.cpp" />
-    <ClCompile Include="PanelFactory.cpp" />
     <ClCompile Include="LeapInput.cpp" />
     <ClCompile Include="PicturePanel.cpp" />
     <ClCompile Include="PunchGestureDetector.cpp" />
@@ -263,7 +259,6 @@
     <ClCompile Include="ResourceManager.cpp" />
     <ClCompile Include="ScrollBar.cpp" />
     <ClCompile Include="ScrollingView.cpp" />
-    <ClCompile Include="SeekVisual.cpp" />
     <ClCompile Include="ShakeGestureDetector.cpp" />
     <ClCompile Include="SwipeGestureDetector.cpp" />
     <ClCompile Include="TextEditPanel.cpp" />
@@ -293,7 +288,6 @@
     <ClInclude Include="EmptyView.hpp" />
     <ClInclude Include="FacebookDataDisplay.hpp" />
     <ClInclude Include="FakeDataSource.hpp" />
-    <ClInclude Include="FastSeekBar.hpp" />
     <ClInclude Include="FBDataView.hpp" />
     <ClInclude Include="FrictionTutorialSteps.hpp" />
     <ClInclude Include="FriendCursorView.hpp" />
@@ -301,21 +295,16 @@
     <ClInclude Include="GlobalConfig.hpp" />
     <ClInclude Include="ContentPanel.hpp" />
     <ClInclude Include="CustomGrid.hpp" />
-    <ClInclude Include="DynamicGrid.hpp" />
-    <ClInclude Include="FacebookFriendListView.hpp" />
     <ClInclude Include="FacebookIntroView.hpp" />
     <ClInclude Include="DataViewGenerator.hpp" />
     <ClInclude Include="FacebookBrowser.hpp" />
     <ClInclude Include="FacebookLoader.h" />
     <ClInclude Include="FBNode.h" />
     <ClInclude Include="FBNodeExtractor.h" />
-    <ClInclude Include="FileManager.h" />
     <ClInclude Include="FileNode.h" />
     <ClInclude Include="FixedAspectGrid.hpp" />
     <ClInclude Include="Flywheel.h" />
-    <ClInclude Include="FrameView.hpp" />
     <ClInclude Include="FriendPanel.hpp" />
-    <ClInclude Include="FriendPhotoLinkedView.hpp" />
     <ClInclude Include="GLImport.h" />
     <ClInclude Include="GraphicContext.hpp" />
     <ClInclude Include="HandModel.h" />
@@ -330,8 +319,6 @@
     <ClInclude Include="LeapElement.hpp" />
     <ClInclude Include="LinearLayout.hpp" />
     <ClInclude Include="Logger.hpp" />
-    <ClInclude Include="PackingGrid.hpp" />
-    <ClInclude Include="PanelFactory.hpp" />
     <ClInclude Include="PicturePanel.hpp" />
     <ClInclude Include="PixelBufferPool.hpp" />
     <ClInclude Include="PointTutorialSteps.hpp" />
@@ -339,7 +326,6 @@
     <ClInclude Include="RadialMenu.hpp" />
     <ClInclude Include="ScrollBar.hpp" />
     <ClInclude Include="ScrollingView.hpp" />
-    <ClInclude Include="SeekVisual.hpp" />
     <ClInclude Include="ShakeGestureDetector.hpp" />
     <ClInclude Include="ShakeTutorialSteps.hpp" />
     <ClInclude Include="SwipeTutorialSteps.hpp" />

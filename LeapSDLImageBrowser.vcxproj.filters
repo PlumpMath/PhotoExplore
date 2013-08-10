@@ -93,9 +93,6 @@
     <ClCompile Include="Animation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="LeapDebug.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="LeapStartScreen.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -111,9 +108,6 @@
     <ClCompile Include="ScrollingView.cpp">
       <Filter>Source Files\NewPanel</Filter>
     </ClCompile>
-    <ClCompile Include="SeekVisual.cpp">
-      <Filter>Source Files\NewPanel</Filter>
-    </ClCompile>
     <ClCompile Include="FacebookBrowser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -124,12 +118,6 @@
       <Filter>Source Files\NewPanel</Filter>
     </ClCompile>
     <ClCompile Include="View.cpp">
-      <Filter>Source Files\NewPanel</Filter>
-    </ClCompile>
-    <ClCompile Include="PanelFactory.cpp">
-      <Filter>Source Files\NewPanel</Filter>
-    </ClCompile>
-    <ClCompile Include="FrameView.cpp">
       <Filter>Source Files\NewPanel</Filter>
     </ClCompile>
     <ClCompile Include="FixedAspectGrid.cpp">
@@ -152,9 +140,6 @@
     </ClCompile>
     <ClCompile Include="HandRotationGestureDetector.cpp">
       <Filter>Source Files\LeapUtil</Filter>
-    </ClCompile>
-    <ClCompile Include="FastSeekBar.cpp">
-      <Filter>Source Files\NewPanel</Filter>
     </ClCompile>
     <ClCompile Include="TexturePool.cpp">
       <Filter>Source Files\ResourceManager</Filter>
@@ -231,9 +216,6 @@
     <ClCompile Include="CustomGrid.cpp">
       <Filter>Source Files\NewPanel\GridLayouts</Filter>
     </ClCompile>
-    <ClCompile Include="DynamicGrid.cpp">
-      <Filter>Source Files\NewPanel\GridLayouts</Filter>
-    </ClCompile>
     <ClCompile Include="LinearLayout.cpp">
       <Filter>Source Files\NewPanel\GridLayouts</Filter>
     </ClCompile>
@@ -273,6 +255,9 @@
     <ClCompile Include="PicturePanel.cpp">
       <Filter>Source Files\NewPanel\DataPanels</Filter>
     </ClCompile>
+    <ClCompile Include="LeapDebug.cpp">
+      <Filter>Source Files\Overlay</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Types.h">
@@ -295,9 +280,6 @@
     </ClInclude>
     <ClInclude Include="LeapHelper.h">
       <Filter>Header Files\LeapUtil</Filter>
-    </ClInclude>
-    <ClInclude Include="FileManager.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ImageLoadingURLClient.h">
       <Filter>Header Files</Filter>
@@ -350,9 +332,6 @@
     <ClInclude Include="View.hpp">
       <Filter>Header Files\NewPanel</Filter>
     </ClInclude>
-    <ClInclude Include="UniformGrid.hpp">
-      <Filter>Header Files\NewPanel</Filter>
-    </ClInclude>
     <ClInclude Include="ViewOrchestrator.hpp">
       <Filter>Header Files\NewPanel</Filter>
     </ClInclude>
@@ -364,9 +343,6 @@
     </ClInclude>
     <ClInclude Include="FacebookBrowser.hpp">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SeekVisual.hpp">
-      <Filter>Header Files\NewPanel</Filter>
     </ClInclude>
     <ClInclude Include="GLImport.h">
       <Filter>Header Files</Filter>
@@ -380,22 +356,10 @@
     <ClInclude Include="Button.hpp">
       <Filter>Header Files\NewPanel</Filter>
     </ClInclude>
-    <ClInclude Include="PanelFactory.hpp">
-      <Filter>Header Files\NewPanel</Filter>
-    </ClInclude>
     <ClInclude Include="ImageDetailView.hpp">
       <Filter>Header Files\NewPanel</Filter>
     </ClInclude>
-    <ClInclude Include="FrameView.hpp">
-      <Filter>Header Files\NewPanel</Filter>
-    </ClInclude>
-    <ClInclude Include="FacebookFriendListView.hpp">
-      <Filter>Header Files\NewPanel\DataViews</Filter>
-    </ClInclude>
     <ClInclude Include="FacebookIntroView.hpp">
-      <Filter>Header Files\NewPanel\DataViews</Filter>
-    </ClInclude>
-    <ClInclude Include="FriendPhotoLinkedView.hpp">
       <Filter>Header Files\NewPanel\DataViews</Filter>
     </ClInclude>
     <ClInclude Include="AlbumPanel.hpp">
@@ -405,12 +369,6 @@
       <Filter>Header Files\NewPanel\DataPanels</Filter>
     </ClInclude>
     <ClInclude Include="CustomGrid.hpp">
-      <Filter>Header Files\NewPanel\GridLayouts</Filter>
-    </ClInclude>
-    <ClInclude Include="DynamicGrid.hpp">
-      <Filter>Header Files\NewPanel\GridLayouts</Filter>
-    </ClInclude>
-    <ClInclude Include="PackingGrid.hpp">
       <Filter>Header Files\NewPanel\GridLayouts</Filter>
     </ClInclude>
     <ClInclude Include="FixedAspectGrid.hpp">
@@ -430,9 +388,6 @@
     </ClInclude>
     <ClInclude Include="RadialMenu.hpp">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="FastSeekBar.hpp">
-      <Filter>Header Files\NewPanel</Filter>
     </ClInclude>
     <ClInclude Include="FakeDataSource.hpp">
       <Filter>Header Files\DataModel</Filter>
@@ -541,6 +496,9 @@
     </ClInclude>
     <ClInclude Include="WinHelper.hpp">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UniformGrid.hpp">
+      <Filter>Header Files\NewPanel\GridLayouts</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

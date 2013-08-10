@@ -25,10 +25,10 @@ public:
 		return lowpass(previous,input,alpha);
 	}
 
-	static double cyclicalLowPassFilter(double previousAngle, double measuredAngle, double RC, double dT)
+	static float cyclicalLowPassFilter(double previousAngle, double measuredAngle, double RC, double dT)
 	{		
 		double alpha = dT/(RC + dT);
-		float result;
+		double result;
 		bool doSpecialCase = abs(measuredAngle - previousAngle) > Leap::PI;
 		if (doSpecialCase && sgn(measuredAngle) < 0 && sgn(previousAngle) > 0)
 		{
@@ -44,7 +44,7 @@ public:
 		{
 			result = lowpass(previousAngle, measuredAngle, alpha);
 		}
-		return result;
+		return (float)result;
 	}
 
 	static Vector angularLowpass(Vector previous, Vector input, double RC, double dT)

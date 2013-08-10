@@ -63,7 +63,7 @@ public:
 	float getBlurScale()
 	{
 		if (anim.isRunning())
-			return anim.getValue();
+			return (float)anim.getValue();
 		else
 			return 4;
 	}
