@@ -37,11 +37,6 @@ void GlobalConfig::loadConfigFile(string path)
 	}
 }
 
-int GlobalConfig::PreferredScreenIndex()
-{
-	return -1;         
-}
-
 boost::property_tree::ptree * GlobalConfig::tree()
 {
 	if (!getInstance().isLoaded())

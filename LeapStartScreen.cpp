@@ -9,6 +9,7 @@
 #include "InteractionsTutorial.hpp"
 #include "WinHelper.hpp"
 
+#include <boost/thread.hpp>
 
 LeapStartScreen::LeapStartScreen(std::string startDir)
 {
