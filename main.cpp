@@ -363,14 +363,11 @@ int main(int argc, char * argv[]){
 	
 			
 	try
-	{				
-		CefInitialize(mainArgs, settings, NULL);		
+	{
 
 		glfwInit();
 		
-		printf("Initializing config file \n");
 		GlobalConfig::getInstance().loadConfigFile("./config.json");
-		printf("Done\n");	
 
 		initGraphics();
 	
@@ -387,6 +384,8 @@ int main(int argc, char * argv[]){
 #endif
 		}
 	
+		
+		CefInitialize(mainArgs, settings, NULL);
 		FacebookDataDisplay::instance = new FacebookBrowser();
 
 		bool * quit = new bool[1];

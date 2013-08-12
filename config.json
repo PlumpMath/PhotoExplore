@@ -10,9 +10,9 @@
 	},
 	"Logging" : 
 	{
-//		"File" : "/Users/adamskubel/photo_explorer.log",
-		"File" : "C:\\Users\\Adam\\Desktop\\PhotoExplorer\\photo_explorer.log",
-		"Enabled" : true
+		"File" : "/Users/adamskubel/photo_explorer.log",
+//		"File" : "C:\\Users\\Adam\\Desktop\\PhotoExplorer\\photo_explorer.log",
+		"Enabled" : false
 	},
 	"Typography" : 
 	{
@@ -43,8 +43,8 @@
 		"EnableLineSmoothing" : true,
 		"FSAASamples" : 0,
 		"ShaderDirectory" : ".",
-		"Fullscreen" : false,
-		"OverrideResolution" : true,
+		"Fullscreen" : true,
+		"OverrideResolution" : false,
 		"OverrideWidth" : 1920,
 		"OverrideHeight" : 1080,
 		"UseIntForNonSubPixelRender" : false,
@@ -82,6 +82,7 @@
 	},
 	"Cef" : 
 	{
+		"SkipInit" : true,
 		"PersistentCookiesEnabled" : true
 	},
 	"TextureLoading" :
@@ -119,7 +120,7 @@
 	},
 	"FakeDataMode" : 
 	{
-		"Enable" : true,
+		"Enable" : false,
 		"ImageDirectories" :
 		[ 
 			"C:\\Users\\Adam\\Pictures",		
