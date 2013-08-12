@@ -25,6 +25,7 @@
 #include "FacebookBrowser.hpp"
 #include "CefHelper.hpp"
 #include "InputEventHandler.hpp"
+#include "LeapStatusOverlay.hpp"
 
 #ifndef _WIN32
 #include <execinfo.h>
@@ -94,7 +95,8 @@ bool initializeWindow( int window_width, int window_height, bool isFull)
 	auto conf = GlobalConfig::tree()->get_child("GraphicsSettings");
 	
 	glfwWindowHint(GLFW_SAMPLES,conf.get<int>("FSAASamples"));
-	
+	glfwWindowHint(GLFW_RESIZABLE,conf.get<bool>("ResizableWindow"));
+
 	GLFWwindow * handle = glfwCreateWindow(window_width, window_height,conf.get<string>("WindowTitle").c_str(),(isFull) ? glfwGetPrimaryMonitor() : NULL, NULL);
 
 	if (handle == NULL)
@@ -308,6 +310,14 @@ int initShaders()
 	}
 }
 
+
+void destroyGraphics()
+{
+	disposeShaders();
+	glfwDestroyWindow(GraphicsContext::getInstance().MainWindow);
+	GraphicsContext::getInstance().MainWindow = NULL;
+}
+
 void initGraphics()
 {
 	if (!GlobalConfig::tree()->get<bool>("GraphicsSettings.OverrideResolution"))
@@ -332,60 +342,12 @@ void initGraphics()
 }
 
 
-void destroyGraphics()
+int run()
 {
-	disposeShaders();
-	glfwDestroyWindow(GraphicsContext::getInstance().MainWindow);
-	GraphicsContext::getInstance().MainWindow = NULL;
-}
-
-#ifdef _WIN32
-
-int WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmdShow) {
-	
-#else
-	
-int main(int argc, char * argv[]){
-		
-	signal(SIGSEGV, handle);
-	signal(SIGBUS, handle);
-	
-#endif
-	
-	CefMainArgs mainArgs;
-	CefSettings settings;
-	
-#if defined(_WIN32)
-	settings.multi_threaded_message_loop = true;
-	settings.single_process = true;
-#endif
-	settings.command_line_args_disabled = true;
-	
 			
 	try
 	{
-
-		glfwInit();
-		
-		GlobalConfig::getInstance().loadConfigFile("./config.json");
-
-		initGraphics();
 	
-		if (GlobalConfig::tree()->get<bool>("FakeDataMode.Enable")) 
-			FBDataSource::instance = new FakeDataSource();
-		else
-		{
-			FBDataSource::instance = new FacebookLoader();
-#ifdef _WIN32
-			if (GlobalConfig::tree()->get<bool>("Cef.PersistentCookiesEnabled"))
-			{
-				CefCookieManager::GetGlobalManager()->SetStoragePath(".",true);
-			}
-#endif
-		}
-	
-		
-		CefInitialize(mainArgs, settings, NULL);
 		FacebookDataDisplay::instance = new FacebookBrowser();
 
 		bool * quit = new bool[1];
@@ -396,6 +358,10 @@ int main(int argc, char * argv[]){
 		HandProcessor * handProcessor = HandProcessor::getInstance();
 		LeapDebug leapDebug;
 		LeapDebug::instance = &leapDebug;
+
+
+		LeapStatusOverlay leapStatusOverlay;
+		leapStatusOverlay.layout(Vector(),cv::Size2f(GlobalConfig::ScreenWidth,GlobalConfig::ScreenHeight));
 
 		
 		//Configure leap and attach listeners
@@ -411,6 +377,15 @@ int main(int argc, char * argv[]){
 		});
 
 		LeapInput::getInstance()->setTopLevelElement(&startScreen);
+
+		InputEventHandler::getInstance().addFocusChangedCallback([&](GLFWwindow * window, int focused) -> bool{
+			
+			if (focused == GL_FALSE)
+				glfwIconifyWindow(window);
+
+			return false;
+		});
+
 
 
 		bool doFinish = GlobalConfig::tree()->get<bool>("GraphicsSettings.ExecuteGLFinish");
@@ -491,8 +466,7 @@ int main(int argc, char * argv[]){
 				itemTimer.start();
 				HandProcessor::getInstance()->processFrame(controller.frame());
 				LeapInput::getInstance()->processInputEvents();
-				LeapInput::getInstance()->processFrame(controller,controller.frame());									
-				startScreen.onFrame(controller);
+				LeapInput::getInstance()->processFrame(controller,controller.frame());			
 				leapDebug.plotValue("Input",Colors::White,itemTimer.millis() * 20);
 
 				itemTimer.start();
@@ -504,6 +478,10 @@ int main(int argc, char * argv[]){
 				startScreen.update(deltaTime);
 				frameOut  << "StartScreen = " << itemTimer.millis() << "ms \n";
 				itemTimer.start();
+
+				
+				leapStatusOverlay.onFramePoll(controller);
+				leapStatusOverlay.update();
 				
 
 				GLFWwindow * mainWindow = GraphicsContext::getInstance().MainWindow;
@@ -528,6 +506,7 @@ int main(int argc, char * argv[]){
 							GlobalConfig::ScreenHeight = newHeight;
 
 							startScreen.layout(Vector(),cv::Size2f(newWidth,newHeight));
+							leapStatusOverlay.layout(Vector(),cv::Size2f(newWidth,newHeight));
 						}
 					}
 
@@ -607,6 +586,7 @@ int main(int argc, char * argv[]){
 					leapDebug.draw();
 					leapDebug.plotValue("Draw",Colors::HotPink,itemTimer.millis() * 20);
 
+					leapStatusOverlay.draw();
 
 					itemTimer.start();
 					if (doFinish)
@@ -667,3 +647,69 @@ int main(int argc, char * argv[]){
 
     return 0;
 }
+
+
+#ifdef _WIN32
+
+int WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmdShow) {
+	
+	CefMainArgs mainArgs;
+	CefSettings settings;
+	
+	settings.multi_threaded_message_loop = true;
+	settings.single_process = true;
+	settings.command_line_args_disabled = true;
+	
+	CefInitialize(mainArgs, settings, NULL);
+
+	glfwInit();
+
+	GlobalConfig::getInstance().loadConfigFile("./config.json");
+
+	initGraphics();
+
+	if (GlobalConfig::tree()->get<bool>("FakeDataMode.Enable")) 
+		FBDataSource::instance = new FakeDataSource();
+	else
+	{
+		FBDataSource::instance = new FacebookLoader();
+		if (GlobalConfig::tree()->get<bool>("Cef.PersistentCookiesEnabled"))
+		{
+			CefCookieManager::GetGlobalManager()->SetStoragePath(".",true);
+		}
+	}
+	
+	return run();
+}
+#else
+	
+int main(int argc, char * argv[]){
+
+	signal(SIGSEGV, handle);
+	signal(SIGBUS, handle);
+	
+	CefMainArgs mainArgs;
+	CefSettings settings;
+
+	settings.command_line_args_disabled = true;
+
+	glfwInit();
+
+	GlobalConfig::getInstance().loadConfigFile("./config.json");
+
+	initGraphics();
+
+	if (GlobalConfig::tree()->get<bool>("FakeDataMode.Enable")) 
+		FBDataSource::instance = new FakeDataSource();
+	else
+	{
+		FBDataSource::instance = new FacebookLoader();
+	}
+	
+	CefInitialize(mainArgs, settings, NULL);
+
+	return run();
+
+}
+
+#endif

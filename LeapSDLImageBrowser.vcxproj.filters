@@ -270,6 +270,9 @@
     <ClCompile Include="ActivityView.cpp">
       <Filter>Source Files\NewPanel</Filter>
     </ClCompile>
+    <ClCompile Include="LeapStatusOverlay.cpp">
+      <Filter>Source Files\Overlay</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Types.h">
@@ -517,6 +520,9 @@
     </ClInclude>
     <ClInclude Include="InputEventHandler.hpp">
       <Filter>Header Files\EventHandling</Filter>
+    </ClInclude>
+    <ClInclude Include="LeapStatusOverlay.hpp">
+      <Filter>Header Files\Overlay</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

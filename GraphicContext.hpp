@@ -4,7 +4,9 @@
 #include <queue>
 #include "Animation.h"
 #include <map>
+#include <stack>
 #include "GLImport.h"
+#include "View.hpp"
 
 class GraphicsContext {
 
@@ -42,22 +44,22 @@ public:
 
 	map<string,float> drawHintMap;
 
-	void setBlurEnabled(bool enabled)
-	{
-		if (enabled != BlurRenderEnabled)
-		{
-			BlurRenderEnabled = enabled;
+	stack<View*> clearViewStack;
 
-			//if (enabled)
-			//{
-			//	anim = DoubleAnimation(30,5,200,new LinearInterpolator(),false,true);
-			//	anim.start();
-			//}
-			//else
-			//{
-			//	anim.stop();
-			//}
-		}
+	void requestExclusiveClarity(View * clearView)
+	{
+		if (clearView != NULL && (clearViewStack.empty() || clearViewStack.top() != clearView))
+			clearViewStack.push(clearView);
+
+		BlurRenderEnabled = !clearViewStack.empty();
+	}
+
+	void releaseExclusiveClarity(View * clearView)
+	{
+		if (!clearViewStack.empty() && clearViewStack.top() == clearView)
+			clearViewStack.pop();
+
+		BlurRenderEnabled = !clearViewStack.empty();
 	}
 
 	float getBlurScale()
@@ -89,20 +91,11 @@ public:
 	{
 		drawHintMap.erase(key);
 	}
-
-
-	void requestClearDraw(std::function<void()> drawFunction)
-	{
-		drawCallbacks.push(drawFunction);
-	}
-
+	
 	void doClearDraw()
 	{
-		while (!drawCallbacks.empty())
-		{
-			drawCallbacks.front()(); //(-)_(-)
-			drawCallbacks.pop();
-		}
+		if (!clearViewStack.empty())
+			clearViewStack.top()->draw();
 	}
 
 	void invokeGlobalAction(std::string args)

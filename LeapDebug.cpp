@@ -10,8 +10,7 @@
 static float getTutorialHeight()
 {	
 	float relativeHeight = GlobalConfig::tree()->get<float>("Tutorial.RelativeHeight") * GlobalConfig::ScreenHeight;
-	float minHeight = GlobalConfig::tree()->get<float>("Tutorial.MinimumHeight");
-	
+	float minHeight = GlobalConfig::tree()->get<float>("Tutorial.MinimumHeight");	
 	return max<float>(minHeight,relativeHeight);
 }
 
@@ -26,29 +25,6 @@ LeapDebug::LeapDebug()
 
 	this->backgroundColor = Colors::Black;
 	backgroundColor.setAlpha(.5);
-
-	TextPanel * leapDisconnectedPanel = new TextPanel();
-	leapDisconnectedPanel->setLayoutParams(LayoutParams(cv::Size2f(400,200)));
-	leapDisconnectedPanel->setText(GlobalConfig::tree()->get<string>("Strings.LeapOverlay.DisconnectedMessage"));
-	leapDisconnectedPanel->setTextColor(Colors::White);
-	leapDisconnectedPanel->setTextSize(8);
-	leapDisconnectedPanel->setBackgroundColor(Colors::DarkRed.withAlpha(.7f));
-	leapDisconnectedPanel->setPosition(Vector(GlobalConfig::ScreenWidth - 450, GlobalConfig::ScreenHeight - 100, 1));
-	leapDisconnectedPanel->layout(Vector(GlobalConfig::ScreenWidth - 500, GlobalConfig::ScreenHeight - 300, 10),cv::Size2f(400,150));
-
-	this->leapDisconnectedPanel = leapDisconnectedPanel;
-
-	TextPanel * leapNotFocusedPanel = new TextPanel();
-	leapNotFocusedPanel->setLayoutParams(LayoutParams(cv::Size2f(400,200)));
-	leapNotFocusedPanel->setText(GlobalConfig::tree()->get<string>("Strings.LeapOverlay.NotFocusedMessage"));
-	leapNotFocusedPanel->setTextColor(Colors::White);
-	leapNotFocusedPanel->setTextSize(8);
-	leapNotFocusedPanel->setPosition(Vector(GlobalConfig::ScreenWidth - 450, GlobalConfig::ScreenHeight - 100, 1));
-	leapNotFocusedPanel->layout(Vector(GlobalConfig::ScreenWidth - 500, GlobalConfig::ScreenHeight - 300, 10),cv::Size2f(400,150));
-	leapNotFocusedPanel->setBackgroundColor(Colors::LeapGreen.withAlpha(.7f));
-	leapNotFocusedPanel->setVisible(false);
-
-	this->leapNotFocusedPanel = leapNotFocusedPanel;
 	
 	auto labels = GlobalConfig::tree()->get_child("Tutorial.Labels");
 
@@ -221,39 +197,6 @@ void LeapDebug::plotValue(string key, Color color, float value)
 
 void LeapDebug::onFrame(const Controller& controller)
 {
-
-	if (controller.isConnected() != isControllerConnected)
-	{
-		isControllerConnected = controller.isConnected();
-		isControllerFocused = controller.hasFocus();
-
-		if (isControllerConnected)
-		{
-			leapDisconnectedPanel->setVisible(false);			
-			leapNotFocusedPanel->setVisible(false);
-		}
-		else
-		{			
-			leapNotFocusedPanel->setVisible(false);
-			leapDisconnectedPanel->setVisible(true);
-		}
-	}
-
-	if (controller.isConnected() && isControllerFocused != controller.hasFocus())
-	{
-		isControllerFocused = controller.hasFocus();
-		if (isControllerFocused)
-		{
-			leapDisconnectedPanel->setVisible(false);
-			leapNotFocusedPanel->setVisible(false);
-		}
-		else
-		{
-			leapNotFocusedPanel->setVisible(true);
-			leapDisconnectedPanel->setVisible(false);			
-		}
-	}
-
 	
 	Frame frame = controller.frame();
 
@@ -301,13 +244,6 @@ void LeapDebug::draw()
 {
 	glPushMatrix();
 	glLoadIdentity();
-	
-	if (leapDisconnectedPanel->isVisible())
-		leapDisconnectedPanel->draw();
-	
-	if (leapNotFocusedPanel->isVisible())
-		leapNotFocusedPanel->draw();
-		
 
 	for (int i = 0;i< persistentVisuals.size();i++)
 	{

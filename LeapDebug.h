@@ -45,8 +45,6 @@ private:
 	bool debugPlotEnabled;
 
 	Frame lastFrame;
-	View * leapNotFocusedPanel;
-	View * leapDisconnectedPanel;
 
 	bool isControllerConnected, isControllerFocused;
 

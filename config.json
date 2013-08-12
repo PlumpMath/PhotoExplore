@@ -42,9 +42,10 @@
 		"EnablePixelBuffers" : true,
 		"EnableLineSmoothing" : true,
 		"FSAASamples" : 0,
+		"ResizableWindow" : false,
 		"ShaderDirectory" : ".",
-		"Fullscreen" : true,
-		"OverrideResolution" : false,
+		"Fullscreen" : false,
+		"OverrideResolution" : true,
 		"OverrideWidth" : 1920,
 		"OverrideHeight" : 1080,
 		"UseIntForNonSubPixelRender" : false,
@@ -102,6 +103,31 @@
 		"TextureCacheGCCollectRatio" : 0.8,
 		"ImageCacheGCCollectRatio" : 0.8,
 		"DebugLogging" : false
+	},
+	"StatusOverlay" : 
+	{
+		"RelativeWidth" : 0.3,
+		"RelativeHeight" : 0.3,
+		"NotConnected" : 
+		{
+			"Text" : "Leap Motion Controller is not connected",
+			"TextSize" : 12,
+			"TextColor" :  {"R" : 240,"G" : 240,"B" : 240,"A" : 255},
+			"BackgroundColor" :  {"R" : 100,"G" : 0,"B" : 0,"A" : 255},
+			"BorderColor" :  {"R" : 240,"G" : 240,"B" : 240,"A" : 240},
+			"BorderThickness" : 0,
+			"UseQuadBorder" : true
+		},
+		"NotFocused" : 
+		{
+			"Text" : "Leap Motion Controller is not focused",
+			"TextSize" : 12,
+			"TextColor" :  {"R" : 0,"G" : 0,"B" : 0,"A" : 255},
+			"BackgroundColor" :  {"R" : 154,"G" : 200,"B" : 71,"A" : 255},
+			"BorderColor" :  {"R" : 240,"G" : 240,"B" : 240,"A" : 240},
+			"BorderThickness" : 0,
+			"UseQuadBorder" : true
+		}	
 	},
 	"WindowsDebugPanel" :
 	{
@@ -205,6 +231,7 @@
 			"MinRotations" : 1.1,
 			"MaxDuration" : 1.0
 		},
+		"EnableFullscreenToggle" : false,
 		"CornerPadding" : 36,		
 		"WhiteBackground" : false,
 		"RelativeHeight" : 0.07,
@@ -779,13 +806,5 @@
 				"InvertColor" : true								
 			}
 		]	
-	},
-	"Strings" : 
-	{
-		"LeapOverlay"  :
-		{
-			"DisconnectedMessage" : "Leap Motion Controller is disconnected",
-			"NotFocusedMessage" : "Leap Motion Controller is not focused"
-		}		
 	}
 }

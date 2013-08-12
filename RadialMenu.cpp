@@ -14,7 +14,10 @@ RadialMenu::RadialMenu(vector<RadialMenuItem> & items)
 {			
 	items.push_back(RadialMenuItem("Exit and Logout","logout", Colors::DarkRed));
 	items.push_back(RadialMenuItem("Exit PhotoExplore","exit",Colors::OrangeRed));
-	items.push_back(RadialMenuItem("Toggle Fullscreen","full",Colors::DarkSlateBlue));
+
+	if (GlobalConfig::tree()->get<bool>("Menu.EnableFullscreenToggle"))
+		items.push_back(RadialMenuItem("Toggle Fullscreen","full",Colors::DarkSlateBlue));
+
 	//items.push_back(RadialMenuItem("Hide Tutorial","hide_tutorial", Colors::DarkTurquoise));
 	//items.push_back(RadialMenuItem("Tap mode = On Press","toggle_tap", Colors::DarkTurquoise));
 	items.push_back(RadialMenuItem("Privacy Information","show_privacy_info", Colors::DodgerBlue));
@@ -263,8 +266,7 @@ void RadialMenu::show()
 {
 	state = MenuState_DisplayFull;
 	LeapInput::getInstance()->requestGlobalGestureFocus(this);
-	blurWasEnabled = GraphicsContext::getInstance().BlurRenderEnabled;
-	GraphicsContext::getInstance().setBlurEnabled(true);
+	GraphicsContext::getInstance().requestExclusiveClarity(this);
 	menuLaunchButton->setVisible(false);
 	layout(lastPosition,lastSize);
 }
@@ -273,8 +275,7 @@ void RadialMenu::dismiss()
 {
 	state = MenuState_ButtonOnly;
 	LeapInput::getInstance()->releaseGlobalGestureFocus(this);
-	if (!blurWasEnabled)
-		GraphicsContext::getInstance().setBlurEnabled(false);	
+	GraphicsContext::getInstance().releaseExclusiveClarity(this);
 	menuLaunchButton->setVisible(true);
 	layout(lastPosition,lastSize);
 }
@@ -316,10 +317,6 @@ void RadialMenu::draw()
 		{
 			menuLaunchButton->draw();
 		}			
-	}
-	else
-	{
-		GraphicsContext::getInstance().requestClearDraw([this](){this->draw();});
 	}
 }
 

@@ -34,6 +34,7 @@ protected:
 	cv::Rect_<float> currentTextRect;
 
 public:
+	TextPanel(boost::property_tree::ptree styleDefinition);
 	TextPanel(string text);
 	TextPanel();	
 	void reloadText();

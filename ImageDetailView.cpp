@@ -262,7 +262,14 @@ void ImageDetailView::layout(Vector position, cv::Size2f size)
 
 void ImageDetailView::setVisible(bool _visible)
 {
-	GraphicsContext::getInstance().setBlurEnabled(_visible);
+	if (_visible)
+	{
+		GraphicsContext::getInstance().requestExclusiveClarity(this);
+	}
+	else
+	{
+		GraphicsContext::getInstance().releaseExclusiveClarity(this);
+	}
 
 	View::setVisible(_visible);
 
@@ -308,10 +315,6 @@ void ImageDetailView::draw()
 			this->imagePanel->draw();
 		
 		glTranslatef(-hostOffset.x,0,0);
-	}
-	else
-	{
-		GraphicsContext::getInstance().requestClearDraw([this](){this->draw();});
 	}
 }
 

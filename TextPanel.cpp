@@ -13,6 +13,13 @@ TextPanel::TextPanel()
 	textEnabled = false;
 }
 
+TextPanel::TextPanel(boost::property_tree::ptree configTree)
+{
+	init();
+	setStyle(configTree);
+}
+
+
 void TextPanel::init()
 {	
 	currentResource = NULL;

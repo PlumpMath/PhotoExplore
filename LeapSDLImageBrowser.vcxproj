@@ -250,6 +250,7 @@
     <ClCompile Include="LeapDebug.cpp" />
     <ClCompile Include="LeapElement.cpp" />
     <ClCompile Include="LeapStartScreen.cpp" />
+    <ClCompile Include="LeapStatusOverlay.cpp" />
     <ClCompile Include="LinearLayout.cpp" />
     <ClCompile Include="Logger.cpp" />
     <ClCompile Include="main.cpp" />
@@ -321,6 +322,7 @@
     <ClInclude Include="InputEventHandler.hpp" />
     <ClInclude Include="LeapCursor.hpp" />
     <ClInclude Include="LeapElement.hpp" />
+    <ClInclude Include="LeapStatusOverlay.hpp" />
     <ClInclude Include="LinearLayout.hpp" />
     <ClInclude Include="Logger.hpp" />
     <ClInclude Include="PicturePanel.hpp" />

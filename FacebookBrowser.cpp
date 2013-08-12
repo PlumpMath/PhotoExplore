@@ -243,12 +243,6 @@ void FacebookBrowser::draw()
 	{	
 		pathView->draw();		
 	}
-	else
-	{
-		GraphicsContext::getInstance().requestClearDraw([this](){
-			pathView->draw();
-		});
-	}
 }
 
 void FacebookBrowser::update()
