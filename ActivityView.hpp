@@ -17,15 +17,14 @@ protected:
 	
 	ViewState viewState;
 
+	
 public:
 	ActivityView() :
 	  viewState(New)
 	{
 	}
 	
-	virtual void setViewFinishedCallback(boost::function<void(std::string)> _viewFinishedCallback) {
-		this->viewFinishedCallback = _viewFinishedCallback;
-	}
+	virtual void setViewFinishedCallback(boost::function<void(std::string)> _viewFinishedCallback);
 
 	virtual bool onLeapGesture(const Controller & controller, const Gesture & gesture) { return false; }
 
@@ -44,6 +43,10 @@ public:
 	{
 		return this->viewState;
 	}
+
+	static float getMenuHeight();
+	static float getTutorialHeight();
+
 
 
 

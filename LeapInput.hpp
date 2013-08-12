@@ -83,6 +83,7 @@ private:
 	
 	bool drawNonDominant;
 	
+	LeapElement * topElement;
 	
 public:
 	static LeapInput * getInstance()
@@ -95,6 +96,8 @@ public:
 	void processFrame(const Controller & controller, Frame frame);
 	void processInputEvents();
 	
+	void setTopLevelElement(LeapElement * top);
+
 	void requestGlobalGestureFocus(ActivityView * globalListener);
 	void releaseGlobalGestureFocus(ActivityView * globalListener);
 

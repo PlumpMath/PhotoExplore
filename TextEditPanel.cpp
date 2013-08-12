@@ -1,12 +1,23 @@
 #include "TextEditPanel.hpp"
 #include "GLImport.h"
 #include "GraphicContext.hpp"
-
+#include "InputEventHandler.hpp"
 
 TextEditPanel::TextEditPanel()
 {
 	cursorAnimateTimer.start();
 	keyRepeatTimer.start();
+
+	InputEventHandler::getInstance().addUnicodeCharacterListener([this](GLFWwindow * window, unsigned int key) -> bool {
+		if (this->isVisible())
+		{
+			stringstream newString;
+			newString << this->getText();
+			newString << (char)key;
+			this->setText(newString.str());
+		}
+		return false;
+	});
 }
 
 void TextEditPanel::setTextChangedCallback(boost::function<void(std::string newText)> callback)
@@ -56,76 +67,25 @@ void TextEditPanel::update()
 	GLFWwindow * checkWindow = GraphicsContext::getInstance().MainWindow;
 	int pressedLetter = -1;
 	double updateTime = keyRepeatTimer.millis();
-	for (int key = 'A'; key <= 'Z'; key++)
-	{
-		if (checkKey(checkWindow, key,updateTime))
-			pressedLetter = std::tolower(key);			
-	}
-	
 	set<int> pressedKeys;
-	
 	if (checkKey(checkWindow, GLFW_KEY_BACKSPACE,updateTime))
 		pressedKeys.insert(GLFW_KEY_BACKSPACE);
-
-	if (checkKey(checkWindow, GLFW_KEY_SPACE,updateTime))
-		pressedLetter = (int)' ';
-
 	
-	//int checkKeys [] = {GLFW_KEY_BACKSPACE,GLFW_KEY_SPACE};
-	//int num = 2;
-
-	//for (int i=0;i<num;i++)
-	//{
-	//	int key = checkKeys[i];
-	//	int newState = glfwGetKey(key);
-	//	if (newState == GLFW_PRESS && keyStateMap[key] == GLFW_RELEASE)
-	//	{
-	//		pressedKeys.insert(key);
-	//	}			
-	//	keyStateMap[key] = newState;
-	//}
-
-	int modifierKeys [] = {GLFW_KEY_LEFT_SHIFT,GLFW_KEY_RIGHT_SHIFT};
-	int num = 2;
-
-	bool shiftKey = false;
-	 
-	for (int i=0;i<num;i++)
+	if (pressedKeys.count(GLFW_KEY_BACKSPACE) > 0)
 	{
-		int key = modifierKeys[i];
-		int newState = glfwGetKey(checkWindow,key);
-		if (newState == GLFW_PRESS)
+		if (text.length() > 0)
 		{
-			shiftKey = true;
-			break;
-		}			
-	}
-
-
-	bool textChanged = false;
-	if (pressedKeys.count(GLFW_KEY_BACKSPACE) > 0 && text.length() > 0)
-	{
-		text = text.substr(0,text.length()-1);
-
-		setText(text);
-		textChanged = true;
-	}
-	else if (text.length() < maxLength)
-	{		
-		if (pressedLetter > 0)
-		{
-			if (pressedLetter != ((int)' ') && shiftKey)
-				pressedLetter = std::toupper(pressedLetter);
-
-			stringstream ss;
-			ss << text << (char)pressedLetter;
-			text = ss.str();
+			text = text.substr(0,text.length()-1);
 			setText(text);
-			textChanged = true;
+		}
+		else if (!textDirty)
+		{
+			if (!textChangedCallback.empty())
+				textChangedCallback(text);
 		}
 	}
 
-	if (textChanged)
+ 	if (textDirty)
 	{
 		reloadText();
 		if (!textChangedCallback.empty())

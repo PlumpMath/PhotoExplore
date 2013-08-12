@@ -6,6 +6,15 @@
 #include "TextPanel.h"
 #include "LinearLayout.hpp"
 
+
+static float getTutorialHeight()
+{	
+	float relativeHeight = GlobalConfig::tree()->get<float>("Tutorial.RelativeHeight") * GlobalConfig::ScreenHeight;
+	float minHeight = GlobalConfig::tree()->get<float>("Tutorial.MinimumHeight");
+	
+	return max<float>(minHeight,relativeHeight);
+}
+
 LeapDebug::LeapDebug()
 {
 #ifdef _WIN32
@@ -50,18 +59,17 @@ LeapDebug::LeapDebug()
 	Color invertedLabelColor = Color(GlobalConfig::tree()->get_child("Tutorial.InvertedTextColor"));
 
 
+	float tutorialHeight = getTutorialHeight();
 	float tutorialTextSize = labels.get<float>("TextSize");
 	float textPadding = labels.get<float>("TextPadding");
 	string fontName = labels.get<string>("FontName");
 
-	float imgHeight = GlobalConfig::tree()->get<float>("Tutorial.ImageHeight") / GlobalConfig::tree()->get<float>("Tutorial.Height");
+	float imgHeight = GlobalConfig::tree()->get<float>("Tutorial.ImageHeight");
+		
+	float defaultIconWidth = tutorialHeight;
+	auto tutorialIcons = GlobalConfig::tree()->get_child("Tutorial.Icons");	
 
-	
-	float defaultIconWidth = GlobalConfig::tree()->get<float>("Tutorial.BaseIconWidth");
-	auto tutorialIcons = GlobalConfig::tree()->get_child("Tutorial.Icons");
-	
-
-	cv::Size2f tutorialSize = cv::Size2f(300,GlobalConfig::tree()->get<float>("Tutorial.Height"));
+	cv::Size2f tutorialSize = cv::Size2f(0,tutorialHeight);
 
 	for (auto tutIt = tutorialIcons.begin(); tutIt != tutorialIcons.end(); tutIt++)
 	{		
@@ -283,7 +291,7 @@ void LeapDebug::setTutorialImages(vector<string> names)
 		if (gesture != tutorialPanels.end())
 			tutorialLayout->addChild(gesture->second);
 	}
-	cv::Size2f size = cv::Size2f(300,GlobalConfig::tree()->get<float>("Tutorial.Height"));
+	cv::Size2f size = cv::Size2f(300,GlobalConfig::tree()->get<float>("Tutorial.RelativeHeight")*GlobalConfig::ScreenHeight);
 	tutorialPanel->measure(size);
 	tutorialPanel->layout(Vector(0,GlobalConfig::ScreenHeight-size.height,10),size);
 	

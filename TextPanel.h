@@ -18,7 +18,6 @@ private:
 	float textSize, textFitPadding;
 	
 	bool fitToText;
-	bool textDirty;
 	bool textEnabled;
 		
 	int textAlignment;
@@ -30,6 +29,7 @@ private:
 
 protected:
 	string text;
+	bool textDirty;
 	ResourceData * currentResource;
 	cv::Rect_<float> currentTextRect;
 

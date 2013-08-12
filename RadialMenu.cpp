@@ -250,7 +250,8 @@ void RadialMenu::layout(Vector pos, cv::Size2f size)
 	}
 	else if (state == MenuState_ButtonOnly) 
 	{
-		float height = GlobalConfig::tree()->get<float>("Menu.Height");
+		float height = getMenuHeight();
+
 		cv::Size2f menuButtonSize = cv::Size2f(height*1.5f,height);
 		menuLaunchButton->layout(Vector(size.width - menuLaunchButton->getMeasuredSize().width,0,10) + pos,menuButtonSize);
 		menuLaunchButton->layout(Vector(size.width - menuLaunchButton->getMeasuredSize().width,0,10) + pos,menuButtonSize);

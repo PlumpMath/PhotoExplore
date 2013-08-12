@@ -220,7 +220,7 @@ void FriendListCursorView::layout(Vector position, cv::Size2f size)
 	Logger::stream("FriendListCursorView","INFO") << "Layout. Position = " << position.toString() << endl;
 	DataListActivity::layout(position,size);
 
-	float menuHeight = GlobalConfig::tree()->get<float>("Menu.Height");
+	float menuHeight = getMenuHeight();
 	
 	static long hideTime = GlobalConfig::tree()->get<long>("FriendLookupView.LookupDialog.HideTime");
 	static long showTime = GlobalConfig::tree()->get<long>("FriendLookupView.LookupDialog.ShowTime");

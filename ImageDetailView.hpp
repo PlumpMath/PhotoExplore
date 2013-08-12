@@ -81,6 +81,8 @@ public:
 	void setVisible(bool visible);
 	void draw();
 
+	float getZValue();
+
 	
 	cv::Rect_<int> getHitRect();
 

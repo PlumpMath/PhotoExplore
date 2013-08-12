@@ -134,11 +134,6 @@ string TextPanel::getFontName()
 void TextPanel::setTextAlignment(int a)
 {
 	this->textAlignment = a;
-
-	//if (textAlignment == 0)
-	//{
-	//	this->horizontalAlignment = Left;		
-	//}
 }
 
 void TextPanel::setText(string _text)

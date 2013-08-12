@@ -28,7 +28,7 @@ FacebookBrowser::FacebookBrowser()
 	homeButtonText->setTextFitMode(true);
 	
 	
-	float menuHeight = GlobalConfig::tree()->get<float>("Menu.Height");
+	float menuHeight = ActivityView::getMenuHeight();
 
 	homeButton = homeButtonText;
 	//((Button*)homeButton)->setTextAlignment(TextPanel::Left);
@@ -207,7 +207,9 @@ void FacebookBrowser::onFrame(const Controller & controller)
 
 void FacebookBrowser::layout(Vector position, cv::Size2f size)
 { 	
-	float menuHeight = GlobalConfig::tree()->get<float>("Menu.Height");
+	float menuHeight = ActivityView::getMenuHeight();
+	float tutorialHeight = ActivityView::getTutorialHeight();
+
 	Vector menuBarPosition = Vector();
 	cv::Size2f menuBarSize = cv::Size2f(GlobalConfig::ScreenWidth-menuHeight, menuHeight);
 	
@@ -215,7 +217,7 @@ void FacebookBrowser::layout(Vector position, cv::Size2f size)
 	pathView->layout(menuBarPosition,menuBarSize);
 
 	Vector contentPosition = Vector(0,menuHeight,0);
-	cv::Size2f contentSize = cv::Size2f(GlobalConfig::ScreenWidth, GlobalConfig::ScreenHeight-(GlobalConfig::tree()->get<float>("Tutorial.Height")+menuHeight));
+	cv::Size2f contentSize = cv::Size2f(GlobalConfig::ScreenWidth, GlobalConfig::ScreenHeight-(tutorialHeight+menuHeight));
 
 	topView->layout(contentPosition,contentSize);
 }
@@ -226,7 +228,11 @@ LeapElement * FacebookBrowser::elementAtPoint(int x, int y, int & state)
 
 	if (hit != NULL)
 		return hit;
-	return View::elementAtPoint(x,y,state);
+
+	if (topView != NULL)
+		return topView->elementAtPoint(x,y,state);
+	
+	return NULL;
 }
 
 void FacebookBrowser::draw()

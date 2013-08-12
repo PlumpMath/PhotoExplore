@@ -105,9 +105,10 @@ void DataListActivity::layout(Vector position, cv::Size2f size)
 	lastPosition = position;
 	lastSize = size;
 
-	static float tutorialHeight = GlobalConfig::tree()->get<float>("Tutorial.Height");
 	static float scrollBarHeight = GlobalConfig::tree()->get<float>("ScrollView.ScrollBar.Height");
-	static float menuHeight = GlobalConfig::tree()->get<float>("Menu.Height");
+
+	float menuHeight = getMenuHeight();
+	float tutorialHeight = getTutorialHeight();
 			
  	if (titlePanel != NULL && titlePanel->isVisible())
 	{

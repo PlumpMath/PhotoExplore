@@ -189,8 +189,8 @@ void InteractionsTutorial::init()
 
 	addChild(tutorialStepGrid);
 	
-	float menuHeight = GlobalConfig::tree()->get<float>("Menu.Height");
-	float tutorialHeight = GlobalConfig::tree()->get<float>("Tutorial.Height");
+	float menuHeight = getMenuHeight();
+	float tutorialHeight = GlobalConfig::tree()->get<float>("Tutorial.RelativeHeight")* GlobalConfig::ScreenHeight;
 
 	this->layout(Vector(0,menuHeight,0),cv::Size2f(GlobalConfig::ScreenWidth,GlobalConfig::ScreenHeight-(menuHeight+tutorialHeight)));
 }
@@ -202,8 +202,8 @@ void InteractionsTutorial::generatePanels(cv::Size2i gridSize)
 	FixedAspectGrid * floatLayout = new FixedAspectGrid(cv::Size2i(0,(int)numPanels),1.0f);
 	float totalWidth = GlobalConfig::ScreenWidth*10.0f;
 	
-	float menuHeight = GlobalConfig::tree()->get<float>("Menu.Height");
-	float tutorialHeight = GlobalConfig::tree()->get<float>("Tutorial.Height");
+	float menuHeight = getMenuHeight();
+	float tutorialHeight = GlobalConfig::tree()->get<float>("Tutorial.RelativeHeight")* GlobalConfig::ScreenHeight;
 
 	float totalHeight = GlobalConfig::ScreenHeight-(menuHeight+tutorialHeight);
 
@@ -244,9 +244,9 @@ void InteractionsTutorial::generatePanels(cv::Size2i gridSize)
 }
 
 void InteractionsTutorial::layout(Vector position, cv::Size2f size)
-{	
-	
-	float menuHeight = GlobalConfig::tree()->get<float>("Menu.Height");
+{		
+	float menuHeight = getMenuHeight();
+	float tutorialHeight = GlobalConfig::tree()->get<float>("Tutorial.RelativeHeight")* GlobalConfig::ScreenHeight;
 	float progressBarRC = GlobalConfig::tree()->get<float>("InteractiveTutorial.ProgressBarRC");
 
 	lastPosition = position;

@@ -48,18 +48,15 @@ LeapStartScreen::~LeapStartScreen()
 
 LeapElement * LeapStartScreen::elementAtPoint(int x, int y, int & elementStateFlags)
 {
-	LeapElement * hit = RadialMenu::instance->elementAtPoint(x,y,elementStateFlags);
-	if (hit != NULL)
-		return hit;	
-	
 	if (state == FinishedState)
 	{
-		return rootView->elementAtPoint(x,y,elementStateFlags);
+		if (rootView != NULL)
+			return rootView->elementAtPoint(x,y,elementStateFlags);
+		else
+			return NULL;
 	}
 	else
-	{		
-		return ViewGroup::elementAtPoint(x,y,elementStateFlags);
-	}
+		return ViewGroup::elementAtPoint(x,y,elementStateFlags);	
 }
 
 void LeapStartScreen::generateBackgroundPanels()
@@ -183,6 +180,7 @@ void LeapStartScreen::init()
 
 	generateBackgroundPanels();
 		
+	addChild(radialMenu);
 	addChild(floatingPanelsView);
 	addChild(mainLayout);
 	addChild(noticePanel);
@@ -271,7 +269,6 @@ void LeapStartScreen::launchBrowser()
 		facebookClient = new Cefalopod();
 		
 		glfwIconifyWindow(GraphicsContext::getInstance().MainWindow);		
-		//GraphicsContext::getInstance().invokeGlobalAction("hide");
 
 		CefBrowserSettings browserSettings;
 
@@ -294,15 +291,11 @@ void LeapStartScreen::launchBrowser()
 		new boost::thread([this](){
 			
 			string cefPath = GlobalConfig::tree()->get<string>("ExternalCef.CefClientPath");
-//			Logger::stream("LeapStartScreen","INFO") << "Running cefclient: " << cefPath << endl;
 			int code = system(cefPath.c_str());
-//			Logger::stream("LeapStartScreen","INFO") << "cefclient terminated with code " << code << endl;
 					
 			string tokenPath = GlobalConfig::tree()->get<string>("ExternalCef.TokenFilePath");
-//			Logger::stream("LeapStartScreen","INFO") << "Loading token file " << tokenPath << endl;
 			ifstream readStream;
 			readStream.open(tokenPath);
-//			Logger::stream("LeapStartScreen","INFO") << "Opened token file " << tokenPath << endl;
 			
 			string tok;
 			readStream >> tok;
@@ -317,12 +310,10 @@ void LeapStartScreen::launchBrowser()
 				glfwRestoreWindow(GraphicsContext::getInstance().MainWindow);
 				if (tok.length() > 0)
 				{
-//					Logger::stream("LeapStartScreen","INFO") << "Starting app with token " << tok << endl;
 					me->startApplication(tok);
 				}
 				else
 				{
-//					Logger::stream("LeapStartScreen","INFO") << "Starting app with token " << tok << endl;
 					me->facebookLoginButton->setText("Login failed, tap to retry");
 					me->facebookLoginButton->reloadText();
 					me->state = StartState;	

@@ -88,9 +88,6 @@
     <Filter Include="Source Files\NewPanel\PanelViews\Text">
       <UniqueIdentifier>{aff589a8-0ef4-495c-91ef-023aaaca64ba}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\NewFilter1">
-      <UniqueIdentifier>{e94ca144-82a6-456f-970d-487558b2f749}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -195,9 +192,6 @@
     <ClCompile Include="FBDataCursorImpl.cpp">
       <Filter>Source Files\DataModel</Filter>
     </ClCompile>
-    <ClCompile Include="TextEditPanel.cpp">
-      <Filter>Source Files\NewPanel\PanelViews</Filter>
-    </ClCompile>
     <ClCompile Include="ImageDetailView.cpp">
       <Filter>Source Files\NewPanel\DataViews</Filter>
     </ClCompile>
@@ -266,6 +260,15 @@
     </ClCompile>
     <ClCompile Include="FacebookBrowser.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="InputEventHandler.cpp">
+      <Filter>Source Files\EventHandling</Filter>
+    </ClCompile>
+    <ClCompile Include="TextEditPanel.cpp">
+      <Filter>Source Files\NewPanel\PanelViews\Text</Filter>
+    </ClCompile>
+    <ClCompile Include="ActivityView.cpp">
+      <Filter>Source Files\NewPanel</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -511,6 +514,9 @@
     </ClInclude>
     <ClInclude Include="CefFileBrowser.h">
       <Filter>Header Files\Cef</Filter>
+    </ClInclude>
+    <ClInclude Include="InputEventHandler.hpp">
+      <Filter>Header Files\EventHandling</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

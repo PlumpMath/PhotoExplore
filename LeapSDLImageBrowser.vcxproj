@@ -213,6 +213,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ActivityView.cpp" />
     <ClCompile Include="AlbumCursorView.cpp" />
     <ClCompile Include="AlbumPanel.cpp" />
     <ClCompile Include="Animation.cpp" />
@@ -242,6 +243,7 @@
     <ClCompile Include="ImageDetailView.cpp" />
     <ClCompile Include="ImageLoader.cpp" />
     <ClCompile Include="ImagePanel.cpp" />
+    <ClCompile Include="InputEventHandler.cpp" />
     <ClCompile Include="InteractionsTutorial.cpp" />
     <ClCompile Include="kiss_fft.cpp" />
     <ClCompile Include="LeapCursor.cpp" />
@@ -316,6 +318,7 @@
     <ClInclude Include="ImageLoader.hpp" />
     <ClInclude Include="ImagePanel.hpp" />
     <ClInclude Include="InteractionsTutorial.hpp" />
+    <ClInclude Include="InputEventHandler.hpp" />
     <ClInclude Include="LeapCursor.hpp" />
     <ClInclude Include="LeapElement.hpp" />
     <ClInclude Include="LinearLayout.hpp" />

@@ -24,6 +24,7 @@
 #include "FBDataCursor.hpp"
 #include "FacebookBrowser.hpp"
 #include "CefHelper.hpp"
+#include "InputEventHandler.hpp"
 
 #ifndef _WIN32
 #include <execinfo.h>
@@ -326,6 +327,8 @@ void initGraphics()
 	}
 
 	initShaders();
+
+	InputEventHandler::getInstance().init(GraphicsContext::getInstance().MainWindow);
 }
 
 
@@ -407,6 +410,8 @@ int main(int argc, char * argv[]){
 		startScreen.setFinishedCallback([quit](){
 			quit[0] = true;
 		});
+
+		LeapInput::getInstance()->setTopLevelElement(&startScreen);
 
 
 		bool doFinish = GlobalConfig::tree()->get<bool>("GraphicsSettings.ExecuteGLFinish");

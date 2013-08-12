@@ -12,6 +12,7 @@ LeapInput::LeapInput()
 	shakeGestureState = -1;
 	pointingGestureState = 0;
 	hitLastFrame = NULL;
+	topElement = NULL;
 	drawNonDominant = false;
 }
 
@@ -187,7 +188,7 @@ void LeapInput::processFrame(const Controller & controller, Frame frame)
 	currentState.HandState = determineHandState(controller,frame,hand);
 
 	int elementStateFlags = 0;
-	if (testPointable.isValid() && globalGestureListenerStack.size() > 0)
+	if (testPointable.isValid() && topElement != NULL)
 	{				
 		screenPoint = LeapHelper::FindScreenPoint(controller,testPointable);
 
@@ -201,7 +202,7 @@ void LeapInput::processFrame(const Controller & controller, Frame frame)
 
 		if (hit == NULL)
 		{
-			View * topView = dynamic_cast<View*>(globalGestureListenerStack.top());
+			LeapElement * topView = topElement;
 			hit = topView->elementAtPoint((int)screenPoint.x,(int)screenPoint.y,elementStateFlags);
 		}
 
@@ -484,4 +485,9 @@ void LeapInput::releaseGlobalGestureFocus(ActivityView * globalListener)
 			LeapDebug::instance->setTutorialImages(tutorial);
 		}
 	}
+}
+
+void LeapInput::setTopLevelElement(LeapElement * _topElement)
+{
+	this->topElement = _topElement;
 }

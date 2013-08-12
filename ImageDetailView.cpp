@@ -54,6 +54,10 @@ void ImageDetailView::onGlobalGesture(const Controller & controller, std::string
 	}
 }
 
+float ImageDetailView::getZValue()
+{
+	return 1000;
+}
 
 bool ImageDetailView::onLeapGesture(const Controller & controller, const Gesture & gesture)
 {
@@ -277,7 +281,9 @@ LeapElement * ImageDetailView::elementAtPoint(int x, int y, int & elementStateFl
 	if (this->imagePanel != NULL)
 		hit = imagePanel->elementAtPoint(x-hostOffset.x,y-hostOffset.y,elementStateFlags);
 	if (hit == NULL)
-		return ViewGroup::elementAtPoint(x-hostOffset.x,y-hostOffset.y,elementStateFlags);
+		hit = ViewGroup::elementAtPoint(x-hostOffset.x,y-hostOffset.y,elementStateFlags);
+	if (hit == NULL)
+		return this;
 }
 
 cv::Rect_<int> ImageDetailView::getHitRect()
@@ -519,7 +525,7 @@ bool ImageDetailView::handleImageManipulation(const Controller & controller)
 			
 			float likeButtonWidth = (size.height*.2f) + 50;
 
-			if (GlobalConfig::tree()->get<bool>("ImageDetailView.Resize.LimitToScreen"))
+			if (GlobalConfig::tree()->get<bool>("ImageDetailView.ResizeInteraction.LimitToScreen"))
 			{
 				float maxHeight = min<float>(activePanelInteraction.panel->getHeight()*sc1,size.height);
 				float maxWidth = min<float>(activePanelInteraction.panel->getWidth()*sc1,size.width-(2*likeButtonWidth));
