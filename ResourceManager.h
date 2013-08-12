@@ -61,43 +61,43 @@ private:
 	ResourceManager(ResourceManager const&);
 	void operator=(ResourceManager const&); 
 
-	ResourceCache resourceCache;
-	bool resourcesChanged;
-	//queue<Resource*> modifiedResources;
-	boost::mutex resourceMutex;
-
-	boost::mutex updateTaskMutex;
-	queue<boost::function<void()> > updateThreadTasks;
-	
-
-	float maxTextureLoadPriority;
-	float maxImageLoadPriority;
-
-	void cleanupCache();
-	
+	void cleanupCache(bool updateAll);	
 	void textureLoaded(ResourceData * data, GLuint textureId, int taskStatus);
-
-	float textureLoadThreshold, imageLoadThreshold;
-
-	double currentTextureCacheSize, currentImageCacheSize;
 
 	void updateImageState(ResourceData * data, bool load);	
 	void updateTextureState(ResourceData * data, bool load);
-
 	void updateImageResource(string resourceId, int statusCode, cv::Mat imgMat);
 
 	float calculateResourceSize(ResourceData * data);
 
+
+	//Fields
 	Timer cacheCleanupTimer;
 
-public:
-		
+	ResourceCache resourceCache;
+	bool resourcesChanged;	
+	boost::mutex resourceMutex;
+	boost::mutex updateTaskMutex;
+	queue<boost::function<void()> > updateThreadTasks;
+	
+	float maxTextureLoadPriority;
+	float maxImageLoadPriority;
+	
+	float textureLoadThreshold, imageLoadThreshold;
+	double currentTextureCacheSize, currentImageCacheSize;
+
+	bool texturesEnabled;
+
+public:		
 	static ResourceManager& getInstance()
 	{
 		static ResourceManager instance; 
 		return instance;
 	}
 	
+	void unloadTextures();
+	void reloadTextures();
+
 	void releaseResource(string resourceId,IResourceWatcher * watcher);
 	ResourceData * watchResource(string resourceId, IResourceWatcher * watcher);
 

@@ -72,7 +72,15 @@ struct ResourceData
 	{
 
 	}
-		
+
+	void updateCallbacks()
+	{
+		for (auto it = callbacks.begin(); it != callbacks.end(); it++)
+		{
+			(*it)->resourceUpdated(this);
+		}
+	}
+
 };
 
 

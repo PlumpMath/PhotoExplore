@@ -58,14 +58,8 @@
     <Filter Include="Source Files\LeapUtil">
       <UniqueIdentifier>{1f247fc1-9e98-488f-a362-e2e15b1f9667}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Panel">
-      <UniqueIdentifier>{c7382cd2-038d-497c-a022-a66627574e4b}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\EventHandling">
       <UniqueIdentifier>{636ae548-a27d-4a4e-8e7c-a4202766bfd4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\NewPanel\DataPanels">
-      <UniqueIdentifier>{6e631b39-013d-448c-9869-97fd553ecb15}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\NewPanel\DataViews">
       <UniqueIdentifier>{a0f2ad91-cfb7-4cf4-ae82-7a6aeefbffdb}</UniqueIdentifier>
@@ -81,6 +75,21 @@
     </Filter>
     <Filter Include="Header Files\Tutorial">
       <UniqueIdentifier>{8295b39b-e735-4c2a-b7c5-47647fb723c8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Cef">
+      <UniqueIdentifier>{8a55fb9c-6f1b-4771-8711-cfc928c8b4e8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\NewPanel\PanelViews">
+      <UniqueIdentifier>{c7382cd2-038d-497c-a022-a66627574e4b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\NewPanel\PanelViews\Facebook">
+      <UniqueIdentifier>{6e631b39-013d-448c-9869-97fd553ecb15}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\NewPanel\PanelViews\Text">
+      <UniqueIdentifier>{aff589a8-0ef4-495c-91ef-023aaaca64ba}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\NewFilter1">
+      <UniqueIdentifier>{e94ca144-82a6-456f-970d-487558b2f749}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -106,15 +115,6 @@
       <Filter>Source Files\DataModel</Filter>
     </ClCompile>
     <ClCompile Include="ScrollingView.cpp">
-      <Filter>Source Files\NewPanel</Filter>
-    </ClCompile>
-    <ClCompile Include="FacebookBrowser.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ContentPanel.cpp">
-      <Filter>Source Files\NewPanel</Filter>
-    </ClCompile>
-    <ClCompile Include="Button.cpp">
       <Filter>Source Files\NewPanel</Filter>
     </ClCompile>
     <ClCompile Include="View.cpp">
@@ -154,16 +154,13 @@
       <Filter>Source Files\ResourceManager</Filter>
     </ClCompile>
     <ClCompile Include="ImagePanel.cpp">
-      <Filter>Source Files\Panel</Filter>
+      <Filter>Source Files\NewPanel\PanelViews</Filter>
     </ClCompile>
     <ClCompile Include="TexturePanel.cpp">
-      <Filter>Source Files\Panel</Filter>
-    </ClCompile>
-    <ClCompile Include="TextPanel.cpp">
-      <Filter>Source Files\Panel</Filter>
+      <Filter>Source Files\NewPanel\PanelViews</Filter>
     </ClCompile>
     <ClCompile Include="PanelBase.cpp">
-      <Filter>Source Files\Panel</Filter>
+      <Filter>Source Files\NewPanel\PanelViews</Filter>
     </ClCompile>
     <ClCompile Include="Color.cpp">
       <Filter>Source Files</Filter>
@@ -173,9 +170,6 @@
     </ClCompile>
     <ClCompile Include="UniformGrid.cpp">
       <Filter>Source Files\NewPanel\GridLayouts</Filter>
-    </ClCompile>
-    <ClCompile Include="ImageButton.cpp">
-      <Filter>Source Files\NewPanel</Filter>
     </ClCompile>
     <ClCompile Include="SwipeGestureDetector.cpp">
       <Filter>Source Files\LeapUtil</Filter>
@@ -193,16 +187,16 @@
       <Filter>Source Files\NewPanel</Filter>
     </ClCompile>
     <ClCompile Include="FriendPanel.cpp">
-      <Filter>Source Files\NewPanel\DataPanels</Filter>
+      <Filter>Source Files\NewPanel\PanelViews\Facebook</Filter>
     </ClCompile>
     <ClCompile Include="AlbumPanel.cpp">
-      <Filter>Source Files\NewPanel\DataPanels</Filter>
+      <Filter>Source Files\NewPanel\PanelViews\Facebook</Filter>
     </ClCompile>
     <ClCompile Include="FBDataCursorImpl.cpp">
       <Filter>Source Files\DataModel</Filter>
     </ClCompile>
     <ClCompile Include="TextEditPanel.cpp">
-      <Filter>Source Files\Panel</Filter>
+      <Filter>Source Files\NewPanel\PanelViews</Filter>
     </ClCompile>
     <ClCompile Include="ImageDetailView.cpp">
       <Filter>Source Files\NewPanel\DataViews</Filter>
@@ -238,10 +232,10 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="FacebookIntroView.cpp">
-      <Filter>Source Files\NewPanel\DataPanels</Filter>
+      <Filter>Source Files\NewPanel\PanelViews\Facebook</Filter>
     </ClCompile>
     <ClCompile Include="ColorPanel.cpp">
-      <Filter>Source Files\Panel</Filter>
+      <Filter>Source Files\NewPanel\PanelViews</Filter>
     </ClCompile>
     <ClCompile Include="InteractionsTutorial.cpp">
       <Filter>Source Files\Tutorial</Filter>
@@ -253,10 +247,25 @@
       <Filter>Source Files\EventHandling</Filter>
     </ClCompile>
     <ClCompile Include="PicturePanel.cpp">
-      <Filter>Source Files\NewPanel\DataPanels</Filter>
+      <Filter>Source Files\NewPanel\PanelViews\Facebook</Filter>
     </ClCompile>
     <ClCompile Include="LeapDebug.cpp">
       <Filter>Source Files\Overlay</Filter>
+    </ClCompile>
+    <ClCompile Include="ContentPanel.cpp">
+      <Filter>Source Files\NewPanel\PanelViews</Filter>
+    </ClCompile>
+    <ClCompile Include="ImageButton.cpp">
+      <Filter>Source Files\NewPanel\PanelViews</Filter>
+    </ClCompile>
+    <ClCompile Include="TextPanel.cpp">
+      <Filter>Source Files\NewPanel\PanelViews\Text</Filter>
+    </ClCompile>
+    <ClCompile Include="Button.cpp">
+      <Filter>Source Files\NewPanel\PanelViews\Text</Filter>
+    </ClCompile>
+    <ClCompile Include="FacebookBrowser.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -306,15 +315,6 @@
       <Filter>Header Files\Panel</Filter>
     </ClInclude>
     <ClInclude Include="LeapStartScreen.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Cefalopod.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CefFileBrowser.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CefDownloadClient.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ResourceManager.h">
@@ -499,6 +499,18 @@
     </ClInclude>
     <ClInclude Include="UniformGrid.hpp">
       <Filter>Header Files\NewPanel\GridLayouts</Filter>
+    </ClInclude>
+    <ClInclude Include="CefHelper.hpp">
+      <Filter>Header Files\Cef</Filter>
+    </ClInclude>
+    <ClInclude Include="Cefalopod.h">
+      <Filter>Header Files\Cef</Filter>
+    </ClInclude>
+    <ClInclude Include="CefDownloadClient.h">
+      <Filter>Header Files\Cef</Filter>
+    </ClInclude>
+    <ClInclude Include="CefFileBrowser.h">
+      <Filter>Header Files\Cef</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

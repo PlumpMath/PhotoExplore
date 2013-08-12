@@ -10,7 +10,7 @@
 #include "WinHelper.hpp"
 
 
-LeapStartScreen::LeapStartScreen(std::string startDir)
+LeapStartScreen::LeapStartScreen()
 {
 	state = StartState;
 	tutorialButton = NULL;
@@ -269,7 +269,8 @@ void LeapStartScreen::launchBrowser()
 #ifdef _WIN32
 		facebookClient = new Cefalopod();
 		
-		glfwIconifyWindow(GraphicsContext::getInstance().MainWindow);
+		glfwIconifyWindow(GraphicsContext::getInstance().MainWindow);		
+		//GraphicsContext::getInstance().invokeGlobalAction("hide");
 
 		CefBrowserSettings browserSettings;
 
@@ -282,7 +283,8 @@ void LeapStartScreen::launchBrowser()
 		info.height = (int)windowHeight;
 
 		string fbURL = "https://www.facebook.com/dialog/oauth?client_id=144263362431439&redirect_uri=http://144263362431439.com&scope=user_photos,friends_photos,user_likes,publish_stream&response_type=token";
-		CefBrowserHost::CreateBrowser(info, facebookClient.get(),fbURL, browserSettings);		
+		CefBrowserHost::CreateBrowser(info, facebookClient.get(),fbURL, browserSettings);	
+		
 #else
 		glFinish();	
 		glfwIconifyWindow(GraphicsContext::getInstance().MainWindow);
@@ -385,6 +387,8 @@ void LeapStartScreen::update(double delta)
 			if (facebookClient->quit && !facebookClient->done)
 			{					
 				glfwRestoreWindow(GraphicsContext::getInstance().MainWindow);
+				//GraphicsContext::getInstance().invokeGlobalAction("show");
+
 				this->facebookLoginButton->setText("Login window closed, tap to retry.");
 				this->facebookLoginButton->reloadText();
 				this->state = StartState;
@@ -394,7 +398,9 @@ void LeapStartScreen::update(double delta)
 			}
 			else if (facebookClient->done)
 			{
-				glfwRestoreWindow(GraphicsContext::getInstance().MainWindow);
+				glfwRestoreWindow(GraphicsContext::getInstance().MainWindow);				
+				//GraphicsContext::getInstance().invokeGlobalAction("show");
+
 				string token = facebookClient->token;
 				if (token.length() > 0)
 				{

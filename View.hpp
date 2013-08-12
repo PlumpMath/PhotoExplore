@@ -16,8 +16,8 @@ using namespace std;
 
 struct LayoutParams {
 		
-	const static float MatchParent = -1;
-	const static float WrapContent = -2;
+	//static const float MatchParent = -1;
+	//static const float WrapContent = -2;
 
 	cv::Size2f size;
 	cv::Vec4f padding;

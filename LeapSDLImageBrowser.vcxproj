@@ -282,6 +282,7 @@
     <ClInclude Include="Cefalopod.h" />
     <ClInclude Include="CefDownloadClient.h" />
     <ClInclude Include="CefFileBrowser.h" />
+    <ClInclude Include="CefHelper.hpp" />
     <ClInclude Include="ColorPanel.hpp" />
     <ClInclude Include="FBDataCursor.hpp" />
     <ClInclude Include="DataListActivity.hpp" />

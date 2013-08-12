@@ -67,7 +67,7 @@ private:
 
 
 public:
-	LeapStartScreen(std::string startDir);
+	LeapStartScreen();
 	~LeapStartScreen();
 
 	void init();

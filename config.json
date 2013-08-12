@@ -119,7 +119,7 @@
 	},
 	"FakeDataMode" : 
 	{
-		"Enable" : true,
+		"Enable" : false,
 		"ImageDirectories" :
 		[ 
 			"C:\\Users\\Adam\\Pictures",		

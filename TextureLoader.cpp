@@ -65,3 +65,11 @@ void TextureLoader::cancelTask(std::string resourceId)
 		loadQueue.get<NameIndex>().erase(remove);
 	}
 }
+
+void TextureLoader::cancelAllTasks()
+{
+	//for (auto it = loadQueue.get<NameIndex>().begin(); it != loadQueue.get<NameIndex>().end(); it++)
+	//{
+	//	it->
+	//}
+}

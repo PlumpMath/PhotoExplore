@@ -9,6 +9,7 @@
 
 ResourceManager::ResourceManager()
 {
+	texturesEnabled = true;
 	currentImageCacheSize = 0;
 	currentTextureCacheSize = 0;
 	textureLoadThreshold = 1000;
@@ -39,6 +40,25 @@ void ResourceManager::updateImageResource(string resourceId, int statusCode, cv:
 
 }
 
+void ResourceManager::unloadTextures()
+{
+	texturesEnabled = false;
+	
+	TextureLoader::getInstance().cancelAllTasks();
+	for (auto cache = resourceCache.get<IdIndex>().begin(); cache != resourceCache.get<IdIndex>().end(); cache++)
+	{
+		TexturePool::getInstance().releaseTexture(cache->Data->textureId);
+		cache->Data->textureId = NULL;
+		cache->Data->TextureState = ResourceState::Empty;
+		cache->Data->updateCallbacks();
+	}
+}
+
+void ResourceManager::reloadTextures()
+{
+	texturesEnabled = true;
+	cleanupCache(true);
+}
 
 void ResourceManager::releaseResource(string resourceId, IResourceWatcher * watcher)
 {
@@ -138,7 +158,7 @@ ResourceData * ResourceManager::loadResource(string resourceId, cv::Mat & image,
 
 void ResourceManager::updateTextureState(ResourceData * data, bool load)
 {
-	if (load)
+	if (load && texturesEnabled)
 	{
 		switch (data->TextureState)
 		{
@@ -275,7 +295,7 @@ float ResourceManager::calculateResourceSize(ResourceData * data)
 	return 0;
 }
 
-void ResourceManager::cleanupCache()
+void ResourceManager::cleanupCache(bool updateAll)
 {
 	double textureCacheMaxSize = GlobalConfig::tree()->get<double>("ResourceCache.TextureCacheSize") * BytesToMB;
 	double imageCacheMaxSize = GlobalConfig::tree()->get<double>("ResourceCache.ImageCacheSize")* BytesToMB;
@@ -302,7 +322,7 @@ void ResourceManager::cleanupCache()
 	for (auto cache = resourceCache.get<IdIndex>().begin(); cache != resourceCache.get<IdIndex>().end(); cache++)
 	{
 
-		if (cache->Data->priority >= 0)
+		if (updateAll || cache->Data->priority >= 0)
 			rVector.push_back(cache->Data);
 		else
 			permObjects++;
@@ -477,7 +497,7 @@ void ResourceManager::update()
 		(cacheFull && cacheCleanupTimer.millis() > GlobalConfig::tree()->get<double>("ResourceCache.FullCacheGCFrequency")))
 	{
 		resourcesChanged = false;
-		cleanupCache();
+		cleanupCache(false);
 		cacheCleanupTimer.start();
 	}
 

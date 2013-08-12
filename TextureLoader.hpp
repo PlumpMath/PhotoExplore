@@ -57,6 +57,7 @@ public:
 	void updateTask(std::string resourceId, float priority);
 	void update();
 	void cancelTask(std::string resourceId);
+	void cancelAllTasks();
 
 };
 

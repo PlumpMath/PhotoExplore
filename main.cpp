@@ -1,5 +1,4 @@
 #define NDEBUG 1
-#define TEST_MODE 0
 #define LEAPIMAGE_DEBUG 1
 
 #include "GLImport.h"
@@ -7,11 +6,6 @@
 #include <string>
 #include <sstream>
 #include <Leap.h>
-
-#include <include/cef_browser.h>
-#include <include/cef_client.h>
-#include <include/cef_app.h>
-#include <include/cef_urlrequest.h>
 
 #include <boost/filesystem.hpp>
 
@@ -29,6 +23,7 @@
 #include "SDLTimer.h"
 #include "FBDataCursor.hpp"
 #include "FacebookBrowser.hpp"
+#include "CefHelper.hpp"
 
 #ifndef _WIN32
 #include <execinfo.h>
@@ -312,112 +307,34 @@ int initShaders()
 	}
 }
 
-class MyVisitor : public CefCookieVisitor
+void initGraphics()
 {
-public:
-	bool Visit( const CefCookie& cookie, int count, int total, bool& deleteCookie )
+	if (!GlobalConfig::tree()->get<bool>("GraphicsSettings.OverrideResolution"))
 	{
-		deleteCookie = true;
-		//cout << "Cookie[" << count << "]: Value = " << CefString(cookie.value.str).ToString() << " Domain = " << CefString(cookie.path.str).ToString() << "  Path = " << CefString(cookie.path.str).ToString() <<  "\n";
-		return true;
+		GlobalConfig::ScreenWidth  = glfwGetVideoMode(glfwGetPrimaryMonitor())->width;
+		GlobalConfig::ScreenHeight = glfwGetVideoMode(glfwGetPrimaryMonitor())->height;
 	}
-
-	IMPLEMENT_REFCOUNTING(MyVisitor);
-};
-
-class DeleteComplete : public CefCompletionHandler
-{
-public:
-	void OnComplete()
+	else
 	{
-		CefShutdown();		
-		GraphicsContext::getInstance().invokeApplicationExitCallback();
+		GlobalConfig::ScreenWidth  = GlobalConfig::tree()->get<int>("GraphicsSettings.OverrideWidth");
+		GlobalConfig::ScreenHeight = GlobalConfig::tree()->get<int>("GraphicsSettings.OverrideHeight");
 	}
 
-	IMPLEMENT_REFCOUNTING(DeleteComplete);
-};
-
-class DeleteCookieTask : public CefTask {
-
-public:
-	void Execute()
-	{		
-		CefCookieManager::GetGlobalManager()->DeleteCookies("","");		
-		CefRefPtr<DeleteComplete> cc = new DeleteComplete();
-		CefCookieManager::GetGlobalManager()->FlushStore(cc.get());
-	}
-
-	IMPLEMENT_REFCOUNTING(DeleteCookieTask);
-
-};
-
-class ShutdownTask : public CefTask {
-
-public:
-	void Execute()
-	{		
-		CefShutdown();
-		GraphicsContext::getInstance().invokeApplicationExitCallback();
-	}
-
-	IMPLEMENT_REFCOUNTING(ShutdownTask);
-
-};
-
-void runTests()
-{
-
-	FBNode * root =new FBNode("human");
-	root->setNodeType("me");
-	FBFriendsCursor * friendCursor = new FBFriendsCursor(root);
-
-	int * count = new int[1];
-
-	friendCursor->cursorChangedCallback = [friendCursor,count](){
-
-		int itCount = 0;
-		string lastId ="";
-		while (friendCursor->state != FBDataCursor::Ended)
-		{
-			FBNode * result = friendCursor->getNext();
-			if (result != NULL)
-			{
-				itCount++;
-				(*count)++;
-				string thisId = result->getId();
-
-				if (lastId.compare(thisId)==0)
-				{
-					Logger::stream("test-mt","ERROR") << itCount << "-" << "Ids same!" << thisId << endl;
-					break;
-				}
-				Logger::stream("test-mt","INFO") << itCount << "-" << thisId << endl;
-				lastId = thisId;
-			}
-			else
-				break;
-		}
-	};
-	
-	while (friendCursor->state == FBDataCursor::Local || friendCursor->state == FBDataCursor::Loading)
+	if(!initializeWindow(GlobalConfig::ScreenWidth, GlobalConfig::ScreenHeight, GlobalConfig::tree()->get<bool>("GraphicsSettings.Fullscreen"))) 
 	{
-		FBNode * result = friendCursor->getNext();
-		if (result != NULL)
-		{
-			(*count)++;
-			Logger::stream("test","INFO") << result->getId() << endl;
-		}
-		else
-			break;
-	}
-	
-	while ((*count) < 400)
-	{
-		boost::this_thread::sleep(boost::posix_time::milliseconds(100));
+		throw new std::runtime_error("OpenGL didn't initialize!");
 	}
 
+	initShaders();
 }
 
+
+void destroyGraphics()
+{
+	disposeShaders();
+	glfwDestroyWindow(GraphicsContext::getInstance().MainWindow);
+	GraphicsContext::getInstance().MainWindow = NULL;
+}
 
 #ifdef _WIN32
 
@@ -443,35 +360,16 @@ int main(int argc, char * argv[]){
 	
 			
 	try
-	{		
-		
+	{				
 		CefInitialize(mainArgs, settings, NULL);		
 
 		glfwInit();
 		
 		printf("Initializing config file \n");
 		GlobalConfig::getInstance().loadConfigFile("./config.json");
-		printf("Done\n");
+		printf("Done\n");	
 
-		if (!GlobalConfig::tree()->get<bool>("GraphicsSettings.OverrideResolution"))
-		{
-			GlobalConfig::ScreenWidth  = glfwGetVideoMode(glfwGetPrimaryMonitor())->width;
-			GlobalConfig::ScreenHeight = glfwGetVideoMode(glfwGetPrimaryMonitor())->height;
-		}
-		else
-		{
-			GlobalConfig::ScreenWidth  = GlobalConfig::tree()->get<int>("GraphicsSettings.OverrideWidth");
-			GlobalConfig::ScreenHeight = GlobalConfig::tree()->get<int>("GraphicsSettings.OverrideHeight");
-		}
-	
-		if(!initializeWindow(GlobalConfig::ScreenWidth, GlobalConfig::ScreenHeight, GlobalConfig::tree()->get<bool>("GraphicsSettings.Fullscreen"))) 
-		{
-			return 1;
-		}
-			
-		GLFWwindow * mainWindow = GraphicsContext::getInstance().MainWindow;
-			
-		initShaders();
+		initGraphics();
 	
 		if (GlobalConfig::tree()->get<bool>("FakeDataMode.Enable")) 
 			FBDataSource::instance = new FakeDataSource();
@@ -492,10 +390,6 @@ int main(int argc, char * argv[]){
 		quit[0] = false;
 		Timer delta;
 		int frameCount = 0, errorCount = 0;
-		long lastFrameId = -1;
-
-		std::string startDir = "."; 
-	
 
 		HandProcessor * handProcessor = HandProcessor::getInstance();
 		LeapDebug leapDebug;
@@ -509,7 +403,7 @@ int main(int argc, char * argv[]){
 		controller.addListener(ShakeGestureDetector::getInstance());
 		controller.addListener(leapDebug);
 
-		LeapStartScreen startScreen(startDir);
+		LeapStartScreen startScreen;
 		startScreen.setFinishedCallback([quit](){
 			quit[0] = true;
 		});
@@ -526,7 +420,28 @@ int main(int argc, char * argv[]){
 	
 		GraphicsContext::getInstance().globalActionCallback = [&](string s){ 
 		
-			if (s.compare("logout") == 0)
+			if (s.compare("full") == 0)
+			{
+				bool full = GlobalConfig::tree()->get<bool>("GraphicsSettings.Fullscreen");
+				GlobalConfig::tree()->put<bool>("GraphicsSettings.Fullscreen",!full);
+
+				ResourceManager::getInstance().unloadTextures();
+				destroyGraphics();
+
+				initGraphics();
+				ResourceManager::getInstance().reloadTextures();				
+			}
+			else if (s.compare("hide") == 0)
+			{
+				ResourceManager::getInstance().unloadTextures();
+				destroyGraphics();
+			}
+			else if (s.compare("show") == 0)
+			{				
+				initGraphics();
+				ResourceManager::getInstance().reloadTextures();
+			}
+			else if (s.compare("logout") == 0)
 			{
 #ifdef _WIN32
 				CefRefPtr<CefTaskRunner> runner = CefTaskRunner::GetForThread(TID_IO);
@@ -556,31 +471,26 @@ int main(int argc, char * argv[]){
 			}
 		};
 
+		
 		try
 		{	
 			while(!(*quit))
-			{
+			{				
+
 				stringstream frameOut;
 				double deltaTime = delta.get_ticks();			
 				delta.start();
 
 				Timer itemTimer;
-				
-//				glfwMakeContextCurrent(mainWindow);
-				glfwPollEvents();
 
-				if (glfwGetKey(mainWindow,GLFW_KEY_ESCAPE) == GLFW_PRESS || glfwWindowShouldClose(mainWindow))
-				{
-					quit[0] = true;
-				}			
-			
+
 				itemTimer.start();
 				HandProcessor::getInstance()->processFrame(controller.frame());
 				LeapInput::getInstance()->processInputEvents();
 				LeapInput::getInstance()->processFrame(controller,controller.frame());									
 				startScreen.onFrame(controller);
 				leapDebug.plotValue("Input",Colors::White,itemTimer.millis() * 20);
-							
+
 				itemTimer.start();
 				ResourceManager::getInstance().update();
 				leapDebug.plotValue("RMan",Colors::Red,itemTimer.millis() * 20);
@@ -590,95 +500,110 @@ int main(int argc, char * argv[]){
 				startScreen.update(deltaTime);
 				frameOut  << "StartScreen = " << itemTimer.millis() << "ms \n";
 				itemTimer.start();
-							 
-				if (GraphicsContext::getInstance().BlurRenderEnabled)
+				
+
+				GLFWwindow * mainWindow = GraphicsContext::getInstance().MainWindow;
+				if (mainWindow != NULL)
 				{
-					glClearColor(.4f,.4f,.4f, 1);
+					glfwMakeContextCurrent(mainWindow);
+					glfwPollEvents();
 
-					GraphicsContext::getInstance().IsBlurCurrentPass = true;
-					glUseProgram(0);
-					glBindFramebuffer(GL_FRAMEBUFFER, fbo[0]);
-					glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-					glMatrixMode( GL_MODELVIEW );	
-				
-					startScreen.draw();
-
-					for (int i=0;i<2;i++)
+					if (glfwGetKey(mainWindow,GLFW_KEY_ESCAPE) == GLFW_PRESS || glfwWindowShouldClose(mainWindow))
 					{
-						glUseProgram(blurPrograms[i]);
+						quit[0] = true;
+					}			
 
-						if (i==1)
+
+					if (GraphicsContext::getInstance().BlurRenderEnabled)
+					{
+						glClearColor(.4f,.4f,.4f, 1);
+
+						GraphicsContext::getInstance().IsBlurCurrentPass = true;
+						glUseProgram(0);
+						glBindFramebuffer(GL_FRAMEBUFFER, fbo[0]);
+						glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+						glMatrixMode( GL_MODELVIEW );	
+
+						startScreen.draw();
+
+						for (int i=0;i<2;i++)
 						{
-							glBindFramebuffer(GL_FRAMEBUFFER, 0);
-						}
-						else
-						{
-							glBindFramebuffer(GL_FRAMEBUFFER, fbo[1]);				
-						}
-				
-						glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+							glUseProgram(blurPrograms[i]);
 
-						glBindTexture(GL_TEXTURE_2D, fbo_texture[i]);
-						glUniform1i(uniform_fbo_texture[i], 0);
-						glUniform1f(uniformGaussScale[i],GraphicsContext::getInstance().getBlurScale());
-						glUniform1f(uniformColorScale[i],0.9f);//GraphicsContext::getInstance().getDrawHint("ColorScale",false));
-						glEnableVertexAttribArray(attribute_v_coord_postproc[i]);
+							if (i==1)
+							{
+								glBindFramebuffer(GL_FRAMEBUFFER, 0);
+							}
+							else
+							{
+								glBindFramebuffer(GL_FRAMEBUFFER, fbo[1]);				
+							}
 
-						glBindBuffer(GL_ARRAY_BUFFER, vbo_fbo_vertices);
-						glVertexAttribPointer(
-							attribute_v_coord_postproc[i],  // attribute
-							2,                  // number of elements per vertex, here (x,y)
-							GL_FLOAT,           // the type of each element
-							GL_FALSE,           // take our values as-is
-							0,                  // no extra data between each position
-							0                   // offset of first element
-							);
-						glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-						glDisableVertexAttribArray(attribute_v_coord_postproc[i]);
+							glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+
+							glBindTexture(GL_TEXTURE_2D, fbo_texture[i]);
+							glUniform1i(uniform_fbo_texture[i], 0);
+							glUniform1f(uniformGaussScale[i],GraphicsContext::getInstance().getBlurScale());
+							glUniform1f(uniformColorScale[i],0.9f);//GraphicsContext::getInstance().getDrawHint("ColorScale",false));
+							glEnableVertexAttribArray(attribute_v_coord_postproc[i]);
+
+							glBindBuffer(GL_ARRAY_BUFFER, vbo_fbo_vertices);
+							glVertexAttribPointer(
+								attribute_v_coord_postproc[i],  // attribute
+								2,                  // number of elements per vertex, here (x,y)
+								GL_FLOAT,           // the type of each element
+								GL_FALSE,           // take our values as-is
+								0,                  // no extra data between each position
+								0                   // offset of first element
+								);
+							glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+							glDisableVertexAttribArray(attribute_v_coord_postproc[i]);
+						}
+
+						GraphicsContext::getInstance().IsBlurCurrentPass = false;			
+						glBindFramebuffer(GL_FRAMEBUFFER, 0);
+						glUseProgram(0);
+						GraphicsContext::getInstance().doClearDraw();
 					}
-				
-					GraphicsContext::getInstance().IsBlurCurrentPass = false;			
-					glBindFramebuffer(GL_FRAMEBUFFER, 0);
-					glUseProgram(0);
-					GraphicsContext::getInstance().doClearDraw();
+					else
+					{		
+						Color bg = Colors::WhiteSmoke;
+						float * color = bg.getFloat();
+						glClearColor(color[0],color[1], color[2], 1);
+
+						GraphicsContext::getInstance().IsBlurCurrentPass = false;
+						glUseProgram(0);			
+						glBindFramebuffer(GL_FRAMEBUFFER, 0);
+						glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);			
+
+						glMatrixMode( GL_MODELVIEW );			
+						//ShakeGestureDetector::getInstance().draw();		
+						//SwipeGestureDetector::getInstance().draw();
+						//if (GlobalConfig::tree()->get<bool>("Leap.HandModel.DrawDebug"))
+						//	HandProcessor::getInstance()->draw();
+
+						startScreen.draw();
+
+					}
+					//End
+
+					leapDebug.draw();
+					leapDebug.plotValue("Draw",Colors::HotPink,itemTimer.millis() * 20);
+
+
+					itemTimer.start();
+					if (doFinish)
+						glFinish();
+
+					leapDebug.plotValue("Finish",Colors::Magenta,itemTimer.millis() * 20);
+
+					itemTimer.start();
+					glfwSwapBuffers(mainWindow);
+					leapDebug.plotValue("Swap",Colors::PrettyPurple, itemTimer.millis() * 20);
+					itemTimer.start();
+					leapDebug.plotValue("aFPS",Colors::HoloBlueBright, delta.millis() * 20);				
 				}
-				else
-				{		
-					Color bg = Colors::WhiteSmoke;
-					float * color = bg.getFloat();
-					glClearColor(color[0],color[1], color[2], 1);
 
-					GraphicsContext::getInstance().IsBlurCurrentPass = false;
-					glUseProgram(0);			
-					glBindFramebuffer(GL_FRAMEBUFFER, 0);
-					glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);			
-
-					glMatrixMode( GL_MODELVIEW );			
-					//ShakeGestureDetector::getInstance().draw();		
-					//SwipeGestureDetector::getInstance().draw();
-					//if (GlobalConfig::tree()->get<bool>("Leap.HandModel.DrawDebug"))
-					//	HandProcessor::getInstance()->draw();
-
-					startScreen.draw();
-
-				}
-				//End
-				 
-				leapDebug.draw();
-				leapDebug.plotValue("Draw",Colors::HotPink,itemTimer.millis() * 20);
-
-					
-				itemTimer.start();
-				if (doFinish)
-					glFinish();
-				leapDebug.plotValue("Finish",Colors::Magenta,itemTimer.millis() * 20);
-
-				itemTimer.start();
-				glfwSwapBuffers(mainWindow);
-				leapDebug.plotValue("Swap",Colors::PrettyPurple, itemTimer.millis() * 20);
-				itemTimer.start();
-						
-				leapDebug.plotValue("aFPS",Colors::HoloBlueBright, delta.millis() * 20);
 				frameId++;
 			}
 		}	
@@ -696,8 +621,6 @@ int main(int argc, char * argv[]){
 			error << "Unhandled exception during render loop :" << e.what();			
 			handleFatalError(error.str(),3);
 		}	
-		
-		glfwDestroyWindow(mainWindow);
 
 	}
 	catch( cv::Exception& e )
@@ -718,8 +641,10 @@ int main(int argc, char * argv[]){
 		Logger::stream("MAIN","FATAL") << "Unhandled exception?? " << endl;
 		handleFatalError("Unhandled and unknown exception",3);
 	}
-		
-	
+
+
+	destroyGraphics();
+
 	glfwTerminate();
 	std::exit(0);
 

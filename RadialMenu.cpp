@@ -14,6 +14,7 @@ RadialMenu::RadialMenu(vector<RadialMenuItem> & items)
 {			
 	items.push_back(RadialMenuItem("Exit and Logout","logout", Colors::DarkRed));
 	items.push_back(RadialMenuItem("Exit PhotoExplore","exit",Colors::OrangeRed));
+	items.push_back(RadialMenuItem("Toggle Fullscreen","full",Colors::DarkSlateBlue));
 	//items.push_back(RadialMenuItem("Hide Tutorial","hide_tutorial", Colors::DarkTurquoise));
 	//items.push_back(RadialMenuItem("Tap mode = On Press","toggle_tap", Colors::DarkTurquoise));
 	items.push_back(RadialMenuItem("Privacy Information","show_privacy_info", Colors::DodgerBlue));
@@ -25,8 +26,6 @@ RadialMenu::RadialMenu(vector<RadialMenuItem> & items)
 	((Button*)menuLaunchButton)->setTextAlignment(1);
 	((Button*)menuLaunchButton)->setTextFitMode(true);
 	((Button*)menuLaunchButton)->setTextFitPadding(GlobalConfig::tree()->get<float>("Menu.CornerPadding"));
-
-	//new ImageButton(GlobalConfig::tree()->get<string>("Menu.OpenMenuImage"),GlobalConfig::tree()->get<string>("Menu.OpenMenuOverlay"));	
 	addChild(menuLaunchButton);
 	menuLaunchButton->elementClickedCallback = [this](LeapElement * clicked){
 
