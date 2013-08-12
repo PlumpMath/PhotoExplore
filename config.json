@@ -45,8 +45,8 @@
 		"ShaderDirectory" : ".",
 		"Fullscreen" : false,
 		"OverrideResolution" : true,
-		"OverrideWidth" : 1280,
-		"OverrideHeight" : 720,
+		"OverrideWidth" : 1920,
+		"OverrideHeight" : 1080,
 		"UseIntForNonSubPixelRender" : false,
 		"NoSubPixelScroll" : true,
 		"ExecuteGLFinish": true,
@@ -207,7 +207,7 @@
 		"CornerPadding" : 36,		
 		"WhiteBackground" : false,
 		"RelativeHeight" : 0.07,
-		"MinimumHeight" : 100,
+		"MinimumHeight" : 70,
 		"TextColor" :  {"R" : 240,"G" : 240,"B" : 240,"A" : 255},
 		"PrivacyInfo" : 
 		{

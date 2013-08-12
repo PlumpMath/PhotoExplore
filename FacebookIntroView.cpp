@@ -366,20 +366,4 @@ void FacebookIntroView::layout(Leap::Vector position, Size2f size)
 //Note: This is a hack.
 void FacebookIntroView::onFrame(const Controller & controller)
 {	
-	//HandModel * hm = HandProcessor::LastModel();	
-	//Pointable testPointable = controller.frame().pointable(hm->IntentFinger);
-	//
-	//if (testPointable.isValid())
-	//{
-	//	Leap::Vector screenPoint = LeapHelper::FindScreenPoint(controller,testPointable);
-
-	//	if (friendPhotoGrid->getHitRect().contains(cv::Point_<float>(screenPoint.x,screenPoint.y)))
-	//	{
-	//		friendScroll->OnPointableEnter(testPointable);
-	//	}
-	//	else if (myPhotoGrid->getHitRect().contains(cv::Point_<float>(screenPoint.x,screenPoint.y)))
-	//	{
-	//		photoScroll->OnPointableEnter(testPointable);
-	//	}
-	//}
 }

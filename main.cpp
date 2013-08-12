@@ -518,6 +518,19 @@ int main(int argc, char * argv[]){
 						quit[0] = true;
 					}			
 
+					if (glfwGetWindowMonitor(mainWindow) == NULL)
+					{
+						int newWidth,newHeight;
+						glfwGetWindowSize(mainWindow,&newWidth,&newHeight);
+
+						if (newWidth != GlobalConfig::ScreenWidth || newHeight != GlobalConfig::ScreenHeight)
+						{
+							GlobalConfig::ScreenWidth = newWidth;
+							GlobalConfig::ScreenHeight = newHeight;
+
+							startScreen.layout(Vector(),cv::Size2f(newWidth,newHeight));
+						}
+					}
 
 					if (GraphicsContext::getInstance().BlurRenderEnabled)
 					{

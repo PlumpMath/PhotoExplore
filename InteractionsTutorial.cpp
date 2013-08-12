@@ -190,7 +190,7 @@ void InteractionsTutorial::init()
 	addChild(tutorialStepGrid);
 	
 	float menuHeight = getMenuHeight();
-	float tutorialHeight = GlobalConfig::tree()->get<float>("Tutorial.RelativeHeight")* GlobalConfig::ScreenHeight;
+	float tutorialHeight = getTutorialHeight();
 
 	this->layout(Vector(0,menuHeight,0),cv::Size2f(GlobalConfig::ScreenWidth,GlobalConfig::ScreenHeight-(menuHeight+tutorialHeight)));
 }
@@ -203,7 +203,7 @@ void InteractionsTutorial::generatePanels(cv::Size2i gridSize)
 	float totalWidth = GlobalConfig::ScreenWidth*10.0f;
 	
 	float menuHeight = getMenuHeight();
-	float tutorialHeight = GlobalConfig::tree()->get<float>("Tutorial.RelativeHeight")* GlobalConfig::ScreenHeight;
+	float tutorialHeight = getTutorialHeight();
 
 	float totalHeight = GlobalConfig::ScreenHeight-(menuHeight+tutorialHeight);
 
@@ -246,7 +246,7 @@ void InteractionsTutorial::generatePanels(cv::Size2i gridSize)
 void InteractionsTutorial::layout(Vector position, cv::Size2f size)
 {		
 	float menuHeight = getMenuHeight();
-	float tutorialHeight = GlobalConfig::tree()->get<float>("Tutorial.RelativeHeight")* GlobalConfig::ScreenHeight;
+	float tutorialHeight = getTutorialHeight();
 	float progressBarRC = GlobalConfig::tree()->get<float>("InteractiveTutorial.ProgressBarRC");
 
 	lastPosition = position;

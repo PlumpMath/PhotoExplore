@@ -105,7 +105,7 @@ LeapDebug::LeapDebug()
 	tutorialLayout = new LinearLayout();
 	tutorialPanel = new ContentPanel(tutorialLayout);
 	tutorialLayout->measure(tutorialSize);
-	tutorialLayout->layout(Vector(0,GlobalConfig::ScreenHeight+100,10),tutorialSize);
+	tutorialLayout->layout(Vector(0,GlobalConfig::ScreenHeight+tutorialHeight,10),tutorialSize);
 
 
 	if (debugPlotEnabled)
@@ -291,7 +291,7 @@ void LeapDebug::setTutorialImages(vector<string> names)
 		if (gesture != tutorialPanels.end())
 			tutorialLayout->addChild(gesture->second);
 	}
-	cv::Size2f size = cv::Size2f(300,GlobalConfig::tree()->get<float>("Tutorial.RelativeHeight")*GlobalConfig::ScreenHeight);
+	cv::Size2f size = cv::Size2f(300,getTutorialHeight());
 	tutorialPanel->measure(size);
 	tutorialPanel->layout(Vector(0,GlobalConfig::ScreenHeight-size.height,10),size);
 	

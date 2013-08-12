@@ -230,22 +230,29 @@ void LeapStartScreen::layout(Leap::Vector pos, cv::Size2f size)
 	this->lastPosition = pos;
 	this->lastSize = size;
 
-	mainLayout->layout(pos+Vector(0,0,2),size);
+	if (state != FinishedState)
+	{
+		mainLayout->layout(pos+Vector(0,0,2),size);
 
-	cv::Size2f buttonSize = cv::Size2f(size.width*.4f,size.height*.35f);
-	facebookLoginButton->layout(Vector((size.width-buttonSize.width)*.5f,size.height*.30f,2)+pos,buttonSize);
+		cv::Size2f buttonSize = cv::Size2f(size.width*.4f,size.height*.35f);
+		facebookLoginButton->layout(Vector((size.width-buttonSize.width)*.5f,size.height*.30f,2)+pos,buttonSize);
 
 	
-	if (tutorialButton != NULL)
-	{
-		float rightEdge = (size.width + buttonSize.width)*.5f;
-		buttonSize.width = (size.width-rightEdge) *.5f; 
-		float x = rightEdge + (size.width-rightEdge)*.5f - buttonSize.width*.5f;
-		tutorialButton->layout(Vector(x,size.height*.30f,2)+pos,buttonSize);
-	}
+		if (tutorialButton != NULL)
+		{
+			float rightEdge = (size.width + buttonSize.width)*.5f;
+			buttonSize.width = (size.width-rightEdge) *.5f; 
+			float x = rightEdge + (size.width-rightEdge)*.5f - buttonSize.width*.5f;
+			tutorialButton->layout(Vector(x,size.height*.30f,2)+pos,buttonSize);
+		}
 
-	buttonSize = cv::Size2f(size.width*.3f,size.height*.15f);
-	noticePanel->layout(Vector((size.width-buttonSize.width)*.5f,size.height*.70f,2)+pos,buttonSize);
+		buttonSize = cv::Size2f(size.width*.3f,size.height*.15f);
+		noticePanel->layout(Vector((size.width-buttonSize.width)*.5f,size.height*.70f,2)+pos,buttonSize);
+	}
+	else if (rootView != NULL)
+	{
+		rootView->layout(Vector(),size);
+	}
 
 }
 
