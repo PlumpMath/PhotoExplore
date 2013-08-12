@@ -1,5 +1,5 @@
 change_lib () {
-install_name_tool -change $1 @executable_path/../Frameworks/$2 ../PhotoExplorer.app/Contents/MacOS/PhotoExplorer
+install_name_tool -change $1 @executable_path/../Frameworks/$2 ../PhotoExplore.app/Contents/MacOS/PhotoExplore
 }
 
 change_exec_libs(){
@@ -25,7 +25,7 @@ change_lib /opt/local/lib/libstdc++.6.dylib libstdc++.6.dylib
 }
 
 change_lib_2 () {
-install_name_tool -change $1 @executable_path/../Frameworks/$2 ../PhotoExplorer.app/Contents/Frameworks/$3
+install_name_tool -change $1 @executable_path/../Frameworks/$2 ../PhotoExplore.app/Contents/Frameworks/$3
 
 }
 

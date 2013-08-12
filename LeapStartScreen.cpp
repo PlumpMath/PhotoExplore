@@ -286,9 +286,10 @@ void LeapStartScreen::launchBrowser()
 		string fbURL = "https://www.facebook.com/dialog/oauth?client_id=144263362431439&redirect_uri=http://144263362431439.com&scope=user_photos,friends_photos,user_likes,publish_stream&response_type=token";
 		CefBrowserHost::CreateBrowser(info, facebookClient.get(),fbURL, browserSettings);	
 		
-#else
-		glFinish();	
-		glfwIconifyWindow(GraphicsContext::getInstance().MainWindow);
+#else		
+		glFinish();
+		GraphicsContext::getInstance().invokeGlobalAction("hide");
+		//glfwIconifyWindow(GraphicsContext::getInstance().MainWindow);
 		
 		new boost::thread([this](){
 			
@@ -312,6 +313,7 @@ void LeapStartScreen::launchBrowser()
 			LeapStartScreen * me = this;
 			this->postTask([me,tok](){
 				
+				GraphicsContext::getInstance().invokeGlobalAction("show");
 				glfwRestoreWindow(GraphicsContext::getInstance().MainWindow);
 				if (tok.length() > 0)
 				{

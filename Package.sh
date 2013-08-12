@@ -1,3 +1,3 @@
-mv main ../PhotoExplorer.app/Contents/MacOS/PhotoExplorer
-cp config.json ../PhotoExplorer.app/Contents/Resources/config.json
+mv main ../PhotoExplore.app/Contents/MacOS/PhotoExplore
+cp config.json ../PhotoExplore.app/Contents/Resources/config.json
 ./FixLibs.sh
