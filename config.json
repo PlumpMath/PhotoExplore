@@ -10,7 +10,7 @@
 	},
 	"Logging" : 
 	{
-		"File" : "/Users/adamskubel/photo_explorer.log",
+		"File" : "./photo_explorer.log",
 //		"File" : "C:\\Users\\Adam\\Desktop\\PhotoExplorer\\photo_explorer.log",
 		"Enabled" : false
 	},
@@ -42,10 +42,10 @@
 		"EnablePixelBuffers" : true,
 		"EnableLineSmoothing" : true,
 		"FSAASamples" : 0,
-		"ResizableWindow" : false,
+		"ResizableWindow" : true,
 		"ShaderDirectory" : ".",
 		"Fullscreen" : false,
-		"OverrideResolution" : true,
+		"OverrideResolution" : false,
 		"OverrideWidth" : 1920,
 		"OverrideHeight" : 1080,
 		"UseIntForNonSubPixelRender" : false,
@@ -146,7 +146,7 @@
 	},
 	"FakeDataMode" : 
 	{
-		"Enable" : false,
+		"Enable" : true,
 		"ImageDirectories" :
 		[ 
 			"C:\\Users\\Adam\\Pictures",		
@@ -748,7 +748,7 @@
 		"TextColor" :     {     "R" : 0,     "G" : 0,     "B" : 0,     "A" : 255    },    
 		"InvertedTextColor" :     {     "R" : 200,     "G" : 200,     "B" : 200,     "A" : 255    },
 		"AspectRatio" : 1,
-		"RelativeHeight" : 0.07, 
+		"RelativeHeight" : 0.15, 
 		"MinimumHeight" : 100,
 		"ImageHeight" : 0.65,
 		"BaseIconWidth" : 100,
