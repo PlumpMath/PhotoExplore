@@ -46,8 +46,8 @@ int WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmd
 
 int main(int argc, char * argv[]){
 
-	signal(SIGSEGV, handle);
-	signal(SIGBUS, handle);
+	//signal(SIGSEGV, handle);
+	//signal(SIGBUS, handle);
 	
 	CefMainArgs mainArgs;
 	CefSettings settings;
@@ -58,7 +58,9 @@ int main(int argc, char * argv[]){
 
 	GlobalConfig::getInstance().loadConfigFile("./config.json");
 
-	initGraphics();
+	MainContext mainContext;
+	
+	mainContext.initGraphics();
 
 	if (GlobalConfig::tree()->get<bool>("FakeDataMode.Enable")) 
 		FBDataSource::instance = new FakeDataSource();
@@ -69,8 +71,8 @@ int main(int argc, char * argv[]){
 	
 	CefInitialize(mainArgs, settings, NULL);
 	
-	initializeUI();
-	return run();
+	mainContext.initializeUI();
+	return mainContext.run();
 
 }
 

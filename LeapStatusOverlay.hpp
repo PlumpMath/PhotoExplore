@@ -3,12 +3,13 @@
 
 #include "View.hpp"
 #include "TextPanel.h"
+#include "ActivityView.hpp"
 
 #include <Leap.h>
 
 using namespace Leap;
 
-class LeapStatusOverlay : public ViewGroup, public Listener {
+class LeapStatusOverlay : public ActivityView, public Listener {
 
 private:
 	TextPanel * notFocusedView;
@@ -25,6 +26,9 @@ public:
 	void layout(Vector position, cv::Size2f size);
 
 	void draw();
+	
+	void onGlobalGesture(const Controller & controller, std::string gestureType);
+	void getTutorialDescriptor(vector<string> & tutorial);
 
 };
 

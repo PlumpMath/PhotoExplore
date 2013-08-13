@@ -1,4 +1,4 @@
-#import "ns_hack.h"
+#import "ns_hack_objc.h"
 #import <Foundation/Foundation.h>
 #import <Cocoa/Cocoa.h>
 
@@ -7,15 +7,37 @@
 
 #import <GLFW/glfw3native.h>
 
+//- (void)fullscreenAction:(id)sender
+//{
+//    [[NSApplication sharedApplication] orderFrontStandardAboutPanel:self];
+//}
+
+
 void makeFullscreen(GLFWwindow * glWindow)
 {
 	NSWindow * window = glfwGetCocoaWindow(glWindow);
 	
-	[window setCollectionBehavior:
-	 NSWindowCollectionBehaviorFullScreenPrimary];
 	
+	NSSize currentSize = [[window contentView] frame].size;
+	[window setMinSize:currentSize];
 	
+	if ([window  respondsToSelector:@selector(toggleFullScreen:)])
+	{	
+		[window setCollectionBehavior:NSWindowCollectionBehaviorFullScreenPrimary];
+		[window toggleFullScreen:window];
+	}
+	
+//	NSMenu *mainMenu = [[NSApplication sharedApplication] mainMenu];
+//	NSMenu *appMenu = [[mainMenu itemAtIndex:0] submenu];
+//	NSMenuItem *item = [[NSMenuItem alloc] initWithTitle:@"Fullscreen"
+	//										   keyEquivalent:@""];
+//action:[window toggleFullScreen:window]
+//	[item autorelease];
+//	//[item setTarget:self];
+//	[appMenu addItem:item];
 }
+
+
 
 /*
 int main(int argc, char *argv[])

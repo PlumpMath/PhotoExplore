@@ -3,6 +3,6 @@
 
 #import <GLFW/glfw3.h>
 
-extern "C" void makeFullscreen(GLFWwindow * window);
+void makeFullscreen(GLFWwindow * window);
 
 #endif

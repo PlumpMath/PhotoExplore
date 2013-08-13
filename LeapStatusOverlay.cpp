@@ -2,6 +2,7 @@
 #include "TextPanel.h"
 #include "GlobalConfig.hpp"
 #include "GraphicContext.hpp"
+#include "LeapInput.hpp"
 
 LeapStatusOverlay::LeapStatusOverlay()
 {	
@@ -56,11 +57,24 @@ void LeapStatusOverlay::layout(Vector position, cv::Size2f size)
 	if (!isConnected || !isFocused)
 	{
 		GraphicsContext::getInstance().requestExclusiveClarity(this);
+		LeapInput::getInstance()->requestGlobalGestureFocus(this);
 	}
 	else
 	{
 		GraphicsContext::getInstance().releaseExclusiveClarity(this);
+		LeapInput::getInstance()->releaseGlobalGestureFocus(this);
 	}
+}
+
+
+void LeapStatusOverlay::onGlobalGesture(const Controller & controller, std::string gestureType)
+{
+	;
+}
+
+void LeapStatusOverlay::getTutorialDescriptor(vector<string> & tutorial)
+{
+	;
 }
 
 

@@ -187,10 +187,15 @@ void MainContext::initGraphics()
 		throw new std::runtime_error("OpenGL didn't initialize!");
 	}
 	
-	int fbw,fbh;
-	glfwGetFramebufferSize(GraphicsContext::getInstance().MainWindow,&fbw,&fbh);
-
-	createFrameBuffers(cv::Size2i(fbw,fbh));
+	glfwGetFramebufferSize(GraphicsContext::getInstance().MainWindow,&frameBufferWidth,&frameBufferHeight);
+	updateFrameBufferSize(cv::Size2i(frameBufferWidth,frameBufferHeight));
+	
+	int newWidth,newHeight;
+	glfwGetWindowSize(GraphicsContext::getInstance().MainWindow,&newWidth,&newHeight);
+	updateWindowSize(cv::Size2i(newWidth,newHeight));
+	
+	
+	//createFrameBuffers(cv::Size2i(frameBufferWidth,frameBufferHeight));
 	initShaders();
 
 	InputEventHandler::getInstance().init(GraphicsContext::getInstance().MainWindow);

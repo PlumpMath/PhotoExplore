@@ -46,7 +46,7 @@
 		"ResizableWindow" : true,
 		"ShaderDirectory" : ".",
 		"Fullscreen" : false,
-		"OverrideResolution" : true,
+		"OverrideResolution" : false,
 		"OverrideWidth" : 1920,
 		"OverrideHeight" : 1080,
 		"UseIntForNonSubPixelRender" : false,
