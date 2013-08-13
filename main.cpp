@@ -31,6 +31,7 @@
 #include <execinfo.h>
 #include <signal.h>
 #include <stdlib.h>
+#include "ns_hack.h"
 #endif
 
 using namespace Leap;
@@ -92,6 +93,14 @@ void handleFatalError(string errorText, int sig) {
 
 bool initializeWindow( int window_width, int window_height, bool isFull)
 {
+//	int count;
+//	GLFWmonitor ** monitors = glfwGetMonitors(&count);
+//	for (int i=0;i<count;i++)
+//	{
+//		printf("Found monitor #%d \n",monitors[i]);
+//	}
+	
+	
 	auto conf = GlobalConfig::tree()->get_child("GraphicsSettings");
 	
 	glfwWindowHint(GLFW_SAMPLES,conf.get<int>("FSAASamples"));
@@ -138,8 +147,11 @@ bool initializeWindow( int window_width, int window_height, bool isFull)
 	Color bg = Colors::WhiteSmoke;
 	float * color = bg.getFloat();
 	glClearColor(color[0],color[1], color[2], 0.0f);
+	
+	int fbWidth,fbHeight;
+	glfwGetFramebufferSize(handle,&fbWidth,&fbHeight);
 
-	glViewport(0, 0, window_width, window_height);
+	glViewport(0, 0, fbWidth, fbHeight);
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	glMatrixMode(GL_PROJECTION);
@@ -339,6 +351,10 @@ void initGraphics()
 	initShaders();
 
 	InputEventHandler::getInstance().init(GraphicsContext::getInstance().MainWindow);
+	
+#ifndef _WIN32
+	makeFullscreen(GraphicsContext::getInstance().MainWindow);
+#endif
 }
 
 
@@ -377,14 +393,33 @@ int run()
 		});
 
 		LeapInput::getInstance()->setTopLevelElement(&startScreen);
-
-		InputEventHandler::getInstance().addFocusChangedCallback([&](GLFWwindow * window, int focused) -> bool{
+		
+		
+		InputEventHandler::getInstance().addKeyCallback([&](GLFWwindow * window, int key, int scancode, int action, int mods) -> bool {
 			
-			if (focused == GL_FALSE)
+			if (key == GLFW_KEY_ESCAPE)
+			{
+				quit[0] = true;
+				return true;
+			}
+			else if (key == GLFW_KEY_TAB && (mods & GLFW_MOD_SUPER) && action == GLFW_PRESS)
+			{
+				printf("Minimizing");
 				glfwIconifyWindow(window);
-
+				return true;
+			}
+			
+			printf("Key=%d Mods=%d Scancode=%d \n",key,mods,scancode);
 			return false;
 		});
+
+//		InputEventHandler::getInstance().addFocusChangedCallback([&](GLFWwindow * window, int focused) -> bool{
+//			
+//			if (focused == GL_FALSE)
+//				glfwIconifyWindow(window);
+//
+//			return false;
+//		});
 
 
 
@@ -490,7 +525,7 @@ int run()
 					glfwMakeContextCurrent(mainWindow);
 					glfwPollEvents();
 
-					if (glfwGetKey(mainWindow,GLFW_KEY_ESCAPE) == GLFW_PRESS || glfwWindowShouldClose(mainWindow))
+					if (glfwWindowShouldClose(mainWindow))
 					{
 						quit[0] = true;
 					}			
@@ -682,7 +717,7 @@ int WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmd
 	return run();
 }
 #else
-	
+
 int main(int argc, char * argv[]){
 
 	signal(SIGSEGV, handle);

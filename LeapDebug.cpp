@@ -52,9 +52,12 @@ LeapDebug::LeapDebug()
 		float iconWidth = tutIt->second.get<float>("IconWidth", defaultIconWidth);
 		ImagePanel  * tutorialImage = new ImagePanel(tutIt->second.get<string>("RightImage"));
 
-		tutorialImage->setScaleMode(ScaleMode::None);
+		if (tutorialHeight == GlobalConfig::tree()->get<float>("Tutorial.MinimumHeight"))
+			tutorialImage->setScaleMode(ScaleMode::None);
+		else
+			tutorialImage->setScaleMode(ScaleMode::Fit);
+		
 		tutorialImage->setAllowSubPixelRendering(false);
-
 		tutorialImage->setBackgroundColor(backgroundColor);
 
 		TextPanel  * tutorialText = new TextPanel(tutIt->second.get<string>("Text"));

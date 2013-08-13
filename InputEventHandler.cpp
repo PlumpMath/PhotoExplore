@@ -10,11 +10,17 @@ void InputEventHandler::init(GLFWwindow * eventWindow)
 {
 	glfwSetCharCallback(eventWindow,InputEventHandler::glfwCharCallback);
 	glfwSetWindowFocusCallback(eventWindow,InputEventHandler::glfwFocusCallback);
+	glfwSetKeyCallback(eventWindow,InputEventHandler::glfwKeyCallback);
 }
 
 void InputEventHandler::addUnicodeCharacterListener(boost::function<bool(GLFWwindow*,unsigned int)> unicodeCallback)
 {
 	unicodeCallbacks.push_back(unicodeCallback);
+}
+
+void InputEventHandler::addKeyCallback(boost::function<bool(GLFWwindow*,int,int,int,int)> keyCallback)
+{
+	keyCallbacks.push_back(keyCallback);
 }
 
 void InputEventHandler::onCharEvent(GLFWwindow * window, unsigned int key)
@@ -51,4 +57,14 @@ void InputEventHandler::onFocusEvent(GLFWwindow * window, int focused)
 void InputEventHandler::glfwFocusCallback(GLFWwindow * window, int focused)
 {
 	InputEventHandler::getInstance().onFocusEvent(window,focused);
+}
+
+void InputEventHandler::glfwKeyCallback(GLFWwindow * window, int key, int scancode, int action, int mods)
+{
+	for (auto it = InputEventHandler::getInstance().keyCallbacks.begin(); it != InputEventHandler::getInstance().keyCallbacks.end(); it++)
+	{
+		bool handled = (*it)(window,key,scancode,action,mods);
+		if (handled)
+			break;
+	}
 }
