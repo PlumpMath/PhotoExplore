@@ -60,6 +60,27 @@ void ResourceManager::reloadTextures()
 	cleanupCache(true);
 }
 
+void ResourceManager::destroyResourceIfEmpty(string resourceId, IResourceWatcher * watcher)
+{
+
+	auto resource = resourceCache.get<IdIndex>().find(resourceId);	
+	
+	ResourceData * data = NULL;
+	if (resource != resourceCache.get<IdIndex>().end())
+	{
+		data = resource->Data;
+		data->callbacks.erase(watcher);
+
+		if (data->callbacks.empty())
+		{
+			updateTextureState(data,false);
+			updateImageState(data,false);
+			resourceCache.get<IdIndex>().erase(resource);
+			Logger::stream("DEBUG","RMan") << "Erased '" << resourceId << "'" << endl;
+		}
+	}
+}
+
 void ResourceManager::releaseResource(string resourceId, IResourceWatcher * watcher)
 {
 	auto resource = resourceCache.get<IdIndex>().find(resourceId);	
@@ -69,10 +90,13 @@ void ResourceManager::releaseResource(string resourceId, IResourceWatcher * watc
 	{
 		data = resource->Data;		
 		data->callbacks.erase(watcher);
-	}
+	
+		if (data->callbacks.empty())
+			data->priority = 100;
 
-	if (data->callbacks.empty())
-		data->priority = 100;
+		updateTextureState(data,false);
+		updateImageState(data,false);
+	}
 }
 
 
@@ -165,9 +189,10 @@ void ResourceManager::updateTextureState(ResourceData * data, bool load)
 		case ResourceState::Empty:
 			if (data->ImageState == ResourceState::ImageLoaded)
 			{
+				string resourceId = data->resourceId;
 				data->TextureState = ResourceState::TextureLoading;
-				TextureLoader::getInstance().loadTextureFromImage(data->resourceId, data->priority, data->image, [this,data](GLuint textureId, int taskStatus){
-					this->textureLoaded(data,textureId,taskStatus);
+				TextureLoader::getInstance().loadTextureFromImage(data->resourceId, data->priority, data->image, [this,resourceId](GLuint textureId, int taskStatus){
+					this->textureLoaded(resourceId,textureId,taskStatus);
 				});
 			}
 			break;		
@@ -503,33 +528,29 @@ void ResourceManager::update()
 
 }
 
-void ResourceManager::textureLoaded(ResourceData * data, GLuint textureId, int taskStatus)
+void ResourceManager::textureLoaded(string resourceId, GLuint textureId, int taskStatus)
 {
-	//if (data->TextureState == ResourceState::TextureLoaded)
-	//{
-	//	int texWidth,texHeight;
-	//	glBindTexture(GL_TEXTURE_2D,data->textureId);
-	//	glGetTexLevelParameteriv(GL_TEXTURE_2D,0,GL_TEXTURE_WIDTH,&texWidth);
-	//	glGetTexLevelParameteriv(GL_TEXTURE_2D,0,GL_TEXTURE_HEIGHT,&texHeight);
-	//	TexturePool::getInstance().releaseTexture(data->textureId);
-	//	currentTextureStorageSize -= (texWidth*texHeight*4);	
-	//}
+	auto resource = resourceCache.get<IdIndex>().find(resourceId);	
 
-	data->TextureState = taskStatus;
-
-	if (data->TextureState == ResourceState::TextureLoaded)
+	ResourceData * data = NULL;
+	if (resource != resourceCache.get<IdIndex>().end())
 	{
-		data->textureId = textureId;
-		currentTextureCacheSize += data->image.size().area() * 4;
-		//int texWidth,texHeight;
-		//glBindTexture(GL_TEXTURE_2D,data->textureId);
-		//glGetTexLevelParameteriv(GL_TEXTURE_2D,0,GL_TEXTURE_WIDTH,&texWidth);
-		//glGetTexLevelParameteriv(GL_TEXTURE_2D,0,GL_TEXTURE_HEIGHT,&texHeight);	
-		//currentTextureStorageSize += (texWidth*texHeight*4);
-	}
+		data = resource->Data;		
+		data->TextureState = taskStatus;
 
-	for (auto it = data->callbacks.begin(); it != data->callbacks.end(); it++)
-	{
-		(*it)->resourceUpdated(data);
+		if (data->TextureState == ResourceState::TextureLoaded)
+		{
+			data->textureId = textureId;
+			currentTextureCacheSize += data->image.size().area() * 4;
+		}
+
+		if (!data->callbacks.empty())
+		{			
+			Logger::stream("DEBUG","RMan") << "Loaded '" << resourceId << "'" << endl;
+			for (auto it = data->callbacks.begin(); it != data->callbacks.end(); it++)
+			{
+					(*it)->resourceUpdated(data);
+			}
+		}
 	}
 }

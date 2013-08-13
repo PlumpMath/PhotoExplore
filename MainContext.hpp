@@ -234,6 +234,7 @@ struct MainContext {
 	
 	void initCallbacks()
 	{
+		bool drawDuringCallback = GlobalConfig::tree()->get<bool>("GraphicsSettings.DrawDuringCallback");
 
 		GraphicsContext::getInstance().applicationExitCallback = [this](){quit[0] = true;};
 
@@ -247,14 +248,14 @@ struct MainContext {
 			return false;
 		});
 
-		InputEventHandler::getInstance().addWindowPositionCallback([this](GLFWwindow * window, int xPos, int yPos) -> bool{
+		InputEventHandler::getInstance().addWindowPositionCallback([this,drawDuringCallback](GLFWwindow * window, int xPos, int yPos) -> bool{
 	
-			this->drawStage();	
-			return false;
-
+			if (drawDuringCallback) 
+				this->drawStage();	
+			return true;
 		});
 
-		InputEventHandler::getInstance().addWindowSizeCallback([this](GLFWwindow * window, int newWidth, int newHeight) -> bool{
+		InputEventHandler::getInstance().addWindowSizeCallback([this,drawDuringCallback](GLFWwindow * window, int newWidth, int newHeight) -> bool{
 	
 			if (newWidth != GlobalConfig::ScreenWidth || newHeight != GlobalConfig::ScreenHeight)
 			{
@@ -266,7 +267,8 @@ struct MainContext {
 				LeapDebug::getInstance().layoutTutorial();			
 				GraphicsContext::getInstance().setDrawHint("SkipLayoutAnimation",0);
 
-				this->drawStage();
+				if (drawDuringCallback)
+					this->drawStage();
 
 				return true;
 			}
@@ -274,15 +276,29 @@ struct MainContext {
 		});
 
 		
-		InputEventHandler::getInstance().addFrameBufferSizeCallback([this](GLFWwindow * window, int newWidth, int newHeight) -> bool{
+		InputEventHandler::getInstance().addFrameBufferSizeCallback([this,drawDuringCallback](GLFWwindow * window, int newWidth, int newHeight) -> bool{
 	
 			if (frameBufferWidth != newWidth || frameBufferHeight != newHeight)
 			{
 				updateFrameBufferSize(cv::Size2i(newWidth,newHeight));
+
+				if (drawDuringCallback)
+					this->drawStage();
+
 				return true;
 			}
 			return false;
 		});
+
+		InputEventHandler::getInstance().addWindowRefreshCallback([this,drawDuringCallback](GLFWwindow * window) -> bool{
+	
+			if (drawDuringCallback)
+				this->drawStage();
+
+			return true;
+		});
+
+
 
 		glfwSetWindowCloseCallback(GraphicsContext::getInstance().MainWindow,MainContext::onWindowShouldClose);
 

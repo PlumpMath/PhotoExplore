@@ -62,11 +62,12 @@ private:
 	void operator=(ResourceManager const&); 
 
 	void cleanupCache(bool updateAll);	
-	void textureLoaded(ResourceData * data, GLuint textureId, int taskStatus);
+	void textureLoaded(string resourceId, GLuint textureId, int taskStatus);
 
 	void updateImageState(ResourceData * data, bool load);	
 	void updateTextureState(ResourceData * data, bool load);
 	void updateImageResource(string resourceId, int statusCode, cv::Mat imgMat);
+
 
 	float calculateResourceSize(ResourceData * data);
 
@@ -98,6 +99,7 @@ public:
 	void unloadTextures();
 	void reloadTextures();
 
+	void destroyResourceIfEmpty(string resourceId, IResourceWatcher * watcher);
 	void releaseResource(string resourceId,IResourceWatcher * watcher);
 	ResourceData * watchResource(string resourceId, IResourceWatcher * watcher);
 

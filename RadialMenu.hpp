@@ -40,10 +40,7 @@ private:
 	int state;
 
 	View * menuLaunchButton;
-
 	View * privacyInfoBox;
-
-	bool blurWasEnabled;
 	
 public:		
 	static RadialMenu * instance;
@@ -65,6 +62,8 @@ public:
 	void getTutorialDescriptor(vector<string> & tutorial);
 
 	void layout(Vector pos, cv::Size2f size);
+
+	void OnElementClicked(Pointable & pointable);
 
 	float getZValue();
 

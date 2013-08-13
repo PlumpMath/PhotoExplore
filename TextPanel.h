@@ -31,6 +31,7 @@ protected:
 	string text;
 	bool textDirty;
 	ResourceData * currentResource;
+	list<ResourceData*> expiredResources;
 	cv::Rect_<float> currentTextRect;
 
 public:

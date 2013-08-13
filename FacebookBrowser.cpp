@@ -26,6 +26,7 @@ FacebookBrowser::FacebookBrowser()
 	homeButtonText->setTextColor(Colors::SteelBlue);
 	homeButtonText->setTextFitPadding(cornerPadding);
 	homeButtonText->setTextFitMode(true);
+	homeButtonText->setTextAlignment(1);
 	
 	
 	float menuHeight = ActivityView::getMenuHeight();
@@ -215,6 +216,9 @@ void FacebookBrowser::layout(Vector position, cv::Size2f size)
 	
 	pathView->measure(menuBarSize);
 	pathView->layout(menuBarPosition,menuBarSize);
+
+	homeButton->layout(homeButton->getLastPosition(),cv::Size2f(homeButton->getMeasuredSize().width,menuHeight));
+
 
 	Vector contentPosition = Vector(0,menuHeight,0);
 	cv::Size2f contentSize = cv::Size2f(GlobalConfig::ScreenWidth, GlobalConfig::ScreenHeight-(tutorialHeight+menuHeight));

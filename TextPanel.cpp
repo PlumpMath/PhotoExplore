@@ -32,7 +32,7 @@ void TextPanel::init()
 	textEnabled = true;
 	this->text = std::string("");
 	textureScaleMode = ScaleMode::None;
-	setAllowSubPixelRendering(false); //fontDefinition.get<bool>("SubPixelTextRendering"));
+	setAllowSubPixelRendering(false); 
 	textAlignment = 1;	
 }
 
@@ -40,8 +40,17 @@ void TextPanel::resourceUpdated(ResourceData * data)
 {
 	if (data != NULL)
 	{
+		
 		if (data->TextureState == ResourceState::TextureLoaded)
 		{
+			while (!expiredResources.empty())
+			{
+				if (expiredResources.front() != data)
+					ResourceManager::getInstance().destroyResourceIfEmpty(expiredResources.front()->resourceId,this);
+
+				expiredResources.pop_front();
+			}
+
 			currentTextureId = data->textureId;
 		}		
 	}
@@ -75,8 +84,10 @@ void TextPanel::reloadText()
 	}
 	else if (textResource == NULL)
 	{
-		//if (currentResource != NULL)
-		//	ResourceManager::getInstance().releaseResource(currentResource->resourceId,this);
+		if (currentResource != NULL)
+		{
+			expiredResources.push_back(currentResource);
+		}
 
 		TextLayoutConfig config(textAlignment,textureSize.width);
 		config.fitToText = fitToText;
@@ -93,10 +104,10 @@ void TextPanel::reloadText()
 	{
 		if (textResource->TextureState == ResourceState::TextureLoaded)
 		{
-			//if (currentResource != NULL)
-			//{
-			//	ResourceManager::getInstance().releaseResource(currentResource->resourceId,this);
-			//}
+			if (currentResource != NULL)
+			{
+				ResourceManager::getInstance().destroyResourceIfEmpty(currentResource->resourceId,this);
+			}
 
 			currentResource = textResource;
 			currentTextureId = currentResource->textureId;
@@ -109,16 +120,10 @@ void TextPanel::reloadText()
 
 void TextPanel::drawContent(Vector drawPosition, float drawWidth, float drawHeight)
 {		
-	if (!textEnabled || currentTextureId == NULL)// || !(TextureManager::getInstance()->isTextureLoaded(currentTextureId,TextureManager::TextureType_Font))))
+	if (!textEnabled || currentTextureId == NULL)
 		return;
-	//glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-	
-	//glBindTexture(GL_TEXTURE_2D,currentTextureId);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST); 
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
 	TexturePanel::drawTexture(currentTextureId,drawPosition+Vector(0,0,1),drawWidth,drawHeight);	
-	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 

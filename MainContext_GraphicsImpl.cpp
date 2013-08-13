@@ -270,6 +270,8 @@ bool MainContext::initializeWindow( int window_width, int window_height, bool is
 
 void MainContext::updateWindowSize(cv::Size2i newSize)
 {
+	Logger::stream("INFO","Main") << "Window size is " << newSize.width << "," << newSize.height << endl;
+
 	GlobalConfig::ScreenWidth = newSize.width;
 	GlobalConfig::ScreenHeight = newSize.height;
 	
@@ -280,6 +282,7 @@ void MainContext::updateWindowSize(cv::Size2i newSize)
 
 void MainContext::updateFrameBufferSize(cv::Size2i newSize)
 {	
+	Logger::stream("INFO","Main") << "FrameBuffer size is " << newSize.width << "," << newSize.height << endl;
 	glViewport(0, 0, newSize.width, newSize.height);
 	frameBufferHeight = newSize.height;
 	frameBufferWidth = newSize.width;

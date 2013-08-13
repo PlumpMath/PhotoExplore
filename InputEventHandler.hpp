@@ -19,6 +19,7 @@ private:
 	std::list<boost::function<bool(GLFWwindow*,int,int)> > windowSizeCallbacks;
 	std::list<boost::function<bool(GLFWwindow*,int,int)> > windowPositionCallbacks;
 	std::list<boost::function<bool(GLFWwindow*,int,int)> > frameBufferSizeCallbacks;
+	std::list<boost::function<bool(GLFWwindow*)> > windowRefreshCallbacks;
 
 
 public:
@@ -34,6 +35,7 @@ public:
 	static void glfwWindowSizeCallback(GLFWwindow * window, int, int);
 	static void glfwWindowPositionCallback(GLFWwindow * window, int, int);
 	static void glfwFrameBufferSizeCallback(GLFWwindow * window, int, int);
+	static void glfwWindowRefreshCallback(GLFWwindow * window);
 
 	void init(GLFWwindow * eventWindow);
 
@@ -44,6 +46,8 @@ public:
 	void addWindowSizeCallback(boost::function<bool(GLFWwindow*,int,int)>);
 	void addFrameBufferSizeCallback(boost::function<bool(GLFWwindow*,int,int)>);
 	void addWindowPositionCallback(boost::function<bool(GLFWwindow*,int,int)>);
+	void addWindowRefreshCallback(boost::function<bool(GLFWwindow*)>);
+
 
 	void onCharEvent(GLFWwindow * window, unsigned int key);
 	void onFocusEvent(GLFWwindow * window, int focused);

@@ -5,6 +5,7 @@
 #include "Animation.h"
 #include <map>
 #include <stack>
+#include <set>
 #include "GLImport.h"
 #include "View.hpp"
 
@@ -45,6 +46,12 @@ public:
 	map<string,float> drawHintMap;
 
 	stack<View*> clearViewStack;
+	set<View*> constantlyClearViews;
+
+	void requestConstantClarity(View * clearView)
+	{
+		constantlyClearViews.insert(clearView);
+	}
 
 	void requestExclusiveClarity(View * clearView)
 	{
@@ -96,6 +103,11 @@ public:
 	{
 		if (!clearViewStack.empty())
 			clearViewStack.top()->draw();
+
+		for (auto it = constantlyClearViews.begin(); it != constantlyClearViews.end(); it++)
+		{
+			(*it)->draw();
+		}
 	}
 
 	void invokeGlobalAction(std::string args)

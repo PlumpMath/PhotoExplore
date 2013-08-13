@@ -25,6 +25,7 @@ void LinearLayout::measure(cv::Size2f & _measuredSize)
 			cv::Size2f childSize = cv::Size2f(-1,height-(childPadding[1]+childPadding[3]));		
 			
 			(*it)->measure(childSize);
+			childSize.height = height;
 			childSize.width += childPadding[0]+childPadding[2];
 			width += childSize.width;
 			childSizes.push_back(childSize);			

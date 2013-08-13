@@ -86,8 +86,8 @@ RadialMenu::RadialMenu(vector<RadialMenuItem> & items)
 	instance = this;
 	
 	setItems(items);
-
-	blurWasEnabled = false;
+	
+	GraphicsContext::getInstance().requestConstantClarity(menuLaunchButton);
 }
 
 void RadialMenu::setItems(vector<RadialMenuItem> & items)
@@ -122,7 +122,12 @@ LeapElement * RadialMenu::elementAtPoint(int x, int y, int & _state)
 {
 	if (state == MenuState_DisplayFull)
 	{
-		return ViewGroup::elementAtPoint(x,y,_state);
+		LeapElement * hit = ViewGroup::elementAtPoint(x,y,_state);
+
+		if (hit == NULL)
+			return this;
+		else
+			return hit;
 	}
 	else if (state == MenuState_ShowingDialog)
 	{
@@ -132,6 +137,11 @@ LeapElement * RadialMenu::elementAtPoint(int x, int y, int & _state)
 	{
 		return menuLaunchButton->elementAtPoint(x,y,_state);
 	}
+}
+
+void RadialMenu::OnElementClicked(Pointable & pointable)
+{
+	this->dismiss();
 }
 
 
@@ -233,7 +243,7 @@ void RadialMenu::layout(Vector pos, cv::Size2f size)
 
 		for (auto it = children.begin(); it != children.end(); it++)
 		{			
-			if ((*it) == privacyInfoBox)
+			if ((*it) == privacyInfoBox || (*it) == menuLaunchButton)
 				continue;
 
 			(*it)->layout(center + Vector(-childSize.width/2.0f,offset*spacing,0),childSize);
@@ -243,6 +253,11 @@ void RadialMenu::layout(Vector pos, cv::Size2f size)
 		cv::Size2f dialogSize = cv::Size2f(GlobalConfig::tree()->get<float>("Menu.PrivacyInfo.DialogWidth"),GlobalConfig::tree()->get<float>("Menu.PrivacyInfo.DialogHeight"));
 
 		privacyInfoBox->layout(pos + Vector((size.width - dialogSize.width)*.5f,size.height*1.2f,14), dialogSize);
+		
+		float height = getMenuHeight();
+		cv::Size2f menuButtonSize = cv::Size2f(height*1.5f,height);
+		menuLaunchButton->layout(Vector(size.width - menuLaunchButton->getMeasuredSize().width,-height*2.0f,10) + pos,menuButtonSize);		
+		menuLaunchButton->layout(Vector(size.width - menuLaunchButton->getMeasuredSize().width,-height*2.0f,10) + pos,menuButtonSize);
 	}
 	else if (state == MenuState_ShowingDialog)
 	{
@@ -313,7 +328,7 @@ void RadialMenu::draw()
 		{
 			ViewGroup::draw();	
 		}
-		else if (state == MenuState_ButtonOnly) 
+		else if (state == MenuState_ButtonOnly && !GraphicsContext::getInstance().BlurRenderEnabled) 
 		{
 			menuLaunchButton->draw();
 		}			

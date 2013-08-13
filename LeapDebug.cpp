@@ -50,13 +50,19 @@ LeapDebug::LeapDebug()
 	for (auto tutIt = tutorialIcons.begin(); tutIt != tutorialIcons.end(); tutIt++)
 	{		
 		float iconWidth = tutIt->second.get<float>("IconWidth", defaultIconWidth);
-		ImagePanel  * tutorialImage = new ImagePanel(tutIt->second.get<string>("RightImage"));
+		ImagePanel  * tutorialImage = NULL;
 
-		if (tutorialHeight == GlobalConfig::tree()->get<float>("Tutorial.MinimumHeight"))
+/*		if (tutorialHeight == GlobalConfig::tree()->get<float>("Tutorial.MinimumHeight"))
+		{
+			tutorialImage = new ImagePanel(tutIt->second.get<string>("RightImage"));
 			tutorialImage->setScaleMode(ScaleMode::None);
+		}
 		else
-			tutorialImage->setScaleMode(ScaleMode::Fit);
-		
+		{*/			
+		tutorialImage = new ImagePanel(tutIt->second.get<string>("RightImage_High"),cv::Size2f(defaultIconWidth,imgHeight*tutorialHeight));
+		tutorialImage->setScaleMode(ScaleMode::Fit);
+		//}
+
 		tutorialImage->setAllowSubPixelRendering(false);
 		tutorialImage->setBackgroundColor(backgroundColor);
 
@@ -244,10 +250,11 @@ void LeapDebug::layoutTutorial()
 		if (res == tutorialLayout->getChildren()->end())
 			it->second->layout(Vector(it->second->getLastPosition().x,GlobalConfig::ScreenHeight+getTutorialHeight(),10),it->second->getMeasuredSize());
 	}
-
+	
 	cv::Size2f size = cv::Size2f(300,getTutorialHeight());
 	tutorialPanel->measure(size);
 	tutorialPanel->layout(Vector(0,GlobalConfig::ScreenHeight-size.height,10),size);	
+	//tutorialLayout->layout(Vector(0,GlobalConfig::ScreenHeight-tutorialHeight,10),size);
 }
 
 void LeapDebug::draw()

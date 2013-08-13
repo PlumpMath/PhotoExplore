@@ -14,6 +14,7 @@ void InputEventHandler::init(GLFWwindow * eventWindow)
 	glfwSetWindowSizeCallback(eventWindow,InputEventHandler::glfwWindowSizeCallback);
 	glfwSetWindowPosCallback(eventWindow,InputEventHandler::glfwWindowPositionCallback);
 	glfwSetFramebufferSizeCallback(eventWindow,InputEventHandler::glfwFrameBufferSizeCallback);
+	glfwSetWindowRefreshCallback(eventWindow,InputEventHandler::glfwWindowRefreshCallback);
 }
 
 void InputEventHandler::addUnicodeCharacterListener(boost::function<bool(GLFWwindow*,unsigned int)> unicodeCallback)
@@ -40,6 +41,13 @@ void InputEventHandler::addFrameBufferSizeCallback(boost::function<bool(GLFWwind
 {
 	frameBufferSizeCallbacks.push_back(frameBufferSizeCallback);
 }
+
+void InputEventHandler::addWindowRefreshCallback(boost::function<bool(GLFWwindow*)> refreshCallback)
+{
+	windowRefreshCallbacks.push_back(refreshCallback);
+}
+
+
 
 void InputEventHandler::onCharEvent(GLFWwindow * window, unsigned int key)
 {
@@ -112,6 +120,17 @@ void InputEventHandler::glfwFrameBufferSizeCallback(GLFWwindow * window, int wid
 	for (auto it = InputEventHandler::getInstance().frameBufferSizeCallbacks.begin(); it != InputEventHandler::getInstance().frameBufferSizeCallbacks.end(); it++)
 	{
 		bool handled = (*it)(window,width,height);
+		if (handled)
+			break;
+	}
+}
+
+
+void InputEventHandler::glfwWindowRefreshCallback(GLFWwindow * window)
+{
+	for (auto it = InputEventHandler::getInstance().windowRefreshCallbacks.begin(); it != InputEventHandler::getInstance().windowRefreshCallbacks.end(); it++)
+	{
+		bool handled = (*it)(window);
 		if (handled)
 			break;
 	}
