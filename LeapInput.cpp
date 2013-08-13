@@ -296,19 +296,19 @@ void LeapInput::processFrame(const Controller & controller, Frame frame)
 	{
 		ldvIntent =new LeapDebugVisual(cursorDimension,GlobalConfig::tree()->get_child("Leap.IntentControl.ScrollVisual.Color"));
 		ldvIntent->depth=10;
-		LeapDebug::instance->addDebugVisual(ldvIntent);
+		LeapDebug::getInstance().addDebugVisual(ldvIntent);
 
 		ldvNonDominant = new LeapDebugVisual(0,GlobalConfig::tree()->get_child("Leap.IntentControl.NonDominant.FillColor"));
 		ldvNonDominant->depth=10;
 		ldvNonDominant->lineWidth =GlobalConfig::tree()->get<float>("Leap.IntentControl.NonDominant.LineWidth");
 		ldvNonDominant->lineColor = Color(GlobalConfig::tree()->get_child("Leap.IntentControl.NonDominant.LineColor"));
-		LeapDebug::instance->addDebugVisual(ldvNonDominant);
+		LeapDebug::getInstance().addDebugVisual(ldvNonDominant);
 		
 		ldvNonDominantTD = new LeapDebugVisual(0,GlobalConfig::tree()->get_child("Leap.IntentControl.NonDominantTD.FillColor"));
 		ldvNonDominantTD->depth=10;
 		ldvNonDominantTD->lineWidth =GlobalConfig::tree()->get<float>("Leap.IntentControl.NonDominantTD.LineWidth");
 		ldvNonDominantTD->lineColor = Color(GlobalConfig::tree()->get_child("Leap.IntentControl.NonDominantTD.LineColor"));
-		LeapDebug::instance->addDebugVisual(ldvNonDominantTD);
+		LeapDebug::getInstance().addDebugVisual(ldvNonDominantTD);
 	}
 
 	if (frame.hands().count() > 1 && drawNonDominant)
@@ -367,7 +367,7 @@ void LeapInput::processFrame(const Controller & controller, Frame frame)
 		distanceVisual->lineColor = Color(GlobalConfig::tree()->get_child("Leap.TouchDistance.Visual.LineColor"));
 		distanceVisual->lineWidth = GlobalConfig::tree()->get<float>("Leap.TouchDistance.Visual.LineWidth");
 		distanceVisual->depth=11;
-		LeapDebug::instance->addDebugVisual(distanceVisual);
+		LeapDebug::getInstance().addDebugVisual(distanceVisual);
 		touchDistanceVisuals.push_back(distanceVisual);
 	}
 
@@ -466,7 +466,7 @@ void LeapInput::requestGlobalGestureFocus(ActivityView * globalListener)
 		globalGestureListenerStack.push(globalListener);
 		vector<string> tutorial;
 		globalListener->getTutorialDescriptor(tutorial);
-		LeapDebug::instance->setTutorialImages(tutorial);
+		LeapDebug::getInstance().setTutorialImages(tutorial);
 		globalGestureListenerStack.top()->onGlobalFocusChanged(true);
 	}
 }
@@ -482,7 +482,7 @@ void LeapInput::releaseGlobalGestureFocus(ActivityView * globalListener)
 			vector<string> tutorial;
 			globalGestureListenerStack.top()->onGlobalFocusChanged(true);
 			globalGestureListenerStack.top()->getTutorialDescriptor(tutorial);
-			LeapDebug::instance->setTutorialImages(tutorial);
+			LeapDebug::getInstance().setTutorialImages(tutorial);
 		}
 	}
 }

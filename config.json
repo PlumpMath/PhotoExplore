@@ -10,9 +10,9 @@
 	},
 	"Logging" : 
 	{
-		"File" : "./photo_explorer.log",
-//		"File" : "C:\\Users\\Adam\\Desktop\\PhotoExplorer\\photo_explorer.log",
-		"Enabled" : false
+//		"File" : "./photo_explorer.log",
+		"File" : "C:\\Users\\Adam\\Desktop\\PhotoExplorer\\photo_explorer.log",
+		"Enabled" : true
 	},
 	"Typography" : 
 	{
@@ -45,12 +45,13 @@
 		"ResizableWindow" : true,
 		"ShaderDirectory" : ".",
 		"Fullscreen" : false,
-		"OverrideResolution" : false,
+		"OverrideResolution" : true,
 		"OverrideWidth" : 1920,
 		"OverrideHeight" : 1080,
 		"UseIntForNonSubPixelRender" : false,
 		"NoSubPixelScroll" : true,
 		"ExecuteGLFinish": true,
+		"ClearColor" :  {"R" : 245,"G" : 245,"B" : 245,"A" : 255},
 		"TextureLoading" : 
 		{		
 			"Compression" : 

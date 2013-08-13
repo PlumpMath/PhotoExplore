@@ -14,25 +14,7 @@
 LeapStartScreen::LeapStartScreen()
 {
 	state = StartState;
-	tutorialButton = NULL;
-	
-	if (GlobalConfig::tree()->get<bool>("FakeDataMode.Enable")) {
-		
-		init();
-		
-		LeapInput::getInstance()->requestGlobalGestureFocus(this);
-		
-		FBNode * root =new FBNode("human");
-		root->setNodeType("me");
-		FacebookDataDisplay::getInstance()->displayNode(root,"");
-		rootView = (FacebookBrowser*) FacebookDataDisplay::getInstance();
-		state = FinishedState;
-	}
-	else {
-		init();
-		LeapInput::getInstance()->requestGlobalGestureFocus(this);
-	}
-	
+	tutorialButton = NULL;	
 }
 
 
@@ -105,6 +87,8 @@ void LeapStartScreen::generateBackgroundPanels()
 
 void LeapStartScreen::init()
 {
+
+
 	vector<RowDefinition> gridDefinition;
 	
 	gridDefinition.push_back(RowDefinition(.01f));
@@ -130,10 +114,7 @@ void LeapStartScreen::init()
 		}
 		return true;
 	};
-
-	radialMenu->layout(Vector(0,0,50),cv::Size2f(GlobalConfig::ScreenWidth,GlobalConfig::ScreenHeight));
-
-
+	
 	TextPanel * title = new TextPanel("PhotoExplore");
 	title->setTextFitPadding(10);
 	title->setTextSize(30);
@@ -191,6 +172,19 @@ void LeapStartScreen::init()
 
 	this->layout(Vector(),cv::Size2f(GlobalConfig::ScreenWidth, GlobalConfig::ScreenHeight));
 	
+	if (GlobalConfig::tree()->get<bool>("FakeDataMode.Enable")) {
+
+		LeapInput::getInstance()->requestGlobalGestureFocus(this);
+
+		FBNode * root =new FBNode("human");
+		root->setNodeType("me");
+		FacebookDataDisplay::getInstance()->displayNode(root,"");
+		rootView = (FacebookBrowser*) FacebookDataDisplay::getInstance();
+		state = FinishedState;
+	}
+	else {
+		LeapInput::getInstance()->requestGlobalGestureFocus(this);
+	}	
 }	
 
 void LeapStartScreen::launchTutorial()
@@ -253,7 +247,8 @@ void LeapStartScreen::layout(Leap::Vector pos, cv::Size2f size)
 	{
 		rootView->layout(Vector(),size);
 	}
-
+	
+	radialMenu->layout(Vector(0,0,50),cv::Size2f(GlobalConfig::ScreenWidth,GlobalConfig::ScreenHeight));
 }
 
 void LeapStartScreen::launchBrowser()

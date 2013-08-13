@@ -273,6 +273,9 @@
     <ClCompile Include="LeapStatusOverlay.cpp">
       <Filter>Source Files\Overlay</Filter>
     </ClCompile>
+    <ClCompile Include="MainContext_GraphicsImpl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Types.h">
@@ -523,6 +526,9 @@
     </ClInclude>
     <ClInclude Include="LeapStatusOverlay.hpp">
       <Filter>Header Files\Overlay</Filter>
+    </ClInclude>
+    <ClInclude Include="MainContext.hpp">
+      <Filter>Header Files\Tutorial</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

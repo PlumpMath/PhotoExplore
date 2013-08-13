@@ -171,7 +171,7 @@ void RadialMenu::itemClicked(string id, Button * menuButton)
 	//{
 	//	GlobalConfig::tree()->put<bool>("Tutorial.Enabled",false);
 	//	vector<string> x;
-	//	LeapDebug::instance->setTutorialImages(x);
+	//	LeapDebug::getInstance().setTutorialImages(x);
 
 	//	vector<RadialMenuItem> items;
 	//	items.push_back(RadialMenuItem("Exit and Logout","logout", Colors::DarkRed));
@@ -188,7 +188,7 @@ void RadialMenu::itemClicked(string id, Button * menuButton)
 	//	vector<string> x;
 	//	x.push_back("point_inv");
 	//	x.push_back("shake_inv");
-	//	LeapDebug::instance->setTutorialImages(x);
+	//	LeapDebug::getInstance().setTutorialImages(x);
 	//			
 	//	vector<RadialMenuItem> items;
 	//	items.push_back(RadialMenuItem("Exit and Logout","logout", Colors::DarkRed));

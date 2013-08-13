@@ -16,6 +16,9 @@ private:
 	std::list<boost::function<bool(GLFWwindow*,unsigned int)> > unicodeCallbacks;
 	std::list<boost::function<bool(GLFWwindow*,int)> > focusChangedCallbacks;
 	std::list<boost::function<bool(GLFWwindow*,int,int,int,int)> > keyCallbacks;
+	std::list<boost::function<bool(GLFWwindow*,int,int)> > windowSizeCallbacks;
+	std::list<boost::function<bool(GLFWwindow*,int,int)> > windowPositionCallbacks;
+	std::list<boost::function<bool(GLFWwindow*,int,int)> > frameBufferSizeCallbacks;
 
 
 public:
@@ -28,12 +31,19 @@ public:
 	static void glfwCharCallback(GLFWwindow * window, unsigned int key);
 	static void glfwFocusCallback(GLFWwindow * window, int focused);
 	static void glfwKeyCallback(GLFWwindow * window, int key, int scancode, int action, int mods);
+	static void glfwWindowSizeCallback(GLFWwindow * window, int, int);
+	static void glfwWindowPositionCallback(GLFWwindow * window, int, int);
+	static void glfwFrameBufferSizeCallback(GLFWwindow * window, int, int);
 
 	void init(GLFWwindow * eventWindow);
 
 	void addUnicodeCharacterListener(boost::function<bool(GLFWwindow*,unsigned int)> unicodeCallback);
 	void addFocusChangedCallback(boost::function<bool(GLFWwindow*,int)> focusChangedCallback);
 	void addKeyCallback(boost::function<bool(GLFWwindow*window,int,int,int,int)>);
+	
+	void addWindowSizeCallback(boost::function<bool(GLFWwindow*,int,int)>);
+	void addFrameBufferSizeCallback(boost::function<bool(GLFWwindow*,int,int)>);
+	void addWindowPositionCallback(boost::function<bool(GLFWwindow*,int,int)>);
 
 	void onCharEvent(GLFWwindow * window, unsigned int key);
 	void onFocusEvent(GLFWwindow * window, int focused);

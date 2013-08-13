@@ -63,9 +63,17 @@ private:
 	void initDebugBox();
 	HWND debugTextBox;
 #endif
+	
+	LeapDebug();
+	LeapDebug(LeapDebug const&);
+	void operator=(LeapDebug const&); 
 
 public:
-	LeapDebug();
+	static LeapDebug& getInstance()
+	{
+		static LeapDebug instance; 
+		return instance;
+	}
 
 	void onFrame(const Controller&  controller);
 	void draw();
@@ -75,9 +83,8 @@ public:
 	void addDebugVisual(LeapDebugVisual * ldv);
 
 	void setTutorialImages(vector<string> names);
-
-	static LeapDebug * instance;
-
+	void layoutTutorial();
+	
 
 };
 

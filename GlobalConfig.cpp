@@ -1,6 +1,11 @@
 #include "GlobalConfig.hpp"
 #include <fstream>
 
+int GlobalConfig::ScreenWidth = 1920;
+int GlobalConfig::ScreenHeight = 1080;
+bool GlobalConfig::LeftHanded = false;
+std::string GlobalConfig::TestingToken = std::string("");
+
 
 
 GlobalConfig::GlobalConfig()

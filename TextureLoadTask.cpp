@@ -239,7 +239,7 @@ void TextureLoadTask::copyBufferToTexture()
 	
 	//if (TEXTURE_LOGGING)
 	{
-		LeapDebug::instance->plotValue("PBO",Colors::Blue,timer.millis()*20);
+		LeapDebug::getInstance().plotValue("PBO",Colors::Blue,timer.millis()*20);
 		//if (timer.millis() > 2)
 			//Logger::stream("TextureLoadTask","INFO") << "Copied to texture. TexID = " << textureInfo.textureId << " Took " << timer.millis() << " ms" << endl;
 	}

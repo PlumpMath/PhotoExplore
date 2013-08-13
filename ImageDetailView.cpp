@@ -451,12 +451,12 @@ bool ImageDetailView::handleImageManipulation(const Controller & controller)
 					Vector oldCentroid = activePanelInteraction.pointableCentroid;
 					if (oldCentroid.x != 0)
 					{
-						//LeapDebug::instance->addDebugVisual(new LeapDebugVisual(newImageCentroid,1,LeapDebugVisual::LiveByTime,35,Colors::LightBlue));
+						//LeapDebug::getInstance().addDebugVisual(new LeapDebugVisual(newImageCentroid,1,LeapDebugVisual::LiveByTime,35,Colors::LightBlue));
 
 						newImageCentroid.x = LeapHelper::lowpass(oldCentroid.x,newImageCentroid.x,40,timer.millis());
 						newImageCentroid.y = LeapHelper::lowpass(oldCentroid.y,newImageCentroid.y,40,timer.millis());
 					
-						//LeapDebug::instance->addDebugVisual(new LeapDebugVisual(newImageCentroid,1,LeapDebugVisual::LiveByTime,40,Colors::Blue));
+						//LeapDebug::getInstance().addDebugVisual(new LeapDebugVisual(newImageCentroid,1,LeapDebugVisual::LiveByTime,40,Colors::Blue));
 
 						activePanelInteraction.translation += (newImageCentroid - oldCentroid);
 					}

@@ -25,9 +25,7 @@ private:
 
 	Timer lookupDialogTimer;
 	Timer lookupDialogMovementTimer;
-
-	bool showPicturelessFriends;
-	
+		
 	set<FBNode*> pendingItems;
 
 public:

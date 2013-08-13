@@ -1,11 +1,10 @@
 #include "FriendListCursorView.hpp"
 #include "CustomGrid.hpp"
 #include "Button.hpp"
+#include "InputEventHandler.hpp"
 
 FriendListCursorView::FriendListCursorView() : DataListActivity(3)
 {
-	showPicturelessFriends = false;
-
 	auto editTextConfig = GlobalConfig::tree()->get_child("FriendLookupView.LookupDialog.FriendNameTextBox");
 
 	editText = new TextEditPanel();
@@ -17,25 +16,14 @@ FriendListCursorView::FriendListCursorView() : DataListActivity(3)
 	editText->setTextFitPadding(editTextConfig.get<float>("TextPadding"));
 	editText->setTextAlignment(editTextConfig.get<int>("TextAlignment"));
 	editText->setMaxLength(editTextConfig.get<int>("MaxLength"));
-
 	
-
 	vector<RowDefinition> gridDefinition;	
 	gridDefinition.push_back(RowDefinition(.35f));
 	gridDefinition.push_back(RowDefinition(.65f));
 	gridDefinition[0].ColumnWidths.push_back(1);
 	gridDefinition[1].ColumnWidths.push_back(1);
 	
-	editTextConfig = GlobalConfig::tree()->get_child("FriendLookupView.LookupDialog.FriendLookupLabel");
-
-	labelText = new TextPanel(editTextConfig.get<string>("Text"));
-	labelText->setTextSize(editTextConfig.get<float>("TextSize"),true);
-	labelText->setTextColor(Color(editTextConfig.get_child("TextColor")));
-	labelText->setBackgroundColor(Color(editTextConfig.get_child("BackgroundColor")));
-	labelText->setBorderColor(Color(editTextConfig.get_child("BorderColor")));
-	labelText->setBorderThickness(editTextConfig.get<float>("BorderThickness"));
-	labelText->setTextFitPadding(editTextConfig.get<float>("TextPadding"));
-	labelText->setTextAlignment(editTextConfig.get<int>("TextAlignment"));
+	labelText = new TextPanel(GlobalConfig::tree()->get_child("FriendLookupView.LookupDialog.FriendLookupLabel"));
 
 	CustomGrid * lookupDialogGrid = new CustomGrid(gridDefinition);
 	lookupDialogGrid->addChild(labelText);	
@@ -65,8 +53,7 @@ FriendListCursorView::FriendListCursorView() : DataListActivity(3)
 		{			
 			lookupDialogState = 0;
 			layoutDirty = true;			
-			
-			showPicturelessFriends = false;
+
 			((FBFriendsCursor*)allFriendsCursor)->reset();			
 			this->show(allFriendsCursor);
 			allFriendsCursor->getNext();
@@ -78,7 +65,6 @@ FriendListCursorView::FriendListCursorView() : DataListActivity(3)
 				searchCursor->lookupName(newText);				
 				this->show(searchCursor);			
 				searchCursor->getNext();
-				//showPicturelessFriends = true;
 			}
 			else
 			{
@@ -96,6 +82,22 @@ FriendListCursorView::FriendListCursorView() : DataListActivity(3)
 			}
 		}
 	});
+
+	InputEventHandler::getInstance().addKeyCallback([&](GLFWwindow * window, int key, int scancode, int action, int mods) -> bool {
+
+		if (key == GLFW_KEY_F && (mods & GLFW_MOD_SUPER || mods & GLFW_MOD_CONTROL))
+		{
+			if (lookupDialogState != 2)
+			{
+				lookupDialogState = 2;
+				layoutDirty = true;							
+			}	
+			return true;
+		}
+		return false;
+	});
+
+
 
 }
 
@@ -115,9 +117,7 @@ void FriendListCursorView::setUserNode(FBNode * node)
 	editText->setText("");
 	lookupDialogState = 0;
 	layoutDirty = true;
-
-	showPicturelessFriends = false;
-
+	
 	searchCursor = new FBFriendsFQLCursor("",node);
 	allFriendsCursor = new FBFriendsCursor(node);
 
@@ -129,7 +129,7 @@ FBDataView * FriendListCursorView::getDataView(FBNode * itemNode)
 {
 	FBDataView * itemV = NULL;
 	bool hasData =(itemNode->Edges.get<EdgeTypeIndex>().count("photos") + itemNode->Edges.get<EdgeTypeIndex>().count("albums") >= 2);
-	if (showPicturelessFriends || hasData)
+	if (hasData)
 	{
 		FriendPanel * item = (FriendPanel*)ViewOrchestrator::getInstance()->requestView(itemNode->getId(), this);
 

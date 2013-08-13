@@ -254,6 +254,7 @@
     <ClCompile Include="LinearLayout.cpp" />
     <ClCompile Include="Logger.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="MainContext_GraphicsImpl.cpp" />
     <ClCompile Include="PanelBase.cpp" />
     <ClCompile Include="LeapInput.cpp" />
     <ClCompile Include="PicturePanel.cpp" />
@@ -325,6 +326,7 @@
     <ClInclude Include="LeapStatusOverlay.hpp" />
     <ClInclude Include="LinearLayout.hpp" />
     <ClInclude Include="Logger.hpp" />
+    <ClInclude Include="MainContext.hpp" />
     <ClInclude Include="PicturePanel.hpp" />
     <ClInclude Include="PixelBufferPool.hpp" />
     <ClInclude Include="PointTutorialSteps.hpp" />

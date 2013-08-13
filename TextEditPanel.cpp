@@ -15,6 +15,26 @@ TextEditPanel::TextEditPanel()
 			newString << this->getText();
 			newString << (char)key;
 			this->setText(newString.str());
+			return true;
+		}
+		return false;
+	});
+
+	InputEventHandler::getInstance().addKeyCallback([&](GLFWwindow * window, int key, int scancode, int action, int mods) -> bool {
+
+		if (this->isVisible() && key == GLFW_KEY_BACKSPACE && (action == GLFW_PRESS || action == GLFW_REPEAT))
+		{
+			if (text.length() > 0)
+			{
+				string newText = text.substr(0,text.length()-1);
+				this->setText(newText);
+			}
+			else if (!textDirty)
+			{
+				if (!textChangedCallback.empty())
+					textChangedCallback(this->getText());
+			}
+			return true;
 		}
 		return false;
 	});
@@ -64,26 +84,26 @@ bool TextEditPanel::checkKey(GLFWwindow * checkWindow, int key, double updateTim
 
 void TextEditPanel::update()
 {
-	GLFWwindow * checkWindow = GraphicsContext::getInstance().MainWindow;
-	int pressedLetter = -1;
-	double updateTime = keyRepeatTimer.millis();
-	set<int> pressedKeys;
-	if (checkKey(checkWindow, GLFW_KEY_BACKSPACE,updateTime))
-		pressedKeys.insert(GLFW_KEY_BACKSPACE);
-	
-	if (pressedKeys.count(GLFW_KEY_BACKSPACE) > 0)
-	{
-		if (text.length() > 0)
-		{
-			text = text.substr(0,text.length()-1);
-			setText(text);
-		}
-		else if (!textDirty)
-		{
-			if (!textChangedCallback.empty())
-				textChangedCallback(text);
-		}
-	}
+	//GLFWwindow * checkWindow = GraphicsContext::getInstance().MainWindow;
+	//int pressedLetter = -1;
+	//double updateTime = keyRepeatTimer.millis();
+	//set<int> pressedKeys;
+	//if (checkKey(checkWindow, GLFW_KEY_BACKSPACE,updateTime))
+	//	pressedKeys.insert(GLFW_KEY_BACKSPACE);
+	//
+	//if (pressedKeys.count(GLFW_KEY_BACKSPACE) > 0)
+	//{
+	//	if (text.length() > 0)
+	//	{
+	//		text = text.substr(0,text.length()-1);
+	//		setText(text);
+	//	}
+	//	else if (!textDirty)
+	//	{
+	//		if (!textChangedCallback.empty())
+	//			textChangedCallback(text);
+	//	}
+	//}
 
  	if (textDirty)
 	{

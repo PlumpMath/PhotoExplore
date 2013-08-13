@@ -1,5 +1,5 @@
 #include "PanelBase.h"
-
+#include"GraphicContext.hpp"
 
 PanelBase::PanelBase()
 {
@@ -95,16 +95,6 @@ bool PanelBase::isAnimateOnLayout()
 	return this->animateOnLayout;
 }
 
-//void PanelBase::setLayoutParams(cv::Size2f & _desiredSize)
-//{
-//	this->desiredSize = _desiredSize;
-//}
-//
-//void PanelBase::setLayoutParams(LayoutParams & _params)
-//{
-//	this->desiredSize = _desiredSize;
-//}
-
 void PanelBase::measure(cv::Size2f & measuredSize)
 {
 	if (desiredSize.width == 0 || desiredSize.height == 0)
@@ -126,14 +116,19 @@ void PanelBase::layout(Vector layoutPosition, cv::Size2f layoutSize)
 	this->lastSize = layoutSize;
 	this->lastPosition = layoutPosition;
 
-	if (this->width == 0 && this->height == 0 || !isAnimateOnLayout())
+	bool found;
+	float skipAnim;
+	skipAnim = GraphicsContext::getInstance().getDrawHint("SkipLayoutAnimation",found);
+	if (!found)
+		skipAnim = 0;
+
+	if (this->width == 0 && this->height == 0 || !isAnimateOnLayout() || skipAnim == 1)
 	{
 		setPosition(layoutPosition);
 		setPanelSize(layoutSize.width,layoutSize.height);
 	}
 	else
 	{
-
 		animateToPosition(layoutPosition,animationTime,layoutDuration);
 		animatePanelSize(layoutSize.width,layoutSize.height,layoutDuration);
 	}

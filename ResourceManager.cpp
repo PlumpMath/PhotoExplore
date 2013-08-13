@@ -429,28 +429,28 @@ void ResourceManager::cleanupCache(bool updateAll)
 	currentTextureCacheSize = textureCacheSize;
 	currentImageCacheSize = imageCacheSize;
 	
-	LeapDebug::instance->showValue("1. Loaded images",loadedImages);
-	LeapDebug::instance->showValue("2. Loaded textures",loadedTextures);
-	LeapDebug::instance->showValue("3. Perm objects",permObjects);
-	LeapDebug::instance->showValue("4. Temp objects",transientObjects);
-	LeapDebug::instance->showValue("5. P100 objects",priorityZeroObjects);
+	LeapDebug::getInstance().showValue("1. Loaded images",loadedImages);
+	LeapDebug::getInstance().showValue("2. Loaded textures",loadedTextures);
+	LeapDebug::getInstance().showValue("3. Perm objects",permObjects);
+	LeapDebug::getInstance().showValue("4. Temp objects",transientObjects);
+	LeapDebug::getInstance().showValue("5. P100 objects",priorityZeroObjects);
 
-	LeapDebug::instance->showValue("6. Total objects",permObjects+transientObjects);
+	LeapDebug::getInstance().showValue("6. Total objects",permObjects+transientObjects);
 
 	stringstream ss;
 	ss << currentTextureCacheSize/BytesToMB;
-	LeapDebug::instance->showValue("7. Texture cache", ss.str());
+	LeapDebug::getInstance().showValue("7. Texture cache", ss.str());
 	
 	stringstream ss2;
 	ss2 <<  currentImageCacheSize/BytesToMB;
-	LeapDebug::instance->showValue("8. Image cache",ss2.str());
+	LeapDebug::getInstance().showValue("8. Image cache",ss2.str());
 
 	
-	LeapDebug::instance->showValue("9. Img PT",imageLoadThreshold);
-	LeapDebug::instance->showValue("10. Tex PT",textureLoadThreshold);
+	LeapDebug::getInstance().showValue("9. Img PT",imageLoadThreshold);
+	LeapDebug::getInstance().showValue("10. Tex PT",textureLoadThreshold);
 
 	
-	LeapDebug::instance->showValue("99. CacheState \r\n",debugStream.str());
+	LeapDebug::getInstance().showValue("99. CacheState \r\n",debugStream.str());
 
 	Logger::stream("ResourceManager","TIME") << "Cache clean took " << cacheTimer.millis() << " ms" << endl;
 	Logger::stream("ResourceManager","INFO") << "Clean complete. TexCacheSize= " << currentTextureCacheSize/BytesToMB  << " ImageCacheSize = " << currentImageCacheSize/BytesToMB << endl;
@@ -468,7 +468,7 @@ void ResourceManager::update()
 	Timer updateTimer;
 	updateTimer.start();
 	ImageLoader::getInstance().update();
-	LeapDebug::instance->plotValue("ImgCache",Colors::LimeGreen,updateTimer.millis() * 20);
+	LeapDebug::getInstance().plotValue("ImgCache",Colors::LimeGreen,updateTimer.millis() * 20);
 
 	
 	updateTimer.start();
@@ -486,7 +486,7 @@ void ResourceManager::update()
 
 	updateTimer.start();
 	TextureLoader::getInstance().update();	
-	LeapDebug::instance->plotValue("Tex",Colors::Yellow,updateTimer.millis() * 20);
+	LeapDebug::getInstance().plotValue("Tex",Colors::Yellow,updateTimer.millis() * 20);
 	
 	//if (updateTimer.millis() > 0)
 	//	Logger::stream("ResourceManager","TIME") << "TextureLoader update took " << updateTimer.millis() << " ms " << endl;

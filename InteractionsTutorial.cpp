@@ -98,7 +98,7 @@ void InteractionsTutorial::loadTutorial(string name)
 	//			
 	//	vector<string> tutorialImages;
 	//	tutorialImages.push_back("point");
-	//	LeapDebug::instance->setTutorialImages(tutorialImages);
+	//	LeapDebug::getInstance().setTutorialImages(tutorialImages);
 
 	//	nextTutorialButton->elementClickedCallback = [this](LeapElement * clicked){
 	//		this->loadTutorial("touchscroll");
@@ -137,7 +137,7 @@ void InteractionsTutorial::loadTutorial(string name)
 		throw new std::runtime_error("Invalid tutorial name " + name);
 	}
 
-	LeapDebug::instance->setTutorialImages(tutorialImages);
+	LeapDebug::getInstance().setTutorialImages(tutorialImages);
 	state = Dialog;
 	this->layoutDirty = true;
 }

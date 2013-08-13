@@ -373,7 +373,7 @@ void SwipeGestureDetector::doTouchZoneScrolling(const Controller & controller)
 			scrollPointVisual->lineColor = Color(scrollConfig.get_child("VisualLineColor"));
 			scrollPointVisual->lineWidth = 2.0f;
 			scrollPointVisual->depth = 13;
-			LeapDebug::instance->addDebugVisual(scrollPointVisual);
+			LeapDebug::getInstance().addDebugVisual(scrollPointVisual);
 			scrollPointVisuals.push_back(scrollPointVisual);
 		}
 

@@ -225,11 +225,6 @@ void LeapDebug::setTutorialImages(vector<string> names)
 	if (!GlobalConfig::tree()->get<bool>("Tutorial.Enabled"))
 		names.clear();
 
-	for (auto it = tutorialPanels.begin(); it != tutorialPanels.end(); it++)
-	{
-		if (std::find(names.begin(),names.end(),it->first) == names.end())
-			it->second->layout(Vector(it->second->getLastPosition().x,GlobalConfig::ScreenHeight+100,10),it->second->getMeasuredSize());
-	}
 	tutorialLayout->clearChildren();
 	for (auto it = names.begin(); it != names.end(); it++)
 	{ 
@@ -237,10 +232,22 @@ void LeapDebug::setTutorialImages(vector<string> names)
 		if (gesture != tutorialPanels.end())
 			tutorialLayout->addChild(gesture->second);
 	}
+	layoutTutorial();
+}
+
+void LeapDebug::layoutTutorial()
+{		
+	for (auto it = tutorialPanels.begin(); it != tutorialPanels.end(); it++)
+	{
+		auto res = std::find(tutorialLayout->getChildren()->begin(), tutorialLayout->getChildren()->end(),it->second);
+		
+		if (res == tutorialLayout->getChildren()->end())
+			it->second->layout(Vector(it->second->getLastPosition().x,GlobalConfig::ScreenHeight+getTutorialHeight(),10),it->second->getMeasuredSize());
+	}
+
 	cv::Size2f size = cv::Size2f(300,getTutorialHeight());
 	tutorialPanel->measure(size);
-	tutorialPanel->layout(Vector(0,GlobalConfig::ScreenHeight-size.height,10),size);
-	
+	tutorialPanel->layout(Vector(0,GlobalConfig::ScreenHeight-size.height,10),size);	
 }
 
 void LeapDebug::draw()
