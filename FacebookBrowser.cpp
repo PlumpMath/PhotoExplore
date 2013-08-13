@@ -228,7 +228,10 @@ void FacebookBrowser::layout(Vector position, cv::Size2f size)
 
 LeapElement * FacebookBrowser::elementAtPoint(int x, int y, int & state)
 {
-	LeapElement * hit = pathView->elementAtPoint(x,y,state);
+	LeapElement * hit = NULL;
+	
+	if (!GraphicsContext::getInstance().BlurRenderEnabled) //TODO: Unhack this
+		hit = pathView->elementAtPoint(x,y,state);
 
 	if (hit != NULL)
 		return hit;

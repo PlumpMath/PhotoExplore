@@ -239,9 +239,8 @@ void PicturePanel::drawContent(Vector drawPosition, float drawWidth, float drawH
 	
 
 	//if (currentTextureId != NULL)
-	if (currentResource != NULL && currentResource->textureId != NULL)
+	if (currentResource != NULL && currentTextureId != NULL)
 	{
-		currentTextureId = currentResource->textureId;
 		TexturePanel::drawTexture(currentTextureId,drawPosition,drawWidth,drawHeight);
 	}		
 	else

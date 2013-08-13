@@ -11,8 +11,8 @@
 	"Logging" : 
 	{
 //		"File" : "./photo_explorer.log",
-		"File" : "C:\\Users\\Adam\\Desktop\\PhotoExplorer\\photo_explorer.log",
-		"Enabled" : true
+		"File" : "photo_explorer.log",
+		"Enabled" : false
 	},
 	"Typography" : 
 	{
@@ -45,7 +45,7 @@
 		"FSAASamples" : 0,
 		"ResizableWindow" : true,
 		"ShaderDirectory" : ".",
-		"Fullscreen" : false,
+		"Fullscreen" : true,
 		"OverrideResolution" : false,
 		"OverrideWidth" : 1920,
 		"OverrideHeight" : 1080,
@@ -133,7 +133,7 @@
 	},
 	"WindowsDebugPanel" :
 	{
-		"Enable" : true,
+		"Enable" : false,
 		"DesktopParent" : false,
 		"Width" : 400,
 		"Height" : 200		
@@ -148,7 +148,7 @@
 	},
 	"FakeDataMode" : 
 	{
-		"Enable" : true,
+		"Enable" : false,
 		"ImageDirectories" :
 		[ 
 			"C:\\Users\\Adam\\Pictures",		
