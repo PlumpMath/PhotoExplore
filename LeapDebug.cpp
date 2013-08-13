@@ -74,12 +74,15 @@ LeapDebug::LeapDebug()
 		tutorialText->setFontName(fontName);
 		
 		vector<RowDefinition> gridDefinition;	
+		gridDefinition.push_back(RowDefinition(GlobalConfig::tree()->get<float>("Tutorial.PaddingHeight")));
 		gridDefinition.push_back(RowDefinition(imgHeight));
 		gridDefinition.push_back(RowDefinition(1.0f -imgHeight));
 		gridDefinition[0].ColumnWidths.push_back(1);
 		gridDefinition[1].ColumnWidths.push_back(1);
-
+		gridDefinition[2].ColumnWidths.push_back(1);
+		
 		CustomGrid * tutorialIconLayout = new CustomGrid(gridDefinition);
+		tutorialIconLayout->addChild(new TextPanel());
 		tutorialIconLayout->addChild(tutorialImage);
 		tutorialIconLayout->addChild(tutorialText);
 		tutorialIconLayout->setLayoutParams(LayoutParams(cv::Size2f(iconWidth,tutorialSize.height),cv::Vec4f(0,0,0,0)));
