@@ -11,45 +11,44 @@
 
 #include <boost/filesystem.hpp>
 
-
+using namespace ImgTaskQueue;
 int ImageLoader::maxConcurrentLoads = 8;
+
+ImageLoader::ImageLoader()
+{
+	for (int i=0;i<GlobalConfig::tree()->get<int>("ImageLoader.IOThreadCount");i++)
+	{
+		new boost::thread(runLoadThread, &imageLoadQueue, &loadQueueMutex);
+	}		
+
+	for (int i=0;i<GlobalConfig::tree()->get<int>("ImageLoader.TransformThreadCount");i++)
+	{
+		new boost::thread(runTransformThread, &imageTransformQueue, &transformQueueMutex);
+	}	
+}
 
 void ImageLoader::setResourceChangedCallback(boost::function<void(string resourceId,int statusCode, cv::Mat imgMat)> _resourceChangedCallback)
 {
 	this->resourceChangedCallback = _resourceChangedCallback;
 }
 
-void ImageLoader::startLoadingImage(string resourceId, string loadURI, int imageType, float priority)
+void ImageLoader::startLoadingImage(string resourceId, string loadURI, int imageType, float priority, boost::function<void(cv::Mat&)> transform)
 {
 	loadQueueMutex.lock();
 	auto res = imageLoadQueue.get<ImgTaskQueue::NameIndex>().find(resourceId);
 	if (res == imageLoadQueue.get<ImgTaskQueue::NameIndex>().end())
 	{	
-		imageLoadQueue.insert(ImgTaskQueue::ImageLoadTask(resourceId,loadURI,imageType, priority));			
-		startLoadingThreads(2);			
+		imageLoadQueue.insert(ImgTaskQueue::ImageLoadTask(resourceId,loadURI,imageType, priority,transform));		
 	}
 	else 
 	{			
 		if (!res->locked)
 		{			
-			imageLoadQueue.get<ImgTaskQueue::NameIndex>().replace(res, ImgTaskQueue::ImageLoadTask(resourceId,loadURI,imageType, priority));			
+			imageLoadQueue.get<ImgTaskQueue::NameIndex>().replace(res, ImgTaskQueue::ImageLoadTask(resourceId,loadURI,imageType, priority,transform));			
 		}
 	}
 	loadQueueMutex.unlock();
 }
-
-void ImageLoader::startLoadingThreads(int threadCount)
-{
-	if (!loadThreadRunning)
-	{
-		loadThreadRunning = true;
-		for (int i=0;i<threadCount;i++)
-		{
-			new boost::thread(runLoadThread, &imageLoadQueue, &loadQueueMutex);
-		}		
-	}
-}
-
 
 void ImageLoader::cancelTask(string resourceId)
 {	
@@ -117,9 +116,52 @@ public:
 
 };
 
-void ImageLoader::update()
+void ImageLoader::postTransformTask(const ImageLoadTask & task)
 {
+	transformQueueMutex.lock();
+	imageTransformQueue.insert(task);
+	transformQueueMutex.unlock();
 }
+
+void ImageLoader::runTransformThread(ImgTaskQueue::ImageTaskQueue * transformQueue, boost::mutex * queueMutex) 
+{
+	while (true)
+	{		
+		queueMutex->lock();
+				
+		if (transformQueue->get<ImgTaskQueue::PriorityIndex>().size() == 0)
+		{
+			queueMutex->unlock();
+			boost::this_thread::sleep(boost::posix_time::milliseconds(1));
+			continue;
+		}
+
+		auto first = transformQueue->get<PriorityIndex>().begin();
+		ImageLoadTask loadTask(*first); //Copy
+		transformQueue->get<PriorityIndex>().erase(first);
+
+		queueMutex->unlock();
+
+		try
+		{
+			loadTask.executeTransform();
+		}
+		catch (cv::Exception & e)
+		{
+			loadTask.cleanup();
+			Logger::stream("ImageLoader","ERROR") << "Exception loading image: " << e.what() << endl;
+			loadTask.success = false;
+		}
+
+		if (loadTask.success)
+			ImageLoader::getInstance().resourceChangedCallback(loadTask.resourceId, ResourceState::ImageLoaded, loadTask.image);		
+		else
+			ImageLoader::getInstance().resourceChangedCallback(loadTask.resourceId, ResourceState::ImageLoadError,cv::Mat());		
+	}
+}
+
+
+
 
 void ImageLoader::runLoadThread(ImgTaskQueue::ImageTaskQueue * loadQueue, boost::mutex * loadQueueMutex) 
 {
@@ -132,7 +174,7 @@ void ImageLoader::runLoadThread(ImgTaskQueue::ImageTaskQueue * loadQueue, boost:
 		if (loadQueue->get<ImgTaskQueue::PriorityIndex>().size() == 0)
 		{
 			loadQueueMutex->unlock();
-			boost::this_thread::sleep(boost::posix_time::milliseconds(100));
+			boost::this_thread::sleep(boost::posix_time::milliseconds(1));
 			continue;
 		}
 
@@ -143,7 +185,7 @@ void ImageLoader::runLoadThread(ImgTaskQueue::ImageTaskQueue * loadQueue, boost:
 		if (front == loadQueue->get<ImgTaskQueue::PriorityIndex>().end())
 		{
 			loadQueueMutex->unlock();
-			boost::this_thread::sleep(boost::posix_time::milliseconds(100));
+			boost::this_thread::sleep(boost::posix_time::milliseconds(1));
 			continue;
 		}
 		
@@ -156,61 +198,29 @@ void ImageLoader::runLoadThread(ImgTaskQueue::ImageTaskQueue * loadQueue, boost:
 
 		if (loadTask.imageType == ImgTaskQueue::FacebookImage)
 		{
-			//while (maxConcurrentLoads <= 0)
-			//{
-			//	boost::this_thread::sleep(boost::posix_time::milliseconds(100));
-			//}
-		
-			//{
-				//maxConcurrentLoads--;
-				//cout << "Starting load task: " << loadTask.imageFileName << "\n";
-				CefRefPtr<CefTaskRunner> runner = CefTaskRunner::GetForThread(TID_IO);
-				CefRefPtr<DownloadImageTask> dlTask = new DownloadImageTask(loadTask);
-			
-				if (runner != NULL)
-					runner->PostTask(dlTask.get());
-			//}
+			CefRefPtr<CefTaskRunner> runner = CefTaskRunner::GetForThread(TID_IO);
+			CefRefPtr<DownloadImageTask> dlTask = new DownloadImageTask(loadTask);
+
+			if (runner != NULL)
+				runner->PostTask(dlTask.get());
 		}
 		else
 		{			
 			Timer loadTimer;
-			loadTimer.start();
-			cv::Mat imgMat;
-			
+			loadTimer.start();			
 			try
 			{
-				imgMat  = cv::imread(loadTask.imageURI, -1 );
+				loadTask.image = cv::imread(loadTask.imageURI, -1 );
 
-				if (imgMat.data != NULL)
-				{
-					cv::cvtColor(imgMat, imgMat, CV_BGR2RGBA, 4);
-
-					if (4 * imgMat.size().area() >  maxImageSize)
-					{
-						float scale = (float)(maxImageSize)/((float)imgMat.size().area()*4.0f);
-						
-						float originalWidth = imgMat.size().width, originalHeight = imgMat.size().height;
-
-						int adjustedWidth = (int)ceil(scale * originalWidth);
-						int adjustedHeight = (int)ceil(scale * originalHeight);
-
-						cv::Size newSize = cv::Size(adjustedWidth,adjustedHeight);
-						cv::Mat resized = cv::Mat(newSize, CV_8UC4);
-						cv::resize(imgMat,resized,newSize,0,0,cv::INTER_AREA);
-						imgMat.release();
-						
-						ImageLoader::getInstance().resourceChangedCallback(loadTask.resourceId, ResourceState::ImageLoaded, resized);
-					}
-					else
-					{
-						ImageLoader::getInstance().resourceChangedCallback(loadTask.resourceId, ResourceState::ImageLoaded, imgMat);
-					}
+				if (loadTask.image.data != NULL)
+				{			
+					ImageLoader::getInstance().postTransformTask(loadTask);
 				}
 			}
-			catch (std::exception & e)
+			catch( cv::Exception& e )
 			{
-				if (imgMat.data != NULL)
-					imgMat.release();
+				if (loadTask.image.data != NULL)
+					loadTask.image.release();
 				Logger::stream("ImageLoader","ERROR") << "Exception loading image: " << e.what() << endl;
 				ImageLoader::getInstance().resourceChangedCallback(loadTask.resourceId, ResourceState::ImageLoadError,cv::Mat());
 			}
@@ -231,25 +241,15 @@ void ImageLoader::handleCompletedTask(ImgTaskQueue::ImageLoadTask loadTask, vect
 	Timer loadTimer;
 	loadTimer.start();
 
-	maxConcurrentLoads++;
-	//cout <<"Concurrent load count = " << maxConcurrentLoads << "\n";
-
 	try
 	{
-		//cout << "Decoding image[" << loadTask.imageFileName << "]. Size = " << dataVector.size() << "b \n";
-		cv::Mat imgMat  = cv::imdecode(dataVector,-1);
-		//LeapImageOut << "CV decode took " << loadTimer.millis() << " ms @ " << ((imgMat.size().area()*4) / BytesToMB) / loadTimer.seconds() << "MB/s \n";
-
-		if (imgMat.data != NULL)
+		loadTask.image  = cv::imdecode(dataVector,-1);
+		if (loadTask.image.data != NULL)
 		{
-			cv::cvtColor(imgMat, imgMat, CV_BGR2RGBA, 4);
-
-			loadTask.complete = true;
-			loadTask.success = true;
+			ImageLoader::getInstance().postTransformTask(loadTask);
 		}	
 		else
 		{
-			//cout << "URL = " << "Image data = " << std::string((const char * )dataVector.data()) << "\n";
 			Logger::stream("ImageLoader","ERROR") << "Invalid image file: " << loadTask.resourceId << endl;		
 		}
 
@@ -257,9 +257,6 @@ void ImageLoader::handleCompletedTask(ImgTaskQueue::ImageLoadTask loadTask, vect
 		auto it = imageLoadQueue.get<ImgTaskQueue::NameIndex>().find(loadTask.resourceId);
 		imageLoadQueue.get<ImgTaskQueue::NameIndex>().erase(it);
 		loadQueueMutex.unlock();
-		
-		resourceChangedCallback(loadTask.resourceId,(loadTask.success) ? ResourceState::ImageLoaded : ResourceState::ImageLoadError,imgMat);
-
 	}
 	catch( cv::Exception& e )
 	{
@@ -282,48 +279,21 @@ int ImageLoader::processCompletedTasks(int count)
 	return 1;	
 }
 
-				//if (loadTask.levelOfDetail & LevelOfDetail_Types::Preview)
-				//{
-				//	float targetHeight = 512, targetWidth = 512;
-				//	int adjustedWidth, adjustedHeight;
+	/*	if (4 * imgMat.size().area() >  maxImageSize)
+					{
+						float scale = (float)(maxImageSize)/((float)imgMat.size().area()*4.0f);
+						
+						float originalWidth = imgMat.size().width, originalHeight = imgMat.size().height;
 
-				//	float xScale = targetWidth/((float)imgMat.size().width);
-				//	float yScale = targetHeight/((float)imgMat.size().height);
+						int adjustedWidth = (int)ceil(scale * originalWidth);
+						int adjustedHeight = (int)ceil(scale * originalHeight);
 
-				//	if (xScale < yScale)	
-				//		xScale = yScale;	
-				//	else 	
-				//		yScale = xScale;
-
-
-				//	float originalWidth = imgMat.size().width, originalHeight = imgMat.size().height;
-
-				//	adjustedWidth = (int)ceil(xScale * originalWidth);
-				//	adjustedHeight = (int)ceil(yScale * originalHeight);
-
-				//	Timer resizeTimer;
-				//	resizeTimer.start();
-
-				//	cv::Size newSize = cv::Size(adjustedWidth,adjustedHeight);
-				//	cv::Mat resized = cv::Mat(newSize, CV_8UC4);
-				//	cv::resize(imgMat,resized,newSize,0,0,cv::INTER_AREA);
-				//	loadTask.loadResults[LevelOfDetail_Types::Preview] = resized;
-
-				//	if (loadTask.levelOfDetail & LevelOfDetail_Types::Full)
-				//	{
-				//		loadTask.loadResults[LevelOfDetail_Types::Full] = imgMat;		
-				//	}
-				//	else
-				//	{
-				//		imgMat.release();			
-
-				//		int * data = new int[2];
-				//		data[0] = (int)originalWidth;
-				//		data[1] = (int)originalHeight;
-				//		loadTask.loadResults[LevelOfDetail_Types::Full] = cv::Mat(1,2,CV_32S,data);
-				//	}
-				//}
-				//else if (loadTask.levelOfDetail & LevelOfDetail_Types::Full)
-				//{
-				//	loadTask.loadResults[LevelOfDetail_Types::Full] = imgMat;		
-				//}		
+						cv::Size newSize = cv::Size(adjustedWidth,adjustedHeight);
+						cv::Mat resized = cv::Mat(newSize, CV_8UC4);
+						cv::resize(imgMat,resized,newSize,0,0,cv::INTER_AREA);
+						imgMat.release();
+						
+						ImageLoader::getInstance().resourceChangedCallback(loadTask.resourceId, ResourceState::ImageLoaded, resized);
+					}
+					else
+					{*/

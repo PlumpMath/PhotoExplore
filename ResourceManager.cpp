@@ -62,7 +62,6 @@ void ResourceManager::reloadTextures()
 
 void ResourceManager::destroyResourceIfEmpty(string resourceId, IResourceWatcher * watcher)
 {
-
 	auto resource = resourceCache.get<IdIndex>().find(resourceId);	
 	
 	ResourceData * data = NULL;
@@ -83,20 +82,22 @@ void ResourceManager::destroyResourceIfEmpty(string resourceId, IResourceWatcher
 
 void ResourceManager::releaseResource(string resourceId, IResourceWatcher * watcher)
 {
-	auto resource = resourceCache.get<IdIndex>().find(resourceId);	
-	
-	ResourceData * data = NULL;
-	if (resource != resourceCache.get<IdIndex>().end())
-	{
-		data = resource->Data;		
-		data->callbacks.erase(watcher);
-	
-		if (data->callbacks.empty())
-			data->priority = 100;
+	printf("releaseResource is notimplemented\n");
+	throw new std::runtime_error("Not implemented");
+	//auto resource = resourceCache.get<IdIndex>().find(resourceId);	
+	//
+	//ResourceData * data = NULL;
+	//if (resource != resourceCache.get<IdIndex>().end())
+	//{
+	//	data = resource->Data;		
+	//	data->callbacks.erase(watcher);
+	//
+	//	if (data->callbacks.empty())
+	//		data->priority = 100;
 
-		updateTextureState(data,false);
-		updateImageState(data,false);
-	}
+	//	updateTextureState(data,false);
+	//	updateImageState(data,false);
+	//}
 }
 
 
@@ -115,6 +116,11 @@ ResourceData * ResourceManager::watchResource(string resourceId, IResourceWatche
 
 ResourceData * ResourceManager::loadResource(string resourceId, string imageURI, float priority, IResourceWatcher * watcher)
 {
+	return loadResourceWithTransform(resourceId,imageURI,priority,watcher,[](cv::Mat&){});	
+}
+
+ResourceData * ResourceManager::loadResourceWithTransform(string resourceId, string imageURI, float priority, IResourceWatcher * watcher, boost::function<void(cv::Mat&)> transform)
+{
 	auto resource = resourceCache.get<IdIndex>().find(resourceId);	
 	
 	bool resourceModified = false;
@@ -126,11 +132,13 @@ ResourceData * ResourceManager::loadResource(string resourceId, string imageURI,
 		resourceCache.insert(CachedResource(data));
 		data->TextureState = ResourceState::Empty;
 		data->ImageState = ResourceState::Empty;
+		data->transform = transform;
 		resourceModified = true;
 	}
 	else 
 	{		
 		data = resource->Data;
+		data->transform = transform;
 
 		if (data->priority != priority)
 			resourceModified = true;
@@ -246,7 +254,7 @@ void ResourceManager::updateImageState(ResourceData * data, bool load)
 		{
 		case ResourceState::Empty:
 			data->ImageState = ResourceState::ImageLoading;
-			ImageLoader::getInstance().startLoadingImage(data->resourceId,data->imageURI,(data->imageURI.find("http") == string::npos) ? 0 : 2,data->priority);
+			ImageLoader::getInstance().startLoadingImage(data->resourceId,data->imageURI,(data->imageURI.find("http") == string::npos) ? 0 : 2,data->priority,data->transform);
 			break;			
 		case ResourceState::ImageLoadError:
 			cout << "Error!" << endl;
@@ -492,7 +500,6 @@ void ResourceManager::update()
 
 	Timer updateTimer;
 	updateTimer.start();
-	ImageLoader::getInstance().update();
 	LeapDebug::getInstance().plotValue("ImgCache",Colors::LimeGreen,updateTimer.millis() * 20);
 
 	

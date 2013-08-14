@@ -105,6 +105,8 @@ public:
 
 	ResourceData * loadResource(string resourceId, string imageURI, float priority, IResourceWatcher * watcher);	
 	ResourceData * loadResource(string resourceId, cv::Mat & image, float priority, IResourceWatcher * watcher);
+
+	ResourceData * loadResourceWithTransform(string resourceId, string imageURI, float priority, IResourceWatcher * watcher, boost::function<void(cv::Mat&)> transform);
 	
 	void updateResource(ResourceData * resource);
 

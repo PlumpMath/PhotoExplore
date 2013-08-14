@@ -14,6 +14,7 @@
 #include <boost/multi_index/hashed_index.hpp>
 #include <boost/multi_index/mem_fun.hpp>
 #include <opencv2/opencv.hpp>
+#include <boost/function.hpp>
 
 using namespace std;
 
@@ -26,19 +27,27 @@ namespace ImgTaskQueue
 		
 		string resourceId, imageURI;
 		bool complete, success, locked;
-		map<int,cv::Mat> loadResults;
+		cv::Mat image;
 		float priority;
 
 		int imageType;
+
+		boost::function<void(cv::Mat&)> transformFunction;
 		
-		ImageLoadTask(string _resourceId, string _imageURI, int _imageType, float _priority):
+		ImageLoadTask(string _resourceId, string _imageURI, int _imageType, float _priority,boost::function<void(cv::Mat&)> _transformFunction):
 			resourceId(_resourceId),
 			imageURI(_imageURI),
 			priority(_priority),
-			imageType(_imageType)
+			imageType(_imageType),
+			transformFunction(_transformFunction)
 		{
 			complete = success = locked = false;
 		}
+
+		void executeLoad();
+		void executeTransform();
+
+		void cleanup();
 
 	};
 
@@ -71,6 +80,7 @@ namespace ImgTaskQueue
 class ImageLoader  {
 
 private:
+	ImageLoader();
 	ImageLoader(ImageLoader const&);
 	void operator=(ImageLoader const&); 
 		
@@ -81,12 +91,6 @@ public:
 		return instance;
 	}
 	
-	ImageLoader()
-	{		
-		loadThread = NULL;
-		loadThreadRunning = false;
-	}
-
 	void setResourceChangedCallback(boost::function<void(string resourceId, int statusCode, cv::Mat imgMat)> resourceChangedCallback);
 
 	void cancelTask(string resourceId);
@@ -95,23 +99,23 @@ public:
 	int processCompletedTasks(int count  = 1);
 	void handleCompletedTask(ImgTaskQueue::ImageLoadTask loadTask, vector<unsigned char> & data);
 	
-	void update();
-
-	void startLoadingImage(string resourceId, string loadURI, int imageType, float priority);
+	void startLoadingImage(string resourceId, string loadURI, int imageType, float priority,boost::function<void(cv::Mat&)> transformFunction);
 	
 private:	
 	static ImageLoader * instance;
 	static int maxConcurrentLoads;
 
-	boost::mutex loadQueueMutex;
+	boost::mutex loadQueueMutex, transformQueueMutex;
 	ImgTaskQueue::ImageTaskQueue imageLoadQueue;
-	boost::thread * loadThread;
+	ImgTaskQueue::ImageTaskQueue imageTransformQueue;
 	bool loadThreadRunning;
 
 	boost::function<void(string resourceId, int statusCode, cv::Mat result)> resourceChangedCallback;
-
-	void startLoadingThreads(int count);				
+		
+	void postTransformTask(const ImgTaskQueue::ImageLoadTask & task);
+	
 	static void runLoadThread(ImgTaskQueue::ImageTaskQueue * taskQueue,boost::mutex * loadQueueMutex);
+	static void runTransformThread(ImgTaskQueue::ImageTaskQueue * transformQueue,boost::mutex * queueMutex);
 };
 
 #endif

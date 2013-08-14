@@ -242,6 +242,7 @@
     <ClCompile Include="ImageButton.cpp" />
     <ClCompile Include="ImageDetailView.cpp" />
     <ClCompile Include="ImageLoader.cpp" />
+    <ClCompile Include="ImageLoadTask.cpp" />
     <ClCompile Include="ImagePanel.cpp" />
     <ClCompile Include="InputEventHandler.cpp" />
     <ClCompile Include="InteractionsTutorial.cpp" />

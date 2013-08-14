@@ -276,6 +276,9 @@
     <ClCompile Include="MainContext_GraphicsImpl.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ImageLoadTask.cpp">
+      <Filter>Source Files\ResourceManager</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Types.h">

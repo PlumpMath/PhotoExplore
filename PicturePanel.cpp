@@ -38,7 +38,48 @@ void PicturePanel::prepareResource()
 	if (GlobalConfig::tree()->get<bool>("FakeDataMode.Enable"))
 	{
 		newResourceURI = pictureNode->Edges.find("fake_uri")->Value;
-		resourceId = pictureNode->getId() + boost::filesystem::path(newResourceURI).filename().string();
+				
+		stringstream rs;
+		rs << pictureNode->getId() << boost::filesystem::path(newResourceURI).filename().string();
+
+		boost::function<void(cv::Mat&)> tran;
+
+		if (!maxResolutionMode)
+		{
+			int targetDimension = max<int>((int)getWidth(),(int)getHeight());
+
+			tran = [targetDimension](cv::Mat&imgMat){
+				
+				float td = (float)targetDimension;
+				
+				float originalWidth = imgMat.size().width;
+				float originalHeight = imgMat.size().height;
+
+				float scale = max<float>(td/originalWidth,td/originalHeight);
+				
+				scale = min<float>(1.0f,scale);
+
+				int adjustedWidth = (int)ceil(scale * originalWidth);
+				int adjustedHeight = (int)ceil(scale * originalHeight);
+
+				cv::Size newSize = cv::Size(adjustedWidth,adjustedHeight);
+				cv::Mat resized = cv::Mat(newSize, CV_8UC4);
+				cv::resize(imgMat,resized,newSize,0,0,cv::INTER_AREA);
+				imgMat.release();
+
+				imgMat = resized;
+			};
+
+			rs << targetDimension;
+		}
+		 
+		resourceId = rs.str();
+
+		if (currentResource != NULL && currentResource->resourceId.compare(resourceId) != 0) 
+			currentResource->priority = 100;				
+
+		currentResource = ResourceManager::getInstance().loadResourceWithTransform(resourceId,newResourceURI,dataPriority,this,tran);
+
 	}
 	else
 	{
@@ -104,24 +145,26 @@ void PicturePanel::prepareResource()
 				newResourceURI = urlStream.str();			
 			}
 		}
-	}
-	if (currentResource == NULL || currentResource->imageURI.compare(newResourceURI) != 0)
-	{
-		Logger::stream("PicturePanel","INFO") << "Selected new resource: " << newResourceURI << " with size = [" << newResourceSize.width << "," << newResourceSize.height << "] , my size is [" << getWidth() << "," << getHeight() << "]" << endl;
-		if (currentResource != NULL)
-		{
-			currentResource->priority = 100;
-		}
-		
-		pictureSize = newResourceSize;
-		if (newResourceSize.area() > 0)
-		{
-			textureWidth = newResourceSize.width;
-			textureHeight = newResourceSize.height;
-		}
 
-		currentResource = ResourceManager::getInstance().loadResource(resourceId,newResourceURI,dataPriority,this);
+		if (currentResource == NULL || currentResource->imageURI.compare(newResourceURI) != 0)
+		{
+			Logger::stream("PicturePanel","INFO") << "Selected new resource: " << newResourceURI << " with size = [" << newResourceSize.width << "," << newResourceSize.height << "] , my size is [" << getWidth() << "," << getHeight() << "]" << endl;
+			if (currentResource != NULL)
+			{
+				currentResource->priority = 100;
+			}
+
+			pictureSize = newResourceSize;
+			if (newResourceSize.area() > 0)
+			{
+				textureWidth = newResourceSize.width;
+				textureHeight = newResourceSize.height;
+			}
+
+			currentResource = ResourceManager::getInstance().loadResource(resourceId,newResourceURI,dataPriority,this);
+		}
 	}
+
 }
 
 void PicturePanel::show(FBNode * _pictureNode)
@@ -236,9 +279,6 @@ void PicturePanel::fitPanelToBoundary(Vector targetPosition, float maxWidth, flo
 
 void PicturePanel::drawContent(Vector drawPosition, float drawWidth, float drawHeight)
 {		
-	
-
-	//if (currentTextureId != NULL)
 	if (currentResource != NULL && currentTextureId != NULL)
 	{
 		TexturePanel::drawTexture(currentTextureId,drawPosition,drawWidth,drawHeight);

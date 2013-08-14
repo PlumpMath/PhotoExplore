@@ -46,6 +46,8 @@ struct ResourceData
 	int ImageState;
 	int TextureState;
 
+	boost::function<void(cv::Mat&)> transform;
+
 	ResourceData(string _resourceId, float _priority, string _imageURI) :
 		resourceId(_resourceId),
 		priority(_priority),
