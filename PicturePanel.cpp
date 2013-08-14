@@ -72,11 +72,17 @@ void PicturePanel::prepareResource()
 
 			rs << targetDimension;
 		}
+		else
+		{
+			rs << "_max";
+		}
 		 
 		resourceId = rs.str();
 
-		if (currentResource != NULL && currentResource->resourceId.compare(resourceId) != 0) 
-			currentResource->priority = 100;				
+		
+		
+//		if (currentResource != NULL && currentResource->resourceId.compare(resourceId) != 0) 
+//			currentResource->priority = 100;				
 
 		currentResource = ResourceManager::getInstance().loadResourceWithTransform(resourceId,newResourceURI,dataPriority,this,tran);
 

@@ -350,6 +350,16 @@ static bool getNewPanelInteraction(const Controller & controller, Frame frame, P
 		interactionPointables.push_back(lh.pointable(p1));
 		interactionPointables.push_back(rh.pointable(p2));
 	}
+	else
+	{
+		Hand h = frame.hand(HandProcessor::LastModel()->HandId);
+		
+		if (h.fingers().count() == 2)
+		{			
+			interactionPointables.push_back(h.fingers()[0]);
+			interactionPointables.push_back(h.fingers()[1]);
+		}		
+	}
 
 	if (interactionPointables.size() >= 2)
 	{			
@@ -435,45 +445,39 @@ bool ImageDetailView::handleImageManipulation(const Controller & controller)
 			{
 				int size = newPoints.size();
 				
-				if (activePanelInteraction.interactingPointables.size() > 2)
-				{			
-					Vector newImageCentroid, newCentroid;
-
-					for (int i=0;i<size;i++)
-					{
-						newImageCentroid += newImagePoints.at(i);
-						newCentroid += newPoints.at(i);
-					}
-
-					newCentroid /= (float)size;
-					newImageCentroid /= (float)size;
-											
-					Vector oldCentroid = activePanelInteraction.pointableCentroid;
-					if (oldCentroid.x != 0)
-					{
-						//LeapDebug::getInstance().addDebugVisual(new LeapDebugVisual(newImageCentroid,1,LeapDebugVisual::LiveByTime,35,Colors::LightBlue));
-
-						newImageCentroid.x = LeapHelper::lowpass(oldCentroid.x,newImageCentroid.x,40,timer.millis());
-						newImageCentroid.y = LeapHelper::lowpass(oldCentroid.y,newImageCentroid.y,40,timer.millis());
-					
-						//LeapDebug::getInstance().addDebugVisual(new LeapDebugVisual(newImageCentroid,1,LeapDebugVisual::LiveByTime,40,Colors::Blue));
-
-						activePanelInteraction.translation += (newImageCentroid - oldCentroid);
-					}
-					activePanelInteraction.pointableCentroid = newImageCentroid;
-				}
+//				if (activePanelInteraction.interactingPointables.size() > 2)
+//				{			
+//					Vector newImageCentroid, newCentroid;
+//
+//					for (int i=0;i<size;i++)
+//					{
+//						newImageCentroid += newImagePoints.at(i);
+//						newCentroid += newPoints.at(i);
+//					}
+//
+//					newCentroid /= (float)size;
+//					newImageCentroid /= (float)size;
+//											
+//					Vector oldCentroid = activePanelInteraction.pointableCentroid;
+//					if (oldCentroid.x != 0)
+//					{
+//						//LeapDebug::getInstance().addDebugVisual(new LeapDebugVisual(newImageCentroid,1,LeapDebugVisual::LiveByTime,35,Colors::LightBlue));
+//
+//						newImageCentroid.x = LeapHelper::lowpass(oldCentroid.x,newImageCentroid.x,40,timer.millis());
+//						newImageCentroid.y = LeapHelper::lowpass(oldCentroid.y,newImageCentroid.y,40,timer.millis());
+//					
+//						//LeapDebug::getInstance().addDebugVisual(new LeapDebugVisual(newImageCentroid,1,LeapDebugVisual::LiveByTime,40,Colors::Blue));
+//
+//						activePanelInteraction.translation += (newImageCentroid - oldCentroid);
+//					}
+//					activePanelInteraction.pointableCentroid = newImageCentroid;
+//				}
 
 
 				if (activePanelInteraction.interactingPointables.size() == 2)
 				{
 					Pointable p1 = controller.frame().pointable(activePanelInteraction.interactingPointables.at(0).first);
 					Pointable p2 = controller.frame().pointable(activePanelInteraction.interactingPointables.at(1).first);
-
-					//ldv1->size = min<float>(cursorDimension,cursorDimension * .6f + (cursorDimension * (p1.touchDistance() * .4f)));
-					//ldv1->screenPoint = activePanelInteraction.interactingPointables.at(0).second;
-					//
-					//ldv2->size = min<float>(cursorDimension,cursorDimension * .6f + (cursorDimension * (p2.touchDistance() * .4f)));
-					//ldv2->screenPoint = activePanelInteraction.interactingPointables.at(1).second;
 
 					float newDist = 0;
 					for (int i=0;i<size;i++)

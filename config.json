@@ -160,7 +160,9 @@
 			"C:\\Users\\Adam\\Pictures\\pixiv-win",	
 			"C:\\Users\\Adam\\Pictures\\camera",	
 			"G:\\JapanPics\\100Media",
-			"/Users/adamskubel/Pictures" 
+			//"/Users/adamskubel/Pictures",
+			"/Users/adamskubel/Downloads" 
+			
 		],
 		"RequestDelay" : 0 ,//ms
 		"DelayVariance" : 0 ,//ms
@@ -433,6 +435,7 @@
 	{		
 		"ResizeInteraction" :
 		{
+			"AllowSingleHand" : true,
 			"SteadyVelocity" : 1000,
 			"MaxTouchDistance" : 0.6,
 			"LimitToScreen" :true
