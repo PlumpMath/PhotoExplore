@@ -38,6 +38,13 @@ void makeFullscreen(GLFWwindow * glWindow)
 }
 
 
+void focusWindow(GLFWwindow * glWindow)
+{
+	[NSApp activateIgnoringOtherApps:YES];
+	NSWindow * window = glfwGetCocoaWindow(glWindow);
+	[window makeKeyAndOrderFront:window];
+}
+
 
 /*
 int main(int argc, char *argv[])

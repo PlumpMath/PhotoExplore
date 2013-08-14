@@ -352,6 +352,15 @@ struct MainContext {
 				GlobalConfig::tree()->put<bool>("Tutorial.Enabled",false);
 				vector<string> x;
 				LeapDebug::getInstance().setTutorialImages(x);
+			}			
+			else if (s.compare("focus") == 0)
+			{
+#ifdef _WIN32
+				
+#else
+				printf("Focusing window\n");
+				focusWindow(GraphicsContext::getInstance().MainWindow);
+#endif
 			}
 		};
 	}

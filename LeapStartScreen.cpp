@@ -286,8 +286,8 @@ void LeapStartScreen::launchBrowser()
 		CefBrowserHost::CreateBrowser(info, facebookClient.get(),fbURL, browserSettings);	
 		
 #else		
-		glFinish();
-		GraphicsContext::getInstance().invokeGlobalAction("hide");
+		//glFinish();
+		//GraphicsContext::getInstance().invokeGlobalAction("hide");
 		//glfwIconifyWindow(GraphicsContext::getInstance().MainWindow);
 		
 		new boost::thread([this](){
@@ -308,8 +308,8 @@ void LeapStartScreen::launchBrowser()
 			LeapStartScreen * me = this;
 			this->postTask([me,tok](){
 				
-				GraphicsContext::getInstance().invokeGlobalAction("show");
-				glfwRestoreWindow(GraphicsContext::getInstance().MainWindow);
+				GraphicsContext::getInstance().invokeGlobalAction("focus");
+				//glfwRestoreWindow(GraphicsContext::getInstance().MainWindow);
 				if (tok.length() > 0)
 				{
 					me->startApplication(tok);

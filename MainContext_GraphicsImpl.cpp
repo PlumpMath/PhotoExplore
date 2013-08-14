@@ -171,6 +171,7 @@ void MainContext::destroyGraphics()
 
 void MainContext::initGraphics()
 {
+	
 	if (!GlobalConfig::tree()->get<bool>("GraphicsSettings.OverrideResolution"))
 	{
 		GlobalConfig::ScreenWidth  = glfwGetVideoMode(glfwGetPrimaryMonitor())->width;
@@ -187,22 +188,25 @@ void MainContext::initGraphics()
 		throw new std::runtime_error("OpenGL didn't initialize!");
 	}
 	
-	glfwGetFramebufferSize(GraphicsContext::getInstance().MainWindow,&frameBufferWidth,&frameBufferHeight);
-	updateFrameBufferSize(cv::Size2i(frameBufferWidth,frameBufferHeight));
-	
-	int newWidth,newHeight;
-	glfwGetWindowSize(GraphicsContext::getInstance().MainWindow,&newWidth,&newHeight);
-	updateWindowSize(cv::Size2i(newWidth,newHeight));
 	
 	
 	//createFrameBuffers(cv::Size2i(frameBufferWidth,frameBufferHeight));
 	initShaders();
 
 	InputEventHandler::getInstance().init(GraphicsContext::getInstance().MainWindow);
+	
 
 #ifndef _WIN32
 	makeFullscreen(GraphicsContext::getInstance().MainWindow);
 #endif
+	
+	
+	glfwGetFramebufferSize(GraphicsContext::getInstance().MainWindow,&frameBufferWidth,&frameBufferHeight);
+	updateFrameBufferSize(cv::Size2i(frameBufferWidth,frameBufferHeight));
+	
+	int newWidth,newHeight;
+	glfwGetWindowSize(GraphicsContext::getInstance().MainWindow,&newWidth,&newHeight);
+	updateWindowSize(cv::Size2i(newWidth,newHeight));
 }
 
 
