@@ -4,5 +4,7 @@ Release
 *.o
 *.obj
 LeapImageBrowser.sdf
+*.suo
+NSHack/main
 Cookies
 Cookies-journal
