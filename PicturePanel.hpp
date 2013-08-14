@@ -9,6 +9,15 @@
 using namespace Facebook;
 
 class PicturePanel : public TexturePanel, public IResourceWatcher, public FBDataView   {
+	
+	
+struct SizedResource {
+	
+	cv::Size2i Size;
+	
+	ResourceData * resource;
+	
+};
 		
 private:
 	ResourceData * currentResource;
@@ -24,6 +33,11 @@ private:
 	bool maxResolutionMode;
 
 	cv::Size2i pictureSize;
+	
+	set<SizedResource,[](cv::Size2i s1, cv::Size2i s2){
+		return s1.width < s2.width;
+	}> sizedResources;
+	
 		
 public:	
 	PicturePanel();
