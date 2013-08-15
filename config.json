@@ -70,11 +70,15 @@
 	{
 		"PressedLevelFilterRC" : 0.0
 	},
-	"PicturePanel" :
+	"DynamicImagePanel" :
 	{
 		"AnimateLayoutDuration" : 400,
 		"DebugLoading" : true,
 		"DebugPriority" : false
+	},	
+	"PanelBase" :
+	{
+		"AnimateLayoutDuration" : 400
 	},
 	"TextEditPanel" : 
 	{
@@ -439,7 +443,10 @@
 			"SteadyVelocity" : 1000,
 			"MaxTouchDistance" : 0.6,
 			"LimitToScreen" :true
-		},
+		}
+	},
+	"PictureDetailView" : 
+	{
 		"MaxCommentLength" : 180,		
 		"Comment" : 
 		{

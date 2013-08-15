@@ -8,6 +8,7 @@
 #include "TextEditPanel.hpp"
 #include "FBDataCursor.hpp"
 #include "SDLTimer.h"
+#include "FBDataCursor.hpp"
 
 #include <set>
 
@@ -21,7 +22,7 @@ private:
 	int lookupDialogState;
 
 	FBFriendsFQLCursor * searchCursor;
-	FBDataCursor * allFriendsCursor;
+	DataCursor * allFriendsCursor;
 
 	Timer lookupDialogTimer;
 	Timer lookupDialogMovementTimer;
@@ -31,7 +32,8 @@ private:
 public:
 	FriendListCursorView();
 
-	FBDataView * getDataView(FBNode * itemNode);
+	View * getDataView(DataNode * itemNode);
+	void setItemPriority(float priority, View * itemView);
 
 	void suspend();
 	void resume();

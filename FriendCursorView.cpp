@@ -2,6 +2,8 @@
 #include "AlbumPanel.hpp"
 #include "FacebookDataDisplay.hpp"
 
+using namespace Facebook;
+
 FriendCursorView::FriendCursorView() : AlbumCursorView()
 {
 }
@@ -50,8 +52,21 @@ FBNode * FriendCursorView::getFriendNode()
 	return this->friendNode;
 }
 
-FBDataView * FriendCursorView::getDataView(FBNode * node)
+
+void FriendCursorView::setItemPriority(float priority, View * itemView)
 {
+	AlbumPanel * album = dynamic_cast<AlbumPanel*>(itemView);
+	if (album != NULL)
+		album->setDataPriority(priority);
+	else
+		AlbumCursorView::setItemPriority(priority,itemView);
+}
+
+
+
+View * FriendCursorView::getDataView(DataNode * dnode)
+{
+	FBNode * node = (FBNode*)dnode;
 	if (node->getNodeType() == NodeType::FacebookImage)
 		return AlbumCursorView::getDataView(node);
 	else

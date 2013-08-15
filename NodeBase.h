@@ -7,16 +7,7 @@
 
 using namespace std;
 
-namespace NodeType
-{	
-	const static string FacebookFriend("friends");
-	const static string FacebookAlbum("albums");
-	const static string FacebookImage("photos");
 
-	const static string ImageFile("f");
-	const static string ImageDirectory("d");
-	
-}
 
 class NodeBase {
 	

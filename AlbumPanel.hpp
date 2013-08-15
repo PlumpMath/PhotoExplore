@@ -8,9 +8,8 @@
 #include "ViewOrchestrator.hpp"
 #include "PicturePanel.hpp"
 #include "TextPanel.h"
-#include "FBDataView.hpp"
 
-class AlbumPanel : public ContentPanel, public ViewOwner, public FBDataView {
+class AlbumPanel : public ContentPanel, public ViewOwner {
 
 private:
 	ViewGroup * albumGroup;

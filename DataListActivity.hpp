@@ -5,11 +5,9 @@
 #include "ActivityView.hpp"
 #include "ScrollingView.hpp"
 #include "ScrollBar.hpp"
-#include "FBDataCursor.hpp"
-#include "FBDataView.hpp"
+#include "DataCursor.hpp"
 #include "TextPanel.h"
-
-using namespace Facebook;
+#include "DataNode.hpp"
 
 class DataListActivity : public ActivityView {
 
@@ -21,23 +19,24 @@ protected:
 	TextPanel * loadIndicator;	
 	TextPanel * titlePanel;
 
-	FBDataCursor * cursor;
+	DataCursor * cursor;
 
 	int rowCount;
 	float currentRightBoundary,lastUpdatePos;
 
-	map<FBNode*,FBDataView*> items;	
-
-	virtual void addNode(FBNode * node);
-	virtual FBDataView * getDataView(FBNode * node) = 0;
+	map<DataNode*,View*> items;	
 	
+	Timer loadingTime;
+	int loadIndicatorState;
+		
 	void setTitlePanel(TextPanel * titlePanel);
 	void updateLoading();
 	void updatePriorities();
 
-	Timer loadingTime;
+	virtual void addNode(DataNode * node);
 
-	int loadIndicatorState;
+	virtual View * getDataView(DataNode * node) = 0;
+	virtual void setItemPriority(float priority, View * itemView) = 0;
 
 public:
 	DataListActivity(int rowCount);
@@ -45,7 +44,7 @@ public:
 
 	void onGlobalFocusChanged(bool isFocused);
 	
-	virtual void show(FBDataCursor * cursor);
+	virtual void show(DataCursor * cursor);
 	virtual void suspend();
 	virtual void resume();
 

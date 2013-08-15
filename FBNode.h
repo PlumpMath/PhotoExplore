@@ -1,7 +1,7 @@
 #ifndef FB_NODE_H_
 #define FB_NODE_H_
 
-#include "NodeBase.h"
+#include "DataNode.hpp"
 
 #include <string.h>
 #include <json_spirit.h>
@@ -21,6 +21,13 @@
 using namespace std;
 
 typedef std::time_t facebook_time;
+
+namespace NodeType
+{	
+	const static string FacebookFriend("friends");
+	const static string FacebookAlbum("albums");
+	const static string FacebookImage("photos");	
+}
 
 namespace Facebook {
 
@@ -147,7 +154,7 @@ namespace Facebook {
 			>
 		> EdgeContainer;
 
-	class FBNode : public NodeBase 
+	class FBNode : public DataNode 
 	{
 		
 	private:

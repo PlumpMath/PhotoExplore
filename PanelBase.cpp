@@ -108,7 +108,7 @@ void PanelBase::measure(cv::Size2f & measuredSize)
 
 void PanelBase::layout(Vector layoutPosition, cv::Size2f layoutSize)
 {
-	static long animationTime = GlobalConfig::tree()->get<long>("PicturePanel.AnimateLayoutDuration");
+	static long animationTime = GlobalConfig::tree()->get<long>("PanelBase.AnimateLayoutDuration");
 
 	if (layoutDuration <= 0)
 		layoutDuration = animationTime;

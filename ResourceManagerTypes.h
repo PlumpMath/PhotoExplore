@@ -43,6 +43,8 @@ struct ResourceData
 	GLuint textureId;	
 	set<IResourceWatcher*> callbacks;	
 
+	cv::Size2i imageSize;
+
 	int ImageState;
 	int TextureState;
 

@@ -1,13 +1,10 @@
 #include "ImageDetailView.hpp"
 #include "GraphicContext.hpp"
-#include "FacebookLoader.h"
-
 
 ImageDetailView::ImageDetailView() 
 {
 	canClickToExit = false;
 	imagePanel = NULL;
-	initButtonBar();
 }
 
 void ImageDetailView::notifyOffsetChanged(Leap::Vector _offset)
@@ -15,34 +12,6 @@ void ImageDetailView::notifyOffsetChanged(Leap::Vector _offset)
 	this->hostOffset = _offset;
 }
 
-void ImageDetailView::initButtonBar()
-{
-	
-	likeButton = new Button("Like this photo?");
-	likeButton->setVisible(false);
-	likeButton->setAnimateOnLayout(false);
-	likeButton->setStyle(GlobalConfig::tree()->get_child("ImageDetailView.LikeButton"));
-
-	
-	alreadyLikedButton = new Button("You like this.");
-	alreadyLikedButton->setStyle(GlobalConfig::tree()->get_child("ImageDetailView.LikeButton"));
-	alreadyLikedButton->setBackgroundColor(Colors::HoloBlueBright.withAlpha(.5f));
-	alreadyLikedButton->setVisible(false);
-	alreadyLikedButton->setAnimateOnLayout(false);
-
-	photoComment = new TextPanel("");
-	photoComment->setLayoutParams(LayoutParams(cv::Size2f(400,100),cv::Vec4f(20,20,20,80)));
-	photoComment->setAnimateOnLayout(false);
-	photoComment->setTextColor(GlobalConfig::tree()->get_child("ImageDetailView.Comment.TextColor"));
-	photoComment->setBackgroundColor(Colors::Transparent);
-	photoComment->setTextSize(GlobalConfig::tree()->get<float>("ImageDetailView.Comment.TextSize"));
-	photoComment->setTextFitPadding(12);
-	
-
-	addChild(photoComment);
-	addChild(likeButton);
-	addChild(alreadyLikedButton);
-}
 
 void ImageDetailView::onGlobalGesture(const Controller & controller, std::string gestureType)
 {
@@ -57,26 +26,6 @@ void ImageDetailView::onGlobalGesture(const Controller & controller, std::string
 float ImageDetailView::getZValue()
 {
 	return 1000;
-}
-
-bool ImageDetailView::onLeapGesture(const Controller & controller, const Gesture & gesture)
-{
-	if (GlobalConfig::tree()->get<bool>("ImageDetailView.AllowSwipeDownExit"))
-	{
-		if (gesture.type() == Gesture::Type::TYPE_SWIPE && (gesture.state() == Gesture::State::STATE_UPDATE|| gesture.state() == Gesture::State::STATE_UPDATE))
-		{
-			SwipeGesture swipe(gesture);
-
-			if (swipe.direction().angleTo(Vector::down()) < PI/4.0f)
-			{
-				this->setImagePanel(NULL);
-				LeapInput::getInstance()->releaseGlobalGestureFocus(this);
-				this->finishedCallback("");
-				return true;
-			}
-		}	
-	}
-	return false;
 }
 
 void ImageDetailView::getTutorialDescriptor(vector<string> & tutorial)
@@ -98,97 +47,7 @@ bool ImageDetailView::isClickable()
 }
 
 
-void ImageDetailView::initLikeButton(FBNode * node)
-{
-	alreadyLikedButton->setVisible(false);
-	likeButton->setVisible(true);
-	ImageDetailView * me = this;
-	FBNode * nodeToLike = imageNode;
-	likeButton->elementClickedCallback = [nodeToLike ,me](LeapElement * clicked){
-
-		me->alreadyLikedButton->setVisible(true);				
-		me->likeButton->setVisible(false);
-		//nodeToLike->Edges.insert(Facebook::Edge("user_likes","1"));
-		auto likeIt = nodeToLike->Edges.get<EdgeTypeIndex>().find("user_likes");
-		if (likeIt != nodeToLike->Edges.get<EdgeTypeIndex>().end())
-			nodeToLike->Edges.replace(likeIt,Facebook::Edge("user_likes","1"));
-		else
-			nodeToLike->Edges.insert(Facebook::Edge("user_likes","1"));
-		((FacebookLoader*)Facebook::FBDataSource::instance)->postRequest(nodeToLike->getId() + "/likes");
-	};	
-}
-
-
-void ImageDetailView::setImageMetaData()
-{
-	likeButton->setVisible(false);
-	alreadyLikedButton->setVisible(false);
-	photoComment->setVisible(false);
-
-	if (this->imagePanel != NULL)
-	{		
-		imageNode = dynamic_cast<Facebook::FBNode*>(imagePanel->getNode());
-		if (imageNode != NULL)
-		{
-			if (imageNode->getAttribute("user_likes").compare("1") == 0)
-			{
-				alreadyLikedButton->setVisible(true);
-				likeButton->setVisible(false);
-			}
-			else 
-			{				
-				initLikeButton(imageNode);
-			}
-
-			//Validate state and re-init
-			Facebook::FBDataSource::instance->loadQuery(imageNode,"fql?q=SELECT%20like_info%20FROM%20photo%20where%20object_id%3D" + imageNode->getId(),"",[this](FBNode * node){
-												
-				if (imageNode->getAttribute("user_likes").compare("1") == 0)
-				{
-					alreadyLikedButton->setVisible(true);
-					likeButton->setVisible(false);
-				}
-				else 
-				{				
-					initLikeButton(node);
-				}
-				imageNode->clearLoadCompleteDelegate();
-			});
-			
-			if (imageNode->getAttribute("name").size() != 0)
-			{
-				photoComment->setVisible(true);
-				string comment = imageNode->getAttribute("name");
-
-				//DEBUG
-				//stringstream texIdStream;
-				//texIdStream << "TexID = " << imagePanel->getTextureId();
-				//comment = texIdStream.str();
-				//END
-
-				int maxLength = GlobalConfig::tree()->get<int>("ImageDetailView.MaxCommentLength");
-				if (comment.length() > maxLength)
-				{
-					comment = comment.substr(0,maxLength) + "...";
-
-				}
-
-				photoComment->setText(comment);
-				photoComment->reloadText();
-				this->layoutDirty = true;
-				//photoComment->layout(photoComment->getPosition(),cv::Size2f(400,100));
-			}
-			else
-				photoComment->setVisible(false);
-		}
-		else
-		{
-			likeButton->setVisible(false);
-		}
-	}
-}
-
-void ImageDetailView::setImagePanel(PicturePanel * _imagePanel)
+void ImageDetailView::setImagePanel(DynamicImagePanel * _imagePanel)
 {
 	if (imagePanel != NULL)
 	{
@@ -219,12 +78,11 @@ void ImageDetailView::setImagePanel(PicturePanel * _imagePanel)
 		this->imagePanel->setVisible(false);
 		this->imagePanel->setClickable(false);
 		this->imagePanel->setMaxResolutionMode(true);
-		setImageMetaData();
 	}
 	layoutDirty = true;
 }
 
-PicturePanel * ImageDetailView::getImagePanel()
+DynamicImagePanel * ImageDetailView::getImagePanel()
 {
 	return this->imagePanel;
 }
@@ -240,21 +98,8 @@ void ImageDetailView::layout(Vector position, cv::Size2f size)
 	{
 		lastSize = size;
 		lastPosition = position;
-
-		
-		imagePanel->fitPanelToBoundary(-hostOffset + Vector(size.width*.5f,size.height*.5f,5),size.width,size.height*.8f, false);
-	
-		Vector pos;
-		float w1,h1;
-		imagePanel->getBoundingArea(pos,w1,h1);		
-		photoComment->layout(-hostOffset + Vector(size.width*.3f,imagePanel->getPosition().y + imagePanel->getHeight(),10),cv::Size2f(size.width*.4f,size.height*.2f));	
-		
-		float buttonPadding = 50;
-		cv::Size2f buttonSize = cv::Size2f(size.height*.2f,size.height*.15f);
-		Vector buttonPos = Vector(imagePanel->getWidth() + imagePanel->getPosition().x + (buttonPadding),imagePanel->getPosition().y + imagePanel->getHeight()*.5f,10);
-		
-		likeButton->layout(buttonPos,buttonSize);
-		alreadyLikedButton->layout(buttonPos,buttonSize);
+				
+		imagePanel->fitPanelToBoundary(-hostOffset + Vector(size.width*.5f,size.height*.5f,5),size.width,size.height*.8f, false);	
 		
 		layoutDirty = false;
 	}
@@ -385,7 +230,7 @@ static bool getNewPanelInteraction(const Controller & controller, Frame frame, P
 		{
 			activePanelInteraction.translation = Vector(0,0,0);
 			activePanelInteraction.scale = Vector(1,1,1);
-			activePanelInteraction.panel = (PicturePanel*)panel;
+			activePanelInteraction.panel = (DynamicImagePanel*)panel;
 		}				
 		processed = canStartInteraction;
 	}
@@ -545,13 +390,13 @@ bool ImageDetailView::handleImageManipulation(const Controller & controller)
 			
 			
 			activePanelInteraction.panel->getBoundingArea(pos,w1,h1);
-			photoComment->setPosition(-hostOffset + Vector(size.width*.3f,pos.y + h1,10));
+			//photoComment->setPosition(-hostOffset + Vector(size.width*.3f,pos.y + h1,10));
 			float buttonPadding = 50;
 			cv::Size2f buttonSize = cv::Size2f(size.height*.2f,size.height*.15f);
 			Vector buttonPos = Vector(w1 + pos.x + (buttonPadding),pos.y + h1*.5f,10);
 
-			likeButton->setPosition(buttonPos);
-			alreadyLikedButton->setPosition(buttonPos);
+			//likeButton->setPosition(buttonPos);
+			//alreadyLikedButton->setPosition(buttonPos);
 		}
 	}
 	return processed;

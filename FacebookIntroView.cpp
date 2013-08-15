@@ -6,6 +6,7 @@
 #include "FacebookDataDisplay.hpp"
 
 using namespace cv;
+using namespace Facebook;
 
 FacebookIntroView::FacebookIntroView()
 {

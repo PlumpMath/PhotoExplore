@@ -1,65 +1,25 @@
 #ifndef LEAPIMAGE_FACEBOOK_PICTURE_PANEL_HPP_
 #define LEAPIMAGE_FACEBOOK_PICTURE_PANEL_HPP_
 
-#include "TexturePanel.h"
+#include "DynamicImagePanel.hpp"
 #include "FBNode.h"
-#include "ResourceManager.h"
-#include "FBDataView.hpp"
 
-using namespace Facebook;
+namespace Facebook {
 
-class PicturePanel : public TexturePanel, public IResourceWatcher, public FBDataView   {
-	
-	
-struct SizedResource {
-	
-	cv::Size2i Size;
-	
-	ResourceData * resource;
-	
-};
+	class PicturePanel : public DynamicImagePanel  {
 		
-private:
-	ResourceData * currentResource;
+	protected:
+		FBNode * pictureNode;	
 
-	float dataPriority;
-	FBNode * pictureNode;	
+		void prepareResource();
 
-	void initDefaults();	
-	void drawContent(Vector drawPosition, float drawWidth, float drawHeight);
+	public:	
+		void show(FBNode * node);
+		FBNode * getNode();
 
-	void prepareResource();
+	};
 
-	bool maxResolutionMode;
-
-	cv::Size2i pictureSize;
-	
-	set<SizedResource,[](cv::Size2i s1, cv::Size2i s2){
-		return s1.width < s2.width;
-	}> sizedResources;
-	
-		
-public:	
-	PicturePanel();
-
-	void fitPanelToBoundary(Vector center, float width, float height, bool fill);
-
-	void setMaxResolutionMode(bool maxResolutionMode);
-	bool isMaxResolutionMode();
-
-	float getDataPriority();
-	void setDataPriority(float relevance);
-
-	void show(FBNode * node);
-	FBNode * getNode();
-
-	void resourceUpdated(ResourceData * data);
-
-	void drawPanel(Vector drawPosition, float drawWidth, float drawHeight);
-
-	void layout(Vector position, cv::Size2f size);
-	
-};
+}
 
 
 #endif

@@ -1,11 +1,10 @@
-﻿#include "AlbumCursorView.hpp"
-#include "ViewOrchestrator.hpp"
+#include "DirectoryView.hpp"
 
-using namespace Facebook;
+using namespace FileSystem;
 
-AlbumCursorView::AlbumCursorView() : DataListActivity(2)
+DirectoryView::DirectoryView() : DataListActivity(2)
 {	
-	imageDetailView = new PictureDetailView();
+	imageDetailView = new FileDetailView();
 	imageDetailView->setVisible(false);
 	imageDetailView->setFinishedCallback([this](string a){
 		LeapInput::getInstance()->releaseGlobalGestureFocus(this->imageDetailView);	
@@ -16,56 +15,57 @@ AlbumCursorView::AlbumCursorView() : DataListActivity(2)
 	addChild(imageDetailView);
 }
 
-void AlbumCursorView::setAlbumOwner(FBNode * _albumOwner)
+void DirectoryView::setDirectory(FileNode * _directory)
 {
-	this->albumOwner = _albumOwner;
+	this->directoryNode = _directory;
 
-	FBAlbumPhotosCursor * photosCursor = new FBAlbumPhotosCursor(albumOwner);
+	DataCursor * photosCursor = NULL; //new FBAlbumPhotosCursor(albumOwner);
 	photosCursor->getNext();
 
 	this->show(photosCursor);
 	
-	TextPanel * albumHeading = dynamic_cast<TextPanel*>(ViewOrchestrator::getInstance()->requestView(albumOwner->getId() + "/name", this));
+	TextPanel * directoryName = dynamic_cast<TextPanel*>(ViewOrchestrator::getInstance()->requestView(directoryNode->filePath.string() + "///name", this));
 
-	if (albumHeading == NULL)
+	if (directoryName == NULL)
 	{
-		albumHeading = new TextPanel(albumOwner->getAttribute("name"));
-		ViewOrchestrator::getInstance()->registerView(albumOwner->getId() + "/name",albumHeading,this);
+		directoryName = new TextPanel(directoryNode->filename);
+		ViewOrchestrator::getInstance()->registerView(directoryNode->filePath.string() + "///name",directoryName,this);
 	}
-	albumHeading->setStyle(GlobalConfig::tree()->get_child("AlbumDetailView.Title"));
 
-	setTitlePanel(albumHeading);
+	directoryName->setStyle(GlobalConfig::tree()->get_child("AlbumDetailView.Title"));
+
+	setTitlePanel(directoryName);
 }
 
-FBNode * AlbumCursorView::getAlbumOwner()
+FileNode * DirectoryView::getDirectory()
 {
-	return this->albumOwner;
+	return this->directoryNode;
 }
 
 
-void AlbumCursorView::setItemPriority(float priority, View * itemView)
+void DirectoryView::setItemPriority(float priority, View * itemView)
 {
-	PicturePanel * picture = dynamic_cast<PicturePanel*>(itemView);
+	FileImagePanel * picture = dynamic_cast<FileImagePanel*>(itemView);
 	if (picture != NULL)
 		picture->setDataPriority(priority);
 }
 
-View * AlbumCursorView::getDataView(DataNode * dataNode)
+View * DirectoryView::getDataView(DataNode * dataNode)
 {
-	FBNode * node = (FBNode*)dataNode;
+	FileNode * node = (FileNode*)dataNode;
 
-	View * v= ViewOrchestrator::getInstance()->requestView(node->getId(), this);
+	View * v= ViewOrchestrator::getInstance()->requestView(node->filename, this);
 
-	PicturePanel * item = NULL;
+	FileImagePanel * item = NULL;
 	if (v == NULL)
 	{
-		item = new PicturePanel();
+		item = new FileImagePanel();
 		item->show(node);
-		ViewOrchestrator::getInstance()->registerView(node->getId(),item, this);
+		ViewOrchestrator::getInstance()->registerView(node->filename,item, this);
 	}
 	else
 	{
-		item = dynamic_cast<PicturePanel*>(v);
+		item = dynamic_cast<FileImagePanel*>(v);
 	}
 
 	item->setLayoutParams(LayoutParams(cv::Size2f(),cv::Vec4f(5,5,5,5)));
@@ -88,24 +88,24 @@ View * AlbumCursorView::getDataView(DataNode * dataNode)
 }
 
 
-void AlbumCursorView::showPhoto(FBNode * photoNode)
+void DirectoryView::showPhoto(FileNode * photoNode)
 {
-	((PicturePanel*)getDataView(photoNode))->elementClicked();
+	((FileImagePanel*)getDataView(photoNode))->elementClicked();
 }
 
-void AlbumCursorView::getTutorialDescriptor(vector<string> & tutorial)
+void DirectoryView::getTutorialDescriptor(vector<string> & tutorial)
 {
 	tutorial.push_back("swipe");
 	tutorial.push_back("point_stop");
 	tutorial.push_back("shake");
 }
 
-void AlbumCursorView::setFinishedCallback(const boost::function<void(std::string)> & callback)
+void DirectoryView::setFinishedCallback(const boost::function<void(std::string)> & callback)
 {
 	viewFinishedCallback = callback;
 }
 
-void AlbumCursorView::viewOwnershipChanged(View * view, ViewOwner * newOwner)
+void DirectoryView::viewOwnershipChanged(View * view, ViewOwner * newOwner)
 {	
 	auto r1 = std::find(itemGroup->getChildren()->begin(),itemGroup->getChildren()->end(),view);
 	if (r1 != itemGroup->getChildren()->end())
@@ -113,7 +113,7 @@ void AlbumCursorView::viewOwnershipChanged(View * view, ViewOwner * newOwner)
 }
 
 
-void AlbumCursorView::onGlobalGesture(const Controller & controller, std::string gestureType)
+void DirectoryView::onGlobalGesture(const Controller & controller, std::string gestureType)
 {
 	if (gestureType.compare("shake") == 0)
 	{
@@ -125,7 +125,7 @@ void AlbumCursorView::onGlobalGesture(const Controller & controller, std::string
 	}
 }
 
-void AlbumCursorView::layout(Vector position, cv::Size2f size)
+void DirectoryView::layout(Vector position, cv::Size2f size)
 {
 	DataListActivity::layout(position,size);
 	

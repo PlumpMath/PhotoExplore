@@ -12,6 +12,9 @@
 
 using namespace std;
 
+namespace Facebook 
+{
+
 class FacebookIntroView : public ActivityView {
 
 private:
@@ -46,5 +49,6 @@ public:
 	void getTutorialDescriptor(vector<string> & tutorial);
 };
 
+}
 
 #endif

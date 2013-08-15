@@ -3,15 +3,19 @@
 
 #include "DataListActivity.hpp"
 #include "FBDataCursor.hpp"
-#include "ImageDetailView.hpp"
+#include "PictureDetailView.hpp"
 #include "ViewOrchestrator.hpp"
+
+namespace Facebook 
+{
+
 
 class AlbumCursorView : public DataListActivity,public ViewOwner
 {
 private:
 	FBNode * albumOwner;
 	FBAlbumPhotosCursor * albumCursor;	
-	ImageDetailView * imageDetailView;
+	PictureDetailView * imageDetailView;
 	
 public:
 	AlbumCursorView();
@@ -21,7 +25,8 @@ public:
 
 	FBNode * getAlbumOwner();
 	
-	virtual FBDataView * getDataView(FBNode * photoNode);
+	virtual View * getDataView(DataNode * photoNode);
+	virtual void setItemPriority(float priority, View * itemView);
 	
 	void viewOwnershipChanged(View * view, ViewOwner * newOwner);
 	void getTutorialDescriptor(vector<string> & tutorial);
@@ -31,6 +36,8 @@ public:
 
 	void layout(Vector position, cv::Size2f size);
 };
+
+}
 
 
 #endif

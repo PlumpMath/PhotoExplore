@@ -40,7 +40,7 @@ DataListActivity::~DataListActivity()
 }
 
 
-void DataListActivity::show(FBDataCursor * _cursor)
+void DataListActivity::show(DataCursor * _cursor)
 {
 	Logger::stream("DataListActivity","INFO") << "Showing new cursor" << endl;
 
@@ -82,8 +82,7 @@ void DataListActivity::suspend()
 	float targetPriority = 100;
 	for (auto it = itemGroup->getChildren()->begin(); it != itemGroup->getChildren()->end();it++)
 	{		
-		FBDataView * dataView= dynamic_cast<FBDataView*>(*it);	
-		dataView->setDataPriority(targetPriority);	
+		this->setItemPriority(targetPriority,(*it));
 	}
 }
 
@@ -93,8 +92,7 @@ void DataListActivity::resume()
 
 	for (auto it = items.begin(); it != items.end(); it++)
 	{
-		if (it->second != NULL)
-			it->second->show(it->first);
+		//this->updateItemData(it->first,it->second);
 	}
 
 	updatePriorities();	
@@ -153,8 +151,7 @@ void DataListActivity::updatePriorities()
 		float distance = abs((panelView->getPosition().x + panelView->getWidth()/2.0f) - peakPriority);
 		float targetPriority = min<float>(10,distance/1000.0f);
 		
-		FBDataView * dataView = dynamic_cast<FBDataView*>(view);
-		dataView->setDataPriority(targetPriority);	
+		setItemPriority(targetPriority,view);
 	}	
 }
 
@@ -203,7 +200,7 @@ void DataListActivity::updateLoading()
 		
 		while (items.size() < itemCount)
 		{
-			FBNode * next = cursor->getNext();
+			DataNode * next = cursor->getNext();
 			
 			if (next == NULL)
 				break;
@@ -222,7 +219,7 @@ void DataListActivity::updateLoading()
 		Logger::stream("DataList","INFO") << "updatePriorities() time = " << loadTimer.millis() << " ms" << endl;
 	
 
-	if (cursor->getState() == FBDataCursor::Loading)
+	if (cursor->getState() == DataCursor::Loading)
 	{		
 		if (loadIndicatorState == 0)
 		{
@@ -245,24 +242,19 @@ void DataListActivity::updateLoading()
 	}
 }
 
-void DataListActivity::addNode(FBNode * node)
+void DataListActivity::addNode(DataNode * node)
 {
 	auto it = items.find(node);
 
 	if (it == items.end() || (it->second) == NULL)
 	{
-		FBDataView * dataView = getDataView(node);
-		
+		View * dataView = getDataView(node);
+						
 		if (dataView == NULL)
-			return;
-
-		View * newView = dynamic_cast<View*>(dataView);
-		
-		if (newView == NULL)
 			return;
 		
 		items.insert(make_pair(node,dataView));
-		itemGroup->addChild(newView);
+		itemGroup->addChild(dataView);
 	}
 
 	float itemWidth = (lastSize.height/((float)rowCount));

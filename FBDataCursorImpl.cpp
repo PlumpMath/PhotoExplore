@@ -1,7 +1,7 @@
 #include "FBDataCursor.hpp"
 #include "Logger.hpp"
 
-FBNode * FBSimpleEdgeCursor::getNext()
+DataNode * FBSimpleEdgeCursor::getNext()
 {
 	if (ascending)
 		return getNextAsc();
@@ -13,14 +13,14 @@ typedef EdgeTypeRowNumIndex AscendingIndexType;
 
 FBNode * FBSimpleEdgeCursor::getNextAsc()
 {
-	if (state == FBDataCursor::Loading || state == FBDataCursor::Finished)
+	if (state == DataCursor::Loading || state == DataCursor::Finished)
 		return NULL;
 
 	FBNode * result = nextItem;
 	if (nextItem == NULL)
 	{
-		if (state == FBDataCursor::Local)
-			state = FBDataCursor::Local;	
+		if (state == DataCursor::Local)
+			state = DataCursor::Local;	
 
 		auto itemNodes = node->Edges.get<AscendingIndexType>().equal_range(boost::make_tuple(edgeName));
 		if (itemNodes.first != itemNodes.second)
@@ -34,14 +34,14 @@ FBNode * FBSimpleEdgeCursor::getNextAsc()
 			nextItemNumber = itemNodes.first->RowNumber;
 			nextItem = itemNodes.first->Node;
 		}
-		else if (state == FBDataCursor::Local)
+		else if (state == DataCursor::Local)
 		{
 			int currentCount =  node->Edges.get<AscendingIndexType>().count(edgeName);
 			loadItems(currentCount + itemsPerRequest);					
 		}
-		else if (state == FBDataCursor::Ended)
+		else if (state == DataCursor::Ended)
 		{
-			state = FBDataCursor::Finished;
+			state = DataCursor::Finished;
 		}
 	}
 	else
@@ -63,21 +63,21 @@ FBNode * FBSimpleEdgeCursor::getNextAsc()
 				nextItemNumber = itemNodes->RowNumber;
 				nextItem = (itemNodes)->Node;
 			}
-			else if (state == FBDataCursor::Local)
+			else if (state == DataCursor::Local)
 			{
 				int currentCount =  node->Edges.get<AscendingIndexType>().count(edgeName);
 				loadItems(currentCount + itemsPerRequest);					
 			}
-			else if (state == FBDataCursor::Ended)
+			else if (state == DataCursor::Ended)
 			{
-				state = FBDataCursor::Finished;
+				state = DataCursor::Finished;
 			}
 		}
 		else
 		{
-			if (state == FBDataCursor::Ended)
+			if (state == DataCursor::Ended)
 			{
-				state = FBDataCursor::Finished;
+				state = DataCursor::Finished;
 			}
 			result = NULL;
 		}
@@ -87,14 +87,14 @@ FBNode * FBSimpleEdgeCursor::getNextAsc()
 
 FBNode * FBSimpleEdgeCursor::getNextDesc()
 {
-	if (state == FBDataCursor::Loading || state == FBDataCursor::Finished)
+	if (state == DataCursor::Loading || state == DataCursor::Finished)
 		return NULL;
 
 	FBNode * result = nextItem;
 	if (nextItem == NULL)
 	{
-		if (state == FBDataCursor::Local)
-			state = FBDataCursor::Local;	
+		if (state == DataCursor::Local)
+			state = DataCursor::Local;	
 
 		auto itemNodes = node->Edges.get<TimeOrderedEdgeType>().equal_range(boost::make_tuple(edgeName));
 		if (itemNodes.first != itemNodes.second)
@@ -107,14 +107,14 @@ FBNode * FBSimpleEdgeCursor::getNextDesc()
 			}
 			nextItem = itemNodes.first->Node;
 		}
-		else if (state == FBDataCursor::Local)
+		else if (state == DataCursor::Local)
 		{
 			int currentCount =  node->Edges.get<TimeOrderedEdgeType>().count(edgeName);
 			loadItems(currentCount + itemsPerRequest);					
 		}
-		else if (state == FBDataCursor::Ended)
+		else if (state == DataCursor::Ended)
 		{
-			state = FBDataCursor::Finished;
+			state = DataCursor::Finished;
 		}
 	}
 	else
@@ -135,21 +135,21 @@ FBNode * FBSimpleEdgeCursor::getNextDesc()
 			{
 				nextItem = (itemNodes)->Node;
 			}
-			else if (state == FBDataCursor::Local)
+			else if (state == DataCursor::Local)
 			{
 				int currentCount =  node->Edges.get<TimeOrderedEdgeType>().count(edgeName);
 				loadItems(currentCount + itemsPerRequest);					
 			}
-			else if (state == FBDataCursor::Ended)
+			else if (state == DataCursor::Ended)
 			{
-				state = FBDataCursor::Finished;
+				state = DataCursor::Finished;
 			}
 		}
 		else
 		{
-			if (state == FBDataCursor::Ended)
+			if (state == DataCursor::Ended)
 			{
-				state = FBDataCursor::Finished;
+				state = DataCursor::Finished;
 			}
 			result = NULL;
 		}
@@ -161,39 +161,39 @@ FBNode * FBSimpleEdgeCursor::getNextDesc()
 void FBSimpleEdgeCursor::reset()
 {
 	nextItem = NULL;
-	state = FBDataCursor::Local;
+	state = DataCursor::Local;
 }
 
-FBNode * InterleavingCursor::getNext()
+DataNode * InterleavingCursor::getNext()
 {
 	Logger::stream("InterleavingCursor","DEBUG") << "getNext()" << endl;
-	FBNode * result = NULL;
+	DataNode * result = NULL;
 	if (lastCursorIndex == 0)
 	{
-		if (cursor0->getState() != FBDataCursor::Finished)
+		if (cursor0->getState() != DataCursor::Finished)
 		{
 			result = cursor0->getNext();			
-			Logger::stream("InterleavingCursor","DEBUG") << "0_C0 = " << ((result==NULL) ? "NULL" : result->getId()) << endl;
+			//Logger::stream("InterleavingCursor","DEBUG") << "0_C0 = " << ((result==NULL) ? "NULL" : result->getId()) << endl;
 		}
 		
-		if (result == NULL && cursor0->getState() == FBDataCursor::Finished && cursor1->getState() != FBDataCursor::Finished)
+		if (result == NULL && cursor0->getState() == DataCursor::Finished && cursor1->getState() != DataCursor::Finished)
 		{
 			result = cursor1->getNext();
-			Logger::stream("InterleavingCursor","DEBUG") << "0_C1 = " << ((result==NULL) ? "NULL" : result->getId()) << endl;
+			//Logger::stream("InterleavingCursor","DEBUG") << "0_C1 = " << ((result==NULL) ? "NULL" : result->getId()) << endl;
 		}
 
 	}
 	else
 	{
-		if (cursor1->getState() != FBDataCursor::Finished)
+		if (cursor1->getState() != DataCursor::Finished)
 		{	result = cursor1->getNext();			
-			Logger::stream("InterleavingCursor","DEBUG") << "1_C1 = " << ((result==NULL) ? "NULL" : result->getId()) << endl;
+			//Logger::stream("InterleavingCursor","DEBUG") << "1_C1 = " << ((result==NULL) ? "NULL" : result->getId()) << endl;
 		}
 		
-		if (result == NULL && cursor1->getState() == FBDataCursor::Finished && cursor0->getState() != FBDataCursor::Finished)
+		if (result == NULL && cursor1->getState() == DataCursor::Finished && cursor0->getState() != DataCursor::Finished)
 		{
 			result = cursor0->getNext();		
-			Logger::stream("InterleavingCursor","DEBUG") << "1_C0 = " << ((result==NULL) ? "NULL" : result->getId()) << endl;
+			//Logger::stream("InterleavingCursor","DEBUG") << "1_C0 = " << ((result==NULL) ? "NULL" : result->getId()) << endl;
 		}
 	}
 
@@ -203,10 +203,10 @@ FBNode * InterleavingCursor::getNext()
 	return result;
 }
 
-FBDataCursor::State InterleavingCursor::getState()
+DataCursor::State InterleavingCursor::getState()
 {
-	FBDataCursor::State s0 = cursor0->getState();
-	FBDataCursor::State s1 = cursor1->getState();
+	DataCursor::State s0 = cursor0->getState();
+	DataCursor::State s1 = cursor1->getState();
 
 	if (s0 == Loading || s1 == Loading)
 		return Loading;
@@ -219,7 +219,7 @@ FBDataCursor::State InterleavingCursor::getState()
 
 void FBFriendsCursor::loadItems(int friends)
 {
-	if (state == FBDataCursor::Loading || state == FBDataCursor::Ended)
+	if (state == DataCursor::Loading || state == DataCursor::Ended)
 	{		
 		return;
 	}
@@ -229,7 +229,7 @@ void FBFriendsCursor::loadItems(int friends)
 
 	if (friends > currentFriendCount)
 	{		
-		state = FBDataCursor::Loading;
+		state = DataCursor::Loading;
 
 		stringstream loadstr;
 		loadstr << node->getId() << "?fields=";
@@ -238,19 +238,19 @@ void FBFriendsCursor::loadItems(int friends)
 		FBFriendsCursor * v = this;
 		FBDataSource::instance->loadField(node,loadstr.str(),"",[v,currentFriendCount](FBNode * _node){
 						
-			if (v->state == FBDataCursor::Loading)
+			if (v->state == DataCursor::Loading)
 			{
 				int newItemCount = _node->Edges.get<EdgeTypeIndex>().count("friends");
 				if (newItemCount <= currentFriendCount)
 				{				
 					//if (newItemCount == 0)
-					//	v->state = FBDataCursor::Finished;
+					//	v->state = DataCursor::Finished;
 					//else
-						v->state = FBDataCursor::Ended;
+						v->state = DataCursor::Ended;
 				}
 				else
 				{
-					v->state = FBDataCursor::Local;
+					v->state = DataCursor::Local;
 					v->getNext();
 				}
 
@@ -268,7 +268,7 @@ void FBFriendsCursor::loadItems(int friends)
 
 void FBUserAlbumsCursor::loadItems(int albums)
 {
-	if (state == FBDataCursor::Loading || state == FBDataCursor::Ended)
+	if (state == DataCursor::Loading || state == DataCursor::Ended)
 	{		
 		return;
 	}
@@ -277,7 +277,7 @@ void FBUserAlbumsCursor::loadItems(int albums)
 
 	if (albums > currentCount)
 	{		
-		state = FBDataCursor::Loading;
+		state = DataCursor::Loading;
 
 		stringstream loadstr;
 		loadstr << node->getId() << "?fields=";
@@ -286,19 +286,19 @@ void FBUserAlbumsCursor::loadItems(int albums)
 		FBUserAlbumsCursor * v = this;
 		FBDataSource::instance->loadField(node,loadstr.str(),"",[v,currentCount](FBNode * _node){
 						
-			if (v->state == FBDataCursor::Loading)
+			if (v->state == DataCursor::Loading)
 			{
 				int newItemCount = _node->Edges.get<EdgeTypeIndex>().count("albums");
 				if (newItemCount <= currentCount)
 				{				
 					//if (newItemCount == 0)
-					//	v->state = FBDataCursor::Finished;
+					//	v->state = DataCursor::Finished;
 					//else
-						v->state = FBDataCursor::Ended;
+						v->state = DataCursor::Ended;
 				}
 				else
 				{
-					v->state = FBDataCursor::Local;
+					v->state = DataCursor::Local;
 					v->getNext();
 				}
 
@@ -316,7 +316,7 @@ void FBUserAlbumsCursor::loadItems(int albums)
 
 void FBAlbumPhotosCursor::loadItems(int photos)
 {
-	if (state == FBDataCursor::Loading || state == FBDataCursor::Ended)
+	if (state == DataCursor::Loading || state == DataCursor::Ended)
 	{		
 		return;
 	}
@@ -325,7 +325,7 @@ void FBAlbumPhotosCursor::loadItems(int photos)
 
 	if (photos > currentCount)
 	{		
-		state = FBDataCursor::Loading;
+		state = DataCursor::Loading;
 
 		stringstream loadstr;
 		loadstr << node->getId() << "?fields=";
@@ -334,19 +334,19 @@ void FBAlbumPhotosCursor::loadItems(int photos)
 		FBAlbumPhotosCursor * v = this;
 		FBDataSource::instance->loadField(node,loadstr.str(),"",[v,currentCount](FBNode * _node){
 					
-			if (v->state == FBDataCursor::Loading)
+			if (v->state == DataCursor::Loading)
 			{
 				int newItemCount = _node->Edges.get<EdgeTypeIndex>().count("photos");
 				if (newItemCount <= currentCount)
 				{				
 					//if (newItemCount == 0)
-					//	v->state = FBDataCursor::Finished;
+					//	v->state = DataCursor::Finished;
 					//else
-						v->state = FBDataCursor::Ended;
+						v->state = DataCursor::Ended;
 				}
 				else
 				{
-					v->state = FBDataCursor::Local;
+					v->state = DataCursor::Local;
 					//v->getNext();
 				}
 

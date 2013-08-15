@@ -3,23 +3,27 @@
 
 #include "AlbumCursorView.hpp"
 
-class FriendCursorView : public AlbumCursorView {
+namespace Facebook
+{
+	class FriendCursorView : public AlbumCursorView {
 
 
-private:
-	FBNode * friendNode;
-	FBAlbumPhotosCursor * albumCursor;	
-	ImageDetailView * imageDetailView;
+	private:
+		FBNode * friendNode;
+		FBAlbumPhotosCursor * albumCursor;	
+		PictureDetailView * imageDetailView;
 
-public:
-	FriendCursorView();
+	public:
+		FriendCursorView();
 
-	void setFriendNode(FBNode * node);
-	void showPhoto(FBNode * photoNode);
+		void setFriendNode(FBNode * node);
+		void showPhoto(FBNode * photoNode);
 
-	FBNode * getFriendNode();
-	FBDataView * getDataView(FBNode * photoNode);
+		FBNode * getFriendNode();
+		View * getDataView(DataNode * photoNode);
+		void setItemPriority(float priority, View * itemView);
 	
-};
+	};
+}
 
 #endif

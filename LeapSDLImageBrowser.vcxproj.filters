@@ -13,56 +13,17 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Header Files\LeapUtil">
-      <UniqueIdentifier>{72092afe-b6bf-449c-8c1a-b735b8d48807}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Panel">
-      <UniqueIdentifier>{a7e30d5c-627e-429d-8a95-042dc6868d3e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\DataModel">
-      <UniqueIdentifier>{1a6e09f7-225c-47b0-ac3a-91aa6ffe792d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\ResourceManager">
-      <UniqueIdentifier>{14d63e50-e8d1-403e-aad6-e7c18573348a}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\ResourceManager">
       <UniqueIdentifier>{d0377c49-c2a6-424a-9b7a-291e33dc7e24}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files\NewPanel">
       <UniqueIdentifier>{9515a40d-79a7-42de-9126-7fb53beac6a1}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\DataView">
-      <UniqueIdentifier>{51ef1e19-48d4-450a-9067-5ce9f6adcdae}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\NewPanel">
       <UniqueIdentifier>{a75ae9da-fb21-4974-bd8c-fdc9b430f9f2}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\DataModel">
-      <UniqueIdentifier>{bca1e698-7b92-4b8c-9305-8cc38469db63}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\EventHandling">
-      <UniqueIdentifier>{8765feaa-6021-4fd9-aef2-fd830e1ed789}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\NewPanel\DataViews">
-      <UniqueIdentifier>{01e731d4-84be-473d-a54d-84f52d322fd0}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\NewPanel\DataPanels">
-      <UniqueIdentifier>{cf00d988-b744-4aef-a748-4b49639e83af}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\NewPanel\GridLayouts">
-      <UniqueIdentifier>{a38a090f-403d-4dc6-8c39-b038abd8cc88}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\NewPanel\GridLayouts">
       <UniqueIdentifier>{fb2a2b60-7dd2-483a-b955-9a1af90d9566}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\LeapUtil">
-      <UniqueIdentifier>{1f247fc1-9e98-488f-a362-e2e15b1f9667}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\EventHandling">
-      <UniqueIdentifier>{636ae548-a27d-4a4e-8e7c-a4202766bfd4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\NewPanel\DataViews">
-      <UniqueIdentifier>{a0f2ad91-cfb7-4cf4-ae82-7a6aeefbffdb}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Tutorial">
       <UniqueIdentifier>{073bf6c4-f6c0-4fec-a552-ead7de19e3c4}</UniqueIdentifier>
@@ -82,34 +43,88 @@
     <Filter Include="Source Files\NewPanel\PanelViews">
       <UniqueIdentifier>{c7382cd2-038d-497c-a022-a66627574e4b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\NewPanel\PanelViews\Facebook">
-      <UniqueIdentifier>{6e631b39-013d-448c-9869-97fd553ecb15}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\NewPanel\PanelViews\Text">
       <UniqueIdentifier>{aff589a8-0ef4-495c-91ef-023aaaca64ba}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Input">
+      <UniqueIdentifier>{636ae548-a27d-4a4e-8e7c-a4202766bfd4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Input\Gestures">
+      <UniqueIdentifier>{1f247fc1-9e98-488f-a362-e2e15b1f9667}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Browser">
+      <UniqueIdentifier>{37950206-030a-410b-9f77-477feef19997}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Browser\Facebook">
+      <UniqueIdentifier>{6e631b39-013d-448c-9869-97fd553ecb15}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Browser\Facebook\Model">
+      <UniqueIdentifier>{d0e4c1e6-9e62-416f-bdd4-10ad313182fb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Browser\Facebook\DataViews">
+      <UniqueIdentifier>{9cfb88b8-d4e3-42ad-86d3-efa160411e7f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Browser">
+      <UniqueIdentifier>{e4771a89-218d-4295-8bb7-04370ecaeaef}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Browser\Facebook">
+      <UniqueIdentifier>{a5473219-c6af-46b8-9c20-77a6f21995a0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Browser\Filesystem">
+      <UniqueIdentifier>{b708c71a-1797-4a7a-b923-13fca15d884b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Input">
+      <UniqueIdentifier>{8765feaa-6021-4fd9-aef2-fd830e1ed789}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Input\LeapUtil">
+      <UniqueIdentifier>{72092afe-b6bf-449c-8c1a-b735b8d48807}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\NewPanel\Layouts">
+      <UniqueIdentifier>{a38a090f-403d-4dc6-8c39-b038abd8cc88}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\ResourceManager">
+      <UniqueIdentifier>{14d63e50-e8d1-403e-aad6-e7c18573348a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\NewPanel\Panel">
+      <UniqueIdentifier>{a7e30d5c-627e-429d-8a95-042dc6868d3e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Browser\FileSystem">
+      <UniqueIdentifier>{f1e58bce-43e6-4e20-98c0-973ad5759393}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Browser\FileSystem\Model">
+      <UniqueIdentifier>{92a92fc5-4493-4037-9c9c-0dcacf32eae5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Browser\Filesystem\Model">
+      <UniqueIdentifier>{c4b89518-698b-45ca-b910-62ecff8a668f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Browser\Facebook\DataModel">
+      <UniqueIdentifier>{1a6e09f7-225c-47b0-ac3a-91aa6ffe792d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Browser\Common">
+      <UniqueIdentifier>{5a25a58d-6124-4d06-9d07-ff7193a57669}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Browser\Common">
+      <UniqueIdentifier>{c418e249-3afc-4179-b300-b790ec832301}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Browser\FileSystem\DataView">
+      <UniqueIdentifier>{eadfd31d-97fb-4320-b841-342ea5f20d3c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Browser\Facebook\DataView">
+      <UniqueIdentifier>{cf00d988-b744-4aef-a748-4b49639e83af}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Browser\Filesystem\DataView">
+      <UniqueIdentifier>{5b60ab9a-70c8-4d5e-be01-5d8269a288c5}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="FlyWheel.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Animation.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="LeapStartScreen.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="DataViewGenerator.cpp">
-      <Filter>Source Files\DataView</Filter>
-    </ClCompile>
     <ClCompile Include="ViewOrchestrator.cpp">
       <Filter>Source Files\NewPanel</Filter>
-    </ClCompile>
-    <ClCompile Include="FBNode.cpp">
-      <Filter>Source Files\DataModel</Filter>
     </ClCompile>
     <ClCompile Include="ScrollingView.cpp">
       <Filter>Source Files\NewPanel</Filter>
@@ -129,14 +144,8 @@
     <ClCompile Include="TypographyManager.cpp">
       <Filter>Source Files\ResourceManager</Filter>
     </ClCompile>
-    <ClCompile Include="HandModel.cpp">
-      <Filter>Source Files\LeapUtil</Filter>
-    </ClCompile>
     <ClCompile Include="RadialMenu.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="HandRotationGestureDetector.cpp">
-      <Filter>Source Files\LeapUtil</Filter>
     </ClCompile>
     <ClCompile Include="TexturePool.cpp">
       <Filter>Source Files\ResourceManager</Filter>
@@ -162,44 +171,20 @@
     <ClCompile Include="Color.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="FakeDataSource.cpp">
-      <Filter>Source Files\DataModel</Filter>
-    </ClCompile>
     <ClCompile Include="UniformGrid.cpp">
       <Filter>Source Files\NewPanel\GridLayouts</Filter>
     </ClCompile>
     <ClCompile Include="SwipeGestureDetector.cpp">
-      <Filter>Source Files\LeapUtil</Filter>
+      <Filter>Source Files\Input\Gestures</Filter>
     </ClCompile>
     <ClCompile Include="ShakeGestureDetector.cpp">
-      <Filter>Source Files\LeapUtil</Filter>
-    </ClCompile>
-    <ClCompile Include="LeapElement.cpp">
-      <Filter>Source Files\EventHandling</Filter>
+      <Filter>Source Files\Input\Gestures</Filter>
     </ClCompile>
     <ClCompile Include="PunchGestureDetector.cpp">
-      <Filter>Source Files\LeapUtil</Filter>
+      <Filter>Source Files\Input\Gestures</Filter>
     </ClCompile>
     <ClCompile Include="ScrollBar.cpp">
       <Filter>Source Files\NewPanel</Filter>
-    </ClCompile>
-    <ClCompile Include="FriendPanel.cpp">
-      <Filter>Source Files\NewPanel\PanelViews\Facebook</Filter>
-    </ClCompile>
-    <ClCompile Include="AlbumPanel.cpp">
-      <Filter>Source Files\NewPanel\PanelViews\Facebook</Filter>
-    </ClCompile>
-    <ClCompile Include="FBDataCursorImpl.cpp">
-      <Filter>Source Files\DataModel</Filter>
-    </ClCompile>
-    <ClCompile Include="ImageDetailView.cpp">
-      <Filter>Source Files\NewPanel\DataViews</Filter>
-    </ClCompile>
-    <ClCompile Include="FriendListCursorView.cpp">
-      <Filter>Source Files\NewPanel\DataViews</Filter>
-    </ClCompile>
-    <ClCompile Include="DataListActivity.cpp">
-      <Filter>Source Files\NewPanel\DataViews</Filter>
     </ClCompile>
     <ClCompile Include="CustomGrid.cpp">
       <Filter>Source Files\NewPanel\GridLayouts</Filter>
@@ -207,26 +192,14 @@
     <ClCompile Include="LinearLayout.cpp">
       <Filter>Source Files\NewPanel\GridLayouts</Filter>
     </ClCompile>
-    <ClCompile Include="AlbumCursorView.cpp">
-      <Filter>Source Files\NewPanel\DataViews</Filter>
-    </ClCompile>
-    <ClCompile Include="FBFriendFQLCursor.cpp">
-      <Filter>Source Files\DataModel</Filter>
-    </ClCompile>
     <ClCompile Include="Cefalopod.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="FriendCursorView.cpp">
-      <Filter>Source Files\NewPanel\DataViews</Filter>
     </ClCompile>
     <ClCompile Include="kiss_fft.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Logger.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="FacebookIntroView.cpp">
-      <Filter>Source Files\NewPanel\PanelViews\Facebook</Filter>
     </ClCompile>
     <ClCompile Include="ColorPanel.cpp">
       <Filter>Source Files\NewPanel\PanelViews</Filter>
@@ -238,10 +211,7 @@
       <Filter>Source Files\Overlay</Filter>
     </ClCompile>
     <ClCompile Include="LeapInput.cpp">
-      <Filter>Source Files\EventHandling</Filter>
-    </ClCompile>
-    <ClCompile Include="PicturePanel.cpp">
-      <Filter>Source Files\NewPanel\PanelViews\Facebook</Filter>
+      <Filter>Source Files\Input</Filter>
     </ClCompile>
     <ClCompile Include="LeapDebug.cpp">
       <Filter>Source Files\Overlay</Filter>
@@ -258,11 +228,8 @@
     <ClCompile Include="Button.cpp">
       <Filter>Source Files\NewPanel\PanelViews\Text</Filter>
     </ClCompile>
-    <ClCompile Include="FacebookBrowser.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="InputEventHandler.cpp">
-      <Filter>Source Files\EventHandling</Filter>
+      <Filter>Source Files\Input</Filter>
     </ClCompile>
     <ClCompile Include="TextEditPanel.cpp">
       <Filter>Source Files\NewPanel\PanelViews\Text</Filter>
@@ -279,6 +246,87 @@
     <ClCompile Include="ImageLoadTask.cpp">
       <Filter>Source Files\ResourceManager</Filter>
     </ClCompile>
+    <ClCompile Include="AlbumPanel.cpp">
+      <Filter>Source Files\Browser\Facebook\DataViews</Filter>
+    </ClCompile>
+    <ClCompile Include="PicturePanel.cpp">
+      <Filter>Source Files\Browser\Facebook\DataViews</Filter>
+    </ClCompile>
+    <ClCompile Include="FacebookIntroView.cpp">
+      <Filter>Source Files\Browser\Facebook\DataViews</Filter>
+    </ClCompile>
+    <ClCompile Include="FriendPanel.cpp">
+      <Filter>Source Files\Browser\Facebook\DataViews</Filter>
+    </ClCompile>
+    <ClCompile Include="AlbumCursorView.cpp">
+      <Filter>Source Files\Browser\Facebook\DataViews</Filter>
+    </ClCompile>
+    <ClCompile Include="FriendCursorView.cpp">
+      <Filter>Source Files\Browser\Facebook\DataViews</Filter>
+    </ClCompile>
+    <ClCompile Include="FriendListCursorView.cpp">
+      <Filter>Source Files\Browser\Facebook\DataViews</Filter>
+    </ClCompile>
+    <ClCompile Include="Animation.cpp">
+      <Filter>Source Files\NewPanel</Filter>
+    </ClCompile>
+    <ClCompile Include="FlyWheel.cpp">
+      <Filter>Source Files\NewPanel</Filter>
+    </ClCompile>
+    <ClCompile Include="FacebookBrowser.cpp">
+      <Filter>Source Files\Browser\Facebook</Filter>
+    </ClCompile>
+    <ClCompile Include="HandModel.cpp">
+      <Filter>Source Files\Input</Filter>
+    </ClCompile>
+    <ClCompile Include="LeapElement.cpp">
+      <Filter>Source Files\NewPanel</Filter>
+    </ClCompile>
+    <ClCompile Include="FBNode.cpp">
+      <Filter>Source Files\Browser\Facebook\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="DataViewGenerator.cpp">
+      <Filter>Source Files\Browser\Facebook\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="FakeDataSource.cpp">
+      <Filter>Source Files\Browser\Facebook\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="FBDataCursorImpl.cpp">
+      <Filter>Source Files\Browser\Facebook\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="FBFriendFQLCursor.cpp">
+      <Filter>Source Files\Browser\Facebook\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="FileNode.cpp">
+      <Filter>Source Files\Browser\FileSystem\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="FileLoader.cpp">
+      <Filter>Source Files\Browser\FileSystem\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="DynamicImagePanel.cpp">
+      <Filter>Source Files\Browser\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="DataListActivity.cpp">
+      <Filter>Source Files\Browser\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="DirectoryView.cpp">
+      <Filter>Source Files\Browser\FileSystem\DataView</Filter>
+    </ClCompile>
+    <ClCompile Include="PictureDetailView.cpp">
+      <Filter>Source Files\Browser\Facebook\DataViews</Filter>
+    </ClCompile>
+    <ClCompile Include="ImageDetailView.cpp">
+      <Filter>Source Files\Browser\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="FileCursors.cpp">
+      <Filter>Source Files\Browser\FileSystem\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="FileDetailView.cpp">
+      <Filter>Source Files\Browser\FileSystem\DataView</Filter>
+    </ClCompile>
+    <ClCompile Include="FileImagePanel.cpp">
+      <Filter>Source Files\Browser\FileSystem\DataView</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Types.h">
@@ -290,17 +338,14 @@
     <ClInclude Include="Flywheel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Animation.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="HandModel.h">
-      <Filter>Header Files\LeapUtil</Filter>
+      <Filter>Header Files\Input\LeapUtil</Filter>
     </ClInclude>
     <ClInclude Include="HandRotationGestureDetector.h">
-      <Filter>Header Files\LeapUtil</Filter>
+      <Filter>Header Files\Input\LeapUtil</Filter>
     </ClInclude>
     <ClInclude Include="LeapHelper.h">
-      <Filter>Header Files\LeapUtil</Filter>
+      <Filter>Header Files\Input\LeapUtil</Filter>
     </ClInclude>
     <ClInclude Include="ImageLoadingURLClient.h">
       <Filter>Header Files</Filter>
@@ -308,23 +353,17 @@
     <ClInclude Include="FacebookLoader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="FileNode.h">
-      <Filter>Header Files\DataModel</Filter>
-    </ClInclude>
     <ClInclude Include="FBNode.h">
-      <Filter>Header Files\DataModel</Filter>
-    </ClInclude>
-    <ClInclude Include="NodeBase.h">
-      <Filter>Header Files\DataModel</Filter>
+      <Filter>Header Files\Browser\Facebook\DataModel</Filter>
     </ClInclude>
     <ClInclude Include="PanelBase.h">
-      <Filter>Header Files\Panel</Filter>
+      <Filter>Header Files\NewPanel\Panel</Filter>
     </ClInclude>
     <ClInclude Include="TexturePanel.h">
-      <Filter>Header Files\Panel</Filter>
+      <Filter>Header Files\NewPanel\Panel</Filter>
     </ClInclude>
     <ClInclude Include="TextPanel.h">
-      <Filter>Header Files\Panel</Filter>
+      <Filter>Header Files\NewPanel\Panel</Filter>
     </ClInclude>
     <ClInclude Include="LeapStartScreen.h">
       <Filter>Header Files</Filter>
@@ -334,9 +373,6 @@
     </ClInclude>
     <ClInclude Include="ResourceManagerTypes.h">
       <Filter>Header Files\ResourceManager</Filter>
-    </ClInclude>
-    <ClInclude Include="DataViewGenerator.hpp">
-      <Filter>Header Files\NewPanel</Filter>
     </ClInclude>
     <ClInclude Include="TypographyManager.h">
       <Filter>Header Files\ResourceManager</Filter>
@@ -348,19 +384,13 @@
       <Filter>Header Files\NewPanel</Filter>
     </ClInclude>
     <ClInclude Include="FBNodeExtractor.h">
-      <Filter>Header Files\DataModel</Filter>
+      <Filter>Header Files\Browser\Facebook\DataModel</Filter>
     </ClInclude>
     <ClInclude Include="ScrollingView.hpp">
       <Filter>Header Files\NewPanel</Filter>
     </ClInclude>
-    <ClInclude Include="FacebookBrowser.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="GLImport.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="LeapElement.hpp">
-      <Filter>Header Files\EventHandling</Filter>
     </ClInclude>
     <ClInclude Include="ContentPanel.hpp">
       <Filter>Header Files\NewPanel</Filter>
@@ -368,29 +398,23 @@
     <ClInclude Include="Button.hpp">
       <Filter>Header Files\NewPanel</Filter>
     </ClInclude>
-    <ClInclude Include="ImageDetailView.hpp">
-      <Filter>Header Files\NewPanel</Filter>
-    </ClInclude>
-    <ClInclude Include="FacebookIntroView.hpp">
-      <Filter>Header Files\NewPanel\DataViews</Filter>
-    </ClInclude>
     <ClInclude Include="AlbumPanel.hpp">
-      <Filter>Header Files\NewPanel\DataPanels</Filter>
+      <Filter>Header Files\Browser\Facebook\DataView</Filter>
     </ClInclude>
     <ClInclude Include="FriendPanel.hpp">
-      <Filter>Header Files\NewPanel\DataPanels</Filter>
+      <Filter>Header Files\Browser\Facebook\DataView</Filter>
     </ClInclude>
     <ClInclude Include="CustomGrid.hpp">
-      <Filter>Header Files\NewPanel\GridLayouts</Filter>
+      <Filter>Header Files\NewPanel\Layouts</Filter>
     </ClInclude>
     <ClInclude Include="FixedAspectGrid.hpp">
-      <Filter>Header Files\NewPanel\GridLayouts</Filter>
+      <Filter>Header Files\NewPanel\Layouts</Filter>
     </ClInclude>
     <ClInclude Include="LinearLayout.hpp">
-      <Filter>Header Files\NewPanel\GridLayouts</Filter>
+      <Filter>Header Files\NewPanel\Layouts</Filter>
     </ClInclude>
     <ClInclude Include="ShakeGestureDetector.hpp">
-      <Filter>Header Files\LeapUtil</Filter>
+      <Filter>Header Files\Input\LeapUtil</Filter>
     </ClInclude>
     <ClInclude Include="GraphicContext.hpp">
       <Filter>Header Files</Filter>
@@ -402,7 +426,7 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="FakeDataSource.hpp">
-      <Filter>Header Files\DataModel</Filter>
+      <Filter>Header Files\Browser\Facebook\DataModel</Filter>
     </ClInclude>
     <ClInclude Include="_kiss_fft_guts.h">
       <Filter>Header Files</Filter>
@@ -426,10 +450,7 @@
       <Filter>Header Files\ResourceManager</Filter>
     </ClInclude>
     <ClInclude Include="ImagePanel.hpp">
-      <Filter>Header Files\Panel</Filter>
-    </ClInclude>
-    <ClInclude Include="AbsoluteLayout.hpp">
-      <Filter>Header Files\NewPanel</Filter>
+      <Filter>Header Files\NewPanel\Panel</Filter>
     </ClInclude>
     <ClInclude Include="EmptyView.hpp">
       <Filter>Header Files\NewPanel</Filter>
@@ -438,10 +459,10 @@
       <Filter>Header Files\NewPanel</Filter>
     </ClInclude>
     <ClInclude Include="SwipeGestureDetector.hpp">
-      <Filter>Header Files\LeapUtil</Filter>
+      <Filter>Header Files\Input\LeapUtil</Filter>
     </ClInclude>
     <ClInclude Include="PunchGestureDetector.hpp">
-      <Filter>Header Files\LeapUtil</Filter>
+      <Filter>Header Files\Input\LeapUtil</Filter>
     </ClInclude>
     <ClInclude Include="FacebookDataDisplay.hpp">
       <Filter>Header Files</Filter>
@@ -455,32 +476,20 @@
     <ClInclude Include="DataListActivity.hpp">
       <Filter>Header Files\NewPanel</Filter>
     </ClInclude>
-    <ClInclude Include="FBDataView.hpp">
-      <Filter>Header Files\NewPanel\DataPanels</Filter>
-    </ClInclude>
     <ClInclude Include="FBDataCursor.hpp">
-      <Filter>Header Files\DataModel</Filter>
-    </ClInclude>
-    <ClInclude Include="FriendListCursorView.hpp">
-      <Filter>Header Files\NewPanel\DataViews</Filter>
+      <Filter>Header Files\Browser\Facebook\DataModel</Filter>
     </ClInclude>
     <ClInclude Include="TextEditPanel.hpp">
-      <Filter>Header Files\Panel</Filter>
-    </ClInclude>
-    <ClInclude Include="AlbumCursorView.hpp">
-      <Filter>Header Files\NewPanel\DataViews</Filter>
-    </ClInclude>
-    <ClInclude Include="FriendCursorView.hpp">
-      <Filter>Header Files\NewPanel\DataViews</Filter>
+      <Filter>Header Files\NewPanel\Panel</Filter>
     </ClInclude>
     <ClInclude Include="ColorPanel.hpp">
-      <Filter>Header Files\Panel</Filter>
+      <Filter>Header Files\NewPanel\Panel</Filter>
     </ClInclude>
     <ClInclude Include="LeapCursor.hpp">
       <Filter>Header Files\Overlay</Filter>
     </ClInclude>
     <ClInclude Include="LeapInput.hpp">
-      <Filter>Header Files\EventHandling</Filter>
+      <Filter>Header Files\Input</Filter>
     </ClInclude>
     <ClInclude Include="InteractionsTutorial.hpp">
       <Filter>Header Files\Tutorial</Filter>
@@ -501,7 +510,7 @@
       <Filter>Header Files\Tutorial</Filter>
     </ClInclude>
     <ClInclude Include="PicturePanel.hpp">
-      <Filter>Header Files\NewPanel\DataPanels</Filter>
+      <Filter>Header Files\Browser\Facebook\DataView</Filter>
     </ClInclude>
     <ClInclude Include="ShakeTutorialSteps.hpp">
       <Filter>Header Files\Tutorial</Filter>
@@ -510,7 +519,7 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="UniformGrid.hpp">
-      <Filter>Header Files\NewPanel\GridLayouts</Filter>
+      <Filter>Header Files\NewPanel\Layouts</Filter>
     </ClInclude>
     <ClInclude Include="CefHelper.hpp">
       <Filter>Header Files\Cef</Filter>
@@ -525,13 +534,73 @@
       <Filter>Header Files\Cef</Filter>
     </ClInclude>
     <ClInclude Include="InputEventHandler.hpp">
-      <Filter>Header Files\EventHandling</Filter>
+      <Filter>Header Files\Input</Filter>
     </ClInclude>
     <ClInclude Include="LeapStatusOverlay.hpp">
       <Filter>Header Files\Overlay</Filter>
     </ClInclude>
     <ClInclude Include="MainContext.hpp">
       <Filter>Header Files\Tutorial</Filter>
+    </ClInclude>
+    <ClInclude Include="FacebookIntroView.hpp">
+      <Filter>Header Files\Browser\Facebook</Filter>
+    </ClInclude>
+    <ClInclude Include="FacebookBrowser.hpp">
+      <Filter>Header Files\Browser\Facebook</Filter>
+    </ClInclude>
+    <ClInclude Include="DataViewGenerator.hpp">
+      <Filter>Header Files\Browser\Facebook</Filter>
+    </ClInclude>
+    <ClInclude Include="LeapElement.hpp">
+      <Filter>Header Files\NewPanel</Filter>
+    </ClInclude>
+    <ClInclude Include="AbsoluteLayout.hpp">
+      <Filter>Header Files\NewPanel\Layouts</Filter>
+    </ClInclude>
+    <ClInclude Include="Animation.h">
+      <Filter>Header Files\NewPanel</Filter>
+    </ClInclude>
+    <ClInclude Include="FileNode.hpp">
+      <Filter>Header Files\Browser\Filesystem\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="FileLoader.hpp">
+      <Filter>Header Files\Browser\Filesystem\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="DataCursor.hpp">
+      <Filter>Header Files\Browser\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="DataNode.hpp">
+      <Filter>Header Files\Browser\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="DynamicImagePanel.hpp">
+      <Filter>Header Files\Browser\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="AlbumCursorView.hpp">
+      <Filter>Header Files\Browser\Facebook\DataView</Filter>
+    </ClInclude>
+    <ClInclude Include="FriendCursorView.hpp">
+      <Filter>Header Files\Browser\Facebook\DataView</Filter>
+    </ClInclude>
+    <ClInclude Include="FriendListCursorView.hpp">
+      <Filter>Header Files\Browser\Facebook\DataView</Filter>
+    </ClInclude>
+    <ClInclude Include="DirectoryView.hpp">
+      <Filter>Header Files\Browser\Filesystem\DataView</Filter>
+    </ClInclude>
+    <ClInclude Include="PictureDetailView.hpp">
+      <Filter>Header Files\Browser\Facebook</Filter>
+    </ClInclude>
+    <ClInclude Include="ImageDetailView.hpp">
+      <Filter>Header Files\Browser\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="FileImagePanel.hpp">
+      <Filter>Header Files\Browser\Filesystem\DataView</Filter>
+    </ClInclude>
+    <ClInclude Include="FileDetailView.hpp">
+      <Filter>Header Files\Browser\Filesystem\DataView</Filter>
+    </ClInclude>
+    <ClInclude Include="FileDataCursors.hpp">
+      <Filter>Header Files\Browser\Filesystem\Model</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

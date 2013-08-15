@@ -1,32 +1,7 @@
 #include "PicturePanel.hpp"
 #include <boost/filesystem.hpp>
 
-PicturePanel::PicturePanel()
-{
-	
- 	offset = position = Vector(0,0,0);
-	this->backgroundColor = Colors::White;
-	
-	this->borderColor = Colors::Transparent;
-	this->borderThickness = 0;
-
-	textureHeight = width;
-	textureWidth = height;
-
-	dataPriority = 100;
-
-	textureScale = Vector(1,1,1);
-	textureScaleMode = ScaleMode::FillUniform;
-
-	NudgeAnimationEnabled = true;
-	
-	loadAnimTimer.start();
-
-	currentResource = NULL;
-
-	maxResolutionMode = false;
-}
-
+using namespace Facebook;
 
 void PicturePanel::prepareResource()
 {	
@@ -37,54 +12,64 @@ void PicturePanel::prepareResource()
 	cv::Size2i newResourceSize(0,0);
 	if (GlobalConfig::tree()->get<bool>("FakeDataMode.Enable"))
 	{
-		newResourceURI = pictureNode->Edges.find("fake_uri")->Value;
-				
-		stringstream rs;
-		rs << pictureNode->getId() << boost::filesystem::path(newResourceURI).filename().string();
+		
+		bool undersized;
+		ResourceData * newResource = selectResource(undersized);
 
-		boost::function<void(cv::Mat&)> tran;
-
-		if (!maxResolutionMode)
+		if (newResource == NULL || undersized)
 		{
-			int targetDimension = max<int>((int)getWidth(),(int)getHeight());
-
-			tran = [targetDimension](cv::Mat&imgMat){
+			newResourceURI = pictureNode->Edges.find("fake_uri")->Value;
 				
-				float td = (float)targetDimension;
+			stringstream rs;
+			rs << pictureNode->getId() << boost::filesystem::path(newResourceURI).filename().string();
+
+			boost::function<void(cv::Mat&)> tran;
+
+			if (!maxResolutionMode)
+			{
+				int targetDimension = max<int>((int)getWidth(),(int)getHeight());
+
+				tran = [targetDimension](cv::Mat&imgMat){
 				
-				float originalWidth = imgMat.size().width;
-				float originalHeight = imgMat.size().height;
-
-				float scale = max<float>(td/originalWidth,td/originalHeight);
+					float td = (float)targetDimension;
 				
-				scale = min<float>(1.0f,scale);
+					float originalWidth = imgMat.size().width;
+					float originalHeight = imgMat.size().height;
 
-				int adjustedWidth = (int)ceil(scale * originalWidth);
-				int adjustedHeight = (int)ceil(scale * originalHeight);
+					float scale = max<float>(td/originalWidth,td/originalHeight);
+				
+					scale = min<float>(1.0f,scale);
 
-				cv::Size newSize = cv::Size(adjustedWidth,adjustedHeight);
-				cv::Mat resized = cv::Mat(newSize, CV_8UC4);
-				cv::resize(imgMat,resized,newSize,0,0,cv::INTER_AREA);
-				imgMat.release();
+					int adjustedWidth = (int)ceil(scale * originalWidth);
+					int adjustedHeight = (int)ceil(scale * originalHeight);
 
-				imgMat = resized;
-			};
+					cv::Size newSize = cv::Size(adjustedWidth,adjustedHeight);
+					cv::Mat resized = cv::Mat(newSize, CV_8UC4);
+					cv::resize(imgMat,resized,newSize,0,0,cv::INTER_AREA);
+					imgMat.release();
 
-			rs << targetDimension;
+					imgMat = resized;
+				};
+
+				rs << targetDimension;
+			}
+			else
+			{
+				rs << "_max";
+			}
+		 
+			resourceId = rs.str();
+
+			ResourceManager::getInstance().loadResourceWithTransform(resourceId,newResourceURI,dataPriority,this,tran);
 		}
 		else
 		{
-			rs << "_max";
+			currentResource = newResource;
+			pictureSize = newResource->imageSize;
+
+			if (currentResource->TextureState == ResourceState::TextureLoaded)
+				currentTextureId = currentResource->textureId;
 		}
-		 
-		resourceId = rs.str();
-
-		
-		
-//		if (currentResource != NULL && currentResource->resourceId.compare(resourceId) != 0) 
-//			currentResource->priority = 100;				
-
-		currentResource = ResourceManager::getInstance().loadResourceWithTransform(resourceId,newResourceURI,dataPriority,this,tran);
 
 	}
 	else
@@ -182,182 +167,4 @@ void PicturePanel::show(FBNode * _pictureNode)
 FBNode * PicturePanel::getNode()
 {
 	return this->pictureNode;
-}
-
-
-void PicturePanel::setMaxResolutionMode(bool maxResMode)
-{
-	this->maxResolutionMode = maxResMode;
-	prepareResource();
-}
-
-bool PicturePanel::isMaxResolutionMode()
-{
-	return this->maxResolutionMode;
-}
-
-void PicturePanel::setDataPriority(float dRel)
-{	
-	if (dataPriority != dRel)
-	{
-		dataPriority = dRel;
-		if (currentResource != NULL)
-		{
-			currentResource->priority = dataPriority;
-			ResourceManager::getInstance().updateResource(currentResource);
-		}
-	}	
-}
-
-float PicturePanel::getDataPriority()
-{
-	return dataPriority;
-}
-
-void PicturePanel::resourceUpdated(ResourceData * data)
-{
-	if (data == NULL)
-	{
-		currentTextureId = NULL;
-	}
-	else
-	{
-		currentTextureId = data->textureId;
-
-		glBindTexture(GL_TEXTURE_2D,currentTextureId);
-		int texWidth,texHeight;
-		glGetTexLevelParameteriv(GL_TEXTURE_2D,0,GL_TEXTURE_WIDTH,&texWidth);
-		glGetTexLevelParameteriv(GL_TEXTURE_2D,0,GL_TEXTURE_HEIGHT,&texHeight);
-
-		pictureSize = cv::Size2i((int)texWidth,(int)texHeight);
-	}
-}
-
-void PicturePanel::layout(Vector position, cv::Size2f size)
-{
-	bool sizeChanged = size.width != this->getWidth() || size.height != this->getHeight();
-	TexturePanel::layout(position,size);
-
-	if (sizeChanged)
-		prepareResource();
-}
-
-void PicturePanel::fitPanelToBoundary(Vector targetPosition, float maxWidth, float maxHeight, bool fill)
-{
-	float targetWidth = maxWidth, targetHeight =maxHeight;
-
-	TexturePanel::setTextureWindow(Vector(),Vector(1,1,1));
-
-	float textureWidth = pictureSize.width,textureHeight = pictureSize.height;
-
-	if (!fill)
-	{		
-		float xScale = maxWidth/textureWidth;
-		float yScale = maxHeight/textureHeight;
-
-		if (xScale < 1.0f || yScale < 1.0f)
-		{
-			if (xScale > yScale)
-			{
-				targetWidth = yScale * textureWidth;
-				targetHeight = yScale * textureHeight;
-			}
-			else 
-			{
-				targetWidth = xScale * textureWidth;
-				targetHeight = xScale * textureHeight;
-			}
-		}
-		else
-		{
-			targetWidth = textureWidth;
-			targetHeight = textureHeight;
-		}
-	}
-			
-	int expandAnimTime = 200, shrinkAnimTime = 200;
-
-	animateToPosition(targetPosition-Vector(targetWidth/2.0f,targetHeight/2.0f,0),expandAnimTime, expandAnimTime);
-	animatePanelSize(targetWidth,targetHeight,expandAnimTime);
-}
-
-
-
-void PicturePanel::drawContent(Vector drawPosition, float drawWidth, float drawHeight)
-{		
-	if (currentResource != NULL && currentTextureId != NULL)
-	{
-		TexturePanel::drawTexture(currentTextureId,drawPosition,drawWidth,drawHeight);
-	}		
-	else
-	{			
-		if (GlobalConfig::tree()->get<bool>("PicturePanel.DebugLoading"))
-		{
-			if (currentResource == NULL)
-			{
-				loadAnimationColor = Colors::Green;
-				return;
-			}
-			
-			switch (currentResource->ImageState)
-			{		
-			case ResourceState::Empty:
-				loadAnimationColor = Colors::Purple;
-				break;
-			case ResourceState::ImageLoading:
-				loadAnimationColor = Colors::Blue;
-				break;
-			case ResourceState::ImageLoaded:
-				loadAnimationColor = Colors::LimeGreen;
-				break;
-			case ResourceState::ImageLoadError:
-				loadAnimationColor = Colors::Red;
-				break;
-			}
-
-			drawLoadTimer(drawPosition,drawWidth,drawHeight/2.0f);
-
-			switch (currentResource->TextureState)
-			{		
-			case ResourceState::Empty:
-				loadAnimationColor = Colors::Magenta;
-				break;
-			case ResourceState::TextureLoading:
-				loadAnimationColor = Colors::HoloBlueBright;
-				break;
-			case ResourceState::TextureLoaded:
-				loadAnimationColor = Colors::DarkGreen;
-				break;
-			case ResourceState::TextureLoadError:
-				loadAnimationColor = Colors::OrangeRed;
-				break;
-			}			
-
-			drawLoadTimer(drawPosition + Vector(0,drawHeight/2.0f,0),drawWidth,drawHeight/2.0f);
-		}
-		else
-		{
-			loadAnimationColor = Colors::DimGray.withAlpha(.3f);
-			drawLoadTimer(drawPosition,drawWidth,drawHeight);
-		}
-	}
-}
-
-
-void PicturePanel::drawPanel(Vector drawPosition, float drawWidth, float drawHeight)
-{
-	static bool priorityDebug = GlobalConfig::tree()->get<bool>("PicturePanel.DebugPriority");
-
-	if (currentTextureId == NULL)
-		drawBackground(drawPosition,drawWidth,drawHeight);
-
-	drawContent(drawPosition,drawWidth,drawHeight);	
-
-	if (priorityDebug)
-	{
-		Color t = getBackgroundColor();
-		setBackgroundColor(Colors::HoloBlueBright);
-		drawBackground(drawPosition+Vector(0,0,2),drawWidth*.1f,drawHeight*(min<float>(1.0f,dataPriority*.1f)));
-		setBackgroundColor(t);
-	}
 }

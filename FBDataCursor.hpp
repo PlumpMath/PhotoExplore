@@ -3,42 +3,11 @@
 
 #include "FBNode.h"
 #include "GlobalConfig.hpp"
+#include "DataCursor.hpp"
 
 using namespace Facebook;
 
-class FBDataCursor {
-	
-
-protected:
-	int itemsPerRequest;
-
-public:		
-	enum State
-	{
-		Local = 0,
-		Loading = 1,
-		Ended = 2,		
-		Finished = 3
-	};
-
-	volatile State state;
-	boost::function<void()> cursorChangedCallback;
-
-	FBDataCursor() :	
-		state(State::Local)
-	{
-		itemsPerRequest = GlobalConfig::tree()->get<int>("FacebookAPI.ItemsPerRequest");
-	}
-
-	virtual State getState() {
-		return state;
-	}
-
-	virtual FBNode * getNext() = 0;
-
-};
-
-class FBSimpleEdgeCursor : public FBDataCursor {
+class FBSimpleEdgeCursor : public DataCursor {
 
 protected:
 	FBNode * node;	
@@ -46,6 +15,7 @@ protected:
 	string edgeName;
 	bool ascending;
 	long nextItemNumber;
+	int itemsPerRequest;
 
 public:
 	FBSimpleEdgeCursor(FBNode * _node, string _edgeName, bool _ascending = false) :
@@ -54,11 +24,12 @@ public:
 		edgeName(_edgeName),
 		ascending(_ascending)
 	{
+		itemsPerRequest = GlobalConfig::tree()->get<int>("FacebookAPI.ItemsPerRequest");
 	}
 
 	virtual void loadItems(int items) = 0;
 	void reset();
-	FBNode * getNext();
+	DataNode * getNext();
 	FBNode * getNextAsc();
 	FBNode * getNextDesc();
 };
@@ -74,13 +45,14 @@ public:
 };
 
 
-class FBFriendsFQLCursor : public FBDataCursor {
+class FBFriendsFQLCursor : public DataCursor {
 
 private:
 	FBNode * node;	
 	FBNode * nextItem;
 	string searchName;
 	int currentPosition;
+	int itemsPerRequest;
 
 
 public:
@@ -88,11 +60,13 @@ public:
 		searchName(_searchName),
 		node(_node),
 		nextItem(NULL)
-	{}
+	{
+		itemsPerRequest = GlobalConfig::tree()->get<int>("FacebookAPI.ItemsPerRequest");
+	}
 
 	void loadItems(int friends);
 
-	FBNode * getNext();
+	DataNode * getNext();
 
 	void lookupName(string searchName);
 
@@ -127,15 +101,15 @@ public:
 	{}
 };
 
-class InterleavingCursor : public FBDataCursor {
+class InterleavingCursor : public DataCursor {
 	
 private:
 	int lastCursorIndex; 
 
 public:
-	FBDataCursor * cursor1, * cursor0;
+	DataCursor * cursor1, * cursor0;
 
-	InterleavingCursor(FBDataCursor * _cursor0, FBDataCursor * _cursor1) :
+	InterleavingCursor(DataCursor * _cursor0, DataCursor * _cursor1) :
 		cursor0(_cursor0),
 		cursor1(_cursor1),
 		lastCursorIndex(0)
@@ -143,7 +117,7 @@ public:
 
 	}
 
-	FBNode * getNext();
+	DataNode * getNext();
 
 	State getState();
 

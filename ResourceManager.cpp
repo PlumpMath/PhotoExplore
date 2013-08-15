@@ -32,6 +32,7 @@ void ResourceManager::updateImageResource(string resourceId, int statusCode, cv:
 			ResourceData * data = resource->Data;
 			data->ImageState = statusCode;
 			data->image = imgMat;
+			data->imageSize = imgMat.size();
 			updateResource(data);
 			currentImageCacheSize += data->image.size().area() * 4;
 		}

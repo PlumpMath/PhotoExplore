@@ -1,16 +1,16 @@
 ﻿#include "FBDataCursor.hpp"
 #include "Logger.hpp"
 
-FBNode * FBFriendsFQLCursor::getNext()
+DataNode * FBFriendsFQLCursor::getNext()
 {
-	if (state == FBDataCursor::Loading || state == FBDataCursor::Finished)
+	if (state == DataCursor::Loading || state == DataCursor::Finished)
 		return NULL;
 
 	FBNode * result = nextItem;
 	if (nextItem == NULL)
 	{
-		if (state == FBDataCursor::Local)
-			state = FBDataCursor::Local;
+		if (state == DataCursor::Local)
+			state = DataCursor::Local;
 
 		auto friendNodes = node->Edges.get<EdgeTypeIndex>().equal_range(boost::make_tuple("friends"));
 		if (friendNodes.first != friendNodes.second)
@@ -35,13 +35,13 @@ FBNode * FBFriendsFQLCursor::getNext()
 				currentPosition++;
 				nextItem = friendNodes.first->Node;
 			}
-			else if (state == FBDataCursor::Local)
+			else if (state == DataCursor::Local)
 			{
 				loadItems(itemsPerRequest);					
 			}
-			else if (state == FBDataCursor::Ended)
+			else if (state == DataCursor::Ended)
 			{
-				state = FBDataCursor::Finished;
+				state = DataCursor::Finished;
 			}
 		}
 		else
@@ -75,18 +75,18 @@ FBNode * FBFriendsFQLCursor::getNext()
 				currentPosition++;
 				nextItem = (friendNodes)->Node;
 			}
-			else if (state == FBDataCursor::Local)
+			else if (state == DataCursor::Local)
 			{
 				loadItems(currentPosition + itemsPerRequest);					
 			}
-			else if (state == FBDataCursor::Ended) 
+			else if (state == DataCursor::Ended) 
 			{
-				state = FBDataCursor::Finished;
+				state = DataCursor::Finished;
 			}
 		}
 		else
 		{
-			state = FBDataCursor::Finished;
+			state = DataCursor::Finished;
 			result = NULL;
 		}
 	}		
@@ -100,12 +100,12 @@ void FBFriendsFQLCursor::lookupName(string _lookupName)
 {
 	std::transform(_lookupName.begin(), _lookupName.end(), _lookupName.begin(), ::tolower);
 
-	if (state == FBDataCursor::Ended && _lookupName.find(searchName) == 0 && searchName.length() > 0)
-		state = FBDataCursor::Ended;
-	else if (state == FBDataCursor::Ended && searchName.find(_lookupName) == 0 && _lookupName.length() > 0)
-		state = FBDataCursor::Ended;
+	if (state == DataCursor::Ended && _lookupName.find(searchName) == 0 && searchName.length() > 0)
+		state = DataCursor::Ended;
+	else if (state == DataCursor::Ended && searchName.find(_lookupName) == 0 && _lookupName.length() > 0)
+		state = DataCursor::Ended;
 	else
-		state = FBDataCursor::Local;
+		state = DataCursor::Local;
 
 	this->searchName = _lookupName;
 	currentPosition = 0;
@@ -114,7 +114,7 @@ void FBFriendsFQLCursor::lookupName(string _lookupName)
 
 void FBFriendsFQLCursor::loadItems(int friends)
 {
-	if (state == FBDataCursor::Loading || state == FBDataCursor::Ended)
+	if (state == DataCursor::Loading || state == DataCursor::Ended)
 	{		
 		return;
 	}
@@ -123,7 +123,7 @@ void FBFriendsFQLCursor::loadItems(int friends)
 	
 	if (friends > currentPosition)
 	{
-		state = FBDataCursor::Loading;
+		state = DataCursor::Loading;
 
 		stringstream loadStr;
 		int limit = friends-currentPosition;
@@ -138,16 +138,16 @@ void FBFriendsFQLCursor::loadItems(int friends)
 		FBFriendsFQLCursor * v = this;
 		FBDataSource::instance->loadQuery(node,loadStr.str(),"friends",[v,expectedCount](FBNode * _node){
 
-			if (v->state == FBDataCursor::Loading)
+			if (v->state == DataCursor::Loading)
 			{
 				int newFriendCount = _node->Edges.get<EdgeTypeIndex>().count("friends");
 				if (newFriendCount < expectedCount)
 				{
-					v->state = FBDataCursor::Ended;
+					v->state = DataCursor::Ended;
 				}
 				else
 				{		
-					v->state = FBDataCursor::Local;					
+					v->state = DataCursor::Local;					
 				}
 
 				//v->getNext();

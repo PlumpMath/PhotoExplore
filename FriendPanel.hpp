@@ -8,9 +8,8 @@
 #include "ViewOrchestrator.hpp"
 #include "PicturePanel.hpp"
 #include "TextPanel.h"
-#include "FBDataView.hpp"
 
-class FriendPanel : public ContentPanel, public ViewOwner, public FBDataView {
+class FriendPanel : public ContentPanel, public ViewOwner {
 
 private:
 	FBNode * activeNode;

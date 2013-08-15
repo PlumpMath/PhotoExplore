@@ -125,9 +125,19 @@ void FriendListCursorView::setUserNode(FBNode * node)
 	this->show(allFriendsCursor);
 }
 
-FBDataView * FriendListCursorView::getDataView(FBNode * itemNode)
+void FriendListCursorView::setItemPriority(float priority, View * itemView)
 {
-	FBDataView * itemV = NULL;
+	FriendPanel * fp = dynamic_cast<FriendPanel*>(itemView);
+
+	if (fp != NULL)
+		fp->setDataPriority(priority);
+}
+
+View * FriendListCursorView::getDataView(DataNode * _itemNode)
+{
+	View * itemV = NULL;
+	FBNode * itemNode = (FBNode*)_itemNode;
+
 	bool hasData =(itemNode->Edges.get<EdgeTypeIndex>().count("photos") + itemNode->Edges.get<EdgeTypeIndex>().count("albums") >= 2);
 	if (hasData)
 	{
@@ -152,7 +162,7 @@ FBDataView * FriendListCursorView::getDataView(FBNode * itemNode)
 	}
 	else if (itemNode->getAttribute("tried_load").length() == 0)
 	{			
-		FBDataView * nullView = NULL;
+		View * nullView = NULL;
 		pendingItems.insert(itemNode);
 		itemNode->Edges.insert(Edge("tried_load","1"));
 		stringstream load2;
