@@ -21,7 +21,8 @@ namespace FileSystem
 			node(_directoryNode)
 		{
 			filesPerLoad = 2000;
-			nextItemIndex = 0;
+			nextItemIndex = -1;
+			nextItem = NULL;
 		}
 
 		void loadItems(int items);

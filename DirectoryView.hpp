@@ -13,9 +13,8 @@ namespace FileSystem {
 
 	private:
 		FileNode * directoryNode;
-		//DirectoryCursor * directoryCursor;
-
 		FileDetailView * imageDetailView;
+		DirectoryView * childDirectory;
 
 	public:
 		DirectoryView();
@@ -35,6 +34,8 @@ namespace FileSystem {
 		void onGlobalGesture(const Controller & controller, std::string gestureType);
 
 		void layout(Vector position, cv::Size2f size);
+		void draw();
+		void update();
 
 	};
 

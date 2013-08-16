@@ -70,7 +70,7 @@ void FileImagePanel::prepareResource()
 
 		resourceId = rs.str();
 
-		ResourceManager::getInstance().loadResourceWithTransform(resourceId,newResourceURI,dataPriority,this,tran);
+		ResourceManager::getInstance().loadResourceWithTransform(resourceId,fileNode->filePath.string(),dataPriority,this,tran);
 	}
 	else
 	{

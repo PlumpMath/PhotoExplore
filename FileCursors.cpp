@@ -33,8 +33,7 @@ DataNode * DirectoryCursor::getNext()
 		}
 	}
 	else
-	{
-		
+	{		
 		if (nextItemIndex < node->Files.get<RandFileIndex>().size())
 		{			
 			nextItemIndex++;

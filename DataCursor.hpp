@@ -3,6 +3,7 @@
 
 #include <boost/function.hpp>
 #include "DataNode.hpp"
+#include <vector>
 
 class DataCursor {
 
@@ -29,6 +30,46 @@ public:
 	}
 
 	virtual DataNode * getNext() = 0;
+};
+
+class VectorCursor : public DataCursor {
+
+private:
+	int currentIndex;
+	std::vector<DataNode*> data;
+
+public:
+	VectorCursor(std::vector<DataNode*> _data):
+		data(_data),
+		currentIndex(-1)
+	{	
+
+	}
+
+	State getState()
+	{
+		if (currentIndex < data.size())
+			return Local;
+		else
+			return Ended;
+	}
+	
+	DataNode * getNext()
+	{
+		if (currentIndex < 0)
+		{
+			currentIndex++;
+			return NULL;
+		}
+		else if (currentIndex < data.size())
+		{
+			return data.at(currentIndex++);
+		}
+		else
+			return NULL;
+	}
+
+
 };
 
 

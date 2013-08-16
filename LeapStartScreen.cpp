@@ -8,6 +8,7 @@
 #include "GLImport.h"
 #include "InteractionsTutorial.hpp"
 #include "WinHelper.hpp"
+#include "FileBrowser.hpp"
 
 #include <boost/thread.hpp>
 
@@ -172,7 +173,14 @@ void LeapStartScreen::init()
 
 	this->layout(Vector(),cv::Size2f(GlobalConfig::ScreenWidth, GlobalConfig::ScreenHeight));
 	
-	if (GlobalConfig::tree()->get<bool>("FakeDataMode.Enable")) {
+	if (GlobalConfig::tree()->get<bool>("FakeDataMode.FileBrowser")) {
+
+		LeapInput::getInstance()->requestGlobalGestureFocus(this);
+
+		rootView = new FileSystem::FileBrowser();
+		state = FinishedState;
+	}
+	else if (GlobalConfig::tree()->get<bool>("FakeDataMode.Enable")) {
 
 		LeapInput::getInstance()->requestGlobalGestureFocus(this);
 

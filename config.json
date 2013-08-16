@@ -1,4 +1,4 @@
-{
+{	
 	"ExternalCef" : 
 	{
 		"CefClientPath" : "../MacOS/cefclient",
@@ -104,6 +104,11 @@
 		"IOThreadCount" : 2,
 		"TransformThreadCount" : 8
 	},
+	"FileLoader" : 
+	{
+		"NumThreads" : 1,
+		"Filter" : ".*[(png)(jpg)]"
+	},
 	"ResourceCache" : 
 	{
 		"TextureCacheSize" : 512, 	//Megabytes
@@ -158,6 +163,7 @@
 	"FakeDataMode" : 
 	{
 		"Enable" : true,
+		"FileBrowser" : true,
 		"ImageDirectories" :
 		[ 
 			"C:\\Users\\Adam\\Pictures",		

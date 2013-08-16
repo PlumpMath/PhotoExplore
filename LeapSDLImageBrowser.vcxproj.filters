@@ -91,9 +91,6 @@
     <Filter Include="Source Files\Browser\FileSystem">
       <UniqueIdentifier>{f1e58bce-43e6-4e20-98c0-973ad5759393}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Browser\FileSystem\Model">
-      <UniqueIdentifier>{92a92fc5-4493-4037-9c9c-0dcacf32eae5}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\Browser\Filesystem\Model">
       <UniqueIdentifier>{c4b89518-698b-45ca-b910-62ecff8a668f}</UniqueIdentifier>
     </Filter>
@@ -114,6 +111,9 @@
     </Filter>
     <Filter Include="Header Files\Browser\Filesystem\DataView">
       <UniqueIdentifier>{5b60ab9a-70c8-4d5e-be01-5d8269a288c5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Browser\FileSystem\DataView\Model">
+      <UniqueIdentifier>{92a92fc5-4493-4037-9c9c-0dcacf32eae5}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -298,10 +298,10 @@
       <Filter>Source Files\Browser\Facebook\Model</Filter>
     </ClCompile>
     <ClCompile Include="FileNode.cpp">
-      <Filter>Source Files\Browser\FileSystem\Model</Filter>
+      <Filter>Source Files\Browser\FileSystem\DataView\Model</Filter>
     </ClCompile>
     <ClCompile Include="FileLoader.cpp">
-      <Filter>Source Files\Browser\FileSystem\Model</Filter>
+      <Filter>Source Files\Browser\FileSystem\DataView\Model</Filter>
     </ClCompile>
     <ClCompile Include="DynamicImagePanel.cpp">
       <Filter>Source Files\Browser\Common</Filter>
@@ -319,13 +319,19 @@
       <Filter>Source Files\Browser\Common</Filter>
     </ClCompile>
     <ClCompile Include="FileCursors.cpp">
-      <Filter>Source Files\Browser\FileSystem\Model</Filter>
+      <Filter>Source Files\Browser\FileSystem\DataView\Model</Filter>
     </ClCompile>
     <ClCompile Include="FileDetailView.cpp">
       <Filter>Source Files\Browser\FileSystem\DataView</Filter>
     </ClCompile>
     <ClCompile Include="FileImagePanel.cpp">
       <Filter>Source Files\Browser\FileSystem\DataView</Filter>
+    </ClCompile>
+    <ClCompile Include="DirectoryPanel.cpp">
+      <Filter>Source Files\Browser\FileSystem\DataView</Filter>
+    </ClCompile>
+    <ClCompile Include="FileBrowser.cpp">
+      <Filter>Source Files\Browser\FileSystem</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -601,6 +607,12 @@
     </ClInclude>
     <ClInclude Include="FileDataCursors.hpp">
       <Filter>Header Files\Browser\Filesystem\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="DirectoryPanel.hpp">
+      <Filter>Header Files\Browser\Filesystem\DataView</Filter>
+    </ClInclude>
+    <ClInclude Include="FileBrowser.hpp">
+      <Filter>Header Files\Browser\Filesystem</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

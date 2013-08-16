@@ -1,9 +1,10 @@
 #include "FileLoader.hpp"
 #include "GlobalConfig.hpp"
 #include "tinydir.h"
+#include <regex>
 
 using namespace FileSystem;
-
+using namespace std;
 
 FileLoader::FileLoader()
 {
@@ -18,7 +19,11 @@ FileLoader::FileLoader()
 
 void FileLoader::loadFiles(FileNode * directoryNode, int depth, boost::function<void(FileNode*)> callback)
 {	
-	auto task = [directoryNode, callback](){
+	string filter = GlobalConfig::tree()->get<string>("FileLoader.Filter",".*");
+
+	regex reggie = regex(filter);
+
+	auto task = [directoryNode, callback, reggie](){
 
 		string directoryPath = directoryNode->filePath.string();
 		tinydir_dir dir;
@@ -29,8 +34,14 @@ void FileLoader::loadFiles(FileNode * directoryNode, int depth, boost::function<
 			tinydir_file file;
 			tinydir_readfile(&dir, &file);
 
-			FileNode * fileNode = new FileNode(std::string(file.path));
-			directoryNode->Files.get<FileSystemSeq>().push_back(File(fileNode));			
+			string filename = file.name;
+			std::smatch match;
+			std::regex_search(filename,match,reggie);
+			if (file.is_dir || !match.empty())
+			{
+				FileNode * fileNode = new FileNode(std::string(file.path));
+				directoryNode->Files.get<FileSystemSeq>().push_back(File(fileNode));			
+			}
 			tinydir_next(&dir);
 		}
 		tinydir_close(&dir);

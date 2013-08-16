@@ -222,11 +222,13 @@
     <ClCompile Include="Color.cpp" />
     <ClCompile Include="ColorPanel.cpp" />
     <ClCompile Include="DataListActivity.cpp" />
+    <ClCompile Include="DirectoryPanel.cpp" />
     <ClCompile Include="DirectoryView.cpp" />
     <ClCompile Include="DynamicImagePanel.cpp" />
     <ClCompile Include="FakeDataSource.cpp" />
     <ClCompile Include="FBDataCursorImpl.cpp" />
     <ClCompile Include="FBFriendFQLCursor.cpp" />
+    <ClCompile Include="FileBrowser.cpp" />
     <ClCompile Include="FileCursors.cpp" />
     <ClCompile Include="FileDetailView.cpp" />
     <ClCompile Include="FileImagePanel.cpp" />
@@ -298,6 +300,8 @@
     <ClInclude Include="ColorPanel.hpp" />
     <ClInclude Include="DataCursor.hpp" />
     <ClInclude Include="DataNode.hpp" />
+    <ClInclude Include="DirectoryPanel.hpp" />
+    <ClInclude Include="FileBrowser.hpp" />
     <ClInclude Include="FileDataCursors.hpp" />
     <ClInclude Include="DirectoryView.hpp" />
     <ClInclude Include="DynamicImagePanel.hpp" />
