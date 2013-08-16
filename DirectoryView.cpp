@@ -83,7 +83,8 @@ View * DirectoryView::getDataView(DataNode * dataNode)
 				});
 			}
 			childDirectory->setVisible(true);
-			childDirectory->setDirectory(node);
+			childDirectory->setDirectory(node);			
+			childDirectory->layout(this->lastPosition,this->lastSize);
 		};
 
 		return dirPanel;
