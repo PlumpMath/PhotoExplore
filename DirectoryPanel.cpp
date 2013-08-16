@@ -31,7 +31,7 @@ void DirectoryPanel::setDirectory(FileNode * node)
 	{
 		FileLoader::getInstance().loadFiles(node,0,[this](FileNode * nnode){	
 			DirectoryPanel * me = this;
-			postTask([me,nnode](){
+			this->postTask([me,nnode](){
 
 				int count = 0;
 				for (auto it = nnode->Files.get<RandFileIndex>().begin(); it != nnode->Files.get<RandFileIndex>().end() && count < 4; it++)

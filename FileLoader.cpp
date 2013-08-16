@@ -1,7 +1,7 @@
 #include "FileLoader.hpp"
 #include "GlobalConfig.hpp"
 #include "tinydir.h"
-#include <regex>
+#include <boost/regex.hpp>
 
 using namespace FileSystem;
 using namespace std;
@@ -21,7 +21,7 @@ void FileLoader::loadFiles(FileNode * directoryNode, int depth, boost::function<
 {	
 	string filter = GlobalConfig::tree()->get<string>("FileLoader.Filter",".*");
 
-	regex reggie = regex(filter);
+	boost::regex reggie(filter);
 
 	auto task = [directoryNode, callback, reggie](){
 
@@ -35,9 +35,9 @@ void FileLoader::loadFiles(FileNode * directoryNode, int depth, boost::function<
 			tinydir_readfile(&dir, &file);
 
 			string filename = file.name;
-			std::smatch match;
-			std::regex_search(filename,match,reggie);
-			if (file.is_dir || !match.empty())
+			boost::match_results<std::string::const_iterator> results;
+			bool isMatch = boost::regex_match(filename,results,reggie);
+			if (file.is_dir || isMatch)
 			{
 				FileNode * fileNode = new FileNode(std::string(file.path));
 				directoryNode->Files.get<FileSystemSeq>().push_back(File(fileNode));			
