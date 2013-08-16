@@ -1,17 +1,29 @@
 #include "ImageDetailView.hpp"
 #include "GraphicContext.hpp"
+#include "SwipeGestureDetector.hpp"
 
 ImageDetailView::ImageDetailView() 
 {
 	canClickToExit = false;
 	imagePanel = NULL;
+	scrollWheel = new FlyWheel(0);
 }
+DynamicImagePanel * ImageDetailView::getSiblingByOffset(int offset)
+{
+	return NULL;
+}
+
 
 void ImageDetailView::notifyOffsetChanged(Leap::Vector _offset)
 {
 	this->hostOffset = _offset;
 }
 
+void ImageDetailView::onGlobalFocusChanged(bool isFocused)
+{
+	if (isFocused)
+		SwipeGestureDetector::getInstance().setFlyWheel(scrollWheel);
+}
 
 void ImageDetailView::onGlobalGesture(const Controller & controller, std::string gestureType)
 {
@@ -20,6 +32,10 @@ void ImageDetailView::onGlobalGesture(const Controller & controller, std::string
 		this->setImagePanel(NULL);
 		LeapInput::getInstance()->releaseGlobalGestureFocus(this);
 		this->finishedCallback("");
+	}
+	else if (gestureType.compare("point") == 0)
+	{
+		this->scrollWheel->setVelocity(0);
 	}
 }
 
@@ -46,46 +62,57 @@ bool ImageDetailView::isClickable()
 	return (this->imagePanel != NULL && canClickToExit);
 }
 
+void ImageDetailView::restorePanelState(DynamicImagePanel * _imagePanel)
+{
+	if (_imagePanel != NULL)
+	{
+		_imagePanel->NudgeAnimationEnabled = true;
+		_imagePanel->setVisible(true);
+		_imagePanel->setClickable(true);
+		_imagePanel->setDataPriority(0);
+		_imagePanel->setMaxResolutionMode(false);
+		_imagePanel->setTextureWindow(Vector(),Vector(1,1,1));
+		remove(_imagePanel);
+	}
+}
+
+void ImageDetailView::setPanelState(DynamicImagePanel * _imagePanel)
+{
+	_imagePanel->setDataPriority(0);
+	_imagePanel->NudgeAnimationEnabled = false;
+	_imagePanel->setVisible(false);
+	_imagePanel->setClickable(false);
+	_imagePanel->setMaxResolutionMode(true);
+}
+
 
 void ImageDetailView::setImagePanel(DynamicImagePanel * _imagePanel)
 {
-	if (imagePanel != NULL)
-	{
-		this->imagePanel->NudgeAnimationEnabled = true;
-		this->imagePanel->setVisible(true);
-		this->imagePanel->setClickable(true);
-		this->imagePanel->setDataPriority(0);
-		this->imagePanel->setMaxResolutionMode(false);
-		this->imagePanel->setTextureWindow(Vector(),Vector(1,1,1));
-		remove(imagePanel);
+	activePanelInteraction.interactingPointables.clear();
+	activePanelInteraction.pointableCentroid = Vector(0,0,0);
+	activePanelInteraction.pointableRange = 0;
+	activePanelInteraction.panel = NULL;
 
-		activePanelInteraction.interactingPointables.clear();
-		activePanelInteraction.pointableCentroid = Vector(0,0,0);
-		activePanelInteraction.pointableRange = 0;
-		activePanelInteraction.panel = NULL;
-	}
+	restorePanelState(this->imagePanel);
 
 	this->imagePanel = _imagePanel;
+
 	if (this->imagePanel != NULL)
 	{
-		if (std::find(children.begin(),children.end(),imagePanel) == children.end())
+		addChild(imagePanel);
+		setPanelState(imagePanel);
+		for (int i=-1;i <= -1; i++)
 		{
-			children.push_back(imagePanel);
+			if (i==0) continue;
+			DynamicImagePanel * siblingPanel = getSiblingByOffset(i);
+			if (siblingPanel != NULL)
+				setPanelState(siblingPanel);
 		}
-
-		this->imagePanel->setDataPriority(0);
-		this->imagePanel->NudgeAnimationEnabled = false;
-		this->imagePanel->setVisible(false);
-		this->imagePanel->setClickable(false);
-		this->imagePanel->setMaxResolutionMode(true);
 	}
+
 	layoutDirty = true;
 }
 
-DynamicImagePanel * ImageDetailView::getImagePanel()
-{
-	return this->imagePanel;
-}
 
 void ImageDetailView::setFinishedCallback(const boost::function<void(std::string)> & callback)
 {
@@ -94,13 +121,23 @@ void ImageDetailView::setFinishedCallback(const boost::function<void(std::string
 
 void ImageDetailView::layout(Vector position, cv::Size2f size)
 {
+	Vector center = Vector(size.width*.5f,size.height*.5f,5) - hostOffset;
+
 	if (imagePanel != NULL && size.width > 0 && size.height > 0)
 	{
 		lastSize = size;
 		lastPosition = position;
-				
-		imagePanel->fitPanelToBoundary(-hostOffset + Vector(size.width*.5f,size.height*.5f,5),size.width,size.height*.8f, false);	
-		
+
+		imagePanel->fitPanelToBoundary(center,size.width,size.height*.8f, false);	
+
+		for (int i=-1;i <= -1; i++)
+		{
+			if (i==0) continue;
+			DynamicImagePanel * siblingPanel = getSiblingByOffset(i);
+			if (siblingPanel != NULL)
+				siblingPanel->fitPanelToBoundary(center+Vector(((float)i)*size.width*.8f,0,0),size.width,size.height*.8f, false);	
+		}
+
 		layoutDirty = false;
 	}
 }
@@ -154,12 +191,21 @@ void ImageDetailView::draw()
 {
 	if (!GraphicsContext::getInstance().IsBlurCurrentPass)
 	{
-		glTranslatef(hostOffset.x,0,0);
+		float drawOffset = hostOffset.x+scrollWheel->getPosition();
+		glTranslatef(drawOffset,0,0);
 		ViewGroup::draw();
 		if (this->imagePanel != NULL)
 			this->imagePanel->draw();
+
+		for (int i=-1;i <= -1; i++)
+		{
+			if (i==0) continue;
+			DynamicImagePanel * siblingPanel = getSiblingByOffset(i);
+			if (siblingPanel != NULL)
+				siblingPanel->draw();
+		}
 		
-		glTranslatef(-hostOffset.x,0,0);
+		glTranslatef(-drawOffset,0,0);
 	}
 }
 

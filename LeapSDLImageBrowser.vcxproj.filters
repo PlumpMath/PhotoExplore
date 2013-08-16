@@ -333,6 +333,9 @@
     <ClCompile Include="FileBrowser.cpp">
       <Filter>Source Files\Browser\FileSystem</Filter>
     </ClCompile>
+    <ClCompile Include="ScrollableImageDetail.cpp">
+      <Filter>Source Files\Browser\Common</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Types.h">

@@ -8,6 +8,7 @@
 #include "Button.hpp"
 #include "ContentPanel.hpp"
 #include "CustomGrid.hpp"
+#include "Flywheel.h"
 
 
 struct PanelInteraction {
@@ -39,13 +40,21 @@ private:
 	boost::function<void(std::string)> finishedCallback;
 	PanelInteraction activePanelInteraction;
 	bool handleImageManipulation(const Controller & controller);	
-	bool canClickToExit;	
+	bool canClickToExit;
+
+	DynamicImagePanel * currentNext, * currentPrev;
+	FlyWheel * scrollWheel;
+
+
 protected:	
 	void setImagePanel(DynamicImagePanel * imagePanel);
-	DynamicImagePanel * getImagePanel();
 	Leap::Vector hostOffset;	
 	DynamicImagePanel * imagePanel;
 
+	void setPanelState(DynamicImagePanel * _imagePanel);
+	void restorePanelState(DynamicImagePanel * _imagePanel);
+
+	virtual DynamicImagePanel * getSiblingByOffset(int offset);
 
 public:
 	ImageDetailView();
@@ -60,6 +69,8 @@ public:
 
 	void onGlobalGesture(const Controller & controller, std::string gestureType);	
 	void getTutorialDescriptor(vector<string> & tutorial);
+	void onGlobalFocusChanged(bool isFocused);
+
 
 	void setVisible(bool visible);
 	void draw();

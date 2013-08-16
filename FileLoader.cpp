@@ -40,6 +40,7 @@ void FileLoader::loadFiles(FileNode * directoryNode, int depth, boost::function<
 			if (file.is_dir || isMatch)
 			{
 				FileNode * fileNode = new FileNode(std::string(file.path));
+				fileNode->Parent = directoryNode;
 				directoryNode->Files.get<FileSystemSeq>().push_back(File(fileNode));			
 			}
 			tinydir_next(&dir);

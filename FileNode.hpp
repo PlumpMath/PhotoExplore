@@ -77,6 +77,7 @@ namespace FileSystem
 	class FileNode : public DataNode {
 
 	public:
+		FileNode * Parent;
 		FileContainer Files;
 		string filename;
 		boost::filesystem::path filePath;

@@ -11,6 +11,12 @@ namespace FileSystem {
 	private:	
 		FileImagePanel * picturePanel;
 		FileNode * imageNode;		
+
+		int containerOffset;
+		FileNode * parentNode;
+
+	protected:
+		DynamicImagePanel * getSiblingByOffset(int offset);
 		
 	public:
 		void setPicturePanel(FileImagePanel * imagePanel);

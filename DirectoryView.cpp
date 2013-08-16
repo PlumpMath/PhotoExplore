@@ -186,6 +186,10 @@ void DirectoryView::draw()
 	{
 		childDirectory->draw();		
 	}
+	else if (imageDetailView->isVisible())
+	{		
+		imageDetailView->draw();
+	}
 	else
 	{
 		DataListActivity::draw();
@@ -200,6 +204,16 @@ void DirectoryView::update()
 	}
 	else
 	{
-		DataListActivity::update();
+		DataListActivity::update();	
 	}
+}
+
+LeapElement * DirectoryView::elementAtPoint(int x, int y, int & state)
+{
+	if (childDirectory != NULL && childDirectory->isVisible())
+	{
+		return childDirectory->elementAtPoint(x,y,state);
+	}
+
+	return DataListActivity::elementAtPoint(x,y,state);
 }

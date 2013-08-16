@@ -271,6 +271,7 @@
     <ClCompile Include="PunchGestureDetector.cpp" />
     <ClCompile Include="RadialMenu.cpp" />
     <ClCompile Include="ResourceManager.cpp" />
+    <ClCompile Include="ScrollableImageDetail.cpp" />
     <ClCompile Include="ScrollBar.cpp" />
     <ClCompile Include="ScrollingView.cpp" />
     <ClCompile Include="ShakeGestureDetector.cpp" />

@@ -37,6 +37,8 @@ namespace FileSystem {
 		void draw();
 		void update();
 
+		LeapElement * elementAtPoint(int x, int y, int & state);
+
 	};
 
 }

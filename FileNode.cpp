@@ -16,7 +16,8 @@ bool File::IsDirectory() const
 
 
 FileNode::FileNode(path _filePath) :
-	filePath(_filePath)
+	filePath(_filePath),
+	Parent(NULL)
 {
 	isDirectory = is_directory(filePath);
 	filename = filePath.filename().string();
@@ -24,6 +25,7 @@ FileNode::FileNode(path _filePath) :
 
 FileNode::FileNode(string _filePath)
 {
+	Parent = NULL;
 	filePath = path(_filePath);
 	isDirectory = is_directory(filePath);
 	filename = filePath.filename().string();
