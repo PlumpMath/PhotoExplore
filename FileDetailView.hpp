@@ -16,11 +16,11 @@ namespace FileSystem {
 		FileNode * parentNode;
 
 	protected:
-		DynamicImagePanel * getSiblingByOffset(int offset);
-		
-	public:
-		void setPicturePanel(FileImagePanel * imagePanel);
-		FileImagePanel * getPicturePanel();
+		DynamicImagePanel * getDetailedDataView(DataNode * node);
+	//	
+	//public:
+	//	void setPicturePanel(FileImagePanel * imagePanel);
+	//	FileImagePanel * getPicturePanel();
 	};
 
 }

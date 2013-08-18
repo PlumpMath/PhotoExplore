@@ -33,6 +33,12 @@ PictureDetailView::PictureDetailView()
 	addChild(alreadyLikedButton);
 }
 
+DynamicImagePanel * PictureDetailView::getDetailedDataView(DataNode * node)
+{
+	return NULL;
+}
+
+
 void PictureDetailView::initLikeButton(FBNode * node)
 {
 	alreadyLikedButton->setVisible(false);
@@ -147,11 +153,3 @@ void PictureDetailView::layout(Vector position, cv::Size2f size)
 		layoutDirty = false;
 	}
 }
-
-void PictureDetailView::setPicturePanel(PicturePanel * picturePanel)
-{
-	imageNode = dynamic_cast<Facebook::FBNode*>(picturePanel->getNode());
-	setImagePanel(picturePanel);
-	setImageMetaData();
-}
-

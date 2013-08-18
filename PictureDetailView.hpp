@@ -19,11 +19,13 @@ namespace Facebook {
 		void setImageMetaData();		
 		void initLikeButton(Facebook::FBNode * node);
 
+	protected:
+
+		DynamicImagePanel * getDetailedDataView(DataNode * node);
+
 	public:
 		PictureDetailView();
 
-		void setPicturePanel(PicturePanel * imagePanel);
-		PicturePanel * getPicturePanel();
 
 		void layout(Vector position, cv::Size2f size);
 

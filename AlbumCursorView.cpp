@@ -73,12 +73,15 @@ View * AlbumCursorView::getDataView(DataNode * dataNode)
 	item->setClickable(true);
 	item->setVisible(true);
 
-	item->elementClickedCallback = [this,item](LeapElement * clicked){
+	item->elementClickedCallback = [this,node](LeapElement * clicked){
 		this->itemScroll->getFlyWheel()->impartVelocity(0);			
 
 		this->imageDetailView->notifyOffsetChanged(Vector((float)this->itemScroll->getFlyWheel()->getCurrentPosition(),0,0));
 
-		this->imageDetailView->setPicturePanel(item);										
+		WrappingBDCursor * wrapCursor = new WrappingBDCursor(new FBAlbumPhotosCursor(albumOwner));
+		wrapCursor->fastForward(node);
+
+		this->imageDetailView->setCursor(wrapCursor);										
 		this->imageDetailView->setVisible(true);
 		LeapInput::getInstance()->requestGlobalGestureFocus(this->imageDetailView);
 		this->layoutDirty = true;			

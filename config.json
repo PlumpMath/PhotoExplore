@@ -147,7 +147,7 @@
 	},
 	"WindowsDebugPanel" :
 	{
-		"Enable" : true,
+		"Enable" : false,
 		"DesktopParent" : false,
 		"Width" : 400,
 		"Height" : 200		
@@ -169,9 +169,9 @@
 			"C:\\Users\\Adam\\Pictures",		
 			"C:\\Users\\Adam\\Pictures\\pixiv-win",	
 			"C:\\Users\\Adam\\Pictures\\camera",	
-			"G:\\JapanPics\\100Media",
+			"G:\\JapanPics\\100Media"
 			//"/Users/adamskubel/Pictures",
-			"/Users/adamskubel/Downloads" 
+			//"/Users/adamskubel/Downloads" 
 			
 		],
 		"RequestDelay" : 0 ,//ms

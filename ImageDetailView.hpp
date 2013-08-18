@@ -9,6 +9,9 @@
 #include "ContentPanel.hpp"
 #include "CustomGrid.hpp"
 #include "Flywheel.h"
+#include <list>
+#include "DataCursor.hpp"
+#include "DataNode.hpp"
 
 
 struct PanelInteraction {
@@ -45,16 +48,23 @@ private:
 	DynamicImagePanel * currentNext, * currentPrev;
 	FlyWheel * scrollWheel;
 
+	list<DynamicImagePanel*> panelList;
+	int maxPanelCount, mainIndex;
+
+	void setMainPanel(DynamicImagePanel * mainPanel);
+	void scrollPanelList(int count);
+		
+	BidirectionalCursor * cursor;
 
 protected:	
-	void setImagePanel(DynamicImagePanel * imagePanel);
+	//void setImagePanel(DynamicImagePanel * imagePanel);
 	Leap::Vector hostOffset;	
 	DynamicImagePanel * imagePanel;
 
 	void setPanelState(DynamicImagePanel * _imagePanel);
 	void restorePanelState(DynamicImagePanel * _imagePanel);
 
-	virtual DynamicImagePanel * getSiblingByOffset(int offset);
+	virtual DynamicImagePanel * getDetailedDataView(DataNode * node) = 0;
 
 public:
 	ImageDetailView();
@@ -83,6 +93,8 @@ public:
 
 	LeapElement * elementAtPoint(int x, int y, int & elementStateFlags);
 	bool isClickable();
+
+	void setCursor(BidirectionalCursor * cursor);
 };
 
 

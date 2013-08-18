@@ -110,12 +110,17 @@ View * DirectoryView::getDataView(DataNode * dataNode)
 		item->setClickable(true);
 		item->setVisible(true);
 
-		item->elementClickedCallback = [this,item](LeapElement * clicked){
+		item->elementClickedCallback = [this,node](LeapElement * clicked){
 			this->itemScroll->getFlyWheel()->impartVelocity(0);			
 
 			this->imageDetailView->notifyOffsetChanged(Vector((float)this->itemScroll->getFlyWheel()->getCurrentPosition(),0,0));
 
-			this->imageDetailView->setPicturePanel(item);										
+			DirectoryCursor * dc = new DirectoryCursor(this->directoryNode);
+			dc->getNext();
+
+			WrappingBDCursor * wrap = new WrappingBDCursor(dc);
+			wrap->fastForward(node);
+			this->imageDetailView->setCursor(wrap);
 			this->imageDetailView->setVisible(true);
 			LeapInput::getInstance()->requestGlobalGestureFocus(this->imageDetailView);
 			this->layoutDirty = true;			
