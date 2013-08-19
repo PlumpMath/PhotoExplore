@@ -11,14 +11,17 @@ ImageDetailView::ImageDetailView()
 	scrollWheel = new NotchedWheel(0,1000);
 	maxPanelCount = 5;
 	mainIndex = maxPanelCount / 2;
+	skipAnimationNextLayout = false;
 
 	scrollWheel->setNotchChangedListener([this](int currentNotch, int newNotch){
 
 		int delta = newNotch - currentNotch;
-		this->scrollPanelList(-delta);
 		double pos = this->scrollWheel->getCurrentPosition();
 		scrollWheel->overrideValue(pos - delta*scrollWheel->getNotchingSpacing());
 		scrollWheel->setCurrentNotchIndex(0);
+		
+		skipAnimationNextLayout = true;
+		this->scrollPanelList(-delta);
 
 	});
 }
@@ -206,6 +209,7 @@ void ImageDetailView::scrollPanelList(int count)
 		mainPanel = (*it);
 	}	
 	setMainPanel(mainPanel);
+	
 	layoutDirty = true;
 }
 
@@ -232,8 +236,15 @@ void ImageDetailView::layout(Vector position, cv::Size2f size)
 		for (auto it = panelList.begin(); it != panelList.end(); it++, i++)
 		{
 			DynamicImagePanel * dp = (*it);
+			
 			if (dp != NULL)
-				dp->fitPanelToBoundary(center+Vector(((float)i)*panelSpacing,0,0),panelSpacing,size.height*.8f, false);	
+			{
+				if (skipAnimationNextLayout)
+				{
+					dp->setPosition(center+Vector(((float)i)*panelSpacing,0,0));
+				}
+				dp->fitPanelToBoundary(center+Vector(((float)i)*panelSpacing,0,0),panelSpacing,size.height*.8f, false);
+			}
 		}
 		layoutDirty = false;
 	}

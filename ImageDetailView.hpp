@@ -43,7 +43,7 @@ private:
 	boost::function<void(std::string)> finishedCallback;
 	PanelInteraction activePanelInteraction;
 	bool handleImageManipulation(const Controller & controller);	
-	bool canClickToExit;
+	bool canClickToExit, skipAnimationNextLayout;
 
 	DynamicImagePanel * currentNext, * currentPrev;
 	NotchedWheel * scrollWheel;
