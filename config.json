@@ -147,7 +147,7 @@
 	},
 	"WindowsDebugPanel" :
 	{
-		"Enable" : false,
+		"Enable" : true,
 		"DesktopParent" : false,
 		"Width" : 400,
 		"Height" : 200		
@@ -443,7 +443,7 @@
 	},
 	"ImageDetailView" :
 	{		
-		"SpacingRatio" : 0.6,
+		"SpacingRatio" : 0.9,
 		"ResizeInteraction" :
 		{
 			"AllowSingleHand" : true,
@@ -476,6 +476,7 @@
 	{		
 		"NotchedWheel" : 
 		{
+			"NotchChangeThreshold" : 0.01,			
 			"NotchTracker" : 
 			{
 				"Proportional" : 4,

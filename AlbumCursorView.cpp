@@ -81,7 +81,10 @@ View * AlbumCursorView::getDataView(DataNode * dataNode)
 		WrappingBDCursor * wrapCursor = new WrappingBDCursor(new FBAlbumPhotosCursor(albumOwner));
 		wrapCursor->fastForward(node);
 
-		this->imageDetailView->setCursor(wrapCursor);										
+		WrappingBDCursor * revWrapCursor = new WrappingBDCursor(new FBAlbumPhotosCursor(albumOwner));
+		revWrapCursor->fastForward(node);
+
+		this->imageDetailView->setCursor(revWrapCursor,wrapCursor);										
 		this->imageDetailView->setVisible(true);
 		LeapInput::getInstance()->requestGlobalGestureFocus(this->imageDetailView);
 		this->layoutDirty = true;			

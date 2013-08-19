@@ -82,7 +82,7 @@ public:
 	
 	bool fastForward(DataNode * node)
 	{
-		DataNode * next = getNext();
+		DataNode * next = NULL;
 		do
 		{
 			next = getNext();

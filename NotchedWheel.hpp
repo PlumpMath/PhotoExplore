@@ -8,7 +8,7 @@ class NotchedWheel : public FlyWheel {
 
 private:
 	double notchOffset, notchSpacing;
-	double targetNotch, currentNotchIndex;
+	double targetNotchIndex, currentNotchIndex;
 
 	bool hasTarget;
 
@@ -29,7 +29,7 @@ public:
 
 	void setNotchChangedListener(boost::function<void(int,int)>);
 	void setCurrentNotchIndex(int notchIndex);
-
+	void setTargetNotchIndex(int targetNotchIndex);
 
 };
 

@@ -120,7 +120,14 @@ View * DirectoryView::getDataView(DataNode * dataNode)
 
 			WrappingBDCursor * wrap = new WrappingBDCursor(dc);
 			wrap->fastForward(node);
-			this->imageDetailView->setCursor(wrap);
+			
+			DirectoryCursor * revDc = new DirectoryCursor(this->directoryNode);
+			revDc->getNext();
+
+			WrappingBDCursor * revWrap = new WrappingBDCursor(revDc);
+			revWrap->fastForward(node);
+
+			this->imageDetailView->setCursor(revWrap,wrap);
 			this->imageDetailView->setVisible(true);
 			LeapInput::getInstance()->requestGlobalGestureFocus(this->imageDetailView);
 			this->layoutDirty = true;			
@@ -192,13 +199,14 @@ void DirectoryView::draw()
 	{
 		childDirectory->draw();		
 	}
-	else if (imageDetailView->isVisible())
-	{		
-		imageDetailView->draw();
-	}
 	else
 	{
-		DataListActivity::draw();
+		if (imageDetailView->isVisible())
+		{		
+			imageDetailView->draw();
+		}
+
+		DataListActivity::draw();	
 	}
 }
 

@@ -54,7 +54,7 @@ private:
 	void setMainPanel(DynamicImagePanel * mainPanel);
 	void scrollPanelList(int count);
 		
-	BidirectionalCursor * cursor;
+	BidirectionalCursor * fwdCursor, * reverseCursor;
 
 protected:	
 	Leap::Vector hostOffset;	
@@ -93,7 +93,7 @@ public:
 	LeapElement * elementAtPoint(int x, int y, int & elementStateFlags);
 	bool isClickable();
 
-	void setCursor(BidirectionalCursor * cursor);
+	void setCursor(BidirectionalCursor * reverseCursor, BidirectionalCursor * fwdCursor);
 };
 
 

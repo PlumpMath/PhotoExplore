@@ -164,11 +164,8 @@ void DynamicImagePanel::fitPanelToBoundary(Vector targetPosition, float maxWidth
 			targetHeight = textureHeight;
 		}
 	}
-			
-	int expandAnimTime = 200, shrinkAnimTime = 200;
 
-	animateToPosition(targetPosition-Vector(targetWidth/2.0f,targetHeight/2.0f,0),expandAnimTime, expandAnimTime);
-	animatePanelSize(targetWidth,targetHeight,expandAnimTime);
+	layout(targetPosition-Vector(targetWidth/2.0f,targetHeight/2.0f,0), cv::Size2f(targetWidth,targetHeight));
 }
 
 

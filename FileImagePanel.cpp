@@ -69,8 +69,8 @@ void FileImagePanel::prepareResource()
 		else
 		{
 			rs << "_max";
-			pictureSize.width = fileNode->Attributes.get<int>("Image.Width");
-			pictureSize.height = fileNode->Attributes.get<int>("Image.Height");
+			pictureSize.width = fileNode->Attributes.get<int>("Image.Width",0);
+			pictureSize.height = fileNode->Attributes.get<int>("Image.Height",0);
 		}
 
 		resourceId = rs.str();

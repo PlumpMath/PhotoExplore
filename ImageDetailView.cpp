@@ -5,7 +5,9 @@
 
 ImageDetailView::ImageDetailView() 
 {
-	this->cursor = NULL;
+	reverseCursor = NULL;
+	fwdCursor = NULL;
+
 	canClickToExit = false;
 	imagePanel = NULL;
 	scrollWheel = new NotchedWheel(0,1000);
@@ -17,12 +19,14 @@ ImageDetailView::ImageDetailView()
 
 		int delta = newNotch - currentNotch;
 		double pos = this->scrollWheel->getCurrentPosition();
-		scrollWheel->overrideValue(pos - delta*scrollWheel->getNotchingSpacing());
-		scrollWheel->setCurrentNotchIndex(0);
-		
+
 		skipAnimationNextLayout = true;
 		this->scrollPanelList(-delta);
-
+		
+		scrollWheel->overrideValue(pos - (scrollWheel->getNotchingSpacing() * newNotch));
+		scrollWheel->setCurrentNotchIndex(0);
+		scrollWheel->setTargetNotchIndex(0);
+		//scrollWheel->setVelocity(0);
 	});
 }
 
@@ -43,7 +47,7 @@ void ImageDetailView::onGlobalGesture(const Controller & controller, std::string
 {
 	if (gestureType.compare("shake") == 0)
 	{
-		this->setCursor(NULL);
+		this->setCursor(NULL,NULL);
 		LeapInput::getInstance()->releaseGlobalGestureFocus(this);
 		this->finishedCallback("");
 	}
@@ -66,7 +70,7 @@ void ImageDetailView::getTutorialDescriptor(vector<string> & tutorial)
 
 void ImageDetailView::OnElementClicked(Pointable & pointable)
 {
-	//this->setImagePanel(NULL);
+	this->setCursor(NULL,NULL);
 	LeapInput::getInstance()->releaseGlobalGestureFocus(this);
 	this->finishedCallback("");
 }
@@ -109,14 +113,17 @@ void ImageDetailView::setMainPanel(DynamicImagePanel * _mainPanel)
 	imagePanel = _mainPanel;
 }
 
-void ImageDetailView::setCursor(BidirectionalCursor * _cursor)
+void ImageDetailView::setCursor(BidirectionalCursor * _reverseCursor, BidirectionalCursor * _fwdCursor)
 {
-	if (this->cursor != NULL)
-	{
-		delete this->cursor;
-	}
+	if (fwdCursor != NULL)
+		delete fwdCursor;
 
-	this->cursor = _cursor;
+	if (reverseCursor != NULL)
+		delete reverseCursor;
+
+
+	this->fwdCursor = _fwdCursor;
+	this->reverseCursor = _reverseCursor;
 
 	scrollWheel->setVelocity(0);
 	scrollWheel->overrideValue(0);	
@@ -128,21 +135,38 @@ void ImageDetailView::setCursor(BidirectionalCursor * _cursor)
 
 	panelList.clear();
 
-	if (cursor != NULL)
+	if (fwdCursor != NULL && reverseCursor != NULL)
 	{
-		while (panelList.size() < maxPanelCount)
+		int count = maxPanelCount/2;
+		
+		mainIndex = 0;
+		for (int i=0;i < count;i++)
 		{
-			DataNode * nextNode = cursor->getNext();
+			DataNode * prevNode = reverseCursor->getPrevious();
+			DynamicImagePanel * prev = getDetailedDataView(prevNode);
+			if (prev == NULL)
+				break;
+			mainIndex++;
+			setPanelState(prev);
+			panelList.push_front(prev);
+		}
+		
+		DataNode * mainNode = fwdCursor->getNext();
+		DynamicImagePanel * mainPanel = getDetailedDataView(mainNode);
+		panelList.push_back(mainPanel);
+		setPanelState(mainPanel);
+		setMainPanel(mainPanel);
+
+		for (int i=0;i < count;i++)
+		{
+			DataNode * nextNode = fwdCursor->getNext();
 			DynamicImagePanel * next = getDetailedDataView(nextNode);
 			if (next == NULL)
 				break;
 			setPanelState(next);
 			panelList.push_back(next);
 		}
-
-		int offset = panelList.size()/2;
-		scrollPanelList(-offset);
-
+		
 		this->layoutDirty = true;
 	}
 }
@@ -155,62 +179,84 @@ void ImageDetailView::scrollPanelList(int count)
 	bool up = count > 0;
 	count = abs(count);
 
-	mainIndex = maxPanelCount / 2;
+	int centerIndex = maxPanelCount / 2;
 
 	for (int i = 0;i < count;i++)
 	{
 		if (up)
 		{
-			DataNode * nextNode = cursor->getNext();
-			DynamicImagePanel * next = getDetailedDataView(nextNode);
-
-			if (next != NULL)
+			if (mainIndex >= centerIndex)
 			{
-				panelList.push_back(next);
-				setPanelState(next);
-				if (panelList.size() > maxPanelCount)
+				DataNode * nextNode = fwdCursor->getNext();
+				DynamicImagePanel * next = getDetailedDataView(nextNode);
+
+				if (next != NULL)
 				{
-					restorePanelState(panelList.front());
-					panelList.pop_front();
+					reverseCursor->getNext();
+					panelList.push_back(next);
+					setPanelState(next);
+					if (panelList.size() > maxPanelCount)
+					{
+						restorePanelState(panelList.front());
+						panelList.pop_front();
+					}
+					mainIndex = maxPanelCount / 2;
+				}
+				else
+				{
+					mainIndex = min<int>(mainIndex + 1,panelList.size()-1);
 				}
 			}
 			else
 			{
-				mainIndex = min<int>(mainIndex + 1,panelList.size()-1);
+				mainIndex++;
 			}
 		}
 		else
 		{
-			DataNode * prevNode = cursor->getPrevious();
-			DynamicImagePanel * prev = getDetailedDataView(prevNode);
-
-			if (prev != NULL)
+			if (mainIndex <= centerIndex)
 			{
-				panelList.push_front(prev);
-				setPanelState(prev);
-				if (panelList.size() > maxPanelCount)
+				DataNode * prevNode = reverseCursor->getPrevious();
+				DynamicImagePanel * prev = getDetailedDataView(prevNode);
+
+				if (prev != NULL)
 				{
-					restorePanelState(panelList.back());
-					panelList.pop_back();
+					fwdCursor->getNext();
+					panelList.push_front(prev);
+					setPanelState(prev);
+					if (panelList.size() > maxPanelCount)
+					{
+						restorePanelState(panelList.back());
+						panelList.pop_back();
+					}
+					mainIndex = maxPanelCount / 2;
+				}
+				else
+				{				
+					mainIndex = max<int>(mainIndex - 1,0);
 				}
 			}
 			else
-			{				
-				mainIndex = max<int>(mainIndex - 1,0);
+			{
+				mainIndex--;
 			}
 		}
 	}
 
-
 	int index = 0;
 	DynamicImagePanel * mainPanel = NULL;
-	for (auto it = panelList.begin(); it != panelList.end() && index <= mainIndex; it++, index++)
+	for (auto it = panelList.begin(); it != panelList.end(); it++)
 	{
-		mainPanel = (*it);
+		if (index++ == mainIndex)
+		{
+			mainPanel = (*it);
+			break;
+		}
 	}	
 	setMainPanel(mainPanel);
 	
-	layoutDirty = true;
+	//layoutDirty = true;
+	layout(lastPosition,lastSize);
 }
 
 
@@ -232,7 +278,7 @@ void ImageDetailView::layout(Vector position, cv::Size2f size)
 		float panelSpacing = spaceRatio*size.width;
 		((NotchedWheel*)scrollWheel)->setNotches(0,panelSpacing);
 
-		int i = mainIndex - (maxPanelCount-1);
+		int i = -mainIndex;
 		for (auto it = panelList.begin(); it != panelList.end(); it++, i++)
 		{
 			DynamicImagePanel * dp = (*it);
@@ -241,12 +287,14 @@ void ImageDetailView::layout(Vector position, cv::Size2f size)
 			{
 				if (skipAnimationNextLayout)
 				{
-					dp->setPosition(center+Vector(((float)i)*panelSpacing,0,0));
+					dp->setAnimateOnLayout(false);
 				}
 				dp->fitPanelToBoundary(center+Vector(((float)i)*panelSpacing,0,0),panelSpacing,size.height*.8f, false);
+				dp->setAnimateOnLayout(true);
 			}
 		}
 		layoutDirty = false;
+		skipAnimationNextLayout = false;
 	}
 }
 

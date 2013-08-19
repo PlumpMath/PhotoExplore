@@ -2,26 +2,6 @@
 
 using namespace FileSystem;
 
-//void FileDetailView::setPicturePanel(FileImagePanel * picturePanel)
-//{
-//	imageNode = picturePanel->getNode();
-//
-//	parentNode = imageNode->Parent;
-//	
-//	setImagePanel(picturePanel);
-//
-//	if (parentNode != NULL)
-//	{
-//		auto childIt = parentNode->Files.get<FileNameIndex>().find(imageNode->filename);
-//
-//		if (childIt != parentNode->Files.get<FileNameIndex>().end())
-//		{
-//			auto randIt = parentNode->Files.project<RandFileIndex>(childIt);
-//			containerOffset = std::distance(parentNode->Files.get<RandFileIndex>().begin(),randIt);			
-//		}
-//	}
-//}
-
 
 DynamicImagePanel * FileDetailView::getDetailedDataView(DataNode * node)
 {
@@ -30,24 +10,18 @@ DynamicImagePanel * FileDetailView::getDetailedDataView(DataNode * node)
 	if (file != NULL)
 	{
 		View * v = ViewOrchestrator::getInstance()->requestView(file->filePath.string(),this);
-		DynamicImagePanel * dip = dynamic_cast<DynamicImagePanel*>(v);
-		return dip;
+		FileImagePanel * filePanel = dynamic_cast<FileImagePanel*>(v);
+
+		if (filePanel == NULL)
+		{
+			filePanel = new FileImagePanel();
+			filePanel->show(file);
+
+			filePanel->setLayoutParams(LayoutParams(cv::Size2f(),cv::Vec4f(5,5,5,5)));
+			filePanel->layout(Vector(),cv::Size2f(100,100));
+		}
+		
+		return filePanel;
 	}
 	return NULL;
-
-	//if (parentNode != NULL)
-	//{
-	//	int index = containerOffset + offset;
-	//	if (index >= 0 && index < parentNode->Files.size())
-	//	{
-	//		FileNode * file = parentNode->Files.get<RandFileIndex>().at(index).Node;
-
-	//		View * v = ViewOrchestrator::getInstance()->requestView(file->filePath.string(),NULL);
-
-	//		DynamicImagePanel * dip = dynamic_cast<DynamicImagePanel*>(v);
-	//		
-	//		return dip;
-	//	}
-	//}
-	//return NULL;
 }

@@ -28,13 +28,7 @@ void NotchedWheel::flingWheel(double flingVelocity)
 {
 	if (!hasTarget)
 	{
-		double currentNotchIndex = round((position-notchOffset)/notchSpacing);
-
-		currentNotchIndex += sgn(flingVelocity);
-
-		targetNotch = currentNotchIndex*notchSpacing;
-		targetNotch += notchOffset;
-
+		targetNotchIndex = currentNotchIndex + sgn(flingVelocity);		
 		hasTarget = true;
 	}
 }
@@ -49,6 +43,7 @@ void NotchedWheel::update(double elapsedSeconds)
 {
 	float max_Kp = GlobalConfig::tree()->get<float>("ScrollView.NotchedWheel.NotchTracker.Proportional");
 	float max_alpha = GlobalConfig::tree()->get<float>("ScrollView.NotchedWheel.NotchTracker.VelocityComponent");
+	float notchChangeThreshold = GlobalConfig::tree()->get<float>("ScrollView.NotchedWheel.NotchChangeThreshold");
 	
 	if (abs(velocity) > maxVelocity)
 	{
@@ -67,19 +62,17 @@ void NotchedWheel::update(double elapsedSeconds)
 	double closestNotchIndex = round((position-notchOffset)/notchSpacing);
 	double closestNotch =  closestNotchIndex*notchSpacing;
 	closestNotch += notchOffset;
-
-	
+		
 	if (!isDragging)
 	{
-
-		if (abs(closestNotch - position) < notchSpacing*0.1f)
+		if (abs(closestNotch - position) < notchSpacing*notchChangeThreshold)
 		{
 			if ((int)closestNotchIndex != (int)currentNotchIndex)
 			{
 				int lastNotch = (int)currentNotchIndex;
 				currentNotchIndex = (int)closestNotchIndex;
 				
-				if (currentNotchIndex == targetNotch)
+				if (currentNotchIndex == targetNotchIndex)
 					hasTarget = false;
 
 				if (!notchChangedListener.empty())
@@ -91,7 +84,7 @@ void NotchedWheel::update(double elapsedSeconds)
 
 		if (hasTarget)
 		{
-			closestNotch = targetNotch;
+			closestNotch = (targetNotchIndex*notchSpacing)+notchOffset;
 		}
 
 		double alpha = elapsedSeconds/(max_alpha + elapsedSeconds);
@@ -119,4 +112,10 @@ double NotchedWheel::getNotchOffset()
 void NotchedWheel::setCurrentNotchIndex(int _notchIndex)
 {
 	this->currentNotchIndex = _notchIndex;
+}
+
+void NotchedWheel::setTargetNotchIndex(int _targetNotchIndex)
+{
+	this->targetNotchIndex = _targetNotchIndex;
+	hasTarget = true;
 }
