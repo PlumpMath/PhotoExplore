@@ -1,5 +1,4 @@
 #include "FileDetailView.hpp"
-#include "ViewOrchestrator.hpp"
 
 using namespace FileSystem;
 
@@ -30,7 +29,7 @@ DynamicImagePanel * FileDetailView::getDetailedDataView(DataNode * node)
 
 	if (file != NULL)
 	{
-		View * v = ViewOrchestrator::getInstance()->requestView(file->filePath.string(),NULL);
+		View * v = ViewOrchestrator::getInstance()->requestView(file->filePath.string(),this);
 		DynamicImagePanel * dip = dynamic_cast<DynamicImagePanel*>(v);
 		return dip;
 	}

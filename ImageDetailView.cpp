@@ -5,11 +5,22 @@
 
 ImageDetailView::ImageDetailView() 
 {
+	this->cursor = NULL;
 	canClickToExit = false;
 	imagePanel = NULL;
-	scrollWheel = new FlyWheel(0);
+	scrollWheel = new NotchedWheel(0,1000);
 	maxPanelCount = 5;
 	mainIndex = maxPanelCount / 2;
+
+	scrollWheel->setNotchChangedListener([this](int currentNotch, int newNotch){
+
+		int delta = newNotch - currentNotch;
+		this->scrollPanelList(-delta);
+		double pos = this->scrollWheel->getCurrentPosition();
+		scrollWheel->overrideValue(pos - delta*scrollWheel->getNotchingSpacing());
+		scrollWheel->setCurrentNotchIndex(0);
+
+	});
 }
 
 void ImageDetailView::notifyOffsetChanged(Leap::Vector _offset)
@@ -20,14 +31,16 @@ void ImageDetailView::notifyOffsetChanged(Leap::Vector _offset)
 void ImageDetailView::onGlobalFocusChanged(bool isFocused)
 {
 	if (isFocused)
+	{
 		SwipeGestureDetector::getInstance().setFlyWheel(scrollWheel);
+	}
 }
 
 void ImageDetailView::onGlobalGesture(const Controller & controller, std::string gestureType)
 {
 	if (gestureType.compare("shake") == 0)
 	{
-		//this->setImagePanel(NULL);
+		this->setCursor(NULL);
 		LeapInput::getInstance()->releaseGlobalGestureFocus(this);
 		this->finishedCallback("");
 	}
@@ -95,11 +108,15 @@ void ImageDetailView::setMainPanel(DynamicImagePanel * _mainPanel)
 
 void ImageDetailView::setCursor(BidirectionalCursor * _cursor)
 {
+	if (this->cursor != NULL)
+	{
+		delete this->cursor;
+	}
+
 	this->cursor = _cursor;
 
 	scrollWheel->setVelocity(0);
-	scrollWheel->overrideValue(0);
-	
+	scrollWheel->overrideValue(0);	
 	
 	for (auto it = panelList.begin(); it != panelList.end(); it++)
 	{
@@ -108,20 +125,23 @@ void ImageDetailView::setCursor(BidirectionalCursor * _cursor)
 
 	panelList.clear();
 
-	while (panelList.size() < maxPanelCount)
+	if (cursor != NULL)
 	{
-		DataNode * nextNode = cursor->getNext();
-		DynamicImagePanel * next = getDetailedDataView(nextNode);
-		if (next == NULL)
-			break;
-		setPanelState(next);
-		panelList.push_back(next);
+		while (panelList.size() < maxPanelCount)
+		{
+			DataNode * nextNode = cursor->getNext();
+			DynamicImagePanel * next = getDetailedDataView(nextNode);
+			if (next == NULL)
+				break;
+			setPanelState(next);
+			panelList.push_back(next);
+		}
+
+		int offset = panelList.size()/2;
+		scrollPanelList(-offset);
+
+		this->layoutDirty = true;
 	}
-
-	int offset = panelList.size()/2;
-	scrollPanelList(-offset);
-
-	this->layoutDirty = true;
 }
 
 void ImageDetailView::scrollPanelList(int count)
@@ -202,15 +222,18 @@ void ImageDetailView::layout(Vector position, cv::Size2f size)
 		lastSize = size;
 		lastPosition = position;
 
+		float spaceRatio = GlobalConfig::tree()->get<float>("ImageDetailView.SpacingRatio");
+
 		Vector center = Vector(size.width*.5f,size.height*.5f,5) - hostOffset;
-		float panelSpacing = .5f*size.width;
+		float panelSpacing = spaceRatio*size.width;
+		((NotchedWheel*)scrollWheel)->setNotches(0,panelSpacing);
 
 		int i = mainIndex - (maxPanelCount-1);
 		for (auto it = panelList.begin(); it != panelList.end(); it++, i++)
 		{
 			DynamicImagePanel * dp = (*it);
 			if (dp != NULL)
-				dp->fitPanelToBoundary(center+Vector(((float)i)*panelSpacing,0,0),size.width,size.height*.8f, false);	
+				dp->fitPanelToBoundary(center+Vector(((float)i)*panelSpacing,0,0),panelSpacing,size.height*.8f, false);	
 		}
 		layoutDirty = false;
 	}
@@ -266,23 +289,8 @@ static double round(double number) {
 void ImageDetailView::draw()
 {
 	if (!GraphicsContext::getInstance().IsBlurCurrentPass)
-	{
-		float panelSpacing = .5f*lastSize.width;
-
-		float snapOffset = round(scrollWheel->getPosition()/panelSpacing)*panelSpacing;
-
-		float x = (scrollWheel->getPosition() - snapOffset)/panelSpacing;
-		
-		//if (abs(x) < 0.1f)
-		//{
-		//	snapOffset += 0;
-		//}
-		//else
-		//{
-		snapOffset += pow(x,2)*panelSpacing*sgn(x);
-		//}
-		
-		float drawOffset = hostOffset.x+snapOffset;
+	{		
+		float drawOffset = hostOffset.x+scrollWheel->getPosition();
 		glTranslatef(drawOffset,0,0);
 		ViewGroup::draw();
 

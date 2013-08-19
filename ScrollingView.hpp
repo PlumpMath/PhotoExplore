@@ -55,7 +55,6 @@ public:
 	//Leap
 	LeapElement * elementAtPoint(int x, int y, int & elementStateFlags);
 
-	bool onLeapGesture(const Controller & controller, const Gesture & gesture);	
 	void onGlobalGesture(const Controller & controller, std::string gestureType);
 
 	void setDrawLoadingIndicator(int mode, Color indicatorColor);

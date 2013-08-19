@@ -37,7 +37,7 @@ void FileLoader::loadFiles(FileNode * directoryNode, int depth, boost::function<
 			string filename = file.name;
 			boost::match_results<std::string::const_iterator> results;
 			bool isMatch = boost::regex_match(filename,results,reggie);
-			if (file.is_dir || isMatch)
+			if ((filename.compare("..") != 0 && filename.compare(".") != 0) && (file.is_dir || isMatch))
 			{
 				FileNode * fileNode = new FileNode(std::string(file.path));
 				fileNode->Parent = directoryNode;

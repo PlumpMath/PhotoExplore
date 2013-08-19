@@ -3,10 +3,11 @@
 
 #include "ImageDetailView.hpp"
 #include "FileImagePanel.hpp"
+#include "ViewOrchestrator.hpp"
 
 namespace FileSystem {
 	
-	class FileDetailView : public ImageDetailView {
+	class FileDetailView : public ImageDetailView, public ViewOwner {
 
 	private:	
 		FileImagePanel * picturePanel;
@@ -17,10 +18,7 @@ namespace FileSystem {
 
 	protected:
 		DynamicImagePanel * getDetailedDataView(DataNode * node);
-	//	
-	//public:
-	//	void setPicturePanel(FileImagePanel * imagePanel);
-	//	FileImagePanel * getPicturePanel();
+	
 	};
 
 }

@@ -249,6 +249,7 @@
     <ClCompile Include="HandModel.cpp" />
     <ClCompile Include="ImageButton.cpp" />
     <ClCompile Include="ImageDetailView.cpp" />
+    <ClCompile Include="NotchedWheel.cpp" />
     <ClCompile Include="PictureDetailView.cpp" />
     <ClCompile Include="ImageLoader.cpp" />
     <ClCompile Include="ImageLoadTask.cpp" />
@@ -336,6 +337,7 @@
     <ClInclude Include="HandRotationGestureDetector.h" />
     <ClInclude Include="ImageButton.hpp" />
     <ClInclude Include="ImageDetailView.hpp" />
+    <ClInclude Include="NotchedWheel.hpp" />
     <ClInclude Include="PictureDetailView.hpp" />
     <ClInclude Include="ImageLoadingURLClient.h" />
     <ClInclude Include="ImageLoader.hpp" />

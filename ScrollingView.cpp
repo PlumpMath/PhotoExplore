@@ -146,9 +146,6 @@ LeapElement * ScrollingView::elementAtPoint(int x, int y, int & elementStateFlag
 
 void ScrollingView::drawLoadIndicator(float offset, float thickness)
 {
-
-	//
-
 	if (loadIndicatorMode >= 1)
 	{
 		glBindTexture( GL_TEXTURE_2D, NULL);		
@@ -184,40 +181,6 @@ void ScrollingView::drawLoadIndicator(float offset, float thickness)
 		glVertex3f(offset+thickness,drawHeight+lastPosition.y,z1);
 		glVertex3f(offset,drawHeight+lastPosition.y,z1);
 		glEnd();
-
-		//if (loadIndicatorMode == 2)
-		//{
-		//	glColor4fv(loadIndicatorColor.withAlpha(.9f).getFloat());
-		//	for (int i = 0;i<3;i++)
-		//	{		
-		//		float angle = loadAnimTimer.seconds()/4.0 + ((float)(i*i)/10);
-
-		//		float x1,x2,x3,x4;
-		//		float angle2 = fmod(angle,2);
-
-
-		//		x2 = x1 = ((angle2*.5f) * drawWidth) + offset;
-
-		//		float lineWidth =  1.0f; //10.0f * (.5f + sin(angle*GeomConstants::PI_F));
-
-		//		x4 = x3 = min<float>(x1 + lineWidth,offset+drawWidth);
-
-		//		float y1,y2,y3,y4;
-
-		//		y4 = y1 = lastPosition.y;
-		//		y3 = y2 = lastPosition.y + drawHeight;
-
-
-		//		glBegin( GL_QUADS );
-
-		//		glVertex3f(x1,y1,z1);
-		//		glVertex3f(x2,y2,z1);
-		//		glVertex3f(x3,y3,z1);
-		//		glVertex3f(x4,y4,z1);
-
-		//		glEnd();
-		//	}
-		//}
 	}
 }
 
@@ -249,81 +212,6 @@ void ScrollingView::notifyScrollChanged(float newScroll)
 void ScrollingView::onGlobalGesture(const Controller & controller, std::string gestureType)
 {
 
-}
-
-bool ScrollingView::onLeapGesture(const Controller & controller, const Gesture & gesture)
-{
-	static Timer positiveCooldown, negativeCooldown;
-
-	bool handled = false;
-	if (gesture.type() == Gesture::Type::TYPE_SWIPE && ( gesture.state() == Gesture::State::STATE_START || gesture.state() == Gesture::State::STATE_UPDATE))
-	{
-		SwipeGesture swipe(gesture);
-
-		HandModel * handModel = HandProcessor::LastModel();
-
-		if (swipe.hands().count() > 0 && swipe.hands()[0].fingers().count() > 1)
-		{
-			int handSwipeCount=0;
-			Hand swipingHand = swipe.hands()[0];
-			for (int g = 0; g < controller.frame().gestures().count(); g++)
-			{
-				Gesture otherGesture = controller.frame().gestures()[g];
-				if (otherGesture.type() == Gesture::Type::TYPE_SWIPE && ( otherGesture.state() == Gesture::State::STATE_START || otherGesture.state() == Gesture::State::STATE_UPDATE))
-				{
-					SwipeGesture otherSwipe(otherGesture);
-					if (otherSwipe.hands().count() == 1 && otherSwipe.hands()[0].id() == swipingHand.id())
-						handSwipeCount++;
-				}
-			}
-
-			if (handSwipeCount > 0)
-			{
-				Vector positiveScroll, negativeScroll, cancelDir;
-				if (scrollOrientation == Horizontal)
-				{
-					negativeScroll = Vector::left();
-					positiveScroll = Vector::right();
-					cancelDir = Vector::down();
-				}
-				else
-				{
-					negativeScroll = Vector::up();
-					positiveScroll = Vector::down();
-					cancelDir = Vector::right();
-				}
-
-				float scrollBy = GlobalConfig::tree()->get<float>("ScrollView.ScrollSpeedFactor") * (swipe.speed());
-				scrollBy = max<float>(GlobalConfig::tree()->get<float>("ScrollView.MinScrollDistance"),scrollBy);
-				scrollBy = min<float>(GlobalConfig::tree()->get<float>("ScrollView.MaxScrollDistance"),scrollBy);
-
-				if (positiveCooldown.elapsed() && swipe.direction().angleTo(positiveScroll) < PI/4.0f)
-				{
-					scrollingFlywheel->setFriction(.5);
-					notifyScrollChanged(scrollingFlywheel->getPosition() + scrollBy);
-					scrollingFlywheel->spinTo(scrollingFlywheel->getPosition() + scrollBy);			
-					//negativeCooldown.countdown(1000);
-					handled = true;
-				}
-				else if (negativeCooldown.elapsed() && swipe.direction().angleTo(negativeScroll) < PI/4.0f)
-				{
-					//positiveCooldown.countdown(1000);
-					scrollingFlywheel->setFriction(.5);
-					notifyScrollChanged(scrollingFlywheel->getPosition() - scrollBy);
-					scrollingFlywheel->spinTo(scrollingFlywheel->getPosition() - scrollBy);
-					handled = true;
-				}
-				else if (GlobalConfig::tree()->get<bool>("ScrollView.AllowScrollCancelGesture") && swipe.direction().angleTo(cancelDir) < PI/4.0f)
-				{
-					//negativeCooldown.countdown(0);
-					//positiveCooldown.countdown(0);
-					scrollingFlywheel->impartVelocity(0);
-					handled = true;
-				}
-			}
-		}
-	}
-	return handled;
 }
 
 void ScrollingView::onFrame(const Controller & controller)

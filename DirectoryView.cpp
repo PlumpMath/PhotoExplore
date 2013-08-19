@@ -150,9 +150,10 @@ void DirectoryView::setFinishedCallback(const boost::function<void(std::string)>
 
 void DirectoryView::viewOwnershipChanged(View * view, ViewOwner * newOwner)
 {	
-	auto r1 = std::find(itemGroup->getChildren()->begin(),itemGroup->getChildren()->end(),view);
-	if (r1 != itemGroup->getChildren()->end())
-		itemGroup->getChildren()->erase(r1);
+	if (newOwner != imageDetailView)
+	{
+		itemGroup->remove(view);
+	}
 }
 
 

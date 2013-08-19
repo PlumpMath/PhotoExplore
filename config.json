@@ -443,6 +443,7 @@
 	},
 	"ImageDetailView" :
 	{		
+		"SpacingRatio" : 0.6,
 		"ResizeInteraction" :
 		{
 			"AllowSingleHand" : true,
@@ -473,6 +474,14 @@
 	},
 	"ScrollView" : 
 	{		
+		"NotchedWheel" : 
+		{
+			"NotchTracker" : 
+			{
+				"Proportional" : 4,
+				"VelocityComponent" : 10	
+			}
+		},
 		"FlyWheel" : 
 		{
 			"MaxBoundLimiter" : 

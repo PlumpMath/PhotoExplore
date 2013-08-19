@@ -212,11 +212,6 @@ void FriendListCursorView::onGlobalGesture(const Controller & controller, std::s
 	}
 }
 
-bool FriendListCursorView::onLeapGesture(const Controller & controller, const Gesture & gesture)
-{
-	return itemScroll->onLeapGesture(controller, gesture);
-}
-
 void FriendListCursorView::getTutorialDescriptor(vector<string> & tutorial)
 {	
 	tutorial.push_back("swipe");

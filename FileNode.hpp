@@ -23,6 +23,8 @@
 
 #include <boost/filesystem.hpp>
 
+#include <boost/property_tree/ptree.hpp>
+
 #include "DataNode.hpp"
 
 using namespace std;
@@ -81,6 +83,7 @@ namespace FileSystem
 		FileContainer Files;
 		string filename;
 		boost::filesystem::path filePath;
+		boost::property_tree::ptree Attributes;
 		bool isDirectory;
 
 		FileNode(boost::filesystem::path filePath);

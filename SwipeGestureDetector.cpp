@@ -36,6 +36,11 @@ void SwipeGestureDetector::setTouchScrollingEnabled(bool _touchScrollingEnabled)
 	swipeMap.clear();
 	for (int i=0;i<scrollPointVisuals.size();i++)
 		scrollPointVisuals.at(i)->size = 0;
+
+	if (flyWheel != NULL)
+	{
+		flyWheel->setDraggingState(false);
+	}
 }
 
 void SwipeGestureDetector::setSwipeScrollingEnabled(bool _swipeScrolllingEnabled)
@@ -60,6 +65,10 @@ void SwipeGestureDetector::setFlyWheel(FlyWheel * _flyWheel)
 
 	newWheelCooldown.countdown(GlobalConfig::tree()->get<double>("Leap.CustomGesture.Swipe.NewViewCooldown"));
 	this->flyWheel = _flyWheel;
+
+	if (flyWheel != NULL)
+		flyWheel->setDraggingState(false);
+
 	swipeMap.clear();
 	
 	flyWheelMutex.unlock();
@@ -181,17 +190,14 @@ void SwipeGestureDetector::doGestureScrolling(const Controller & controller)
 			if (triggered)
 			{
 				state = GestureScrolling;
-				flyWheel->setFriction(.5f);
+
 				if (abs(swipeSpeed) > swipeConfig.get<float>("MaxSpeed"))
 					swipeSpeed = sgn(swipeSpeed) * swipeConfig.get<float>("MaxSpeed");
-								
+
 				if (abs(swipeSpeed) < swipeConfig.get<float>("MinSpeed"))
 					swipeSpeed = sgn(swipeSpeed) * swipeConfig.get<float>("MinSpeed");
 
-				if (abs(swipeSpeed) > abs(flyWheel->getVelocity()))
-				{					
-					flyWheel->setVelocity((swipeSpeed*swipe.direction()).x);
-				}
+				flyWheel->flingWheel((swipeSpeed*swipe.direction()).x);
 			}
 		}
 
@@ -282,6 +288,7 @@ void SwipeGestureDetector::doTouchZoneScrolling(const Controller & controller)
 				{
 					flyWheel->setVelocity(currentScrollVelocity*flingVelocityTransferRatio);
 					state = IdleState;
+					flyWheel->setDraggingState(false);
 				}
 			}
 			else if (scrollingPointable.touchDistance() < maxContinueScrollDistance)
@@ -301,9 +308,10 @@ void SwipeGestureDetector::doTouchZoneScrolling(const Controller & controller)
 
 				if (abs(flingSpeed) > maxFlingSpeed)
 					flingSpeed = sgn(flingSpeed)*maxFlingSpeed;
-				
+
+				flyWheel->setDraggingState(false);
 				flyWheel->setVelocity(flingSpeed);
-				state = IdleState;
+				state = IdleState;				
 			}
 		}
 		else 
@@ -334,6 +342,7 @@ void SwipeGestureDetector::doTouchZoneScrolling(const Controller & controller)
 					scrollingPointableId = minTouchPointable;
 					scrollingHandId = frame.pointable(scrollingPointableId).hand().id();
 					state = TouchScrolling;
+					flyWheel->setDraggingState(true);
 				}
 			}
 			else if (abs(flyWheel->getVelocity()) > flywheelVelocityThreshold && avgTipVelocity < maxFrictionInductionSpeed)
@@ -357,6 +366,7 @@ void SwipeGestureDetector::doTouchZoneScrolling(const Controller & controller)
 		
 		flyWheel->setVelocity(flingSpeed);
 		state = IdleState;
+		flyWheel->setDraggingState(false);
 	}
 
 

@@ -47,6 +47,12 @@ void FlyWheel::overrideValue(double newValue)
 }
 
 
+void FlyWheel::setDraggingState(bool _isDragging)
+{
+	this->isDragging = _isDragging;
+}
+
+
 void FlyWheel::setFriction(double f)
 {
 	friction = f;
@@ -68,29 +74,14 @@ void FlyWheel::setBoundaryMode(FlyWheel::BoundaryMode _mode)
 	this->boundaryMode = _mode;
 }
 
-void FlyWheel::update(double elapsedSeconds)
-{
+void FlyWheel::boundPosition()
+{	
 	static float max_Kp = GlobalConfig::tree()->get<float>("ScrollView.FlyWheel.MaxBoundLimiter.Proportional");
 	static float max_alpha = GlobalConfig::tree()->get<float>("ScrollView.FlyWheel.MaxBoundLimiter.VelocityComponent");
 
 	static float min_Kp = GlobalConfig::tree()->get<float>("ScrollView.FlyWheel.MinBoundLimiter.Proportional");
 	static float min_alpha = GlobalConfig::tree()->get<float>("ScrollView.FlyWheel.MinBoundLimiter.VelocityComponent");
-	
-	if (abs(velocity) > maxVelocity)
-	{
-		velocity = sgn(velocity) * maxVelocity;
-	}
 
-
-	if (velocity != 0)
-	{
-		double frictionAccel;
-		frictionAccel = (-velocity * friction);
-
-		velocity += frictionAccel * elapsedSeconds;
-		position += (velocity * elapsedSeconds);
-	}
-	
 	if (boundaryMode == BounceBack)
 	{
 		if (max_Kp > 0 && min_Kp > 0)
@@ -127,18 +118,42 @@ void FlyWheel::update(double elapsedSeconds)
 			double d = position-maxValue;
 
 			position = minValue + d;
-
-			//if (velocity > 0)
-				//velocity = 0;
 		}
 		else if (position <= minValue)
 		{
 			double d = position-minValue;
 			position = maxValue+d;
-
-			//if (velocity < 0)
-				//velocity = 0;
 		}  
+	}
+}
+
+void FlyWheel::update(double elapsedSeconds)
+{
+	
+	if (abs(velocity) > maxVelocity)
+	{
+		velocity = sgn(velocity) * maxVelocity;
+	}
+
+
+	if (velocity != 0)
+	{
+		double frictionAccel;
+		frictionAccel = (-velocity * friction);
+
+		velocity += frictionAccel * elapsedSeconds;
+		position += (velocity * elapsedSeconds);
+	}
+
+	boundPosition();	
+}
+
+void FlyWheel::flingWheel(double flingVelocity)
+{
+	if (abs(flingVelocity) > abs(getVelocity()))
+	{				
+		setFriction(.5f);	
+		setVelocity(flingVelocity);
 	}
 }
 
@@ -147,42 +162,10 @@ void FlyWheel::impartVelocity(double velocity)
 	this->velocity = velocity;
 }
 
-void FlyWheel::moveTowards(double targetPosition, double deltaMilliseconds)
-{
-	position = LeapHelper::lowpass(position,targetPosition,.5,(double)deltaMilliseconds / 1000.0);
-}
-
-void FlyWheel::spinTo(double targetPosition)
-{
-	if (targetPosition != currentTarget)
-		currentTarget = targetPosition;
-
-	double displacement = (targetPosition - position);	
-	double requiredVelocity = displacement / ( friction * ( 1.0 / ( 1.0 - friction ) ) );
-	this->velocity = requiredVelocity;
-}
-
-void FlyWheel::animateTo(double targetPosition, long duration)
-{
-	//if (targetPosition != currentTarget && !scrollAnimation.isRunning())
-	//	currentTarget = targetPosition;
-
-	//if (duration <= 0)
-	//	duration = abs(targetPosition-getPosition());	
-
-	//if (duration == 0)
-	//	return;
-
-	//scrollAnimation = DoubleAnimation(getPosition(),targetPosition,duration);
-	//scrollAnimation.start();
-}
-
-
 double FlyWheel::getVelocity()
 {
 	return velocity;
 }
-
 
 void FlyWheel::setVelocity(double _velocity)
 {
@@ -195,17 +178,8 @@ double FlyWheel::getCurrentPosition()
 }
 
 double FlyWheel::getPosition()
-{
-	//if (scrollAnimation.isRunning())
-	//{
-	//	position = scrollAnimation.getValue();
-	//	return position;
-	//}
-	//else
-	//{
-	
+{	
 	update(wheelTimer.seconds());
 	wheelTimer.start();
 	return position;
-	//}
 }

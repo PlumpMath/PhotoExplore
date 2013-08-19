@@ -8,7 +8,7 @@
 #include "Button.hpp"
 #include "ContentPanel.hpp"
 #include "CustomGrid.hpp"
-#include "Flywheel.h"
+#include "NotchedWheel.hpp"
 #include <list>
 #include "DataCursor.hpp"
 #include "DataNode.hpp"
@@ -46,7 +46,7 @@ private:
 	bool canClickToExit;
 
 	DynamicImagePanel * currentNext, * currentPrev;
-	FlyWheel * scrollWheel;
+	NotchedWheel * scrollWheel;
 
 	list<DynamicImagePanel*> panelList;
 	int maxPanelCount, mainIndex;
@@ -57,7 +57,6 @@ private:
 	BidirectionalCursor * cursor;
 
 protected:	
-	//void setImagePanel(DynamicImagePanel * imagePanel);
 	Leap::Vector hostOffset;	
 	DynamicImagePanel * imagePanel;
 

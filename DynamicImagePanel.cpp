@@ -59,9 +59,13 @@ float DynamicImagePanel::getDataPriority()
 ResourceData * DynamicImagePanel::selectResource(bool & undersized)
 {
 	undersized = true;
+
+	if (resourceMap.empty())
+		return NULL;
+
 	ResourceData * data = NULL;
 	int currentArea = (int)(getWidth() * getHeight());
-
+	
 	if (maxResolutionMode)
 	{
 		data = resourceMap.rbegin()->second;

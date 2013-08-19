@@ -39,12 +39,15 @@ void FileImagePanel::prepareResource()
 		{
 			int targetDimension = max<int>((int)getWidth(),(int)getHeight());
 
-			tran = [targetDimension](cv::Mat&imgMat){
+			tran = [targetDimension,this](cv::Mat&imgMat){
 
 				float td = (float)targetDimension;
 
 				float originalWidth = imgMat.size().width;
 				float originalHeight = imgMat.size().height;
+
+				this->fileNode->Attributes.put<int>("Image.Width",originalWidth);
+				this->fileNode->Attributes.put<int>("Image.Height",originalHeight);
 
 				float scale = max<float>(td/originalWidth,td/originalHeight);
 
@@ -66,6 +69,8 @@ void FileImagePanel::prepareResource()
 		else
 		{
 			rs << "_max";
+			pictureSize.width = fileNode->Attributes.get<int>("Image.Width");
+			pictureSize.height = fileNode->Attributes.get<int>("Image.Height");
 		}
 
 		resourceId = rs.str();

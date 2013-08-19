@@ -336,15 +336,15 @@
     <ClCompile Include="ScrollableImageDetail.cpp">
       <Filter>Source Files\Browser\Common</Filter>
     </ClCompile>
+    <ClCompile Include="NotchedWheel.cpp">
+      <Filter>Source Files\NewPanel</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Types.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="SDLTimer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Flywheel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="HandModel.h">
@@ -616,6 +616,12 @@
     </ClInclude>
     <ClInclude Include="FileBrowser.hpp">
       <Filter>Header Files\Browser\Filesystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Flywheel.h">
+      <Filter>Header Files\NewPanel</Filter>
+    </ClInclude>
+    <ClInclude Include="NotchedWheel.hpp">
+      <Filter>Header Files\NewPanel</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
