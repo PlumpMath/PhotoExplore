@@ -5,6 +5,7 @@
 #include "GLImport.h"
 #include "ShakeGestureDetector.hpp"
 #include "GraphicContext.hpp"
+#include "InputEventHandler.hpp"
 
 LeapInput::LeapInput()
 {
@@ -38,6 +39,16 @@ void LeapInput::processInputEvents()
 		mouseVisual->trackMouseCursor = true;
 
 		LeapDebug::getInstance().addDebugVisual(mouseVisual);
+		
+		
+		
+		InputEventHandler::getInstance().addMouseButtonCallback([this](GLFWwindow*window,int button,int action, int mods) -> bool {
+			
+			if (this->mouseButtonState[button] != GLFW_PRESS && action == GLFW_PRESS)
+				this->mouseButtonState[button] = action;
+			
+			return true;
+		});
 	}
 	
 	double x,y;
@@ -49,13 +60,17 @@ void LeapInput::processInputEvents()
 	Vector screenPoint = Vector(x,y,0);
 	int flags = 0;
 
-	View * topView = dynamic_cast<View*>(globalGestureListenerStack.top());
+	View * topView = (View*)topElement; //dynamic_cast<View*>(globalGestureListenerStack.top());
 	hit = topView->elementAtPoint((int)screenPoint.x,(int)screenPoint.y,flags);
-
+	
 	if (hit != mouseHitLast)
 	{
 		if (hit != NULL)	
+		{
 			hit->pointableEnter(fakePointable);
+			
+			Logger::stream("LeapInput","INFO") << "Hitting element " << hit << " at " << x << "," << y << endl;
+		}
 
 		if (mouseHitLast != NULL)
 			mouseHitLast->pointableExit(fakePointable);
@@ -63,9 +78,10 @@ void LeapInput::processInputEvents()
 
 	mouseHitLast = hit;
 
-	int mouseState = glfwGetMouseButton(GraphicsContext::getInstance().MainWindow,GLFW_MOUSE_BUTTON_1);
 
-	if (mouseState == GLFW_PRESS)
+	int mouseState = mouseButtonState[GLFW_MOUSE_BUTTON_1];
+	
+	if (mouseState == GLFW_PRESS || mouseState == GLFW_REPEAT)
 	{
 		mouseVisual->fillColor = clickColor;
 	}
@@ -74,16 +90,18 @@ void LeapInput::processInputEvents()
 		mouseVisual->fillColor = baseColor;
 	}
 
-
-	if (mouseButtonState[GLFW_MOUSE_BUTTON_1] != mouseState)
+	if (hit != NULL && hit->isClickable() && mouseState == GLFW_PRESS)
 	{
-		mouseButtonState[GLFW_MOUSE_BUTTON_1] = (bool)mouseState;
-		if (hit != NULL && hit->isClickable() && mouseState == GLFW_PRESS)
-		{
-			hit->elementClicked();
-		}
+		Logger::stream("LeapInput","INFO") << "Clicking element " << hit << " at " << x << "," << y << endl;
+		hit->elementClicked();
 	}
+	
+	int newMouseState = glfwGetMouseButton(GraphicsContext::getInstance().MainWindow,GLFW_MOUSE_BUTTON_1);
 
+	if (newMouseState == GLFW_PRESS)
+		mouseButtonState[GLFW_MOUSE_BUTTON_1] = GLFW_REPEAT;
+	else
+		mouseButtonState[GLFW_MOUSE_BUTTON_1] = GLFW_RELEASE;
 
 }
 

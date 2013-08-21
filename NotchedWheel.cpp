@@ -19,10 +19,13 @@ void NotchedWheel::setNotches(double offset, double spacing)
 	hasTarget = false;
 }
 
+#ifdef _WIN32
 
 static double round(double number) {
     return number < 0.0 ? ceil(number - 0.5) : floor(number + 0.5);
 }
+
+#endif
 
 void NotchedWheel::flingWheel(double flingVelocity)
 {

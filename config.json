@@ -178,7 +178,7 @@
 	},
 	"DebugPlot" : 
 	{
-		"Enable" : true,
+		"Enable" : false,
 		"Width" : 400,
 		"LineWidth" : 4,
 		"YOffset" : 800,		
@@ -190,12 +190,12 @@
 		"FileBrowser" : true,
 		"ImageDirectories" :
 		[ 
-			"C:\\Users\\Adam\\Pictures",		
-			"C:\\Users\\Adam\\Pictures\\pixiv-win",	
-			"C:\\Users\\Adam\\Pictures\\camera",	
-			"G:\\JapanPics\\100Media"
-			//"/Users/adamskubel/Pictures",
-			//"/Users/adamskubel/Downloads" 
+			//"C:\\Users\\Adam\\Pictures",		
+			//"C:\\Users\\Adam\\Pictures\\pixiv-win",	
+			//"C:\\Users\\Adam\\Pictures\\camera",	
+			//"G:\\JapanPics\\100Media"
+			"/Users/adamskubel/Pictures",
+			"/Users/adamskubel/Downloads" 
 			
 		],
 		"RequestDelay" : 0 ,//ms
@@ -324,12 +324,16 @@
 		{
 			"Swipe" :
 			{
-				"MouseWheel" : 
+				"Mouse" : 
 				{
 					"Enabled" : true,
-					"UseVertical" : true,
+					"PreferWheelMode" : false,
+
+					"Wheel" : {		
 					"PixelsPerClick" : 3000,
-					"ScrollFriction" : 30
+					"ScrollFriction" : 30},
+					"TouchPad" : { "Scale" : 20.0, "ScrollPositionFilterRC" : 0 }
+
 				},
 				"Keyboard" : 
 				{

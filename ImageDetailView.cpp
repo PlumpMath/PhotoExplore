@@ -8,7 +8,7 @@ ImageDetailView::ImageDetailView()
 	reverseCursor = NULL;
 	fwdCursor = NULL;
 
-	canClickToExit = false;
+	canClickToExit = true;
 	imagePanel = NULL;
 	scrollWheel = new NotchedWheel(0,1000);
 	maxPanelCount = 5;
@@ -77,7 +77,7 @@ void ImageDetailView::OnElementClicked(Pointable & pointable)
 
 bool ImageDetailView::isClickable()
 {
-	return (this->imagePanel != NULL && canClickToExit);
+	return true;
 }
 
 void ImageDetailView::restorePanelState(DynamicImagePanel * _imagePanel)
@@ -327,6 +327,7 @@ LeapElement * ImageDetailView::elementAtPoint(int x, int y, int & elementStateFl
 		hit = ViewGroup::elementAtPoint(x-hostOffset.x,y-hostOffset.y,elementStateFlags);
 	if (hit == NULL)
 		return this;
+	return hit;
 }
 
 cv::Rect_<int> ImageDetailView::getHitRect()
@@ -341,9 +342,11 @@ void ImageDetailView::onFrame(const Controller & controller)
 	canClickToExit = controller.frame().hands().count() < 2;
 }
 
+#ifdef _WIN32
 static double round(double number) {
     return number < 0.0 ? ceil(number - 0.5) : floor(number + 0.5);
 }
+#endif
 
 void ImageDetailView::draw()
 {

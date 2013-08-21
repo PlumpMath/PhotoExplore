@@ -117,34 +117,51 @@ FlyWheel * SwipeGestureDetector::getFlyWheel()
 
 void SwipeGestureDetector::doScrollWheelScrolling(double xScroll, double yScroll)
 {
-	ptree swipeConfig = GlobalConfig::tree()->get_child("Leap.CustomGesture.Swipe.MouseWheel");
+	ptree swipeConfig = GlobalConfig::tree()->get_child("Leap.CustomGesture.Swipe.Mouse");
+	
+	
 	bool enabled = swipeConfig.get<bool>("Enabled");
-	bool useVerticalScroll = swipeConfig.get<bool>("UseVertical");
-	float wheelRate = swipeConfig.get<float>("PixelsPerClick");	
-	float scrollFriction = swipeConfig.get<float>("ScrollFriction");
+	bool wheelMode = swipeConfig.get<bool>("PreferWheelMode");	
+	
+	float wheelRate = swipeConfig.get<float>("Wheel.PixelsPerClick");
+	float scrollFriction = swipeConfig.get<float>("Wheel.ScrollFriction");
+	
+	
+	float touchScrollMultiplier = swipeConfig.get<float>("TouchPad.Scale");
+	double filterRC = swipeConfig.get<double>("TouchPad.ScrollPositionFilterRC");
+	
+	static Timer filterTimer;
 
 	if (!enabled) return;
-
-	if (false)
+	
+	if (wheelMode)
 	{
-		double currentPosition = flyWheel->getCurrentPosition();
-
-		if (useVerticalScroll)
-			currentPosition += wheelRate * yScroll;
-		else
-			currentPosition += wheelRate * xScroll;
+		double currentVelocity = flyWheel->getVelocity();
+		flyWheel->setFriction(scrollFriction);
+		currentVelocity += wheelRate * yScroll;
+		flyWheel->setVelocity(currentVelocity);
+	}
+	else
+	{
+//		if (filterTimer.seconds() == 0)
+//		{
+//			filterTimer.start();
+//			return;
+//		}
+		
+		double newPos = LeapHelper::lowpass(flyWheel->getCurrentPosition(),flyWheel->getCurrentPosition() + xScroll*touchScrollMultiplier,filterRC,filterTimer.seconds());
+		currentScrollVelocity = (newPos - flyWheel->getCurrentPosition())/filterTimer.seconds();
+		filterTimer.start();
+		
+		flyWheel->overrideValue(newPos);
+		
+		
+//		flyWheel->setFriction(0.5);
+//		double currentPosition = flyWheel->getCurrentPosition();
+//		currentPosition += touchScrollMultiplier * yScroll;
+//		flyWheel->overrideValue(currentPosition);
 	}
 
-	double currentVelocity = flyWheel->getVelocity();
-
-	flyWheel->setFriction(scrollFriction);
-
-	if (useVerticalScroll)
-		currentVelocity += wheelRate * yScroll;
-	else
-		currentVelocity += wheelRate * xScroll;
-
-	flyWheel->setVelocity(currentVelocity);
 }
 
 

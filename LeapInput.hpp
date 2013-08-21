@@ -54,7 +54,7 @@ private:
 
 	set<int> processedGestures;
 	
-	map<int,bool> mouseButtonState;
+	map<int,int> mouseButtonState;
 	map<int,bool> keyState;
 
 	static LeapInput * instance;

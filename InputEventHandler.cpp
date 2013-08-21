@@ -16,6 +16,7 @@ void InputEventHandler::init(GLFWwindow * eventWindow)
 	glfwSetFramebufferSizeCallback(eventWindow,InputEventHandler::glfwFrameBufferSizeCallback);
 	glfwSetWindowRefreshCallback(eventWindow,InputEventHandler::glfwWindowRefreshCallback);
 	glfwSetScrollCallback(eventWindow,InputEventHandler::glfwScrollCallback);
+	glfwSetMouseButtonCallback(eventWindow,InputEventHandler::glfwMouseButtonCallback);
 }
 
 void InputEventHandler::addUnicodeCharacterListener(boost::function<bool(GLFWwindow*,unsigned int)> unicodeCallback)
@@ -54,6 +55,10 @@ void InputEventHandler::addScrollCallback(boost::function<bool(GLFWwindow*,doubl
 	scrollCallbacks.push_back(scrollCallback);
 }
 
+void InputEventHandler::addMouseButtonCallback(boost::function<bool(GLFWwindow*,int,int,int)> mouseButtonCallback)
+{
+	mouseButtonCallbacks.push_back(mouseButtonCallback);
+}
 
 void InputEventHandler::onCharEvent(GLFWwindow * window, unsigned int key)
 {
@@ -148,6 +153,16 @@ void InputEventHandler::glfwScrollCallback(GLFWwindow * window, double xScroll, 
 	for (auto it = InputEventHandler::getInstance().scrollCallbacks.begin(); it != InputEventHandler::getInstance().scrollCallbacks.end(); it++)
 	{
 		bool handled = (*it)(window,xScroll,yScroll);
+		if (handled)
+			break;
+	}
+}
+
+void InputEventHandler::glfwMouseButtonCallback(GLFWwindow*window, int button, int action, int mods)
+{
+	for (auto it = InputEventHandler::getInstance().mouseButtonCallbacks.begin(); it != InputEventHandler::getInstance().mouseButtonCallbacks.end(); it++)
+	{
+		bool handled = (*it)(window,button,action,mods);
 		if (handled)
 			break;
 	}
