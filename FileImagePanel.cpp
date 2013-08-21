@@ -28,15 +28,26 @@ void FileImagePanel::prepareResource()
 	bool undersized;
 	ResourceData * newResource = selectResource(undersized);
 
-	if (newResource == NULL || undersized)
+	if (newResource != NULL && (currentResource == NULL || (newResource->TextureState == ResourceState::TextureLoaded && !undersized)))
+	{
+		if (currentResource != NULL)
+			currentResource->priority = 100;
+
+		currentResource = newResource;
+		pictureSize = currentResource->imageSize;
+	}
+	else //if (newResource == NULL)
 	{
 		stringstream rs;
 		rs <<  fileNode->filePath.string();
 
 		boost::function<void(cv::Mat&)> tran;
+		int loadingWidth = 0;
 
 		if (!maxResolutionMode)
 		{
+			loadingWidth = (int)getWidth();
+
 			int targetDimension = max<int>((int)getWidth(),(int)getHeight());
 
 			tran = [targetDimension,this](cv::Mat&imgMat){
@@ -71,19 +82,16 @@ void FileImagePanel::prepareResource()
 			rs << "_max";
 			pictureSize.width = fileNode->Attributes.get<int>("Image.Width",0);
 			pictureSize.height = fileNode->Attributes.get<int>("Image.Height",0);
+			loadingWidth = pictureSize.width;
 		}
 
-		resourceId = rs.str();
-
-		ResourceManager::getInstance().loadResourceWithTransform(resourceId,fileNode->filePath.string(),dataPriority,this,tran);
-	}
-	else
-	{
-		currentResource = newResource;
-		pictureSize = newResource->imageSize;
-
-		if (currentResource->TextureState == ResourceState::TextureLoaded)
-			currentTextureId = currentResource->textureId;
+		if (resourceMap.count(loadingWidth) == 0)
+		{
+			resourceId = rs.str();
+			ResourceData * loadingResource = ResourceManager::getInstance().loadResourceWithTransform(resourceId,fileNode->filePath.string(),dataPriority,this,tran);
+			resourceMap.insert(make_pair(loadingWidth,loadingResource));
+			Logger::stream("FileImagePanel","INFO") << "Loading transformed resource. Width = " << loadingWidth << ", ID = " << resourceId << endl;
+		}
 	}
 
 }

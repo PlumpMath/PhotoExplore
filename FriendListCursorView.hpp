@@ -34,6 +34,7 @@ public:
 
 	View * getDataView(DataNode * itemNode);
 	void setItemPriority(float priority, View * itemView);
+	virtual void refreshDataView(DataNode * node, View * view);
 
 	void suspend();
 	void resume();

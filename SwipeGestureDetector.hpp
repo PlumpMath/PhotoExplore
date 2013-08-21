@@ -92,6 +92,7 @@ private:
 
 	FlyWheel * flyWheel;
 
+	void doScrollWheelScrolling(double,double);
 	void doTouchZoneScrolling(const Controller & controller);
 	void doGestureScrolling(const Controller & controller);
 

@@ -92,7 +92,7 @@ void DataListActivity::resume()
 
 	for (auto it = items.begin(); it != items.end(); it++)
 	{
-		//this->updateItemData(it->first,it->second);
+		this->refreshDataView(it->first,it->second);
 	}
 
 	updatePriorities();	
@@ -142,16 +142,28 @@ void DataListActivity::updatePriorities()
 	float peakPriority = (itemScroll->getMeasuredSize().width*.5f) - itemScroll->getFlyWheel()->getPosition();
 	peakPriority -= itemScroll->getFlyWheel()->getVelocity() * GlobalConfig::tree()->get<float>("FriendListView.ScrollAheadTime");
 
+	
+	cv::Size2f visibleSize = itemScroll->getMeasuredSize();
+	float itemWidth = (visibleSize.height/((float)rowCount));
+	int count = 0;
+
 	for (auto it = itemGroup->getChildren()->begin(); it != itemGroup->getChildren()->end();it++)
 	{
 		View * view = *it;
-
+		
 		PanelBase * panelView = dynamic_cast<PanelBase*>(view);
 
-		float distance = abs((panelView->getPosition().x + panelView->getWidth()/2.0f) - peakPriority);
+		//float distance = abs((panelView->getPosition().x + panelView->getWidth()/2.0f) - peakPriority);
+
+		float pos = ((float)(count / rowCount))*itemWidth;
+		pos += itemWidth*0.5f;
+		float distance = abs(pos - peakPriority);
+
 		float targetPriority = min<float>(10,distance/1000.0f);
 		
 		setItemPriority(targetPriority,view);
+
+		count++;
 	}	
 }
 

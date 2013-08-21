@@ -360,7 +360,9 @@ void ResourceManager::cleanupCache(bool updateAll)
 			rVector.push_back(cache->Data);
 		else
 			permObjects++;
-		//resources[i++] = cache->Data;
+
+		if (cache->Data->priority == 100)
+			priorityZeroObjects++;
 	}
 
 	transientObjects = rVector.size();
@@ -436,16 +438,12 @@ void ResourceManager::cleanupCache(bool updateAll)
 			}
 			else
 			{
-				if (data->priority == 100)
-					priorityZeroObjects++;
 				loadedTextures++;
 				textureCacheSize += resourceSize;
 			}
 		}
 		else if (!textureCacheFull && textureCacheSize  < textureCacheMaxSize)
 		{
-			if (data->priority == 100)
-				priorityZeroObjects++;
 			loadedTextures++;
 			updateTextureState(data,true);
 			textureCacheSize += resourceSize;			
@@ -484,7 +482,10 @@ void ResourceManager::cleanupCache(bool updateAll)
 	LeapDebug::getInstance().showValue("10. Tex PT",textureLoadThreshold);
 
 	
-	LeapDebug::getInstance().showValue("99. CacheState \r\n",debugStream.str());
+	//LeapDebug::getInstance().showValue("99. CacheState \r\n",debugStream.str());
+
+	if (debugLogging)
+		Logger::stream("ResourceManager","DEBUG") << debugStream.str() << endl;
 
 	Logger::stream("ResourceManager","TIME") << "Cache clean took " << cacheTimer.millis() << " ms" << endl;
 	Logger::stream("ResourceManager","INFO") << "Clean complete. TexCacheSize= " << currentTextureCacheSize/BytesToMB  << " ImageCacheSize = " << currentImageCacheSize/BytesToMB << endl;

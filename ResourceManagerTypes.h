@@ -4,6 +4,7 @@
 #include <boost/function.hpp>
 #include <opencv2/opencv.hpp>
 #include "GLImport.h"
+#include <boost/date_time/posix_time/posix_time.hpp>
 
 typedef float _PriorityType;
 typedef int ResourceType;
@@ -42,6 +43,8 @@ struct ResourceData
 	cv::Mat image;	
 	GLuint textureId;	
 	set<IResourceWatcher*> callbacks;	
+
+	boost::posix_time::ptime lastUsed;
 
 	cv::Size2i imageSize;
 
@@ -83,6 +86,16 @@ struct ResourceData
 		{
 			(*it)->resourceUpdated(this);
 		}
+	}
+
+	void mark()
+	{
+		lastUsed = boost::posix_time::microsec_clock::local_time();
+	}
+
+	long age()
+	{
+		return (boost::posix_time::microsec_clock::local_time() - lastUsed).total_milliseconds();
 	}
 
 };

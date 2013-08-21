@@ -27,6 +27,7 @@ public:
 	
 	virtual View * getDataView(DataNode * photoNode);
 	virtual void setItemPriority(float priority, View * itemView);
+	virtual void refreshDataView(DataNode * node, View * view);
 	
 	void viewOwnershipChanged(View * view, ViewOwner * newOwner);
 	void getTutorialDescriptor(vector<string> & tutorial);

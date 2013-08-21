@@ -76,7 +76,7 @@ public:
 	}
 
 	void onFrame(const Controller&  controller);
-	void draw();
+	
 	void showValue(string key, string value);	
 	void showValue(string key, double value);
 	void plotValue(string key, Color color, float value);
@@ -84,8 +84,9 @@ public:
 
 	void setTutorialImages(vector<string> names);
 	void layoutTutorial();
-	
 
+	void draw();
+	void update();
 };
 
 

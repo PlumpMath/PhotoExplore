@@ -25,17 +25,43 @@ void LeapStatusOverlay::layout(Vector position, cv::Size2f size)
 	this->lastPosition = position;
 
 	cv::Size2f statusSize;
+	Vector statusPosition,hiddenPosition;
 
-	statusSize.height = size.height * GlobalConfig::tree()->get<float>("StatusOverlay.RelativeHeight");
-	statusSize.width = size.width * GlobalConfig::tree()->get<float>("StatusOverlay.RelativeWidth");
+	if (false)
+	{
+		statusSize.height = size.height * GlobalConfig::tree()->get<float>("StatusOverlay.RelativeHeight");
+		statusSize.width = size.width * GlobalConfig::tree()->get<float>("StatusOverlay.RelativeWidth");
 
-	Vector statusPosition = position + Vector(size.width - statusSize.width,size.height - statusSize.height,20);
-	statusPosition.x *= .5f;
-	statusPosition.y *= .5f;
+		statusPosition = position + Vector(size.width - statusSize.width,size.height - statusSize.height,20);
+		statusPosition.x *= .5f;
+		statusPosition.y *= .5f;
 
-	Vector hiddenPosition = statusPosition;
-	hiddenPosition.y = size.height + statusSize.height;
-	
+		hiddenPosition = statusPosition;
+		hiddenPosition.y = size.height + statusSize.height;
+
+		if (!isConnected || !isFocused)
+		{
+			GraphicsContext::getInstance().requestExclusiveClarity(this);
+			LeapInput::getInstance()->requestGlobalGestureFocus(this);
+		}
+		else
+		{
+			GraphicsContext::getInstance().releaseExclusiveClarity(this);
+			LeapInput::getInstance()->releaseGlobalGestureFocus(this);
+		}
+	}
+	else
+	{		
+		statusSize.height = getTutorialHeight();
+		statusSize.width = getTutorialHeight() * 3;
+
+		statusPosition = Vector(0,GlobalConfig::ScreenHeight-statusSize.height,20);
+		
+		hiddenPosition = statusPosition;
+		hiddenPosition.y = size.height + statusSize.height*0.2f;
+
+	}
+
 	if (!isConnected)
 	{
 		notConnectedView->layout(statusPosition,statusSize);
@@ -54,16 +80,8 @@ void LeapStatusOverlay::layout(Vector position, cv::Size2f size)
 		notFocusedView->layout(hiddenPosition,statusSize);
 	}
 
-	if (!isConnected || !isFocused)
-	{
-		GraphicsContext::getInstance().requestExclusiveClarity(this);
-		LeapInput::getInstance()->requestGlobalGestureFocus(this);
-	}
-	else
-	{
-		GraphicsContext::getInstance().releaseExclusiveClarity(this);
-		LeapInput::getInstance()->releaseGlobalGestureFocus(this);
-	}
+	
+
 }
 
 

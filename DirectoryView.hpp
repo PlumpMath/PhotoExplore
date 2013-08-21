@@ -16,6 +16,8 @@ namespace FileSystem {
 		FileDetailView * imageDetailView;
 		DirectoryView * childDirectory;
 
+		void childClicked(LeapElement * clicked, FileNode * node);
+
 	public:
 		DirectoryView();
 
@@ -26,6 +28,7 @@ namespace FileSystem {
 
 		virtual View * getDataView(DataNode * photoNode);
 		virtual void setItemPriority(float priority, View * itemView);
+		virtual void refreshDataView(DataNode * data, View * view);
 
 		void viewOwnershipChanged(View * view, ViewOwner * newOwner);
 		void getTutorialDescriptor(vector<string> & tutorial);

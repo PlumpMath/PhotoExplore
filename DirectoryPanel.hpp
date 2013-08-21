@@ -18,6 +18,8 @@ namespace FileSystem
 
 		float currentDataPriority;
 
+		void addChildImages(FileNode*);
+
 	public:
 		DirectoryPanel();
 		

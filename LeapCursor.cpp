@@ -1,5 +1,6 @@
 #include "LeapCursor.hpp"
 #include "LeapHelper.h"
+#include "GraphicContext.hpp"
 
 
 void LeapDebugVisual::onFrame(const Controller & controller)
@@ -10,8 +11,19 @@ void LeapDebugVisual::onFrame(const Controller & controller)
 	{
 		drawPoint = LeapHelper::FindScreenPoint(controller,drawPointable);
 	}
-	else
+	else if (!trackMouseCursor)
 		drawPoint = Vector(0,0,0);
+}
+
+void LeapDebugVisual::update()
+{
+	if (trackMouseCursor)
+	{
+		double x,y;
+		glfwGetCursorPos(GraphicsContext::getInstance().MainWindow,&x,&y);
+
+		drawPoint = Vector((float)x,(float)y,0);
+	}
 }
 
 void LeapDebugVisual::draw()

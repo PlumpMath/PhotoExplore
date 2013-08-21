@@ -25,6 +25,9 @@ DynamicImagePanel::DynamicImagePanel()
 	currentResource = NULL;
 
 	maxResolutionMode = false;
+
+	currentResource = NULL;
+	currentTextureId = NULL;
 }
 
 void DynamicImagePanel::setMaxResolutionMode(bool maxResMode)
@@ -64,7 +67,7 @@ ResourceData * DynamicImagePanel::selectResource(bool & undersized)
 		return NULL;
 
 	ResourceData * data = NULL;
-	int currentArea = (int)(getWidth() * getHeight());
+	int currentArea = (int)(getWidth()); // * getHeight());
 	
 	if (maxResolutionMode)
 	{
@@ -97,27 +100,15 @@ ResourceData * DynamicImagePanel::selectResource(bool & undersized)
 
 void DynamicImagePanel::resourceUpdated(ResourceData * data)
 {
-	if (data == NULL)
+	bool undersized;
+	ResourceData * newResource = selectResource(undersized);
+	if (newResource != NULL && newResource != currentResource)
 	{
-		currentTextureId = NULL;
-	}
-	else if (data->TextureState == ResourceState::TextureLoaded)
-	{
-		if (GlobalConfig::tree()->get<bool>("FakeDataMode.Enable"))
-		{
-			resourceMap.insert(make_pair(data->imageSize.area(),data));
-			bool undersized;
-			currentResource = selectResource(undersized);
-			if (currentResource != NULL)
-			{
-				currentTextureId = currentResource->textureId;
-				pictureSize = currentResource->imageSize;
-			}
-		}
-		else
-		{
-			currentTextureId = data->textureId;
-		}
+		if (currentResource != NULL)
+			currentResource->priority = 100;
+
+		currentResource = newResource;
+		currentResource->priority = this->getDataPriority();
 	}
 }
 
@@ -172,9 +163,9 @@ void DynamicImagePanel::fitPanelToBoundary(Vector targetPosition, float maxWidth
 
 void DynamicImagePanel::drawContent(Vector drawPosition, float drawWidth, float drawHeight)
 {		
-	if (currentResource != NULL && currentTextureId != NULL)
+	if (currentResource != NULL && currentResource->TextureState == ResourceState::TextureLoaded && currentResource->textureId != NULL) // && currentTextureId != NULL)
 	{
-		TexturePanel::drawTexture(currentTextureId,drawPosition,drawWidth,drawHeight);
+		TexturePanel::drawTexture(currentResource->textureId,drawPosition,drawWidth,drawHeight);
 	}		
 	else
 	{			
@@ -235,7 +226,7 @@ void DynamicImagePanel::drawPanel(Vector drawPosition, float drawWidth, float dr
 {
 	static bool priorityDebug = GlobalConfig::tree()->get<bool>("DynamicImagePanel.DebugPriority");
 
-	if (currentTextureId == NULL)
+	if (currentResource == NULL)
 		drawBackground(drawPosition,drawWidth,drawHeight);
 
 	drawContent(drawPosition,drawWidth,drawHeight);	

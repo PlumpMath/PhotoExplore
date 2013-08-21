@@ -12,7 +12,7 @@
 	{
 //		"File" : "./photo_explorer.log",
 		"File" : "photo_explorer.log",
-		"Enabled" : false
+		"Enabled" : true
 	},
 	"Typography" : 
 	{
@@ -74,7 +74,7 @@
 	{
 		"AnimateLayoutDuration" : 400,
 		"DebugLoading" : true,
-		"DebugPriority" : false
+		"DebugPriority" : true
 	},	
 	"PanelBase" :
 	{
@@ -114,7 +114,7 @@
 		"TextureCacheSize" : 512, 	//Megabytes
 		"ImageCacheSize" : 768, 	//Megabytes		
 		"MaxImageSize" : 30,			//Megabytes
-		"CacheGCFrequency" : 3000 ,//milliseconds		
+		"CacheGCFrequency" : 10000 ,//milliseconds		
 		"FullCacheGCFrequency" : 2000, //milliseconds
 		"TextureCacheGCCollectRatio" : 0.8,
 		"ImageCacheGCCollectRatio" : 0.8,
@@ -127,34 +127,58 @@
 		"NotConnected" : 
 		{
 			"Text" : "Leap Motion Controller is not connected",
-			"TextSize" : 12,
-			"TextColor" :  {"R" : 240,"G" : 240,"B" : 240,"A" : 255},
-			"BackgroundColor" :  {"R" : 100,"G" : 0,"B" : 0,"A" : 255},
-			"BorderColor" :  {"R" : 240,"G" : 240,"B" : 240,"A" : 240},
-			"BorderThickness" : 0,
+			"TextSize" : 8,
+			"TextColor" :  {"R" : 0,"G" : 0,"B" : 0,"A" : 255},
+			"BackgroundColor" :  {"R" : 255,"G" : 255,"B" : 255,"A" : 255},
+			"BorderColor" : {"R" : 100,"G" : 0,"B" : 0,"A" : 255},
+			"BorderThickness" : 2,
+			"TextPadding" : 10,
 			"UseQuadBorder" : true
 		},
 		"NotFocused" : 
 		{
 			"Text" : "Leap Motion Controller is not focused",
-			"TextSize" : 12,
+			"TextSize" : 8,
+			"TextColor" :  {"R" : 0,"G" : 0,"B" : 0,"A" : 255},
+			"BackgroundColor" :  {"R" : 255,"G" : 255,"B" : 255,"A" : 255},
+			"BorderColor" :  {"R" : 154,"G" : 200,"B" : 71,"A" : 255},
+			"BorderThickness" : 2,
+			"TextPadding" : 10,
+			"UseQuadBorder" : true
+		},	
+		"NotConnected2" : 
+		{
+			"Text" : "Leap Motion Controller is not connected",
+			"TextSize" : 8,
+			"TextColor" :  {"R" : 240,"G" : 240,"B" : 240,"A" : 255},
+			"BackgroundColor" :  {"R" : 100,"G" : 0,"B" : 0,"A" : 255},
+			"BorderColor" :  {"R" : 240,"G" : 240,"B" : 240,"A" : 240},
+			"BorderThickness" : 0,
+			"TextPadding" : 10,
+			"UseQuadBorder" : true
+		},
+		"NotFocused2" : 
+		{
+			"Text" : "Leap Motion Controller is not focused",
+			"TextSize" : 8,
 			"TextColor" :  {"R" : 0,"G" : 0,"B" : 0,"A" : 255},
 			"BackgroundColor" :  {"R" : 154,"G" : 200,"B" : 71,"A" : 255},
 			"BorderColor" :  {"R" : 240,"G" : 240,"B" : 240,"A" : 240},
 			"BorderThickness" : 0,
+			"TextPadding" : 10,
 			"UseQuadBorder" : true
-		}	
+		}
 	},
 	"WindowsDebugPanel" :
 	{
-		"Enable" : true,
+		"Enable" : false,
 		"DesktopParent" : false,
 		"Width" : 400,
 		"Height" : 200		
 	},
 	"DebugPlot" : 
 	{
-		"Enable" : false,
+		"Enable" : true,
 		"Width" : 400,
 		"LineWidth" : 4,
 		"YOffset" : 800,		
@@ -300,6 +324,18 @@
 		{
 			"Swipe" :
 			{
+				"MouseWheel" : 
+				{
+					"Enabled" : true,
+					"UseVertical" : true,
+					"PixelsPerClick" : 3000,
+					"ScrollFriction" : 30
+				},
+				"Keyboard" : 
+				{
+					"Enabled" : true,
+					"SwipeSpeed" : 2000				
+				},
 				"NewViewCooldown" :  800.0,//milliseconds
 				"DebugDraw" : false,
 				"SphereGrowth" : 
@@ -378,7 +414,6 @@
 			"MinimumDrawDistance" : 0,
 			"MaxRadialClickVelocity" : 800.0,
 			"MaxLongitudalClickVelocity" : 1200.0,
-			"ClickOnRelease" : true,
 			"Visual" : 
 			{
 				"FillColor" :  {"R" : 200,"G" : 200,"B" : 200,"A" : 0},
@@ -393,6 +428,16 @@
 				"LineWidth" :  2.0
 			},
 			"InvertVisualSize" : false
+		},
+		"MouseInput" : 
+		{
+			"CursorVisual" : 
+			{
+				"FillColor" :   {"R" : 0,"G" : 221,"B" : 255,"A" : 0},
+				"LineColor" :  {"R" : 0,"G" : 221,"B" : 255,"A" : 200}, //OrangeRed
+				"LineWidth" :  2.0,
+				"ClickColor" :   {"R" : 0,"G" : 221,"B" : 255,"A" : 200}
+			}
 		},
 		"IntentControl" : 
 		{				
@@ -704,7 +749,7 @@
 	},
 	"FriendListView" :
 	{
-		"ScrollAheadTime" : 0.6 ,//Seconds
+		"ScrollAheadTime" : 0.0 ,//Seconds
 		"RowCount" : 3,
 		"FriendsPerRequest" : 15
 	},

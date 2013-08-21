@@ -42,6 +42,12 @@ FBNode * AlbumCursorView::getAlbumOwner()
 	return this->albumOwner;
 }
 
+void AlbumCursorView::refreshDataView(DataNode * node, View * view)
+{
+	;
+}
+	
+
 
 void AlbumCursorView::setItemPriority(float priority, View * itemView)
 {

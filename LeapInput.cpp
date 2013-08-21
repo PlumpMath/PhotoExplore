@@ -4,8 +4,7 @@
 #include "LeapDebug.h"
 #include "GLImport.h"
 #include "ShakeGestureDetector.hpp"
-#include "RadialMenu.hpp"
-#include "FacebookDataDisplay.hpp"
+#include "GraphicContext.hpp"
 
 LeapInput::LeapInput()
 {
@@ -13,6 +12,7 @@ LeapInput::LeapInput()
 	pointingGestureState = 0;
 	hitLastFrame = NULL;
 	topElement = NULL;
+	mouseHitLast = NULL;
 	drawNonDominant = false;
 }
 
@@ -23,86 +23,68 @@ InteractionState LeapInput::getInteractionState()
 
 void LeapInput::processInputEvents()
 {
-	return;
-	//int x,y;
-	//glfwGetMousePos(&x,&y);
-	//
-	//Pointable fakePointable;
-	//
+	static LeapDebugVisual * mouseVisual = NULL;
+	static Color clickColor = Color(GlobalConfig::tree()->get_child("Leap.MouseInput.CursorVisual.LineColor"));
+	static Color baseColor = Color(GlobalConfig::tree()->get_child("Leap.MouseInput.CursorVisual.FillColor"));
 
-	//LeapElement * hit = NULL;
+	if (mouseVisual == NULL)
+	{
+		float cursorDimension = (((float)GlobalConfig::ScreenWidth) / 2560.0f) *  GlobalConfig::tree()->get<float>("Overlay.BaseCursorSize");	
 
-	//Vector screenPoint = Vector(x,y,0);
+		mouseVisual = new LeapDebugVisual(cursorDimension,baseColor);
+		mouseVisual->lineColor = Color(GlobalConfig::tree()->get_child("Leap.MouseInput.CursorVisual.LineColor"));
+		mouseVisual->lineWidth =GlobalConfig::tree()->get<float>("Leap.MouseInput.CursorVisual.LineWidth");
 
-	//int flags = 0;
-	//View * topView = dynamic_cast<View*>(globalGestureListenerStack.top());
-	//hit = topView->elementAtPoint((int)screenPoint.x,(int)screenPoint.y,flags);
-	//
-	//if (hit != hitLastFrame)
-	//{
-	//	if (hit != NULL)	
-	//		hit->pointableEnter(fakePointable);
-	//
-	//	if (hitLastFrame != NULL)
-	//		hitLastFrame->pointableExit(fakePointable);
-	//}
+		mouseVisual->trackMouseCursor = true;
 
-	//hitLastFrame = hit;
-
-	//int mouseState = glfwGetMouseButton(GLFW_MOUSE_BUTTON_1);
-
-	//if (mouseButtonState[GLFW_MOUSE_BUTTON_1] != mouseState)
-	//{
-	//	mouseButtonState[GLFW_MOUSE_BUTTON_1] = (bool)mouseState;
-	//	if (hit != NULL && hit->isClickable() && mouseState == GLFW_PRESS)
-	//	{
-	//		hit->elementClicked();
-	//	}
-	//}
+		LeapDebug::getInstance().addDebugVisual(mouseVisual);
+	}
+	
+	double x,y;
+	glfwGetCursorPos(GraphicsContext::getInstance().MainWindow,&x,&y);
 
 
-	//if (glfwGetKey(GLFW_KEY_BACKSPACE) == GLFW_PRESS)
-	//{
-	//	keyState[GLFW_KEY_BACKSPACE] = true;
-	//}
-	//else if (keyState[GLFW_KEY_BACKSPACE])
-	//{
-	//	keyState[GLFW_KEY_BACKSPACE] = false;
-	//	if (globalGestureListenerStack.size() > 0)
-	//		globalGestureListenerStack.top()->onGlobalGesture(Leap::Controller(), "shake");
-	//}
+	Pointable fakePointable;
+	LeapElement * hit = NULL;
+	Vector screenPoint = Vector(x,y,0);
+	int flags = 0;
 
-	//if (glfwGetKey(GLFW_KEY_LEFT) == GLFW_PRESS)
-	//{
-	//	keyState[GLFW_KEY_LEFT] = true;
-	//}
-	//else if (keyState[GLFW_KEY_LEFT])
-	//{
-	//	keyState[GLFW_KEY_LEFT] = false;
-	//	if (globalGestureListenerStack.size() > 0)
-	//		globalGestureListenerStack.top()->onGlobalGesture(Leap::Controller(), "left_key");
-	//}
-	//else if (glfwGetKey(GLFW_KEY_RIGHT) == GLFW_PRESS)
-	//{
-	//	keyState[GLFW_KEY_RIGHT] = true;
-	//}
-	//else if (keyState[GLFW_KEY_RIGHT])
-	//{
-	//	keyState[GLFW_KEY_RIGHT] = false;
-	//	if (globalGestureListenerStack.size() > 0)
-	//		globalGestureListenerStack.top()->onGlobalGesture(Leap::Controller(), "right_key");
-	//}
+	View * topView = dynamic_cast<View*>(globalGestureListenerStack.top());
+	hit = topView->elementAtPoint((int)screenPoint.x,(int)screenPoint.y,flags);
 
-	//if (glfwGetKey(GLFW_KEY_DOWN) == GLFW_PRESS)
-	//{
-	//	keyState[GLFW_KEY_DOWN] = true;
-	//}
-	//else if (keyState[GLFW_KEY_DOWN])
-	//{
-	//	keyState[GLFW_KEY_DOWN] = false;
-	//	if (globalGestureListenerStack.size() > 0)
-	//		globalGestureListenerStack.top()->onGlobalGesture(Leap::Controller(), "down_key");
-	//}
+	if (hit != mouseHitLast)
+	{
+		if (hit != NULL)	
+			hit->pointableEnter(fakePointable);
+
+		if (mouseHitLast != NULL)
+			mouseHitLast->pointableExit(fakePointable);
+	}
+
+	mouseHitLast = hit;
+
+	int mouseState = glfwGetMouseButton(GraphicsContext::getInstance().MainWindow,GLFW_MOUSE_BUTTON_1);
+
+	if (mouseState == GLFW_PRESS)
+	{
+		mouseVisual->fillColor = clickColor;
+	}
+	else
+	{		
+		mouseVisual->fillColor = baseColor;
+	}
+
+
+	if (mouseButtonState[GLFW_MOUSE_BUTTON_1] != mouseState)
+	{
+		mouseButtonState[GLFW_MOUSE_BUTTON_1] = (bool)mouseState;
+		if (hit != NULL && hit->isClickable() && mouseState == GLFW_PRESS)
+		{
+			hit->elementClicked();
+		}
+	}
+
+
 }
 
 void LeapInput::enableNonDominantCursor(bool _enable)
@@ -151,30 +133,10 @@ void LeapInput::processFrame(const Controller & controller, Frame frame)
 	static float minimumDrawDistance = GlobalConfig::tree()->get<float>("Leap.TouchDistance.MinimumDrawDistance");
 	static bool drawIntentOnly = GlobalConfig::tree()->get<bool>("Leap.TouchDistance.DrawIntentOnly");
 	
-	bool clickOnRelease = GlobalConfig::tree()->get<bool>("Leap.TouchDistance.ClickOnRelease");
+	bool clickOnRelease = true;
 	
 	if (frame.id() == lastFrameId || !frame.isValid())
 		return;
-
-	if (this->globalGestureListenerStack.size() > 0)
-	{
-		View * topView = dynamic_cast<View*>(globalGestureListenerStack.top());
-		topView->onFrame(controller);
-	}
-
-	if (processedGestures.size() > 0)
-	{	
-		for (auto it = processedGestures.begin(); it != processedGestures.end();it++)
-		{
-			Gesture g = frame.gesture(*it);
-			if (!g.isValid())
-			{
-				it = processedGestures.erase(it);
-				if (it == processedGestures.end())
-					break;
-			}
-		}
-	}
 
 	HandModel * hm = HandProcessor::getInstance()->lastModel();
 
@@ -192,20 +154,9 @@ void LeapInput::processFrame(const Controller & controller, Frame frame)
 	{				
 		screenPoint = LeapHelper::FindScreenPoint(controller,testPointable);
 
-		hit = RadialMenu::instance->elementAtPoint((int)screenPoint.x,(int)screenPoint.y,elementStateFlags);
-				
-		View * fbdd = dynamic_cast<View*>(FacebookDataDisplay::getInstance());
-		if (hit == NULL && fbdd != NULL)
-		{
-			hit = fbdd->elementAtPoint((int)screenPoint.x,(int)screenPoint.y,elementStateFlags);
-		}
-
-		if (hit == NULL)
-		{
-			LeapElement * topView = topElement;
-			hit = topView->elementAtPoint((int)screenPoint.x,(int)screenPoint.y,elementStateFlags);
-		}
-
+		LeapElement * topView = topElement;
+		hit = topView->elementAtPoint((int)screenPoint.x,(int)screenPoint.y,elementStateFlags);
+		
 		if (hit != hitLastFrame)
 		{
 			if (hitLastFrame != NULL)
@@ -221,7 +172,7 @@ void LeapInput::processFrame(const Controller & controller, Frame frame)
 	bool canPointableClick = false;
 	if (currentState.HandState == InteractionState::Pointing)
 		canPointableClick = true;
-	else if (clickOnRelease)
+	else
 	{
 		Pointable clicking = frame.pointable(currentState.ClickingPointableId);
 		if (clicking.isValid())
@@ -245,7 +196,7 @@ void LeapInput::processFrame(const Controller & controller, Frame frame)
 				Pointable p0,p1;
 
 				int count = 0;
-				for (int i = 1; i < 10; i++)
+				for (int i = 1; i < 100; i++)
 				{
 					f0 = controller.frame(i-1);
 					f1 = controller.frame(i);
@@ -256,21 +207,14 @@ void LeapInput::processFrame(const Controller & controller, Frame frame)
 					p0 = f0.pointable(testPointable.id());
 					p1 = f1.pointable(testPointable.id());
 				
-					if (clickOnRelease)
-					{
-						if (p0.touchDistance() >= clickDistanceThreshold && p1.touchDistance() < clickDistanceThreshold)
-						{
-							clicked = true;
-							hit->elementClicked();
-							break;		
-						}
-					}
-					else if (p1.touchDistance() >= clickDistanceThreshold && p0.touchDistance() < clickDistanceThreshold)
+					
+					if (p0.touchDistance() >= clickDistanceThreshold && p1.touchDistance() < clickDistanceThreshold)
 					{
 						clicked = true;
 						hit->elementClicked();
-						break;					
+						break;		
 					}
+
 
 					if (f1.id() == lastFrame.id())
 						break;
@@ -279,13 +223,10 @@ void LeapInput::processFrame(const Controller & controller, Frame frame)
 		}
 	}
 
-	if (clickOnRelease)
+	currentState.ClickingPointableId = -1;		
+	if (!clicked && canPointableClick && testPointable.touchDistance() < clickDistanceThreshold)
 	{
-		currentState.ClickingPointableId = -1;		
-		if (!clicked && canPointableClick && testPointable.touchDistance() < clickDistanceThreshold)
-		{
-			currentState.ClickingPointableId = testPointable.id();
-		}
+		currentState.ClickingPointableId = testPointable.id();
 	}
 
 	static LeapDebugVisual * ldvIntent = NULL, * ldvNonDominant = NULL, * ldvNonDominantTD = NULL;

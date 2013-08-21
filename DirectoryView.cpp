@@ -13,7 +13,8 @@ DirectoryView::DirectoryView() : DataListActivity(2)
 	imageDetailView->setFinishedCallback([this](string a){
 		LeapInput::getInstance()->releaseGlobalGestureFocus(this->imageDetailView);	
 		this->imageDetailView->setVisible(false);
-		this->layoutDirty = true;						
+		this->layoutDirty = true;		
+		this->resume();
 	});
 
 	addChild(imageDetailView);
@@ -44,6 +45,29 @@ void DirectoryView::setDirectory(FileNode * _directory)
 FileNode * DirectoryView::getDirectory()
 {
 	return this->directoryNode;
+}
+
+void DirectoryView::refreshDataView(DataNode * data, View * view)
+{	
+	FileNode * node = (FileNode*)data;
+
+	if (node->isDirectory)
+	{
+		DirectoryPanel * dirPanel = dynamic_cast<DirectoryPanel*>(view);
+		dirPanel->setDirectory(node);
+	}
+	else
+	{
+		FileImagePanel * item = dynamic_cast<FileImagePanel*>(view);		
+
+		item->show(node);
+		item->setLayoutParams(LayoutParams(cv::Size2f(),cv::Vec4f(5,5,5,5)));
+		item->setClickable(true);
+		item->setVisible(true);
+		item->elementClickedCallback = [this,node](LeapElement * clicked){
+			this->childClicked(clicked,node);
+		};
+	}
 }
 
 
@@ -80,6 +104,7 @@ View * DirectoryView::getDataView(DataNode * dataNode)
 				childDirectory->setViewFinishedCallback([me](string s){
 					me->childDirectory->setVisible(false);
 					me->layoutDirty = true;
+					me->resume();
 				});
 			}
 			childDirectory->setVisible(true);
@@ -111,30 +136,35 @@ View * DirectoryView::getDataView(DataNode * dataNode)
 		item->setVisible(true);
 
 		item->elementClickedCallback = [this,node](LeapElement * clicked){
-			this->itemScroll->getFlyWheel()->impartVelocity(0);			
-
-			this->imageDetailView->notifyOffsetChanged(Vector((float)this->itemScroll->getFlyWheel()->getCurrentPosition(),0,0));
-
-			DirectoryCursor * dc = new DirectoryCursor(this->directoryNode);
-			dc->getNext();
-
-			WrappingBDCursor * wrap = new WrappingBDCursor(dc);
-			wrap->fastForward(node);
-			
-			DirectoryCursor * revDc = new DirectoryCursor(this->directoryNode);
-			revDc->getNext();
-
-			WrappingBDCursor * revWrap = new WrappingBDCursor(revDc);
-			revWrap->fastForward(node);
-
-			this->imageDetailView->setCursor(revWrap,wrap);
-			this->imageDetailView->setVisible(true);
-			LeapInput::getInstance()->requestGlobalGestureFocus(this->imageDetailView);
-			this->layoutDirty = true;			
+			this->childClicked(clicked,node);
 		};
 
 		return item;
 	}
+}
+
+void DirectoryView::childClicked(LeapElement * clicked, FileNode * node)
+{
+	this->itemScroll->getFlyWheel()->impartVelocity(0);			
+
+	this->imageDetailView->notifyOffsetChanged(Vector((float)this->itemScroll->getFlyWheel()->getCurrentPosition(),0,0));
+
+	DirectoryCursor * dc = new DirectoryCursor(this->directoryNode);
+	dc->getNext();
+
+	WrappingBDCursor * wrap = new WrappingBDCursor(dc);
+	wrap->fastForward(node);
+
+	DirectoryCursor * revDc = new DirectoryCursor(this->directoryNode);
+	revDc->getNext();
+
+	WrappingBDCursor * revWrap = new WrappingBDCursor(revDc);
+	revWrap->fastForward(node);
+
+	this->imageDetailView->setCursor(revWrap,wrap);
+	this->imageDetailView->setVisible(true);
+	LeapInput::getInstance()->requestGlobalGestureFocus(this->imageDetailView);
+	this->layoutDirty = true;	
 }
 
 
@@ -160,6 +190,7 @@ void DirectoryView::viewOwnershipChanged(View * view, ViewOwner * newOwner)
 	if (newOwner != imageDetailView)
 	{
 		itemGroup->remove(view);
+		view->elementClickedCallback = [](LeapElement * e){};
 	}
 }
 
@@ -189,6 +220,10 @@ void DirectoryView::layout(Vector position, cv::Size2f size)
 	if (imageDetailView->isVisible())
 	{
 		imageDetailView->layout(position,size);
+	}
+	else
+	{
+		DataListActivity::updatePriorities();
 	}
 }
 

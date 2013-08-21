@@ -398,12 +398,9 @@ struct MainContext {
 					itemTimer.start();
 					ResourceManager::getInstance().update();
 					LeapDebug::getInstance().plotValue("RMan",Colors::Red,itemTimer.millis() * 20);
-
-					itemTimer.start();
-
-					startScreen.update(0);				
-					itemTimer.start();
-								
+					
+					startScreen.update(0);							
+					LeapDebug::getInstance().update();						
 					leapStatusOverlay.onFramePoll(controller);
 					leapStatusOverlay.update();				
 

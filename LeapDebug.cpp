@@ -194,7 +194,8 @@ void LeapDebug::plotValue(string key, Color color, float value)
 			TextPanel * legendText = new TextPanel(key);
 			legendText->setTextColor(color);
 			((ViewGroup*)plotLegend)->addChild(legendText);
-			cv::Size2f legendSize(0,50);
+			legendText->layout(Vector(),cv::Size2f(40,80));
+			cv::Size2f legendSize(0,40);
 			plotLegend->measure(legendSize);
 			plotLegend->layout(Vector(xOffset,yOffset,40),legendSize);
 		}
@@ -258,6 +259,14 @@ void LeapDebug::layoutTutorial()
 	tutorialPanel->measure(size);
 	tutorialPanel->layout(Vector(0,GlobalConfig::ScreenHeight-size.height,10),size);	
 	//tutorialLayout->layout(Vector(0,GlobalConfig::ScreenHeight-tutorialHeight,10),size);
+}
+
+void LeapDebug::update()
+{
+	for (int i=0;i<persistentVisuals.size();i++)
+	{
+		persistentVisuals.at(i)->update();
+	}
 }
 
 void LeapDebug::draw()

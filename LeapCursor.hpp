@@ -14,6 +14,8 @@ private:
 
 public:	
 	int trackPointableId;
+	bool trackMouseCursor;
+
 	Color fillColor,lineColor;
 	double size;
 	float depth, lineWidth;
@@ -25,6 +27,7 @@ public:
 		this->fillColor = fillColor;
 		this->depth= 10;
 		this->lineWidth = 1;
+		trackMouseCursor = false;
 	}
 
 	LeapDebugVisual(double size, Color fillColor)
@@ -34,9 +37,11 @@ public:
 		this->fillColor = fillColor;
 		this->depth= 10;
 		this->lineWidth = 1;
+		trackMouseCursor = false;
 	}
 
 	void onFrame(const Controller & controller);
+	void update();
 	void draw();
 };
 

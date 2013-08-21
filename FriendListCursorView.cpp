@@ -125,6 +125,12 @@ void FriendListCursorView::setUserNode(FBNode * node)
 	this->show(allFriendsCursor);
 }
 
+
+void FriendListCursorView::refreshDataView(DataNode * node, View * view)
+{
+	;
+}
+
 void FriendListCursorView::setItemPriority(float priority, View * itemView)
 {
 	FriendPanel * fp = dynamic_cast<FriendPanel*>(itemView);

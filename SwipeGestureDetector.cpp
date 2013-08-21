@@ -3,6 +3,7 @@
 #include "GlobalConfig.hpp"
 #include <boost/property_tree/ptree.hpp>
 #include "LeapDebug.h"
+#include "InputEventHandler.hpp"
 
 using namespace boost::property_tree;
 
@@ -16,6 +17,41 @@ SwipeGestureDetector::SwipeGestureDetector()
 	currentScrollVelocity = 0;
 	touchScrollingEnabled = true;
 	swipeScrollingEnabled = true;
+
+	
+
+	InputEventHandler::getInstance().addScrollCallback([this](GLFWwindow * window, double xScroll, double yScroll) -> bool
+	{
+		this->doScrollWheelScrolling(xScroll,yScroll);
+		return true;
+	});
+
+	if (GlobalConfig::tree()->get<bool>("Leap.CustomGesture.Swipe.Keyboard.Enabled"))
+	{
+		float speed =  GlobalConfig::tree()->get<float>("Leap.CustomGesture.Swipe.Keyboard.SwipeSpeed");
+
+		InputEventHandler::getInstance().addKeyCallback([this,speed](GLFWwindow * window, int key, int scancode, int action, int mods) -> bool
+		{
+			bool handled = false;
+
+			if (action == GLFW_RELEASE || action == GLFW_REPEAT)
+			{
+				if (key == GLFW_KEY_RIGHT)
+				{
+					this->state = GestureScrolling;
+					this->flyWheel->flingWheel(-speed);
+					handled = true;
+				}
+				else if (key == GLFW_KEY_LEFT)
+				{
+					this->state = GestureScrolling;
+					this->flyWheel->flingWheel(speed);
+					handled = true;
+				}
+			}
+			return handled;
+		});
+	}
 }
 
 SwipeGestureDetector::~SwipeGestureDetector()
@@ -77,6 +113,38 @@ void SwipeGestureDetector::setFlyWheel(FlyWheel * _flyWheel)
 FlyWheel * SwipeGestureDetector::getFlyWheel()
 {	
 	return this->flyWheel;
+}
+
+void SwipeGestureDetector::doScrollWheelScrolling(double xScroll, double yScroll)
+{
+	ptree swipeConfig = GlobalConfig::tree()->get_child("Leap.CustomGesture.Swipe.MouseWheel");
+	bool enabled = swipeConfig.get<bool>("Enabled");
+	bool useVerticalScroll = swipeConfig.get<bool>("UseVertical");
+	float wheelRate = swipeConfig.get<float>("PixelsPerClick");	
+	float scrollFriction = swipeConfig.get<float>("ScrollFriction");
+
+	if (!enabled) return;
+
+	if (false)
+	{
+		double currentPosition = flyWheel->getCurrentPosition();
+
+		if (useVerticalScroll)
+			currentPosition += wheelRate * yScroll;
+		else
+			currentPosition += wheelRate * xScroll;
+	}
+
+	double currentVelocity = flyWheel->getVelocity();
+
+	flyWheel->setFriction(scrollFriction);
+
+	if (useVerticalScroll)
+		currentVelocity += wheelRate * yScroll;
+	else
+		currentVelocity += wheelRate * xScroll;
+
+	flyWheel->setVelocity(currentVelocity);
 }
 
 

@@ -25,45 +25,10 @@ FileNode * DirectoryPanel::getDirectory()
 	return directoryNode;
 }
 
-void DirectoryPanel::setDirectory(FileNode * node)
-{	
-	if (node->Files.size() < 4)
-	{
-		FileLoader::getInstance().loadFiles(node,0,[this](FileNode * nnode){	
-			DirectoryPanel * me = this;
-			this->postTask([me,nnode](){
-
-				int count = 0;
-				for (auto it = nnode->Files.get<RandFileIndex>().begin(); it != nnode->Files.get<RandFileIndex>().end() && count < 4; it++)
-				{
-					if (!it->IsDirectory())
-					{
-						FileNode * imageNode = it->Node;
-						View * v= ViewOrchestrator::getInstance()->requestView(imageNode->filePath.string(), me);
-
-						FileImagePanel * item = dynamic_cast<FileImagePanel*>(v);
-						if (item == NULL)
-						{
-							item = new FileImagePanel();
-							item->show(imageNode);
-							ViewOrchestrator::getInstance()->registerView(imageNode->filePath.string(),item, me);
-						}
-
-						me->fileGroup->addChild(item);
-						count++;
-						me->layoutDirty = true;
-					}
-				}
-			});
-		});
-	}
-
-}
-
 static cv::Size2i calculatePanelSize(int count)
 {	
 	int numRows, numColumns;
-	
+
 	switch (count)
 	{
 	case 0:
@@ -96,6 +61,54 @@ static cv::Size2i calculatePanelSize(int count)
 	return cv::Size2i(numColumns,numRows);
 }
 
+void DirectoryPanel::addChildImages(FileNode * nnode)
+{
+	int count = fileGroup->getChildren()->size();
+	for (auto it = nnode->Files.get<RandFileIndex>().begin(); it != nnode->Files.get<RandFileIndex>().end() && count < 4; it++)
+	{
+		if (!it->IsDirectory())
+		{
+			FileNode * imageNode = it->Node;
+			View * v= ViewOrchestrator::getInstance()->requestView(imageNode->filePath.string(), this);
+
+			FileImagePanel * item = dynamic_cast<FileImagePanel*>(v);
+			if (item == NULL)
+			{
+				item = new FileImagePanel();
+				item->show(imageNode);
+				ViewOrchestrator::getInstance()->registerView(imageNode->filePath.string(),item, this);
+			}
+
+			item->setLayoutParams(LayoutParams(cv::Size2f(),cv::Vec4f(0,0,0,0)));
+			item->setDataPriority(currentDataPriority);
+			fileGroup->addChild(item);
+			count++;
+			layoutDirty = true;
+		}
+	}
+		
+	((UniformGrid*)fileGroup)->resize(calculatePanelSize(fileGroup->getChildren()->size()));
+}
+
+void DirectoryPanel::setDirectory(FileNode * node)
+{	
+	if (node->Files.size() < 4)
+	{
+		FileLoader::getInstance().loadFiles(node,0,[this](FileNode * nnode){	
+			DirectoryPanel * me = this;
+			this->postTask([me,nnode](){
+				me->addChildImages(nnode);
+			});
+		});
+	}
+	else
+	{
+		addChildImages(node);
+	}
+
+}
+
+
 //void DirectoryPanel::viewChanged(string viewIdentifier, vector<FBNode*> & viewData)
 //{
 //	fileGroup->clearChildren();
@@ -125,16 +138,13 @@ static cv::Size2i calculatePanelSize(int count)
 
 void DirectoryPanel::setDataPriority(float dataPriority)
 {
-	if (currentDataPriority != dataPriority)
-	{
-		currentDataPriority = dataPriority;
+	currentDataPriority = dataPriority;
 
-		for (auto it = fileGroup->getChildren()->begin(); it != fileGroup->getChildren()->end();it++)
-		{
-			FileImagePanel * imagePanel = dynamic_cast<FileImagePanel*>(*it);
-			if (imagePanel != NULL)
-				imagePanel->setDataPriority(dataPriority);
-		}
+	for (auto it = fileGroup->getChildren()->begin(); it != fileGroup->getChildren()->end();it++)
+	{
+		FileImagePanel * imagePanel = dynamic_cast<FileImagePanel*>(*it);
+		if (imagePanel != NULL)
+			imagePanel->setDataPriority(dataPriority);
 	}
 }
 

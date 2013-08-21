@@ -37,6 +37,7 @@ protected:
 
 	virtual View * getDataView(DataNode * node) = 0;
 	virtual void setItemPriority(float priority, View * itemView) = 0;
+	virtual void refreshDataView(DataNode * node, View * view) = 0;
 
 public:
 	DataListActivity(int rowCount);

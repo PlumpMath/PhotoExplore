@@ -24,10 +24,6 @@ struct InteractionState {
 		Pointing = 2
 	};
 
-	//const static int Invalid = -1;
-	//const static int Spread = 1;
-	//const static int Pointing = 2;
-
 	int ActiveHandId;
 	int HandState;
 	
@@ -78,6 +74,7 @@ private:
 	Frame lastFrame;
 
 	LeapElement * hitLastFrame;
+	LeapElement * mouseHitLast;
 		
 	InteractionState currentState;
 	
@@ -104,10 +101,6 @@ public:
 	void enableNonDominantCursor(bool enable);
 
 	InteractionState getInteractionState();
-
-	//LeapElement * findElementAt(Vector screenPoint);
-		
-	//std::map<int,LeapElement*> lastHit;
 
 
 

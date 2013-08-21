@@ -262,8 +262,8 @@ void TextureLoadTask::copyMemoryToBuffer_async_start()
 	if(ptr && data)
 	{
 		state = LoadingBuffer;
-		this->active = true;
 		boost::thread([this,data,ptr](){
+			this->active = true;
 			Logger::stream("TextureLoadTask","DEBUG") << "async_memory_copy - TexID = " << this->textureInfo.textureId << " bufferId = " << this->sourceBuffer << " taskId = " << this->taskId << endl;
 			memcpy(ptr,data,this->textureInfo.size);
 			this->active = false;

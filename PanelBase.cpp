@@ -527,6 +527,12 @@ void PanelBase::drawBackground(Vector drawPosition, float drawWidth, float drawH
 
 			float b = borderThickness;
 
+			x1 += b;
+			y1 += b;
+			x2 -= b;
+			y2 -= b;
+			z1 += 0.5f;
+
 			//Left edge
 			glBegin( GL_QUADS );
 
