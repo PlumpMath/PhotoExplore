@@ -115,31 +115,30 @@ static int determineHandState(const Controller & controller, Frame frame, Hand h
 	static float maxSpreadHandInterfingerAngle = GlobalConfig::tree()->get<float>("Leap.HandPoseControl.SpreadHand.MaxInterfingerAngle");
 	
 	HandModel * hm = HandProcessor::getInstance()->lastModel();
-	int handState;
 
-	if (!hand.isValid() || hand.pointables().count() == 1)
-	{
-		handState = InteractionState::Pointing;
-	}
-	else
-	{
-		if (hand.pointables().count() == 2 && hm->ThumbId > -1)
-		{
-			//float angle0 = LeapHelper::GetFingerTipAngle(hand,hand.fingers()[0]);
-			//float angle1 = LeapHelper::GetFingerTipAngle(hand,hand.fingers()[1]);
+	return hm->Pose;
 
-			//if (abs(angle0 - angle1) < (GeomConstants::DegToRad*maxSpreadHandInterfingerAngle))
-			//	handState = InteractionState::Spread;
-			//else
-				handState = InteractionState::Pointing;
-		}
-		else
-		{
-			handState = InteractionState::Spread;
-		}
-	}
+	//int handState;
 
-	return handState;
+
+
+	//if (!hand.isValid() || hand.pointables().count() == 1)
+	//{
+	//	handState = InteractionState::Pointing;
+	//}
+	//else
+	//{
+	//	if (hand.pointables().count() == 2 && hm->ThumbId > -1)
+	//	{
+	//		handState = InteractionState::Pointing;
+	//	}
+	//	else
+	//	{
+	//		handState = InteractionState::Spread;
+	//	}
+	//}
+
+	//return handState;
 }
 
 void LeapInput::processFrame(const Controller & controller, Frame frame)
@@ -188,7 +187,7 @@ void LeapInput::processFrame(const Controller & controller, Frame frame)
 
 
 	bool canPointableClick = false;
-	if (currentState.HandState == InteractionState::Pointing)
+	if (currentState.HandState == HandModel::Pointing)
 		canPointableClick = true;
 	else
 	{

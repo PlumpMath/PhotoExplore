@@ -9,6 +9,7 @@
 #include "SDLTimer.h"
 #include "LeapElement.hpp"
 #include "ActivityView.hpp"
+#include "HandModel.h"
 
 using namespace Leap;
 using namespace std;
@@ -16,14 +17,7 @@ using namespace std;
 
 
 struct InteractionState {
-		
-	enum HandStates {
-		
-		Invalid = -1,
-		Spread = 1,
-		Pointing = 2
-	};
-
+			
 	int ActiveHandId;
 	int HandState;
 	
@@ -31,15 +25,15 @@ struct InteractionState {
 	
 	InteractionState() :
 		ActiveHandId(-1),
-		HandState(HandStates::Invalid),
+		HandState(HandModel::Invalid),
 		ClickingPointableId(-1)		
 	{
 
 	}
 
-	InteractionState(int _handId, HandStates _handState, bool _clickingPointableId) :
+	InteractionState(int _handId, bool _clickingPointableId) :
 		ActiveHandId(_handId),
-		HandState(_handState),
+		HandState(0),
 		ClickingPointableId(_clickingPointableId)
 	{
 

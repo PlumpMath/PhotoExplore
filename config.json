@@ -12,7 +12,7 @@
 	{
 //		"File" : "./photo_explorer.log",
 		"File" : "photo_explorer.log",
-		"Enabled" : true
+		"Enabled" : false
 	},
 	"Typography" : 
 	{
@@ -174,7 +174,7 @@
 		"Enable" : false,
 		"DesktopParent" : false,
 		"Width" : 400,
-		"Height" : 200		
+		"Height" : 150		
 	},
 	"DebugPlot" : 
 	{
@@ -190,12 +190,12 @@
 		"FileBrowser" : true,
 		"ImageDirectories" :
 		[ 
-			//"C:\\Users\\Adam\\Pictures",		
-			//"C:\\Users\\Adam\\Pictures\\pixiv-win",	
-			//"C:\\Users\\Adam\\Pictures\\camera",	
-			//"G:\\JapanPics\\100Media"
-			"/Users/adamskubel/Pictures",
-			"/Users/adamskubel/Downloads" 
+			"C:\\Users\\Adam\\Pictures",		
+			"C:\\Users\\Adam\\Pictures\\pixiv-win",	
+			"C:\\Users\\Adam\\Pictures\\camera",	
+			"G:\\JapanPics\\100Media"
+			//"/Users/adamskubel/Pictures",
+			//"/Users/adamskubel/Downloads" 
 			
 		],
 		"RequestDelay" : 0 ,//ms
@@ -482,12 +482,19 @@
 		"HandModel" :
 		{
 			"EnableAutoLeftDetection" : false,
-			"DrawDebug" : false,
+			"DebugDraw" : true,
 			"NumberOfFingersInHumanHand" : 5, //Just in case...
 			"MinThumbHandPlaneDistance" : 1,
 			"MinThumbFingerAngle" : 45,
 			"MinThumbFingerDirectionOffset" : 15,
-			"MinThumbFingerSpacing" : 30 //mm - not used!
+			"MinThumbFingerSpacing" : 20,
+			"MaxFingerIntentPitchDelta" : 10,
+			"MaxFingerIntentTipDist" : 10,
+			"MaxPlausiblePalmFingerAngle" : 1500,
+			"MinPlausibleTouchDist" : 1.1,
+			"MinFirstJointAngle" : 70,
+			"MaxFingerBasePalmDist" : 10,
+			"MinFingerBasePalmDist" : -30
 		}
 	},
 	"ImageDetailView" :

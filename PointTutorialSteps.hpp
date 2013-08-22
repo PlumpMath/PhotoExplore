@@ -25,7 +25,7 @@ namespace PointTutorial
 
 		bool onFrame(const Controller & controller)
 		{
-			if (LeapInput::getInstance()->getInteractionState().HandState == InteractionState::Pointing)
+			if (LeapInput::getInstance()->getInteractionState().HandState == HandModel::Pointing)
 			{
 				if (state == 0)
 				{
@@ -48,7 +48,7 @@ namespace PointTutorial
 
 		bool isComplete(const Controller & controller)
 		{
-			return (LeapInput::getInstance()->getInteractionState().HandState == InteractionState::Pointing);			
+			return (LeapInput::getInstance()->getInteractionState().HandState == HandModel::Pointing);			
 		}
 		
 		string getDescription()

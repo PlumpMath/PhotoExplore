@@ -210,6 +210,8 @@ struct MainContext {
 		}
 		//End
 
+		HandProcessor::getInstance()->draw();
+
 		LeapDebug::getInstance().draw();
 		LeapDebug::getInstance().plotValue("Draw",Colors::HotPink,itemTimer.millis() * 20);
 

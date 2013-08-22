@@ -1,6 +1,7 @@
 #include "HandModel.h"
 #include "GlobalConfig.hpp"
 #include "GLImport.h"
+#include "LeapDebug.h"
 
 HandProcessor * HandProcessor::getInstance()
 {
@@ -29,10 +30,7 @@ HandModel * HandProcessor::LastModel()
 
 HandProcessor::HandProcessor()
 {
-	historyLength = 20;
 	lastDominantHandId = -1;
-	lastThumbs = new int[historyLength];
-	lastIntent = new int[historyLength];
 }
 
 
@@ -96,87 +94,10 @@ void HandProcessor::processFrame(Frame frame)
 	lastFrameId = frame.id();
 }
 
-int HandProcessor::selectIndexFinger(Hand hand, vector<int> * fingerIndexes, int thumbIndex)
-{
-	if (strongDeterminedIndex != -1)
-	{
-		Finger strongFinger = hand.finger(strongDeterminedIndex);
-
-		if (strongFinger.isValid())
-		{
-			std::vector<int>::iterator it = std::find(fingerIndexes->begin(), fingerIndexes->end(), strongDeterminedIndex);
-			if (it != fingerIndexes->end())
-				return (*it);				
-		}
-		else
-		{
-			purgeFromHistory(lastIntent, historyLength, strongDeterminedIndex);
-			strongDeterminedIndex = -1;
-		}
-	}
-	else
-	{
-		int lastIndexFinger = lastIntent[historyLength - 1];
-
-		if (hand.finger(lastIndexFinger).isValid())
-		{
-			if (getContigousHistory(lastIntent, historyLength, lastIndexFinger) >= .95f)
-			{
-				strongDeterminedIndex = lastIndexFinger;
-				std::vector<int>::iterator it = std::find(fingerIndexes->begin(), fingerIndexes->end(), strongDeterminedIndex);
-				if (it != fingerIndexes->end())
-					return (*it);	
-			}
-		}
-	}
-
-	int intentId, index;
-	if (thumbIndex == 0)
-	{
-		index = 1;
-		intentId = fingerIndexes->at(index);
-		//pushHistory(lastIntent, intentId);
-	}
-	else
-	{
-		index = 0;
-		intentId = fingerIndexes->at(index);
-		//pushHistory(lastIntent, -1);
-	}
-
-	return index;
-}
-
-bool HandProcessor::hasThumb(Hand hand, vector<int> * fingerIndexes, bool invert)
-{
-	float score = 0;
-
-	Finger possibleThumb;
-	if (invert)
-		possibleThumb = hand.finger(*(--fingerIndexes->end()));
-	else
-		possibleThumb = hand.finger(*(fingerIndexes->begin()));
-
-
-	float palmDist = LeapHelper::GetDistanceFromHand(possibleThumb);
-
-	if (palmDist > 0) score += .30f;
-
-	float fingerTipAngle = LeapHelper::GetFingerTipAngle(hand, possibleThumb);
-	if (invert)
-		fingerTipAngle *= -1;
-
-	score += .7f * (float)(1.0 - abs((fingerTipAngle + PI / 2.0)) / (PI / 2.0));
-
-	//score += .1f * getContigousHistory(lastThumbs, i);
-
-	return score > .5f;
-}
-
 
 HandModel HandProcessor::buildComplexModel(Hand hand, bool isLeft)
 {
-	static float minThumbFingerSpacing = GlobalConfig::tree()->get<float>("Leap.HandModel.MinThumbFingerSpacing")*GeomConstants::DegToRad;
+	static float minThumbFingerSpacing = GlobalConfig::tree()->get<float>("Leap.HandModel.MinThumbFingerSpacing");
 	static float minThumbFingerAngle = GlobalConfig::tree()->get<float>("Leap.HandModel.MinThumbFingerAngle")*GeomConstants::DegToRad;
 	static float minThumbFingerDirOffset = GlobalConfig::tree()->get<float>("Leap.HandModel.MinThumbFingerDirectionOffset")*GeomConstants::DegToRad;
 	static bool enableAutoLeftDetection = GlobalConfig::tree()->get<bool>("Leap.HandModel.EnableAutoLeftDetection");
@@ -201,26 +122,30 @@ HandModel HandProcessor::buildComplexModel(Hand hand, bool isLeft)
 
 	if (hand.fingers().count() < 5)
 	{
-		//Check for thumb-finger case
-
 		auto f0 = fingerAngles.at(0);
 		auto f1 = fingerAngles.at(1);
 
 		float angleSpacing = abs(f0.second - f1.second);
-		
+
 		handModel.IntentFinger = f0.first.id(); //Assume thumb is not visible
-		if (angleSpacing > minThumbFingerAngle )
-		{
-			handModel.ThumbId = f0.first.id();
-			handModel.IntentFinger = f1.first.id();
-		}
-		else if (f0.first.direction().angleTo(f1.first.direction()) > minThumbFingerDirOffset)
+
+		bool minAnglePassed = angleSpacing > minThumbFingerAngle;
+		bool minDirectionOffsetPassed = f0.first.direction().angleTo(f1.first.direction()) > minThumbFingerDirOffset;
+
+		Vector interFingerSpacing = f0.first.stabilizedTipPosition() - f1.first.stabilizedTipPosition();
+		bool minSpacingPassed = abs(interFingerSpacing.dot(hand.direction())) > minThumbFingerSpacing;
+		
+		LeapDebug::getInstance().showValue("01. Angle Spacing",angleSpacing * GeomConstants::RadToDeg);
+		LeapDebug::getInstance().showValue("02. Direction offset",f0.first.direction().angleTo(f1.first.direction()) * GeomConstants::RadToDeg);
+		LeapDebug::getInstance().showValue("03. Thumb finger spacing",interFingerSpacing.dot(hand.direction()));
+
+		if ((minAnglePassed || minDirectionOffsetPassed) && minSpacingPassed)
 		{			
 			handModel.ThumbId = f0.first.id();
 			handModel.IntentFinger = f1.first.id();
 		}
 
-
+		//If two fingers, always choose frontmost for intent
 		if (handModel.ThumbId >= 0 && hand.fingers().count() == 2)
 		{
 			if (handModel.IntentFinger != hand.fingers().frontmost().id())
@@ -228,17 +153,7 @@ HandModel HandProcessor::buildComplexModel(Hand hand, bool isLeft)
 				handModel.ThumbId = f1.first.id();
 				handModel.IntentFinger = f0.first.id();
 			}
-		}
-
-		//else
-		//{
-		//	float interFingerSpacing = f0.first.stabilizedTipPosition().distanceTo(f1.first.stabilizedTipPosition());
-		//	if (interFingerSpacing > minThumbFingerSpacing)
-		//	{
-		//		handModel.ThumbId = f0.first.id();
-		//		handModel.IntentFinger = f1.first.id();
-		//	}
-		//}
+		}	
 	}	
 	else
 	{				
@@ -266,7 +181,81 @@ HandModel HandProcessor::buildComplexModel(Hand hand, bool isLeft)
 			handModel.IntentFinger = fingerAngles.at(1).first.id();
 		}
 	}
+
+	handModel.Pose = determineHandPose(hand,&handModel, fingerAngles);
+
+
+
 	return handModel;
+}
+
+static bool isPlausibleFinger(Finger finger)
+{
+	static float maxPlausibleFingerAngle =  GlobalConfig::tree()->get<float>("Leap.HandModel.MaxPlausiblePalmFingerAngle") * GeomConstants::DegToRad;
+	static float minTouchDist =  GlobalConfig::tree()->get<float>("Leap.HandModel.MinPlausibleTouchDist");
+	static float maxPalmDist =  GlobalConfig::tree()->get<float>("Leap.HandModel.MaxFingerBasePalmDist");
+	static float minPalmDist =  GlobalConfig::tree()->get<float>("Leap.HandModel.MinFingerBasePalmDist");
+
+	//if (finger.touchZone() == Pointable::ZONE_NONE || finger.touchDistance() > minTouchDist)
+	//	return false;
+
+	bool normalAngle = abs(finger.direction().angleTo(finger.hand().palmNormal())) < maxPlausibleFingerAngle;
+	bool directionAngle = true;
+
+	//bool palmDist = LeapHelper::GetDistanceFromHand(finger) < maxPalmDist && LeapHelper::GetDistanceFromHand(finger) > minPalmDist;
+
+	return normalAngle && directionAngle;// && palmDist;
+}
+
+int HandProcessor::determineHandPose(Hand hand, HandModel * model, vector<pair<Finger,float> > & fingerAngles)
+{	
+	static float maxFingerIntentPitchDelta = GlobalConfig::tree()->get<float>("Leap.HandModel.MaxFingerIntentPitchDelta")*GeomConstants::DegToRad;
+	static float minFirstJointAngle = GlobalConfig::tree()->get<float>("Leap.HandModel.MinFirstJointAngle")*GeomConstants::DegToRad;
+	static float maxFingerIntentTipDist = GlobalConfig::tree()->get<float>("Leap.HandModel.MaxFingerIntentTipDist");
+
+
+	int handState = HandModel::Invalid;
+
+	if (!hand.isValid() || hand.pointables().count() == 1)
+	{
+		handState = HandModel::Pointing;
+	}
+	else if (hand.pointables().count() >= 2)
+	{
+		if (hand.pointables().count() == 2 && model->ThumbId > -1)
+		{
+			handState = HandModel::Pointing;
+		}
+		else 
+		{
+			Pointable intentFinger = hand.pointable(model->IntentFinger);
+
+			int validFingerCount = 0;
+
+			for (int i=2; i < fingerAngles.size(); i++)
+			{
+				Finger f = fingerAngles.at(i).first;
+
+				if (isPlausibleFinger(f))
+				{
+					Vector delta = f.stabilizedTipPosition() - drawHand.stabilizedPalmPosition();
+					float jointAngle = drawHand.palmNormal().angleTo(delta)*sgn(drawHand.palmNormal().cross(delta).x);
+
+					//float intentDist = (f.stabilizedTipPosition() - intentFinger.stabilizedTipPosition()).dot(intentFinger.direction());
+					//float intentPitchOffset = intentFinger.direction().pitch() - f.direction().pitch();
+
+					if (abs(jointAngle) > minFirstJointAngle )
+						validFingerCount++;				
+				}
+			}
+
+			if (validFingerCount > 0)
+				handState = HandModel::Spread;
+			else
+				handState = HandModel::Pointing;
+		}
+	}
+	return handState;	
 }
 
 HandModel HandProcessor::buildModel(Hand hand, bool invert)
@@ -286,130 +275,75 @@ HandModel HandProcessor::buildModel(Hand hand, bool invert)
 	{
 		Pointable intent = hand.fingers()[0];	
 		handModel = HandModel(hand.id(),intent.id());
+		handModel.Pose = HandModel::Pointing;
 	}
 	else
 	{
 		handModel = buildComplexModel(hand,invert);
 	}
 	handModel.HandId = hand.id();
+
 	return handModel;
-}
-
-float HandProcessor::getContigousHistory(int * history, int length, int id)
-{
-	int maxCount = 0;
-	int count = 1;
-	for (int i = 1; i < length; i++)
-	{
-		if (history[i] == id && history[i - 1] == id)
-		{
-			count++;
-		}
-		else
-		{
-			maxCount = max(maxCount, count);
-			count = 1;
-		}
-	}
-	maxCount = max(maxCount, count);
-	return (float)maxCount / (float)length;
-}
-
-void HandProcessor::pushHistory(int *history, int length, int id)
-{
-	for (int i = 0; i < length - 1; i++)
-	{
-		history[i] = history[i + 1];
-	}
-	history[length - 1] = id;
-}
-
-void HandProcessor::purgeFromHistory(int * history, int length, int id)
-{
-	for (int i = 0; i < length - 1; i++)
-	{
-		if (history[i] == id)
-			history[i] = -1;
-	}
 }
 
 void HandProcessor::draw()
 {
-	Vector handCenter = Vector(300,300,100);
-	glBindTexture(GL_TEXTURE_2D,NULL);
-	glLineWidth(2);
-	for (int i=0;i< drawHand.fingers().count();i++)
+	if (GlobalConfig::tree()->get<bool>("Leap.HandModel.DebugDraw"))
 	{
-		Finger f = drawHand.fingers()[i];
+		Vector handCenter = Vector(500,300,100);
+		glBindTexture(GL_TEXTURE_2D,NULL);
+		glLineWidth(2);
+		Pointable intentFinger = drawHand.pointable(lastModel()->IntentFinger);
+
+		float scale = 5;
+
+		for (int i=0;i< drawHand.fingers().count();i++)
+		{
+			Finger f = drawHand.fingers()[i];
+
+			float angle = LeapHelper::GetFingerTipAngle(drawHand,f);
+
+			Vector delta = f.stabilizedTipPosition() - drawHand.stabilizedPalmPosition();
+			float jointAngle = drawHand.palmNormal().angleTo(delta)*sgn(drawHand.palmNormal().cross(delta).x);
+
+
+			float length = 30 + (jointAngle * GeomConstants::RadToDeg); 
+
+			
+			float alpha = 1.0f;
+
+			if (intentFinger.id() == f.id())
+			{
+				glColor4fv(Colors::HoloBlueBright.withAlpha(alpha).getFloat());
+			}
+			else if (lastModel()->ThumbId == f.id())
+			{
+				glColor4fv(Colors::LeapGreen.withAlpha(alpha).getFloat());
+			}
+			else
+				glColor4fv(Colors::OrangeRed.withAlpha(alpha).getFloat());
 		
-		float angle = LeapHelper::GetFingerTipAngle(drawHand,f);
-		Vector drawFinger = Vector(200 * cos(angle), 200 * sin(angle), 0) + handCenter;
+			Vector drawFinger = Vector(length * cos(angle), length * sin(angle), 0) + handCenter;
 
-		if (lastModel()->IntentFinger == f.id())
-			glColor4fv(Colors::Lime.getFloat());
-		else 
-			glColor4fv(Colors::OrangeRed.getFloat());
+			glBegin(GL_LINES);
+				glVertex3f(handCenter.x, handCenter.y, handCenter.z);
+				glVertex3f(drawFinger.x, drawFinger.y, drawFinger.z);
+			glEnd();
 
-		glBegin(GL_LINES);
-			glVertex3f(handCenter.x, handCenter.y, handCenter.z);
-			glVertex3f(drawFinger.x, drawFinger.y, drawFinger.z);
+		}
+
+	
+		glColor4fv(Colors::Lime.withAlpha(0.6f).getFloat());
+		float rad = drawHand.sphereRadius();
+		int vertices = 16;
+		float anglePerVertex = (Leap::PI*2.0f)/vertices;
+		glBegin(GL_LINE_LOOP);
+		for (float v=0;v<vertices;v++)
+		{
+			float angle = v*anglePerVertex;
+			glVertex3f(handCenter.x + sinf(angle)*rad,handCenter.y + cosf(angle)*rad,handCenter.z);	
+		}
 		glEnd();
 	}
 }
 
-
-		//vector<int> * fingerIndexes = LeapHelper::SortFingers(hand);
-
-		//int thumbPosition, indexFingerPosition;
-		//int size = fingerIndexes->size();
-
-		//if (size == 5)
-		//{
-		//	if (invert)
-		//	{
-		//		thumbPosition = size - 1;
-		//		indexFingerPosition = size - 2;
-		//	}
-		//	else
-		//	{
-		//		thumbPosition = 0;
-		//		indexFingerPosition = 1;		
-		//	}
-		//}
-		//else
-		//{		
-		//	bool thumbVisible = hasThumb(hand, fingerIndexes, invert);
-		//	if (invert)
-		//	{
-		//		thumbPosition = (thumbVisible) ? (size-1) : -1;				
-		//		indexFingerPosition = (thumbVisible) ? (size-2) : (size-1);
-		//	}
-		//	else
-		//	{
-		//		thumbPosition = (thumbVisible) ? 0 : -1;				
-		//		indexFingerPosition = (thumbPosition == 0) ? 1 : 0; // selectIndexFinger(hand, fingerIndexes, thumbPosition);
-		//	}
-		//}
-
-		//int * fingerArray = new int[5];
-
-		//for (int i=0;i<5;i++)
-		//{
-		//	fingerArray[i] = -1;
-		//}
-
-		//if (thumbPosition >= 0)
-		//{
-		//	fingerArray[0] = fingerIndexes->at(thumbPosition);
-		//}
-
-		//if (indexFingerPosition >= 0)
-		//{
-		//	fingerArray[1] = fingerIndexes->at(indexFingerPosition);
-
-		//	for (int i = indexFingerPosition + 1, j = 2; i < fingerIndexes->size() && j < 5; i++, j++)
-		//	{
-		//		int id = fingerIndexes->at(i);
-		//		fingerArray[j] = id;
-		//	}
-		//}

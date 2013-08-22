@@ -11,55 +11,15 @@ using namespace Leap;
 using namespace std;
 
 
-//class HandModel
-//{
-//public:
-//	HandModel()
-//	{
-//		this->HandId= -1;
-//		this->IndexedFingers = NULL;
-//		this->IntentFinger = -1;
-//	}
-//
-//	
-//	HandModel(int handId)
-//	{
-//		this->HandId= handId;
-//		this->IndexedFingers = NULL;
-//		this->IntentFinger = -1;
-//	}
-//
-//
-//	HandModel(int handId, int * indexedFingers, int intentFinger)
-//	{
-//		this->HandId = handId;
-//		this->IndexedFingers = indexedFingers;
-//		this->IntentFinger = intentFinger;
-//	}
-//
-//	int HandId;
-//	int * IndexedFingers;
-//	int IntentFinger;
-//
-//	vector<int> SelectFingers(vector<int> fingers)
-//	{
-//		vector<int> fingerList;
-//		if (IndexedFingers != NULL)
-//		{
-//			for (int i = 0; i < fingers.size(); i++)
-//			{
-//				int id = IndexedFingers[fingers[i]];
-//				if (id != -1)
-//				{
-//					fingerList.push_back(id);
-//				}
-//			}
-//		}
-//		return fingerList;
-//	}
-//};
-
 struct HandModel {
+
+	enum HandStates {
+		
+		Invalid = -1,
+		Spread = 1,
+		Pointing = 2
+	};
+
 
 	int HandId;
 	int IntentFinger;
@@ -67,20 +27,27 @@ struct HandModel {
 
 	bool isLeftHand;
 
+	int Pose;
+
 	HandModel() :
 		HandId(-1),
-		IntentFinger(-1)
+		IntentFinger(-1),
+		ThumbId(-1),
+		Pose(HandStates::Invalid)
 	{}
 
 		
 	HandModel(int _handId) :
 		HandId(_handId),
-		IntentFinger(-1)
+		IntentFinger(-1),
+		ThumbId(-1),
+		Pose(HandStates::Invalid)
 	{}
 
 	HandModel(int _handId, int _intentFinger) :
 		HandId(_handId),
-		IntentFinger(_intentFinger)
+		IntentFinger(_intentFinger),
+		Pose(HandStates::Invalid)
 	{
 	}
 
@@ -105,9 +72,6 @@ public:
 	void draw();
 
 private:
-	int strongDeterminedIndex;
-	int * lastThumbs, * lastIntent;
-	int historyLength;
 	static HandProcessor * instance;
 
 	HandModel defaultModel;
@@ -121,15 +85,10 @@ private:
 	
 	HandProcessor();
 
-	int selectIndexFinger(Hand hand, vector<int> * fingerIndexes, int thumbIndex);
-	bool hasThumb(Hand hand, vector<int> * fingerIndexes, bool invert);
-
 	HandModel buildModel(Hand hand, bool invert);
 	HandModel buildComplexModel(Hand hand, bool invert);
 
-	static float getContigousHistory(int * history, int length, int id);
-	static void pushHistory(int *history, int length, int id);
-	static void purgeFromHistory(int * history, int length, int id);
+	int determineHandPose(Hand hand, HandModel * model,vector<pair<Finger,float> > & fingerAngles);
 };
 
 #endif

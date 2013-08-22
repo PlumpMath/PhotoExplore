@@ -23,7 +23,7 @@ namespace TouchScrollTutorial
 
 		bool onFrame(const Controller & controller)
 		{
-			if (LeapInput::getInstance()->getInteractionState().HandState == InteractionState::Spread)
+			if (LeapInput::getInstance()->getInteractionState().HandState == HandModel::Spread)
 			{
 				if (state == 0)
 				{
@@ -44,7 +44,7 @@ namespace TouchScrollTutorial
 		bool isComplete(const Controller & controller)
 		{
 			//Hand h = controller.frame().hand(LeapInput::getInstance()->getInteractionState().ActiveHandId);
-			return LeapInput::getInstance()->getInteractionState().HandState == InteractionState::Spread;			
+			return LeapInput::getInstance()->getInteractionState().HandState == HandModel::Spread;			
 		}
 		
 		string getDescription()
