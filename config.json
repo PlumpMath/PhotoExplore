@@ -483,6 +483,7 @@
 		{
 			"EnableAutoLeftDetection" : false,
 			"DebugDraw" : true,
+			"LogData" : true,
 			"NumberOfFingersInHumanHand" : 5, //Just in case...
 			"MinThumbHandPlaneDistance" : 1,
 			"MinThumbFingerAngle" : 45,

@@ -31,6 +31,22 @@ HandModel * HandProcessor::LastModel()
 HandProcessor::HandProcessor()
 {
 	lastDominantHandId = -1;
+	
+	logData = GlobalConfig::tree()->get<bool>("LeapInput.HandModel.LogData",false);
+	
+	if (logData)
+	{
+		data.open("./hand_pose.csv");
+		
+		for (int i = 0;i < 5;i++)
+		{
+			data << "JointAngle_" << i << ",PalmDist_" << i << ",";
+		}
+		
+		data << "HandSphereRadius";
+	}
+	data << endl;
+	
 }
 
 
@@ -222,38 +238,61 @@ int HandProcessor::determineHandPose(Hand hand, HandModel * model, vector<pair<F
 	}
 	else if (hand.pointables().count() >= 2)
 	{
-		if (hand.pointables().count() == 2 && model->ThumbId > -1)
+		
+		if (logData)
 		{
-			handState = HandModel::Pointing;
-		}
-		else 
-		{
-			Pointable intentFinger = hand.pointable(model->IntentFinger);
-
-			int validFingerCount = 0;
-
-			for (int i=2; i < fingerAngles.size(); i++)
+			int i=0;
+			for (; i < fingerAngles.size(); i++)
 			{
 				Finger f = fingerAngles.at(i).first;
-
-				if (isPlausibleFinger(f))
-				{
-					Vector delta = f.stabilizedTipPosition() - drawHand.stabilizedPalmPosition();
-					float jointAngle = drawHand.palmNormal().angleTo(delta)*sgn(drawHand.palmNormal().cross(delta).x);
-
-					//float intentDist = (f.stabilizedTipPosition() - intentFinger.stabilizedTipPosition()).dot(intentFinger.direction());
-					//float intentPitchOffset = intentFinger.direction().pitch() - f.direction().pitch();
-
-					if (abs(jointAngle) > minFirstJointAngle )
-						validFingerCount++;				
-				}
+				
+				Vector delta = f.stabilizedTipPosition() - drawHand.stabilizedPalmPosition();
+				float jointAngle = hand.palmNormal().angleTo(delta)*sgn(hand.palmNormal().cross(delta).x);
+				float palmDist = LeapHelper::GetDistanceFromHand(f);
+			
+				data << jointAngle << "," << palmDist << ",";
 			}
-
-			if (validFingerCount > 0)
-				handState = HandModel::Spread;
-			else
-				handState = HandModel::Pointing;
+			
+			for (;i<5;i++)
+			{
+				data << "0,0,";
+			}
+			data << hand.sphereRadius();
+			
+			data << endl;
 		}
+		
+//		if (hand.pointables().count() == 2 && model->ThumbId > -1)
+//		{
+//			handState = HandModel::Pointing;
+//		}
+//		else 
+//		{
+//			Pointable intentFinger = hand.pointable(model->IntentFinger);
+//
+//			int validFingerCount = 0;
+//
+//			for (int i=2; i < fingerAngles.size(); i++)
+//			{
+//				Finger f = fingerAngles.at(i).first;
+//
+//				if (isPlausibleFinger(f))
+//				{
+//					Vector delta = f.stabilizedTipPosition() - drawHand.stabilizedPalmPosition();
+//
+//					//float intentDist = (f.stabilizedTipPosition() - intentFinger.stabilizedTipPosition()).dot(intentFinger.direction());
+//					//float intentPitchOffset = intentFinger.direction().pitch() - f.direction().pitch();
+////
+////					if (abs(jointAngle) > minFirstJointAngle )
+////						validFingerCount++;				
+//				}
+//			}
+//
+//			if (validFingerCount > 0)
+//				handState = HandModel::Spread;
+//			else
+//				handState = HandModel::Pointing;
+//		}
 	}
 	return handState;	
 }

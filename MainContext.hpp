@@ -89,6 +89,7 @@ struct MainContext {
 	}
 
 	void handleFatalError(string errorText, int sig) {
+		fprintf(stderr,"Exception: %s\n",errorText.c_str());
 		handle(sig);
 	}
 

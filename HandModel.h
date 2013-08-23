@@ -3,6 +3,8 @@
 #include <map>
 #include <math.h>
 #include <algorithm>
+#include <iostream>
+#include <fstream>
 
 #ifndef HandModel_H_
 #define HandModel_H_
@@ -73,6 +75,9 @@ public:
 
 private:
 	static HandProcessor * instance;
+	
+	ofstream data;
+	bool logData;
 
 	HandModel defaultModel;
 
