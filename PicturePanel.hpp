@@ -12,6 +12,7 @@ namespace Facebook {
 		FBNode * pictureNode;	
 
 		void prepareResource();
+		void prepareFakeResource();
 
 	public:	
 		void show(FBNode * node);

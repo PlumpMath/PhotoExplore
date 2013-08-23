@@ -15,8 +15,10 @@ class AlbumCursorView : public DataListActivity,public ViewOwner
 private:
 	FBNode * albumOwner;
 	FBAlbumPhotosCursor * albumCursor;	
+
+protected:	
 	PictureDetailView * imageDetailView;
-	
+
 public:
 	AlbumCursorView();
 
@@ -28,6 +30,8 @@ public:
 	virtual View * getDataView(DataNode * photoNode);
 	virtual void setItemPriority(float priority, View * itemView);
 	virtual void refreshDataView(DataNode * node, View * view);
+
+	virtual void childPanelClicked(FBNode * childNode);
 	
 	void viewOwnershipChanged(View * view, ViewOwner * newOwner);
 	void getTutorialDescriptor(vector<string> & tutorial);

@@ -12,9 +12,9 @@ FlyWheel::FlyWheel(double startPosition)
 	friction = .5;
 	velocity = 0;
 	position = startPosition;
-	tmpFriction = 0;
 	wheelTimer.start();
 	boundaryMode = BounceBack;
+	hasTarget = false;
 }
 
 double FlyWheel::getMaxValue()
@@ -74,6 +74,25 @@ void FlyWheel::setBoundaryMode(FlyWheel::BoundaryMode _mode)
 	this->boundaryMode = _mode;
 }
 
+
+void FlyWheel::setTargetActive(bool targetActive)
+{
+	this->hasTarget = targetActive;
+}
+
+void FlyWheel::setTargetPosition(double _targetPosition)
+{
+	this->targetPosition = _targetPosition;
+
+	targetPosition = min<volatile double>(maxValue,targetPosition);
+	targetPosition = max<volatile double>(minValue,targetPosition);
+}
+
+double FlyWheel::getTargetPosition()
+{
+	return targetPosition;
+}
+
 void FlyWheel::boundPosition()
 {	
 	static float max_Kp = GlobalConfig::tree()->get<float>("ScrollView.FlyWheel.MaxBoundLimiter.Proportional");
@@ -128,8 +147,11 @@ void FlyWheel::boundPosition()
 }
 
 void FlyWheel::update(double elapsedSeconds)
-{
-	
+{	
+	static float targetKp = GlobalConfig::tree()->get<float>("ScrollView.FlyWheel.TargetSeeker.Proportional");
+	static float targetAlpha = GlobalConfig::tree()->get<float>("ScrollView.FlyWheel.TargetSeeker.VelocityComponent");
+	static float maxTargetVelocity = GlobalConfig::tree()->get<float>("ScrollView.FlyWheel.TargetSeeker.MaxVelocity");
+
 	if (abs(velocity) > maxVelocity)
 	{
 		velocity = sgn(velocity) * maxVelocity;
@@ -143,6 +165,17 @@ void FlyWheel::update(double elapsedSeconds)
 
 		velocity += frictionAccel * elapsedSeconds;
 		position += (velocity * elapsedSeconds);
+	}
+
+
+	if (hasTarget)
+	{
+		velocity =  velocity*targetAlpha +  (targetKp  * (targetPosition-position))*(1.0f - targetAlpha);
+
+		if (abs(velocity) > maxTargetVelocity)
+		{
+			velocity = sgn(velocity) * maxTargetVelocity;
+		}
 	}
 
 	boundPosition();	

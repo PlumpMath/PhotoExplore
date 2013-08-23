@@ -32,7 +32,7 @@ HandProcessor::HandProcessor()
 {
 	lastDominantHandId = -1;
 	
-	logData = GlobalConfig::tree()->get<bool>("LeapInput.HandModel.LogData",false);
+	logData = GlobalConfig::tree()->get<bool>("Leap.HandModel.LogData");
 	
 	if (logData)
 	{
@@ -43,7 +43,7 @@ HandProcessor::HandProcessor()
 			data << "JointAngle_" << i << ",PalmDist_" << i << ",";
 		}
 		
-		data << "HandSphereRadius";
+		data << "HandSphereRadius,PalmDistRange,JointAngleRange,Result";
 	}
 	data << endl;
 	
@@ -117,13 +117,17 @@ HandModel HandProcessor::buildComplexModel(Hand hand, bool isLeft)
 	static float minThumbFingerAngle = GlobalConfig::tree()->get<float>("Leap.HandModel.MinThumbFingerAngle")*GeomConstants::DegToRad;
 	static float minThumbFingerDirOffset = GlobalConfig::tree()->get<float>("Leap.HandModel.MinThumbFingerDirectionOffset")*GeomConstants::DegToRad;
 	static bool enableAutoLeftDetection = GlobalConfig::tree()->get<bool>("Leap.HandModel.EnableAutoLeftDetection");
+	
+	static float minFingerHandDotProduct = GlobalConfig::tree()->get<float>("Leap.HandModel.MinFingerHandDotProduct");
 
 	vector<pair<Finger,float> > fingerAngles;
 
 	for (int i=0;i<hand.fingers().count();i++)
 	{
 		Finger f = hand.fingers()[i];
-		fingerAngles.push_back(make_pair(f,LeapHelper::GetFingerTipAngle(hand,f)));
+
+		if (f.direction().dot(hand.direction()) >= minFingerHandDotProduct)
+			fingerAngles.push_back(make_pair(f,LeapHelper::GetFingerTipAngle(hand,f)));
 	}
 
 	std::sort(fingerAngles.begin(),fingerAngles.end(),[isLeft](const pair<Finger,float> & v0, const pair<Finger,float> & v1) -> bool {
@@ -136,7 +140,15 @@ HandModel HandProcessor::buildComplexModel(Hand hand, bool isLeft)
 
 	HandModel handModel;
 
-	if (hand.fingers().count() < 5)
+	if (fingerAngles.empty())
+	{
+		handModel.IntentFinger = hand.fingers().frontmost().id();
+	}
+	else if (fingerAngles.size() == 1)
+	{
+		handModel.IntentFinger = fingerAngles.at(0).first.id();
+	}
+	else if (fingerAngles.size() < 5)
 	{
 		auto f0 = fingerAngles.at(0);
 		auto f1 = fingerAngles.at(1);
@@ -150,10 +162,6 @@ HandModel HandProcessor::buildComplexModel(Hand hand, bool isLeft)
 
 		Vector interFingerSpacing = f0.first.stabilizedTipPosition() - f1.first.stabilizedTipPosition();
 		bool minSpacingPassed = abs(interFingerSpacing.dot(hand.direction())) > minThumbFingerSpacing;
-		
-		LeapDebug::getInstance().showValue("01. Angle Spacing",angleSpacing * GeomConstants::RadToDeg);
-		LeapDebug::getInstance().showValue("02. Direction offset",f0.first.direction().angleTo(f1.first.direction()) * GeomConstants::RadToDeg);
-		LeapDebug::getInstance().showValue("03. Thumb finger spacing",interFingerSpacing.dot(hand.direction()));
 
 		if ((minAnglePassed || minDirectionOffsetPassed) && minSpacingPassed)
 		{			
@@ -205,95 +213,61 @@ HandModel HandProcessor::buildComplexModel(Hand hand, bool isLeft)
 	return handModel;
 }
 
-static bool isPlausibleFinger(Finger finger)
-{
-	static float maxPlausibleFingerAngle =  GlobalConfig::tree()->get<float>("Leap.HandModel.MaxPlausiblePalmFingerAngle") * GeomConstants::DegToRad;
-	static float minTouchDist =  GlobalConfig::tree()->get<float>("Leap.HandModel.MinPlausibleTouchDist");
-	static float maxPalmDist =  GlobalConfig::tree()->get<float>("Leap.HandModel.MaxFingerBasePalmDist");
-	static float minPalmDist =  GlobalConfig::tree()->get<float>("Leap.HandModel.MinFingerBasePalmDist");
-
-	//if (finger.touchZone() == Pointable::ZONE_NONE || finger.touchDistance() > minTouchDist)
-	//	return false;
-
-	bool normalAngle = abs(finger.direction().angleTo(finger.hand().palmNormal())) < maxPlausibleFingerAngle;
-	bool directionAngle = true;
-
-	//bool palmDist = LeapHelper::GetDistanceFromHand(finger) < maxPalmDist && LeapHelper::GetDistanceFromHand(finger) > minPalmDist;
-
-	return normalAngle && directionAngle;// && palmDist;
-}
-
 int HandProcessor::determineHandPose(Hand hand, HandModel * model, vector<pair<Finger,float> > & fingerAngles)
 {	
-	static float maxFingerIntentPitchDelta = GlobalConfig::tree()->get<float>("Leap.HandModel.MaxFingerIntentPitchDelta")*GeomConstants::DegToRad;
-	static float minFirstJointAngle = GlobalConfig::tree()->get<float>("Leap.HandModel.MinFirstJointAngle")*GeomConstants::DegToRad;
-	static float maxFingerIntentTipDist = GlobalConfig::tree()->get<float>("Leap.HandModel.MaxFingerIntentTipDist");
-
+	auto poseConfig = GlobalConfig::tree()->get_child("Leap.HandModel.Pose");
 
 	int handState = HandModel::Invalid;
 
-	if (!hand.isValid() || hand.pointables().count() == 1)
+	if (!hand.isValid() || fingerAngles.size() == 1)
 	{
 		handState = HandModel::Pointing;
 	}
-	else if (hand.pointables().count() >= 2)
+	else if (fingerAngles.size() >= 2)
 	{
-		
-		if (logData)
+		int i=0;
+
+		Finger intentFinger = hand.finger(model->IntentFinger);
+		float closestTip = 1000;
+
+		for (; i < fingerAngles.size(); i++)
 		{
-			int i=0;
-			for (; i < fingerAngles.size(); i++)
+			Finger f = fingerAngles.at(i).first;
+
+			if (f.id() != model->ThumbId && f.id() != model->IntentFinger)
 			{
-				Finger f = fingerAngles.at(i).first;
-				
-				Vector delta = f.stabilizedTipPosition() - drawHand.stabilizedPalmPosition();
-				float jointAngle = hand.palmNormal().angleTo(delta)*sgn(hand.palmNormal().cross(delta).x);
-				float palmDist = LeapHelper::GetDistanceFromHand(f);
-			
-				data << jointAngle << "," << palmDist << ",";
+				closestTip = min<float>(closestTip,f.stabilizedTipPosition().distanceTo(intentFinger.stabilizedTipPosition()));
 			}
-			
-			for (;i<5;i++)
-			{
-				data << "0,0,";
-			}
-			data << hand.sphereRadius();
-			
-			data << endl;
 		}
-		
-//		if (hand.pointables().count() == 2 && model->ThumbId > -1)
-//		{
-//			handState = HandModel::Pointing;
-//		}
-//		else 
-//		{
-//			Pointable intentFinger = hand.pointable(model->IntentFinger);
-//
-//			int validFingerCount = 0;
-//
-//			for (int i=2; i < fingerAngles.size(); i++)
-//			{
-//				Finger f = fingerAngles.at(i).first;
-//
-//				if (isPlausibleFinger(f))
-//				{
-//					Vector delta = f.stabilizedTipPosition() - drawHand.stabilizedPalmPosition();
-//
-//					//float intentDist = (f.stabilizedTipPosition() - intentFinger.stabilizedTipPosition()).dot(intentFinger.direction());
-//					//float intentPitchOffset = intentFinger.direction().pitch() - f.direction().pitch();
-////
-////					if (abs(jointAngle) > minFirstJointAngle )
-////						validFingerCount++;				
-//				}
-//			}
-//
-//			if (validFingerCount > 0)
-//				handState = HandModel::Spread;
-//			else
-//				handState = HandModel::Pointing;
-//		}
+				
+		//Case 1 - 2 fingers, thumb
+		if (fingerAngles.size() == 2 && model->ThumbId >= 0)
+		{
+			handState = HandModel::Pointing;
+		}
+		//Case 2 - 2+ fingers
+		else
+		{		
+			float point_middleFingerDist = poseConfig.get<float>("Point.MinDistanceToMiddleFinger");
+
+			float sphereRadiusThreshold = poseConfig.get<float>("SphereRadiusThreshold");		
+			
+			LeapDebug::getInstance().showValue("01. Tip distance",closestTip); 
+			LeapDebug::getInstance().showValue("02. Sphere",hand.sphereRadius()); 
+
+			if (hand.sphereRadius() > sphereRadiusThreshold || closestTip < point_middleFingerDist)
+			{
+				handState = HandModel::Spread;
+			}
+			else 
+			{				
+				handState = HandModel::Pointing;
+			}
+		}
 	}
+
+	if (logData) data << "," << handState << endl;
+
 	return handState;	
 }
 
@@ -334,6 +308,9 @@ void HandProcessor::draw()
 		glLineWidth(2);
 		Pointable intentFinger = drawHand.pointable(lastModel()->IntentFinger);
 
+		
+		float minFingerHandDotProduct = GlobalConfig::tree()->get<float>("Leap.HandModel.MinFingerHandDotProduct");
+
 		float scale = 5;
 
 		for (int i=0;i< drawHand.fingers().count();i++)
@@ -346,10 +323,13 @@ void HandProcessor::draw()
 			float jointAngle = drawHand.palmNormal().angleTo(delta)*sgn(drawHand.palmNormal().cross(delta).x);
 
 
-			float length = 30 + (jointAngle * GeomConstants::RadToDeg); 
+			float length = 30 + LeapHelper::GetDistanceFromHand(f); //(jointAngle * GeomConstants::RadToDeg); 
 
 			
 			float alpha = 1.0f;
+
+			if (f.direction().dot(f.hand().direction()) < minFingerHandDotProduct)
+				alpha = 0.5f;
 
 			if (intentFinger.id() == f.id())
 			{

@@ -31,6 +31,10 @@ LeapStartScreen::~LeapStartScreen()
 
 LeapElement * LeapStartScreen::elementAtPoint(int x, int y, int & elementStateFlags)
 {
+	LeapElement * menu = radialMenu->elementAtPoint(x,y,elementStateFlags);
+	if (menu != NULL)
+		return menu;
+
 	if (state == FinishedState)
 	{
 		if (rootView != NULL)

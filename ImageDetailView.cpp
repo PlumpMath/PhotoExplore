@@ -153,6 +153,7 @@ void ImageDetailView::setCursor(BidirectionalCursor * _reverseCursor, Bidirectio
 		
 		DataNode * mainNode = fwdCursor->getNext();
 		DynamicImagePanel * mainPanel = getDetailedDataView(mainNode);
+		
 		panelList.push_back(mainPanel);
 		setPanelState(mainPanel);
 		setMainPanel(mainPanel);
@@ -171,9 +172,21 @@ void ImageDetailView::setCursor(BidirectionalCursor * _reverseCursor, Bidirectio
 	}
 }
 
+void ImageDetailView::setDataNode(DataNode * node)
+{
+	setCursor(NULL,NULL);
+
+	DynamicImagePanel * mainPanel = getDetailedDataView(node);
+
+	panelList.push_back(mainPanel);
+	setPanelState(mainPanel);
+	setMainPanel(mainPanel);
+
+}
+
 void ImageDetailView::scrollPanelList(int count)
 {
-	if (count == 0)
+	if (count == 0 || fwdCursor == NULL || reverseCursor == NULL)
 		return;
 
 	bool up = count > 0;

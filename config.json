@@ -10,9 +10,8 @@
 	},
 	"Logging" : 
 	{
-//		"File" : "./photo_explorer.log",
 		"File" : "photo_explorer.log",
-		"Enabled" : false
+		"Enabled" : true
 	},
 	"Typography" : 
 	{
@@ -73,8 +72,8 @@
 	"DynamicImagePanel" :
 	{
 		"AnimateLayoutDuration" : 400,
-		"DebugLoading" : true,
-		"DebugPriority" : true
+		"DebugLoading" : false,
+		"DebugPriority" : false
 	},	
 	"PanelBase" :
 	{
@@ -186,14 +185,14 @@
 	},
 	"FakeDataMode" : 
 	{
-		"Enable" : true,
-		"FileBrowser" : true,
+		"Enable" : false,
+		"FileBrowser" : false,
 		"ImageDirectories" :
 		[ 
 			"C:\\Users\\Adam\\Pictures",		
 			"C:\\Users\\Adam\\Pictures\\pixiv-win",	
-			"C:\\Users\\Adam\\Pictures\\camera",	
-			"G:\\JapanPics\\100Media"
+			"C:\\Users\\Adam\\Pictures\\camera"	
+			//"G:\\JapanPics\\100Media"
 			//"/Users/adamskubel/Pictures",
 			//"/Users/adamskubel/Downloads" 
 			
@@ -328,10 +327,12 @@
 				{
 					"Enabled" : true,
 					"PreferWheelMode" : false,
-
-					"Wheel" : {		
-					"PixelsPerClick" : 3000,
-					"ScrollFriction" : 30},
+					"Wheel" : 
+					{		
+						"MaxPixelsAdvance" : 500,
+						"PixelsPerClick" : 200,
+						"ScrollFriction" : 30
+					},
 					"TouchPad" : { "Scale" : 20.0, "ScrollPositionFilterRC" : 0 }
 
 				},
@@ -482,20 +483,22 @@
 		"HandModel" :
 		{
 			"EnableAutoLeftDetection" : false,
-			"DebugDraw" : true,
-			"LogData" : true,
+			"DebugDraw" : false,
+			"LogData" : false,
 			"NumberOfFingersInHumanHand" : 5, //Just in case...
 			"MinThumbHandPlaneDistance" : 1,
 			"MinThumbFingerAngle" : 45,
 			"MinThumbFingerDirectionOffset" : 15,
 			"MinThumbFingerSpacing" : 20,
-			"MaxFingerIntentPitchDelta" : 10,
-			"MaxFingerIntentTipDist" : 10,
-			"MaxPlausiblePalmFingerAngle" : 1500,
-			"MinPlausibleTouchDist" : 1.1,
-			"MinFirstJointAngle" : 70,
-			"MaxFingerBasePalmDist" : 10,
-			"MinFingerBasePalmDist" : -30
+			"MinFingerHandDotProduct" : -0.1,
+			"Pose" :
+			{
+				"SphereRadiusThreshold" : 60,
+				"Point" : 
+				{
+					"MinDistanceToMiddleFinger" : 35
+				}
+			}
 		}
 	},
 	"ImageDetailView" :
@@ -551,6 +554,12 @@
 			{
 				"Proportional" : 2,
 				"VelocityComponent" : 0.9			
+			},
+			"TargetSeeker" : 
+			{
+				"Proportional" : 8,
+				"VelocityComponent" : 0.1,
+				"MaxVelocity" : 8000
 			}		
 		},
 		"ScrollBar" : 

@@ -121,10 +121,15 @@ void SwipeGestureDetector::doScrollWheelScrolling(double xScroll, double yScroll
 	
 	
 	bool enabled = swipeConfig.get<bool>("Enabled");
-	bool wheelMode = swipeConfig.get<bool>("PreferWheelMode");	
+	bool wheelMode = false; 
+
+#ifdef _WIN32
+	wheelMode = true;
+#endif
 	
 	float wheelRate = swipeConfig.get<float>("Wheel.PixelsPerClick");
 	float scrollFriction = swipeConfig.get<float>("Wheel.ScrollFriction");
+	float maxAdvance = swipeConfig.get<float>("Wheel.MaxPixelsAdvance");
 	
 	
 	float touchScrollMultiplier = swipeConfig.get<float>("TouchPad.Scale");
@@ -132,14 +137,39 @@ void SwipeGestureDetector::doScrollWheelScrolling(double xScroll, double yScroll
 	
 	static Timer filterTimer;
 
-	if (!enabled) return;
+	if (!enabled || flyWheel == NULL) return;
 	
 	if (wheelMode)
 	{
-		double currentVelocity = flyWheel->getVelocity();
-		flyWheel->setFriction(scrollFriction);
-		currentVelocity += wheelRate * yScroll;
-		flyWheel->setVelocity(currentVelocity);
+		if (state != MouseScrolling)
+		{
+			flyWheel->setTargetPosition(flyWheel->getCurrentPosition());
+			state = MouseScrolling;
+		}
+
+		flyWheel->setTargetActive(true);
+		double newPos = 0;
+		if (yScroll < 0)
+		{
+			newPos = min<double>(flyWheel->getCurrentPosition(),flyWheel->getTargetPosition());			
+			newPos += (yScroll*wheelRate);		
+
+			newPos = max<double>(flyWheel->getCurrentPosition() - maxAdvance,newPos);
+		}
+		else
+		{
+			newPos = max<double>(flyWheel->getCurrentPosition(),flyWheel->getTargetPosition());
+			newPos += (yScroll*wheelRate);
+
+			newPos = min<double>(flyWheel->getCurrentPosition() + maxAdvance,newPos);
+		}
+		flyWheel->setTargetPosition(newPos);
+
+
+		//double currentVelocity = flyWheel->getVelocity();
+		//flyWheel->setFriction(scrollFriction);
+		//currentVelocity += wheelRate * yScroll;
+		//flyWheel->setVelocity(currentVelocity);
 	}
 	else
 	{
@@ -149,7 +179,7 @@ void SwipeGestureDetector::doScrollWheelScrolling(double xScroll, double yScroll
 //			return;
 //		}
 		
-		double newPos = LeapHelper::lowpass(flyWheel->getCurrentPosition(),flyWheel->getCurrentPosition() + xScroll*touchScrollMultiplier,filterRC,filterTimer.seconds());
+		double newPos = flyWheel->getCurrentPosition() + xScroll*touchScrollMultiplier; // LeapHelper::lowpass(flyWheel->getCurrentPosition(),flyWheel->getCurrentPosition() + xScroll*touchScrollMultiplier,filterRC,filterTimer.seconds());
 		currentScrollVelocity = (newPos - flyWheel->getCurrentPosition())/filterTimer.seconds();
 		filterTimer.start();
 		
@@ -273,7 +303,8 @@ void SwipeGestureDetector::doGestureScrolling(const Controller & controller)
 			}
 
 			if (triggered)
-			{
+			{				
+				flyWheel->setTargetActive(false);
 				state = GestureScrolling;
 
 				if (abs(swipeSpeed) > swipeConfig.get<float>("MaxSpeed"))
@@ -348,8 +379,9 @@ void SwipeGestureDetector::doTouchZoneScrolling(const Controller & controller)
 
 	float tipVelocityFriction = 0;
 
-	if (h1.isValid() && h1.fingers().count() >= minScrollFingers)
+	if (h1.isValid() && handModel->Pose == HandModel::Spread) //fh1.fingers().count() >= minScrollFingers)
 	{
+		flyWheel->setTargetActive(false);
 		if (state == TouchScrolling)
 		{
 			flyWheel->setFriction(.5f);

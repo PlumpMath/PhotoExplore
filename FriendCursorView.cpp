@@ -63,6 +63,30 @@ void FriendCursorView::setItemPriority(float priority, View * itemView)
 }
 
 
+void FriendCursorView::childPanelClicked(FBNode * childNode)
+{
+	itemScroll->getFlyWheel()->impartVelocity(0);			
+	imageDetailView->notifyOffsetChanged(Vector((float)this->itemScroll->getFlyWheel()->getCurrentPosition(),0,0));
+	
+	FBUserPhotosCursor * f1 = new FBUserPhotosCursor(friendNode);
+	f1->getNext();
+	WrappingBDCursor * wrapCursor = new WrappingBDCursor(f1);
+	wrapCursor->fastForward(childNode);
+
+	FBUserPhotosCursor * f2 = new FBUserPhotosCursor(friendNode);
+	f2->getNext();
+	WrappingBDCursor * revWrapCursor = new WrappingBDCursor(f2);
+
+	revWrapCursor->fastForward(childNode);
+
+	imageDetailView->setCursor(revWrapCursor,wrapCursor);										
+	imageDetailView->setVisible(true);
+	LeapInput::getInstance()->requestGlobalGestureFocus(this->imageDetailView);
+
+	layoutDirty = true;		
+}
+
+
 
 View * FriendCursorView::getDataView(DataNode * dnode)
 {

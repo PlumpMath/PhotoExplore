@@ -33,9 +33,28 @@ PictureDetailView::PictureDetailView()
 	addChild(alreadyLikedButton);
 }
 
-DynamicImagePanel * PictureDetailView::getDetailedDataView(DataNode * node)
+DynamicImagePanel * PictureDetailView::getDetailedDataView(DataNode * dataNode)
 {
-	return NULL;
+	FBNode * node = (FBNode*)dataNode;
+
+	if (node == NULL)
+		return NULL;
+
+	View * v= ViewOrchestrator::getInstance()->requestView(node->getId(), this);
+
+	PicturePanel * item = NULL;
+	if (v == NULL)
+	{
+		item = new PicturePanel();
+		item->show(node);
+		ViewOrchestrator::getInstance()->registerView(node->getId(),item, this);
+	}
+	else
+	{
+		item = dynamic_cast<PicturePanel*>(v);
+	}
+
+	return item;
 }
 
 
@@ -44,7 +63,7 @@ void PictureDetailView::initLikeButton(FBNode * node)
 	alreadyLikedButton->setVisible(false);
 	likeButton->setVisible(true);
 	PictureDetailView * me = this;
-	FBNode * nodeToLike = imageNode;
+	FBNode * nodeToLike = node;
 	likeButton->elementClickedCallback = [nodeToLike ,me](LeapElement * clicked){
 
 		me->alreadyLikedButton->setVisible(true);				
@@ -59,6 +78,13 @@ void PictureDetailView::initLikeButton(FBNode * node)
 	};	
 }
 
+void PictureDetailView::setMainPanel(DynamicImagePanel * imagePanel)
+{
+	ImageDetailView::setMainPanel(imagePanel);
+
+	setImageMetaData();
+}
+
 
 void PictureDetailView::setImageMetaData()
 {
@@ -66,8 +92,11 @@ void PictureDetailView::setImageMetaData()
 	alreadyLikedButton->setVisible(false);
 	photoComment->setVisible(false);
 
-	if (this->imagePanel != NULL)
+	PicturePanel * picturePanel = dynamic_cast<PicturePanel*>(imagePanel);
+	if (picturePanel != NULL)
 	{		
+		FBNode * imageNode = picturePanel->getNode();
+
 		if (imageNode != NULL)
 		{
 			if (imageNode->getAttribute("user_likes").compare("1") == 0)
@@ -83,7 +112,7 @@ void PictureDetailView::setImageMetaData()
 			//Validate state and re-init
 			Facebook::FBDataSource::instance->loadQuery(imageNode,"fql?q=SELECT%20like_info%20FROM%20photo%20where%20object_id%3D" + imageNode->getId(),"",[this](FBNode * node){
 												
-				if (imageNode->getAttribute("user_likes").compare("1") == 0)
+				if (node->getAttribute("user_likes").compare("1") == 0)
 				{
 					alreadyLikedButton->setVisible(true);
 					likeButton->setVisible(false);
@@ -92,7 +121,7 @@ void PictureDetailView::setImageMetaData()
 				{				
 					initLikeButton(node);
 				}
-				imageNode->clearLoadCompleteDelegate();
+				node->clearLoadCompleteDelegate();
 			});
 			
 			if (imageNode->getAttribute("name").size() != 0)
@@ -130,13 +159,14 @@ void PictureDetailView::setImageMetaData()
 
 void PictureDetailView::layout(Vector position, cv::Size2f size)
 {
+	ImageDetailView::layout(position,size);
 	if (imagePanel != NULL && size.width > 0 && size.height > 0)
 	{
 		lastSize = size;
 		lastPosition = position;
 
 		
-		imagePanel->fitPanelToBoundary(-hostOffset + Vector(size.width*.5f,size.height*.5f,5),size.width,size.height*.8f, false);
+		//imagePanel->fitPanelToBoundary(-hostOffset + Vector(size.width*.5f,size.height*.5f,5),size.width,size.height*.8f, false);
 	
 		Vector pos;
 		float w1,h1;

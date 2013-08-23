@@ -56,6 +56,29 @@ void AlbumCursorView::setItemPriority(float priority, View * itemView)
 		picture->setDataPriority(priority);
 }
 
+void AlbumCursorView::childPanelClicked(FBNode * childNode)
+{
+	itemScroll->getFlyWheel()->impartVelocity(0);			
+	imageDetailView->notifyOffsetChanged(Vector((float)this->itemScroll->getFlyWheel()->getCurrentPosition(),0,0));
+	
+	FBAlbumPhotosCursor * f1 = new FBAlbumPhotosCursor(albumOwner);
+	f1->getNext();
+	WrappingBDCursor * wrapCursor = new WrappingBDCursor(f1);
+	wrapCursor->fastForward(childNode);
+
+	FBAlbumPhotosCursor * f2 = new FBAlbumPhotosCursor(albumOwner);
+	f2->getNext();
+	WrappingBDCursor * revWrapCursor = new WrappingBDCursor(f2);
+
+	revWrapCursor->fastForward(childNode);
+
+	imageDetailView->setCursor(revWrapCursor,wrapCursor);										
+	imageDetailView->setVisible(true);
+	LeapInput::getInstance()->requestGlobalGestureFocus(this->imageDetailView);
+
+	layoutDirty = true;		
+}
+
 View * AlbumCursorView::getDataView(DataNode * dataNode)
 {
 	FBNode * node = (FBNode*)dataNode;
@@ -80,20 +103,7 @@ View * AlbumCursorView::getDataView(DataNode * dataNode)
 	item->setVisible(true);
 
 	item->elementClickedCallback = [this,node](LeapElement * clicked){
-		this->itemScroll->getFlyWheel()->impartVelocity(0);			
-
-		this->imageDetailView->notifyOffsetChanged(Vector((float)this->itemScroll->getFlyWheel()->getCurrentPosition(),0,0));
-
-		WrappingBDCursor * wrapCursor = new WrappingBDCursor(new FBAlbumPhotosCursor(albumOwner));
-		wrapCursor->fastForward(node);
-
-		WrappingBDCursor * revWrapCursor = new WrappingBDCursor(new FBAlbumPhotosCursor(albumOwner));
-		revWrapCursor->fastForward(node);
-
-		this->imageDetailView->setCursor(revWrapCursor,wrapCursor);										
-		this->imageDetailView->setVisible(true);
-		LeapInput::getInstance()->requestGlobalGestureFocus(this->imageDetailView);
-		this->layoutDirty = true;			
+		this->childPanelClicked(node);	
 	};
 
 	return item;
@@ -102,7 +112,13 @@ View * AlbumCursorView::getDataView(DataNode * dataNode)
 
 void AlbumCursorView::showPhoto(FBNode * photoNode)
 {
-	((PicturePanel*)getDataView(photoNode))->elementClicked();
+	View * dataView = getDataView(photoNode);
+
+	PicturePanel * pp =dynamic_cast<PicturePanel*>(dataView);
+	if (pp != NULL)
+	{
+		pp->elementClicked();
+	}
 }
 
 void AlbumCursorView::getTutorialDescriptor(vector<string> & tutorial)
@@ -119,9 +135,11 @@ void AlbumCursorView::setFinishedCallback(const boost::function<void(std::string
 
 void AlbumCursorView::viewOwnershipChanged(View * view, ViewOwner * newOwner)
 {	
-	auto r1 = std::find(itemGroup->getChildren()->begin(),itemGroup->getChildren()->end(),view);
-	if (r1 != itemGroup->getChildren()->end())
-		itemGroup->getChildren()->erase(r1);
+	if (newOwner != imageDetailView)
+	{
+		itemGroup->remove(view);
+		view->elementClickedCallback = [](LeapElement * e){};
+	}
 }
 
 

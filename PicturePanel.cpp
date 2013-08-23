@@ -3,6 +3,78 @@
 
 using namespace Facebook;
 
+
+
+void PicturePanel::prepareFakeResource()
+{
+	string resourceId = "";
+	bool undersized;
+	ResourceData * newResource = selectResource(undersized);
+
+	if (newResource != NULL && (currentResource == NULL || (newResource->TextureState == ResourceState::TextureLoaded && !undersized)))
+	{
+		if (currentResource != NULL)
+			currentResource->priority = 100;
+
+		currentResource = newResource;
+		pictureSize = currentResource->imageSize;
+	}
+	else //if (newResource == NULL)
+	{
+		stringstream rs;
+		rs <<  pictureNode->getAttribute("fake_uri");
+
+		boost::function<void(cv::Mat&)> tran;
+		int loadingWidth = 0;
+
+		if (!maxResolutionMode)
+		{
+			loadingWidth = (int)getWidth();
+
+			int targetDimension = max<int>((int)getWidth(),(int)getHeight());
+
+			tran = [targetDimension,this](cv::Mat&imgMat){
+
+				float td = (float)targetDimension;
+
+				float originalWidth = imgMat.size().width;
+				float originalHeight = imgMat.size().height;
+				
+				float scale = max<float>(td/originalWidth,td/originalHeight);
+
+				scale = min<float>(1.0f,scale);
+
+				int adjustedWidth = (int)ceil(scale * originalWidth);
+				int adjustedHeight = (int)ceil(scale * originalHeight);
+
+				cv::Size newSize = cv::Size(adjustedWidth,adjustedHeight);
+				cv::Mat resized = cv::Mat(newSize, CV_8UC4);
+				cv::resize(imgMat,resized,newSize,0,0,cv::INTER_AREA);
+				imgMat.release();
+
+				imgMat = resized;
+			};
+
+			rs << targetDimension;
+		}
+		else
+		{
+			rs << "_max";
+			pictureSize.width = 1000;
+			pictureSize.height = 1000;
+			loadingWidth = pictureSize.width;
+		}
+
+		if (resourceMap.count(loadingWidth) == 0)
+		{
+			resourceId = rs.str();
+			ResourceData * loadingResource = ResourceManager::getInstance().loadResourceWithTransform(resourceId,pictureNode->getAttribute("fake_uri"),dataPriority,this,tran);
+			resourceMap.insert(make_pair(loadingWidth,loadingResource));
+			Logger::stream("FileImagePanel","INFO") << "Loading transformed resource. Width = " << loadingWidth << ", ID = " << resourceId << endl;
+		}
+	}
+}
+
 void PicturePanel::prepareResource()
 {	
 	if (getWidth() <= 0 || getHeight() <= 0)
@@ -12,65 +84,7 @@ void PicturePanel::prepareResource()
 	cv::Size2i newResourceSize(0,0);
 	if (GlobalConfig::tree()->get<bool>("FakeDataMode.Enable"))
 	{
-		
-		bool undersized;
-		ResourceData * newResource = selectResource(undersized);
-
-		if (newResource == NULL || undersized)
-		{
-			newResourceURI = pictureNode->Edges.find("fake_uri")->Value;
-				
-			stringstream rs;
-			rs << pictureNode->getId() << boost::filesystem::path(newResourceURI).filename().string();
-
-			boost::function<void(cv::Mat&)> tran;
-
-			if (!maxResolutionMode)
-			{
-				int targetDimension = max<int>((int)getWidth(),(int)getHeight());
-
-				tran = [targetDimension](cv::Mat&imgMat){
-				
-					float td = (float)targetDimension;
-				
-					float originalWidth = imgMat.size().width;
-					float originalHeight = imgMat.size().height;
-
-					float scale = max<float>(td/originalWidth,td/originalHeight);
-				
-					scale = min<float>(1.0f,scale);
-
-					int adjustedWidth = (int)ceil(scale * originalWidth);
-					int adjustedHeight = (int)ceil(scale * originalHeight);
-
-					cv::Size newSize = cv::Size(adjustedWidth,adjustedHeight);
-					cv::Mat resized = cv::Mat(newSize, CV_8UC4);
-					cv::resize(imgMat,resized,newSize,0,0,cv::INTER_AREA);
-					imgMat.release();
-
-					imgMat = resized;
-				};
-
-				rs << targetDimension;
-			}
-			else
-			{
-				rs << "_max";
-			}
-		 
-			resourceId = rs.str();
-
-			ResourceManager::getInstance().loadResourceWithTransform(resourceId,newResourceURI,dataPriority,this,tran);
-		}
-		else
-		{
-			currentResource = newResource;
-			pictureSize = newResource->imageSize;
-
-			if (currentResource->TextureState == ResourceState::TextureLoaded)
-				currentTextureId = currentResource->textureId;
-		}
-
+		prepareFakeResource();
 	}
 	else
 	{

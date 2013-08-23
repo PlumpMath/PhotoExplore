@@ -68,8 +68,6 @@ void LeapInput::processInputEvents()
 		if (hit != NULL)	
 		{
 			hit->pointableEnter(fakePointable);
-			
-			Logger::stream("LeapInput","INFO") << "Hitting element " << hit << " at " << x << "," << y << endl;
 		}
 
 		if (mouseHitLast != NULL)
@@ -92,7 +90,6 @@ void LeapInput::processInputEvents()
 
 	if (hit != NULL && hit->isClickable() && mouseState == GLFW_PRESS)
 	{
-		Logger::stream("LeapInput","INFO") << "Clicking element " << hit << " at " << x << "," << y << endl;
 		hit->elementClicked();
 	}
 	
@@ -117,28 +114,6 @@ static int determineHandState(const Controller & controller, Frame frame, Hand h
 	HandModel * hm = HandProcessor::getInstance()->lastModel();
 
 	return hm->Pose;
-
-	//int handState;
-
-
-
-	//if (!hand.isValid() || hand.pointables().count() == 1)
-	//{
-	//	handState = InteractionState::Pointing;
-	//}
-	//else
-	//{
-	//	if (hand.pointables().count() == 2 && hm->ThumbId > -1)
-	//	{
-	//		handState = InteractionState::Pointing;
-	//	}
-	//	else
-	//	{
-	//		handState = InteractionState::Spread;
-	//	}
-	//}
-
-	//return handState;
 }
 
 void LeapInput::processFrame(const Controller & controller, Frame frame)

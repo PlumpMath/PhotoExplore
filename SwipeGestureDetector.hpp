@@ -111,6 +111,7 @@ public:
 	const static int IdleState = 0;
 	const static int GestureScrolling = 1;
 	const static int TouchScrolling = 2;
+	const static int MouseScrolling = 3;
 
 	void onFrame(const Controller & controller);
 	void draw();

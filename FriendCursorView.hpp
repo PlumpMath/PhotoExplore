@@ -11,13 +11,14 @@ namespace Facebook
 	private:
 		FBNode * friendNode;
 		FBAlbumPhotosCursor * albumCursor;	
-		PictureDetailView * imageDetailView;
 
 	public:
 		FriendCursorView();
 
 		void setFriendNode(FBNode * node);
 		void showPhoto(FBNode * photoNode);
+
+		void childPanelClicked(FBNode * childNode);
 
 		FBNode * getFriendNode();
 		View * getDataView(DataNode * photoNode);

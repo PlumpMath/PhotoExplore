@@ -18,12 +18,12 @@ public:
 	};
 
 private:
-	volatile double tmpFriction;
+	volatile double targetPosition;
 	BoundaryMode boundaryMode;
 
 	Timer wheelTimer;
-	DoubleAnimation scrollAnimation;
-	double currentTarget;
+	
+	bool hasTarget;
 
 protected:
 	volatile double position,velocity, minValue, maxValue, minVelocity, maxVelocity, friction;
@@ -53,6 +53,10 @@ public:
 	double getMaxValue();
 	void setMinValue(double minValue);
 	double getMinValue();
+
+	void setTargetActive(bool targetActive);
+	void setTargetPosition(double targetPosition);
+	double getTargetPosition();
 
 	virtual void overrideValue(double value);
 	double getCurrentPosition();

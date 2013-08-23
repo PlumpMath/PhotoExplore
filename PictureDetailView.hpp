@@ -3,24 +3,23 @@
 
 #include "ImageDetailView.hpp"
 #include "PicturePanel.hpp"
+#include "ViewOrchestrator.hpp"
 
 namespace Facebook {
 
 
-	class PictureDetailView : public ImageDetailView {
+	class PictureDetailView : public ImageDetailView, public ViewOwner {
 
 	private:	
-		PicturePanel * picturePanel;
 		Button * likeButton, * alreadyLikedButton;
 		TextPanel * photoComment;
-
-		FBNode * imageNode;		
-
-		void setImageMetaData();		
+		
 		void initLikeButton(Facebook::FBNode * node);
+		void setImageMetaData();
 
 	protected:
 
+		void setMainPanel(DynamicImagePanel * mainPanel);
 		DynamicImagePanel * getDetailedDataView(DataNode * node);
 
 	public:

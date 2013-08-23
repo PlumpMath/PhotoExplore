@@ -144,7 +144,7 @@ public:
 	static float GetDistanceFromHand(Finger finger)
 	{
 		Hand hand = finger.hand();
-		Vector point = GetFingerBase(finger);
+		Vector point = finger.stabilizedTipPosition();// GetFingerBase(finger);
 		return point.dot(hand.palmNormal()) + GetHandPlaneConstant(hand);
 	}
 

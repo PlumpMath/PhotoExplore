@@ -10,7 +10,7 @@ private:
 	double notchOffset, notchSpacing;
 	double targetNotchIndex, currentNotchIndex;
 
-	bool hasTarget;
+	bool hasTarget, notchingEnabled;
 
 	boost::function<void(int,int)> notchChangedListener;
 

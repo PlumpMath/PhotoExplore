@@ -51,7 +51,6 @@ private:
 	list<DynamicImagePanel*> panelList;
 	int maxPanelCount, mainIndex;
 
-	void setMainPanel(DynamicImagePanel * mainPanel);
 	void scrollPanelList(int count);
 		
 	BidirectionalCursor * fwdCursor, * reverseCursor;
@@ -64,6 +63,8 @@ protected:
 	void restorePanelState(DynamicImagePanel * _imagePanel);
 
 	virtual DynamicImagePanel * getDetailedDataView(DataNode * node) = 0;
+
+	virtual void setMainPanel(DynamicImagePanel * mainPanel);
 
 public:
 	ImageDetailView();
@@ -94,6 +95,7 @@ public:
 	bool isClickable();
 
 	void setCursor(BidirectionalCursor * reverseCursor, BidirectionalCursor * fwdCursor);
+	void setDataNode(DataNode * dataNode);
 };
 
 
