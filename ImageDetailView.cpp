@@ -324,6 +324,8 @@ void ImageDetailView::setVisible(bool _visible)
 
 	View::setVisible(_visible);
 
+	LeapInput::getInstance()->setCursorDrawEnabled(!_visible);
+
 
 	layoutDirty = true;
 
@@ -382,7 +384,7 @@ void ImageDetailView::draw()
 
 static bool isValidInteractionPointable(const Controller & controller, Pointable p)
 {
-	return p.isValid() && (p.touchDistance() < GlobalConfig::tree()->get<float>("ImageDetailView.ResizeInteraction.MaxTouchDistance"));
+	return p.isValid();// && (p.touchDistance() < );
 }
 
 static bool getNewPanelInteraction(const Controller & controller, Frame frame, PanelBase * panel, PanelInteraction & activePanelInteraction, Vector hostOffset)
@@ -430,12 +432,12 @@ static bool getNewPanelInteraction(const Controller & controller, Frame frame, P
 		{
 			bool iterationSuccess = false;
 			float steadyVelocity = GlobalConfig::tree()->get<float>("ImageDetailView.ResizeInteraction.SteadyVelocity");
-			if (isValidInteractionPointable(controller, interactionPointables[i]) && interactionPointables.at(i).tipVelocity().magnitude() < steadyVelocity)
-			{						
+			//if ( && interactionPointables.at(i).tipVelocity().magnitude() < steadyVelocity)
+			//{						
 				Vector imgPoint = LeapHelper::FindScreenPoint(controller,interactionPointables[i]);		
 				activePanelInteraction.interactingPointables.push_back(make_pair(interactionPointables[i].id(),imgPoint));		
 				iterationSuccess = true;		
-			}
+			//}
 			canStartInteraction = canStartInteraction && iterationSuccess;
 		}
 
@@ -461,13 +463,28 @@ bool ImageDetailView::handleImageManipulation(const Controller & controller)
 	bool processed = false;
 	static float cursorDimension = (((float)GlobalConfig::ScreenWidth) / 2560.0f) * 41;
 
-	static LeapDebugVisual * ldv1 = NULL, * ldv2 = NULL;
-	
-	if (ldv1 == NULL)
+	static OpposingArrowCursor * opposingCursor = NULL;
+
+	if (opposingCursor == NULL)
 	{
-		ldv1 = new LeapDebugVisual(0,Colors::MediumVioletRed.withAlpha(.7f));
-		ldv2 = new LeapDebugVisual(0,Colors::MediumVioletRed.withAlpha(.7f));
+		opposingCursor = new OpposingArrowCursor(0,Colors::MediumVioletRed.withAlpha(.7f));
+		LeapDebug::getInstance().addDebugVisual(opposingCursor);
 	}
+
+	Hand lh = controller.frame().hands().leftmost();
+	Hand rh = controller.frame().hands().rightmost();
+
+	int p1_id = HandProcessor::LastModel(lh.id())->IntentFinger;
+	int p2_id = HandProcessor::LastModel(rh.id())->IntentFinger;
+
+	Pointable p1 = controller.frame().pointable(p1_id);
+	Pointable p2 = controller.frame().pointable(p2_id);
+	
+	if (p1.isValid() && p2.isValid())
+		opposingCursor->setPointables(p1,p2);
+	
+	opposingCursor->setSize(60);
+
 
 	if (panel != NULL)
 	{
@@ -505,8 +522,7 @@ bool ImageDetailView::handleImageManipulation(const Controller & controller)
 
 			if (!error)
 			{
-				int size = newPoints.size();
-				
+//				int size = newPoints.size();				
 //				if (activePanelInteraction.interactingPointables.size() > 2)
 //				{			
 //					Vector newImageCentroid, newCentroid;
@@ -523,50 +539,56 @@ bool ImageDetailView::handleImageManipulation(const Controller & controller)
 //					Vector oldCentroid = activePanelInteraction.pointableCentroid;
 //					if (oldCentroid.x != 0)
 //					{
-//						//LeapDebug::getInstance().addDebugVisual(new LeapDebugVisual(newImageCentroid,1,LeapDebugVisual::LiveByTime,35,Colors::LightBlue));
+//						//LeapDebug::getInstance().addDebugVisual(new PointableCursor(newImageCentroid,1,PointableCursor::LiveByTime,35,Colors::LightBlue));
 //
 //						newImageCentroid.x = LeapHelper::lowpass(oldCentroid.x,newImageCentroid.x,40,timer.millis());
 //						newImageCentroid.y = LeapHelper::lowpass(oldCentroid.y,newImageCentroid.y,40,timer.millis());
 //					
-//						//LeapDebug::getInstance().addDebugVisual(new LeapDebugVisual(newImageCentroid,1,LeapDebugVisual::LiveByTime,40,Colors::Blue));
+//						//LeapDebug::getInstance().addDebugVisual(new PointableCursor(newImageCentroid,1,PointableCursor::LiveByTime,40,Colors::Blue));
 //
 //						activePanelInteraction.translation += (newImageCentroid - oldCentroid);
 //					}
 //					activePanelInteraction.pointableCentroid = newImageCentroid;
 //				}
-
-
+				
 				if (activePanelInteraction.interactingPointables.size() == 2)
 				{
-					Pointable p1 = controller.frame().pointable(activePanelInteraction.interactingPointables.at(0).first);
-					Pointable p2 = controller.frame().pointable(activePanelInteraction.interactingPointables.at(1).first);
+					p1 = controller.frame().pointable(activePanelInteraction.interactingPointables.at(0).first);
+					p2 = controller.frame().pointable(activePanelInteraction.interactingPointables.at(1).first);
 
-					float newDist = 0;
-					for (int i=0;i<size;i++)
+					//opposingCursor->setPointables(p1,p2);
+
+					float touchDist =GlobalConfig::tree()->get<float>("ImageDetailView.ResizeInteraction.MaxTouchDistance");
+					
+					if (p1.touchDistance() < touchDist && p2.touchDistance() < touchDist)
 					{
-						for (int j=0;j<size;j++)
+						float newDist = 0;
+						for (int i=0;i<size;i++)
 						{
-							if (i != j)
+							for (int j=0;j<size;j++)
 							{
-								newDist = max<float>(newDist,newPoints.at(i).distanceTo(newPoints.at(j)));
+								if (i != j)
+								{
+									newDist = max<float>(newDist,newPoints.at(i).distanceTo(newPoints.at(j)));
+								}
 							}
+						}									
+
+						float oldDist = activePanelInteraction.pointableRange;
+						if (oldDist > 0)
+						{
+							newDist = LeapHelper::lowpass(oldDist,newDist,40,timer.millis());
+
+							float newScale = activePanelInteraction.scale.x *  (newDist/oldDist); 						
+
+							newScale = max<float>(newScale,.5);
+							newScale = min<float>(newScale,10);
+
+							activePanelInteraction.scale.x = newScale;
 						}
-					}									
 
-					float oldDist = activePanelInteraction.pointableRange;
-					if (oldDist > 0)
-					{
-						newDist = LeapHelper::lowpass(oldDist,newDist,40,timer.millis());
-
-						float newScale = activePanelInteraction.scale.x *  (newDist/oldDist); 						
-
-						newScale = max<float>(newScale,.5);
-						newScale = min<float>(newScale,10);
-
-						activePanelInteraction.scale.x = newScale;
+						activePanelInteraction.pointableRange = newDist;
 					}
-
-					activePanelInteraction.pointableRange = newDist;
 				}
 
 				timer.start();
@@ -577,11 +599,11 @@ bool ImageDetailView::handleImageManipulation(const Controller & controller)
 		//Something bad happened, so try and find new pointable to interact with the image
 		if (error)
 		{
-			ldv1->size = 0;
-			ldv2->size = 0;
+			//ldv1->size = 0;
+			//ldv2->size = 0;
 			processed = getNewPanelInteraction(controller,frame,panel,activePanelInteraction,hostOffset);
 		}
-		else
+		else if  (false)
 		{
 			cv::Size2f size = lastSize;
 			activePanelInteraction.panel->setTextureWindow(Vector(),Vector());

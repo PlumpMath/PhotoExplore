@@ -3,7 +3,7 @@
 #include "GraphicContext.hpp"
 
 
-void LeapDebugVisual::onFrame(const Controller & controller)
+void PointableCursor::onFrame(const Controller & controller)
 {	
 	Pointable drawPointable = controller.frame().pointable(trackPointableId);
 	
@@ -11,22 +11,20 @@ void LeapDebugVisual::onFrame(const Controller & controller)
 	{
 		drawPoint = LeapHelper::FindScreenPoint(controller,drawPointable);
 	}
-	else if (!trackMouseCursor)
+	else 
 		drawPoint = Vector(0,0,0);
 }
 
-void LeapDebugVisual::update()
+Vector PointableCursor::getDrawPoint()
 {
-	if (trackMouseCursor)
-	{
-		double x,y;
-		glfwGetCursorPos(GraphicsContext::getInstance().MainWindow,&x,&y);
-
-		drawPoint = Vector((float)x,(float)y,0);
-	}
+	return drawPoint;
 }
 
-void LeapDebugVisual::draw()
+void PointableCursor::update()
+{
+}
+
+void PointableCursor::draw()
 {
 	float drawWidth,drawHeight,x1,x2,y1,y2, z1;
 

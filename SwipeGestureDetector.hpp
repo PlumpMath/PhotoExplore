@@ -100,7 +100,7 @@ private:
 	double startScrollPos, currentScrollVelocity;
 	int scrollingPointableId, scrollingHandId;
 	
-	vector<LeapDebugVisual*> scrollPointVisuals;
+	vector<PointableCursor*> scrollPointVisuals;
 
 	boost::mutex flyWheelMutex;
 

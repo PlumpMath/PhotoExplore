@@ -186,7 +186,7 @@
 	"FakeDataMode" : 
 	{
 		"Enable" : false,
-		"FileBrowser" : false,
+		"FileBrowser" : true,
 		"ImageDirectories" :
 		[ 
 			"C:\\Users\\Adam\\Pictures",		

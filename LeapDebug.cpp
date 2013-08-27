@@ -222,10 +222,10 @@ void LeapDebug::onFrame(const Controller& controller)
 	}
 
 	lastFrame = frame;
-	static map<int,LeapDebugVisual*> ldv_intent;
+	static map<int,PointableCursor*> ldv_intent;
 }
 
-void LeapDebug::addDebugVisual(LeapDebugVisual * ldv)
+void LeapDebug::addDebugVisual(OverlayVisual * ldv)
 {
 	persistentVisuals.push_back(ldv);
 }

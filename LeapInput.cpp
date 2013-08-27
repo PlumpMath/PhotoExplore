@@ -15,7 +15,19 @@ LeapInput::LeapInput()
 	topElement = NULL;
 	mouseHitLast = NULL;
 	drawNonDominant = false;
+	cursorDrawEnabled = true;
 }
+
+void LeapInput::setCursorDrawEnabled(bool drawCursors)
+{
+	this->cursorDrawEnabled = drawCursors;
+}
+
+bool LeapInput::isCursorDrawEnabled()
+{
+	return this->cursorDrawEnabled;
+}
+
 
 InteractionState LeapInput::getInteractionState()
 {
@@ -24,7 +36,7 @@ InteractionState LeapInput::getInteractionState()
 
 void LeapInput::processInputEvents()
 {
-	static LeapDebugVisual * mouseVisual = NULL;
+	static PointableCursor * mouseVisual = NULL;
 	static Color clickColor = Color(GlobalConfig::tree()->get_child("Leap.MouseInput.CursorVisual.LineColor"));
 	static Color baseColor = Color(GlobalConfig::tree()->get_child("Leap.MouseInput.CursorVisual.FillColor"));
 
@@ -32,12 +44,10 @@ void LeapInput::processInputEvents()
 	{
 		float cursorDimension = (((float)GlobalConfig::ScreenWidth) / 2560.0f) *  GlobalConfig::tree()->get<float>("Overlay.BaseCursorSize");	
 
-		mouseVisual = new LeapDebugVisual(cursorDimension,baseColor);
+		mouseVisual = new MouseCursor(cursorDimension,baseColor);
 		mouseVisual->lineColor = Color(GlobalConfig::tree()->get_child("Leap.MouseInput.CursorVisual.LineColor"));
 		mouseVisual->lineWidth =GlobalConfig::tree()->get<float>("Leap.MouseInput.CursorVisual.LineWidth");
-
-		mouseVisual->trackMouseCursor = true;
-
+		
 		LeapDebug::getInstance().addDebugVisual(mouseVisual);
 		
 		
@@ -221,23 +231,23 @@ void LeapInput::processFrame(const Controller & controller, Frame frame)
 		currentState.ClickingPointableId = testPointable.id();
 	}
 
-	static LeapDebugVisual * ldvIntent = NULL, * ldvNonDominant = NULL, * ldvNonDominantTD = NULL;
-	static vector<LeapDebugVisual*> touchDistanceVisuals;
+	static PointableCursor * ldvIntent = NULL, * ldvNonDominant = NULL, * ldvNonDominantTD = NULL;
+	static vector<PointableCursor*> touchDistanceVisuals;
 
 
 	if (ldvIntent == NULL)
 	{
-		ldvIntent =new LeapDebugVisual(cursorDimension,GlobalConfig::tree()->get_child("Leap.IntentControl.ScrollVisual.Color"));
+		ldvIntent =new PointableCursor(cursorDimension,GlobalConfig::tree()->get_child("Leap.IntentControl.ScrollVisual.Color"));
 		ldvIntent->depth=10;
 		LeapDebug::getInstance().addDebugVisual(ldvIntent);
 
-		ldvNonDominant = new LeapDebugVisual(0,GlobalConfig::tree()->get_child("Leap.IntentControl.NonDominant.FillColor"));
+		ldvNonDominant = new PointableCursor(0,GlobalConfig::tree()->get_child("Leap.IntentControl.NonDominant.FillColor"));
 		ldvNonDominant->depth=10;
 		ldvNonDominant->lineWidth =GlobalConfig::tree()->get<float>("Leap.IntentControl.NonDominant.LineWidth");
 		ldvNonDominant->lineColor = Color(GlobalConfig::tree()->get_child("Leap.IntentControl.NonDominant.LineColor"));
 		LeapDebug::getInstance().addDebugVisual(ldvNonDominant);
 		
-		ldvNonDominantTD = new LeapDebugVisual(0,GlobalConfig::tree()->get_child("Leap.IntentControl.NonDominantTD.FillColor"));
+		ldvNonDominantTD = new PointableCursor(0,GlobalConfig::tree()->get_child("Leap.IntentControl.NonDominantTD.FillColor"));
 		ldvNonDominantTD->depth=10;
 		ldvNonDominantTD->lineWidth =GlobalConfig::tree()->get<float>("Leap.IntentControl.NonDominantTD.LineWidth");
 		ldvNonDominantTD->lineColor = Color(GlobalConfig::tree()->get_child("Leap.IntentControl.NonDominantTD.LineColor"));
@@ -296,7 +306,7 @@ void LeapInput::processFrame(const Controller & controller, Frame frame)
 	int i = 0;
 	if (touchDistanceVisuals.size() <= i)
 	{
-		LeapDebugVisual * distanceVisual =new LeapDebugVisual(0,Color(GlobalConfig::tree()->get_child("Leap.TouchDistance.Visual.FillColor")));
+		PointableCursor * distanceVisual =new PointableCursor(0,Color(GlobalConfig::tree()->get_child("Leap.TouchDistance.Visual.FillColor")));
 		distanceVisual->lineColor = Color(GlobalConfig::tree()->get_child("Leap.TouchDistance.Visual.LineColor"));
 		distanceVisual->lineWidth = GlobalConfig::tree()->get<float>("Leap.TouchDistance.Visual.LineWidth");
 		distanceVisual->depth=11;
@@ -338,6 +348,16 @@ void LeapInput::processFrame(const Controller & controller, Frame frame)
 	
 	lastFrame = frame;
 	lastFrameId = frame.id();
+
+	if (!cursorDrawEnabled)
+	{		
+		for (int i=0;i<touchDistanceVisuals.size();i++)
+			touchDistanceVisuals.at(i)->size = 0;
+
+		ldvIntent->size = 0;
+		ldvNonDominant->size = 0;
+		ldvNonDominantTD->size = 0;
+	}
 
 }
 

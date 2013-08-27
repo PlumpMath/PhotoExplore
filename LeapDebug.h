@@ -38,8 +38,8 @@ class LeapDebug : public Listener {
 
 private:
 	Color backgroundColor;
-	std::map<int,LeapDebugVisual> pointableList;
-	std::vector<LeapDebugVisual*> persistentVisuals;
+	std::map<int,PointableCursor> pointableList;
+	std::vector<OverlayVisual*> persistentVisuals;
 	HandProcessor * handProcessor;
 
 	bool debugPlotEnabled;
@@ -80,7 +80,7 @@ public:
 	void showValue(string key, string value);	
 	void showValue(string key, double value);
 	void plotValue(string key, Color color, float value);
-	void addDebugVisual(LeapDebugVisual * ldv);
+	void addDebugVisual(OverlayVisual * ldv);
 
 	void setTutorialImages(vector<string> names);
 	void layoutTutorial();

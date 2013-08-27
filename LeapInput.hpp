@@ -72,7 +72,7 @@ private:
 		
 	InteractionState currentState;
 	
-	bool drawNonDominant;
+	bool drawNonDominant, cursorDrawEnabled;
 	
 	LeapElement * topElement;
 	
@@ -93,6 +93,9 @@ public:
 	void releaseGlobalGestureFocus(ActivityView * globalListener);
 
 	void enableNonDominantCursor(bool enable);
+
+	void setCursorDrawEnabled(bool drawCursors);
+	bool isCursorDrawEnabled();
 
 	InteractionState getInteractionState();
 

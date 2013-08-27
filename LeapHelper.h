@@ -60,7 +60,7 @@ public:
 
 	static Vector FindScreenPoint(const Controller & c, Pointable pointable, bool make2D = !false)
 	{
-		Screen screen = c.calibratedScreens()[0];
+		Screen screen = c.locatedScreens()[0];
 		return FindScreenPoint(c, pointable, screen, make2D);
 	}
 

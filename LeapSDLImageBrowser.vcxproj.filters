@@ -339,6 +339,15 @@
     <ClCompile Include="NotchedWheel.cpp">
       <Filter>Source Files\NewPanel</Filter>
     </ClCompile>
+    <ClCompile Include="MouseCursor.cpp">
+      <Filter>Source Files\Overlay</Filter>
+    </ClCompile>
+    <ClCompile Include="ArrowCursor.cpp">
+      <Filter>Source Files\Overlay</Filter>
+    </ClCompile>
+    <ClCompile Include="OpposingArrowCursor.cpp">
+      <Filter>Source Files\Overlay</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Types.h">

@@ -217,6 +217,7 @@
     <ClCompile Include="AlbumCursorView.cpp" />
     <ClCompile Include="AlbumPanel.cpp" />
     <ClCompile Include="Animation.cpp" />
+    <ClCompile Include="ArrowCursor.cpp" />
     <ClCompile Include="Button.cpp" />
     <ClCompile Include="Cefalopod.cpp" />
     <ClCompile Include="Color.cpp" />
@@ -249,7 +250,9 @@
     <ClCompile Include="HandModel.cpp" />
     <ClCompile Include="ImageButton.cpp" />
     <ClCompile Include="ImageDetailView.cpp" />
+    <ClCompile Include="MouseCursor.cpp" />
     <ClCompile Include="NotchedWheel.cpp" />
+    <ClCompile Include="OpposingArrowCursor.cpp" />
     <ClCompile Include="PictureDetailView.cpp" />
     <ClCompile Include="ImageLoader.cpp" />
     <ClCompile Include="ImageLoadTask.cpp" />
