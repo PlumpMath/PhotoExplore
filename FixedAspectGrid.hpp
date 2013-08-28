@@ -22,6 +22,9 @@ public:
 	
 	void measure(cv::Size2f & measuredSize);
 
+	void setGridSize(cv::Size2i gridSize);
+	cv::Size2i getGridSize();
+
 	void layout(Vector position, cv::Size2f size);
 
 	void setInteriorMarginsOnly(bool interiorOnly);

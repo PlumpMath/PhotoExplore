@@ -252,8 +252,8 @@ int HandProcessor::determineHandPose(Hand hand, HandModel * model, vector<pair<F
 
 			float sphereRadiusThreshold = poseConfig.get<float>("SphereRadiusThreshold");		
 			
-			LeapDebug::getInstance().showValue("01. Tip distance",closestTip); 
-			LeapDebug::getInstance().showValue("02. Sphere",hand.sphereRadius()); 
+			//LeapDebug::getInstance().showValue("01. Tip distance",closestTip); 
+			//LeapDebug::getInstance().showValue("02. Sphere",hand.sphereRadius()); 
 
 			if (hand.sphereRadius() > sphereRadiusThreshold || closestTip < point_middleFingerDist)
 			{

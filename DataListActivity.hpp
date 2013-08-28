@@ -49,6 +49,9 @@ public:
 	virtual void suspend();
 	virtual void resume();
 
+	void setRowCount(int rowCount);
+	int getRowCount();
+
 	void layout(Vector position, cv::Size2f size);
 	void draw();
 	void update();

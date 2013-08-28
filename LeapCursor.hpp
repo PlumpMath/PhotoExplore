@@ -10,7 +10,15 @@ using namespace Leap;
 
 class OverlayVisual {
 
+private:
+	bool visible;
+
 public:	
+	OverlayVisual() : visible(true) {}
+
+	virtual void setVisible(bool visible) {this->visible = visible;}
+	virtual bool isVisible() { return visible; }
+
 	virtual void onFrame(const Controller & controller) { }
 	virtual void update() { }
 	virtual void draw() { }
@@ -20,37 +28,34 @@ class PointableCursor : public OverlayVisual {
 		
 protected:
 	Vector drawPoint;
-
+	Color cursorBaseColor;
+	float fillAlpha, borderAlpha;
+	
+	Color fillColor,lineColor;
+	
 public:	
 	int trackPointableId;
 
-	Color fillColor,lineColor;
 	double size;
 	float depth, lineWidth;
 
-	PointableCursor(Pointable _trackPointable, double size, Color fillColor)
-	{
-		this->trackPointableId = _trackPointable.id();
-		this->size = size;
-		this->fillColor = fillColor;
-		this->depth= 10;
-		this->lineWidth = 1;
-	}
+	PointableCursor(float size, Color cursorBaseColor);
 
-	PointableCursor(double size, Color fillColor)
-	{
-		trackPointableId = -1;
-		this->size = size;
-		this->fillColor = fillColor;
-		this->depth= 10;
-		this->lineWidth = 1;
-	}
+	void setBorderAlpha(float borderAlpha);
+	void setFillAlpha(float fillAlpha);
+	void setCursorColor(Color cursorColor);
 
 	Vector getDrawPoint();
 
 	virtual void onFrame(const Controller & controller);
 	virtual void update();
-	virtual void draw();
+	virtual void draw();	
+
+	static float getDefaultSize()
+	{
+		float cursorDimension = (((float)GlobalConfig::ScreenWidth) / 2560.0f) *  GlobalConfig::tree()->get<float>("Overlay.BaseCursorSize");
+		return cursorDimension;
+	}
 };
 
 
@@ -63,14 +68,33 @@ public:
 
 };
 
+class PointableTouchCursor : public OverlayVisual {
+
+
+private:
+	PointableCursor * c1, * c2;
+	float minSize, maxSize, touchDistanceThreshold;
+
+public:
+	PointableTouchCursor(float minSize, float maxSize, Color cursorColor);	
+
+	void setPointable(Pointable & pointable);
+	void setColor(Color color);
+
+	void onFrame(const Controller & controller);
+	void draw();
+
+};
+
 class ArrowCursor : public PointableCursor {
 	
 private:
 	float cursorDirection, squareFactor;
+	float filledTouchDist, triangleTouchDist, squareTouchDist;
 	
 public:
 	ArrowCursor(float,Color);
-
+	
 	void setDirection(float direction);
 	float getDirection();
 
@@ -83,7 +107,8 @@ public:
 class OpposingArrowCursor : public OverlayVisual {
 
 private:
-	ArrowCursor * c1, * c2;
+	//ArrowCursor * c1, * c2, * c3, * c4;
+	vector<ArrowCursor*> arrows;
 
 public:
 	OpposingArrowCursor(float,Color);

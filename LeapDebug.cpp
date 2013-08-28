@@ -276,7 +276,8 @@ void LeapDebug::draw()
 
 	for (int i = 0;i< persistentVisuals.size();i++)
 	{
-		persistentVisuals.at(i)->draw();
+		if (persistentVisuals.at(i)->isVisible())
+			persistentVisuals.at(i)->draw();
 	}
 	
 

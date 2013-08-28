@@ -497,7 +497,7 @@ void SwipeGestureDetector::doTouchZoneScrolling(const Controller & controller)
 		if (scrollPointVisuals.size() <= i)
 		{
 			PointableCursor * scrollPointVisual = new PointableCursor(0,Color(scrollConfig.get_child("VisualBackgroundColor")));
-			scrollPointVisual->lineColor = Color(scrollConfig.get_child("VisualLineColor"));
+			//scrollPointVisual->lineColor = Color(scrollConfig.get_child("VisualLineColor"));
 			scrollPointVisual->lineWidth = 2.0f;
 			scrollPointVisual->depth = 13;
 			LeapDebug::getInstance().addDebugVisual(scrollPointVisual);

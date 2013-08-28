@@ -5,6 +5,10 @@ ArrowCursor::ArrowCursor(float size, Color fillColor) : PointableCursor((double)
 {
 	cursorDirection = 0;
 	squareFactor = 0;
+	
+	filledTouchDist = 0.0f;
+	triangleTouchDist = 0.5f;
+	squareTouchDist = 0.8f;
 }
 
 void ArrowCursor::setDirection(float _cursorDirection)
@@ -21,10 +25,22 @@ void ArrowCursor::onFrame(const Controller & controller)
 {
 	PointableCursor::onFrame(controller);
 
-	squareFactor = controller.frame().pointable(trackPointableId).touchDistance() - 0.5f;
-	squareFactor /= 0.3f;
-	squareFactor = max<float>(0,squareFactor);
-	squareFactor = min<float>(1,squareFactor);
+	Pointable p1 = controller.frame().pointable(trackPointableId);
+
+	if (p1.isValid())
+	{
+		squareFactor = p1.touchDistance() - triangleTouchDist;
+		squareFactor /= (squareTouchDist - triangleTouchDist);
+		squareFactor = max<float>(0,squareFactor);
+		squareFactor = min<float>(1,squareFactor);
+
+		float alpha = p1.touchDistance() - filledTouchDist;
+		alpha /= (squareTouchDist - filledTouchDist);
+		alpha = max<float>(0,alpha);
+		alpha = min<float>(1,alpha);
+
+		setFillAlpha(1.0f - alpha);
+	}
 }
 
 void ArrowCursor::draw()

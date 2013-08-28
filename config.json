@@ -72,7 +72,7 @@
 	"DynamicImagePanel" :
 	{
 		"AnimateLayoutDuration" : 400,
-		"DebugLoading" : false,
+		"DebugLoading" : true,
 		"DebugPriority" : false
 	},	
 	"PanelBase" :
@@ -110,14 +110,15 @@
 	},
 	"ResourceCache" : 
 	{
-		"TextureCacheSize" : 512, 	//Megabytes
-		"ImageCacheSize" : 768, 	//Megabytes		
+		"TextureCacheSize" : 256, 	//Megabytes
+		"ImageCacheSize" : 512, 	//Megabytes		
 		"MaxImageSize" : 30,			//Megabytes
 		"CacheGCFrequency" : 10000 ,//milliseconds		
 		"FullCacheGCFrequency" : 2000, //milliseconds
 		"TextureCacheGCCollectRatio" : 0.8,
 		"ImageCacheGCCollectRatio" : 0.8,
-		"DebugLogging" : false
+		"DebugLogging" : true,
+		"DebugLogSize" : 100
 	},
 	"StatusOverlay" : 
 	{
@@ -170,7 +171,7 @@
 	},
 	"WindowsDebugPanel" :
 	{
-		"Enable" : false,
+		"Enable" : true,
 		"DesktopParent" : false,
 		"Width" : 400,
 		"Height" : 150		
@@ -191,8 +192,8 @@
 		[ 
 			"C:\\Users\\Adam\\Pictures",		
 			"C:\\Users\\Adam\\Pictures\\pixiv-win",	
-			"C:\\Users\\Adam\\Pictures\\camera"	
-			//"G:\\JapanPics\\100Media"
+			"C:\\Users\\Adam\\Pictures\\camera",
+			"G:\\JapanPics\\100Media"
 			//"/Users/adamskubel/Pictures",
 			//"/Users/adamskubel/Downloads" 
 			
@@ -439,38 +440,22 @@
 			"CursorVisual" : 
 			{
 				"FillColor" :   {"R" : 0,"G" : 221,"B" : 255,"A" : 0},
-				"LineColor" :  {"R" : 0,"G" : 221,"B" : 255,"A" : 200}, //OrangeRed
+				"LineColor" :  {"R" : 0,"G" : 221,"B" : 255,"A" : 0}, //OrangeRed
 				"LineWidth" :  2.0,
-				"ClickColor" :   {"R" : 0,"G" : 221,"B" : 255,"A" : 200}
+				"ClickColor" :   {"R" : 0,"G" : 221,"B" : 255,"A" : 0}
 			}
 		},
 		"IntentControl" : 
 		{				
 			"SelectVisual" : 
 			{
-				"Color" :  {"R" : 0,"G" : 0,"B" : 0,"A" : 0},
-				"LineColor" :  {"R" : 0,"G" : 221,"B" : 255,"A" : 150},
+				"Color" :  {"R" : 0,"G" : 221,"B" : 255,"A" : 150},
 				"LineWidth" :  3
 			},
 			"ScrollVisual" : 
 			{
-				"Color" :  {"R" : 200,"G" : 200,"B" : 200,"A" : 0},
-				"LineColor" :  {"R" : 255,"G" : 69,"B" : 0,"A" : 150}, //OrangeRed
-				//"LineColor" :  {"R" : 100,"G" : 255,"B" : 100,"A" : 80}, 
+				"Color" :  {"R" : 255,"G" : 69,"B" : 0,"A" : 150}, //OrangeRed
 				"LineWidth" :  3
-			},
-			"NonDominant" : 
-			{
-				"FillColor" :  {"R" : 0,"G" : 0,"B" : 0,"A" : 0},
-				"LineColor" :  {"R" : 199,"G" : 21,"B" : 133,"A" : 150},//MediumViolet				
-				"LineWidth" :  1
-			},
-			"NonDominantTD" : 
-			{
-				"FillColor" : {"R" : 199,"G" : 21,"B" : 133,"A" : 200},
-				"LineColor" : {"R" : 199,"G" : 21,"B" : 133,"A" : 200}, //MediumViolet
-				//"LineColor" :  {"R" : 128,"G" : 0,"B" : 255,"A" : 80},  //Pretty
-				"LineWidth" :  2
 			}
 		},
 		"HandPoseControl" : 
@@ -500,6 +485,13 @@
 				}
 			}
 		}
+	},
+	"Cursors" :
+	{
+		"PointColor" : {"R" : 0,"G" : 221,"B" : 255,"A" : 150}, //HoloBlueBright
+		"Color" :  {"R" : 255,"G" : 69,"B" : 0,"A" : 150}, //OrangeRed
+		"InnerWidth" : 2.0,
+		"OuterWidth" : 1.0
 	},
 	"ImageDetailView" :
 	{		

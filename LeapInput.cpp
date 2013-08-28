@@ -45,7 +45,7 @@ void LeapInput::processInputEvents()
 		float cursorDimension = (((float)GlobalConfig::ScreenWidth) / 2560.0f) *  GlobalConfig::tree()->get<float>("Overlay.BaseCursorSize");	
 
 		mouseVisual = new MouseCursor(cursorDimension,baseColor);
-		mouseVisual->lineColor = Color(GlobalConfig::tree()->get_child("Leap.MouseInput.CursorVisual.LineColor"));
+		//mouseVisual->lineColor = Color(GlobalConfig::tree()->get_child("Leap.MouseInput.CursorVisual.LineColor"));
 		mouseVisual->lineWidth =GlobalConfig::tree()->get<float>("Leap.MouseInput.CursorVisual.LineWidth");
 		
 		LeapDebug::getInstance().addDebugVisual(mouseVisual);
@@ -89,14 +89,14 @@ void LeapInput::processInputEvents()
 
 	int mouseState = mouseButtonState[GLFW_MOUSE_BUTTON_1];
 	
-	if (mouseState == GLFW_PRESS || mouseState == GLFW_REPEAT)
-	{
-		mouseVisual->fillColor = clickColor;
-	}
-	else
-	{		
-		mouseVisual->fillColor = baseColor;
-	}
+	//if (mouseState == GLFW_PRESS || mouseState == GLFW_REPEAT)
+	//{
+	//	mouseVisual->fillColor = clickColor;
+	//}
+	//else
+	//{		
+	//	mouseVisual->fillColor = baseColor;
+	//}
 
 	if (hit != NULL && hit->isClickable() && mouseState == GLFW_PRESS)
 	{
@@ -130,7 +130,6 @@ void LeapInput::processFrame(const Controller & controller, Frame frame)
 {	
 	static float maxRadialClickVelocity = GlobalConfig::tree()->get<float>("Leap.TouchDistance.MaxRadialClickVelocity");
 	static float maxLongitudalClickVelocity = GlobalConfig::tree()->get<float>("Leap.TouchDistance.MaxLongitudalClickVelocity");
-	static float cursorDimension = (((float)GlobalConfig::ScreenWidth) / 2560.0f) *  GlobalConfig::tree()->get<float>("Overlay.BaseCursorSize");
 	static float clickDistanceThreshold = GlobalConfig::tree()->get<float>("Leap.TouchDistance.ClickDistanceThreshold");
 	static float minimumDrawDistance = GlobalConfig::tree()->get<float>("Leap.TouchDistance.MinimumDrawDistance");
 	static bool drawIntentOnly = GlobalConfig::tree()->get<bool>("Leap.TouchDistance.DrawIntentOnly");
@@ -231,117 +230,25 @@ void LeapInput::processFrame(const Controller & controller, Frame frame)
 		currentState.ClickingPointableId = testPointable.id();
 	}
 
-	static PointableCursor * ldvIntent = NULL, * ldvNonDominant = NULL, * ldvNonDominantTD = NULL;
-	static vector<PointableCursor*> touchDistanceVisuals;
-
+	static PointableTouchCursor * ldvIntent = NULL;
 
 	if (ldvIntent == NULL)
 	{
-		ldvIntent =new PointableCursor(cursorDimension,GlobalConfig::tree()->get_child("Leap.IntentControl.ScrollVisual.Color"));
-		ldvIntent->depth=10;
+		float cursorDimension = PointableCursor::getDefaultSize();
+		ldvIntent =new PointableTouchCursor(cursorDimension,cursorDimension*2.0f,Color(GlobalConfig::tree()->get_child("Leap.IntentControl.ScrollVisual.Color")));
 		LeapDebug::getInstance().addDebugVisual(ldvIntent);
-
-		ldvNonDominant = new PointableCursor(0,GlobalConfig::tree()->get_child("Leap.IntentControl.NonDominant.FillColor"));
-		ldvNonDominant->depth=10;
-		ldvNonDominant->lineWidth =GlobalConfig::tree()->get<float>("Leap.IntentControl.NonDominant.LineWidth");
-		ldvNonDominant->lineColor = Color(GlobalConfig::tree()->get_child("Leap.IntentControl.NonDominant.LineColor"));
-		LeapDebug::getInstance().addDebugVisual(ldvNonDominant);
-		
-		ldvNonDominantTD = new PointableCursor(0,GlobalConfig::tree()->get_child("Leap.IntentControl.NonDominantTD.FillColor"));
-		ldvNonDominantTD->depth=10;
-		ldvNonDominantTD->lineWidth =GlobalConfig::tree()->get<float>("Leap.IntentControl.NonDominantTD.LineWidth");
-		ldvNonDominantTD->lineColor = Color(GlobalConfig::tree()->get_child("Leap.IntentControl.NonDominantTD.LineColor"));
-		LeapDebug::getInstance().addDebugVisual(ldvNonDominantTD);
 	}
-
-	if (frame.hands().count() > 1 && drawNonDominant)
-	{
-		HandModel * hm2 = HandProcessor::LastModel(frame.hands().leftmost().id());
-		Pointable nonDomPnt = frame.pointable(hm2->IntentFinger);
-
-		if (nonDomPnt.isValid())
-		{
-			Vector ndPt = LeapHelper::FindScreenPoint(controller,nonDomPnt);
-			ldvNonDominant->size = cursorDimension;
-			ldvNonDominant->trackPointableId = nonDomPnt.id();
-			
-			ldvNonDominantTD->size =  cursorDimension*(1.0f + max<float>(minimumDrawDistance,nonDomPnt.touchDistance()));
-			ldvNonDominantTD->trackPointableId = nonDomPnt.id();
-						
-			Color c = Color(GlobalConfig::tree()->get_child("Leap.IntentControl.NonDominantTD.FillColor"));
-			float alphaMod = 0;
-			if (nonDomPnt.touchDistance() <= minimumDrawDistance)
-			{
-				alphaMod = min<float>(1.0f,-2.0f * nonDomPnt.touchDistance());
-			}
-			c.setAlpha(c.colorArray[3] * alphaMod);
-			ldvNonDominantTD->fillColor = c;
-		}
-	}
-	else
-	{
-		ldvNonDominant->size = 0;
-		ldvNonDominantTD->size = 0;
-	}
-
 
 	if (canPointableClick)
 	{
-		ldvIntent->fillColor = Color(GlobalConfig::tree()->get_child("Leap.IntentControl.SelectVisual.Color"));
-		ldvIntent->lineColor = Color(GlobalConfig::tree()->get_child("Leap.IntentControl.SelectVisual.LineColor"));
+		ldvIntent->setColor(Color(GlobalConfig::tree()->get_child("Leap.IntentControl.SelectVisual.Color")));
 	}
 	else
 	{		
-		ldvIntent->fillColor = Color(GlobalConfig::tree()->get_child("Leap.IntentControl.ScrollVisual.Color"));
-		ldvIntent->lineColor = Color(GlobalConfig::tree()->get_child("Leap.IntentControl.ScrollVisual.LineColor"));
+		ldvIntent->setColor(Color(GlobalConfig::tree()->get_child("Leap.IntentControl.ScrollVisual.Color")));
 	}
 	
-	ldvIntent->trackPointableId = testPointable.id();
-	
-
-
-	for (int i=0;i<touchDistanceVisuals.size();i++)
-		touchDistanceVisuals.at(i)->size = 0;
-	
-	int i = 0;
-	if (touchDistanceVisuals.size() <= i)
-	{
-		PointableCursor * distanceVisual =new PointableCursor(0,Color(GlobalConfig::tree()->get_child("Leap.TouchDistance.Visual.FillColor")));
-		distanceVisual->lineColor = Color(GlobalConfig::tree()->get_child("Leap.TouchDistance.Visual.LineColor"));
-		distanceVisual->lineWidth = GlobalConfig::tree()->get<float>("Leap.TouchDistance.Visual.LineWidth");
-		distanceVisual->depth=11;
-		LeapDebug::getInstance().addDebugVisual(distanceVisual);
-		touchDistanceVisuals.push_back(distanceVisual);
-	}
-
-
-	float drawTD = min<float>(1.0f,testPointable.touchDistance());
-	touchDistanceVisuals.at(i)->size = cursorDimension*(1.0f + max<float>(minimumDrawDistance,drawTD));
-
-	touchDistanceVisuals.at(i)->trackPointableId = testPointable.id();
-
-	if (canPointableClick)
-	{				
-		touchDistanceVisuals.at(i)->lineColor = Color(GlobalConfig::tree()->get_child("Leap.TouchDistance.ClickVisual.LineColor"));
-		touchDistanceVisuals.at(i)->lineWidth = GlobalConfig::tree()->get<float>("Leap.TouchDistance.ClickVisual.LineWidth");
-
-		float alphaMod = 0;
-		Color c = Color(GlobalConfig::tree()->get_child("Leap.TouchDistance.ClickVisual.FillColor"));
-		if (testPointable.touchDistance() <= minimumDrawDistance)
-		{
-			alphaMod = min<float>(1.0f,-2.0f * testPointable.touchDistance());
-		}
-		c.setAlpha(c.colorArray[3] * alphaMod);
-		touchDistanceVisuals.at(i)->fillColor = c;
-	}
-	else
-	{
-		touchDistanceVisuals.at(i)->fillColor = Color(GlobalConfig::tree()->get_child("Leap.TouchDistance.Visual.FillColor"));
-		touchDistanceVisuals.at(i)->lineColor = Color(GlobalConfig::tree()->get_child("Leap.TouchDistance.Visual.LineColor"));
-		touchDistanceVisuals.at(i)->lineWidth = GlobalConfig::tree()->get<float>("Leap.TouchDistance.Visual.LineWidth");
-	}
-	//}
-
+	ldvIntent->setPointable(testPointable);
 
 
 	handleGlobalGestures(controller);
@@ -349,16 +256,7 @@ void LeapInput::processFrame(const Controller & controller, Frame frame)
 	lastFrame = frame;
 	lastFrameId = frame.id();
 
-	if (!cursorDrawEnabled)
-	{		
-		for (int i=0;i<touchDistanceVisuals.size();i++)
-			touchDistanceVisuals.at(i)->size = 0;
-
-		ldvIntent->size = 0;
-		ldvNonDominant->size = 0;
-		ldvNonDominantTD->size = 0;
-	}
-
+	ldvIntent->setVisible(cursorDrawEnabled);
 }
 
 

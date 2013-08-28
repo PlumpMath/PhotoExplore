@@ -272,6 +272,7 @@
     <ClCompile Include="PanelBase.cpp" />
     <ClCompile Include="LeapInput.cpp" />
     <ClCompile Include="PicturePanel.cpp" />
+    <ClCompile Include="PointableTouchCursor.cpp" />
     <ClCompile Include="PunchGestureDetector.cpp" />
     <ClCompile Include="RadialMenu.cpp" />
     <ClCompile Include="ResourceManager.cpp" />

@@ -55,6 +55,8 @@ private:
 		
 	BidirectionalCursor * fwdCursor, * reverseCursor;
 
+	OpposingArrowCursor * opposingCursor;
+
 protected:	
 	Leap::Vector hostOffset;	
 	DynamicImagePanel * imagePanel;

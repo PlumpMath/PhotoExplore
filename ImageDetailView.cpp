@@ -15,6 +15,9 @@ ImageDetailView::ImageDetailView()
 	mainIndex = maxPanelCount / 2;
 	skipAnimationNextLayout = false;
 
+	opposingCursor = new OpposingArrowCursor(PointableCursor::getDefaultSize(),Color(GlobalConfig::tree()->get_child("Cursors.PointColor")));
+	LeapDebug::getInstance().addDebugVisual(opposingCursor);
+
 	scrollWheel->setNotchChangedListener([this](int currentNotch, int newNotch){
 
 		int delta = newNotch - currentNotch;
@@ -325,11 +328,10 @@ void ImageDetailView::setVisible(bool _visible)
 	View::setVisible(_visible);
 
 	LeapInput::getInstance()->setCursorDrawEnabled(!_visible);
+	opposingCursor->setVisible(_visible);
 
 
 	layoutDirty = true;
-
-	LeapInput::getInstance()->enableNonDominantCursor(_visible);
 }
 
 
@@ -461,16 +463,7 @@ bool ImageDetailView::handleImageManipulation(const Controller & controller)
 	static Timer timer;
 	PanelBase * panel = imagePanel;
 	bool processed = false;
-	static float cursorDimension = (((float)GlobalConfig::ScreenWidth) / 2560.0f) * 41;
-
-	static OpposingArrowCursor * opposingCursor = NULL;
-
-	if (opposingCursor == NULL)
-	{
-		opposingCursor = new OpposingArrowCursor(0,Colors::MediumVioletRed.withAlpha(.7f));
-		LeapDebug::getInstance().addDebugVisual(opposingCursor);
-	}
-
+	
 	Hand lh = controller.frame().hands().leftmost();
 	Hand rh = controller.frame().hands().rightmost();
 
@@ -481,11 +474,12 @@ bool ImageDetailView::handleImageManipulation(const Controller & controller)
 	Pointable p2 = controller.frame().pointable(p2_id);
 	
 	if (p1.isValid() && p2.isValid())
+	{
 		opposingCursor->setPointables(p1,p2);
+	}
+
 	
-	opposingCursor->setSize(60);
-
-
+	
 	if (panel != NULL)
 	{
 		Frame frame = controller.frame();

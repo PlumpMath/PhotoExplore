@@ -3,10 +3,41 @@
 #include "GraphicContext.hpp"
 
 
+PointableCursor::PointableCursor(float _size, Color _baseColor)
+{
+	trackPointableId = -1;
+	this->size = _size;
+	this->depth= 10;
+	this->lineWidth = 1;		
+	setCursorColor(_baseColor);
+	setFillAlpha(1);
+	setBorderAlpha(1);
+}
+
+
+void PointableCursor::setBorderAlpha(float _borderAlpha)
+{
+	this->borderAlpha = _borderAlpha;
+	lineColor = cursorBaseColor.withAlpha(cursorBaseColor.getFloat()[3] * borderAlpha);
+}
+
+void PointableCursor::setFillAlpha(float _fillAlpha)
+{
+	this->fillAlpha = _fillAlpha;
+	fillColor = cursorBaseColor.withAlpha(cursorBaseColor.getFloat()[3] * fillAlpha);
+}
+
+void PointableCursor::setCursorColor(Color cursorColor)
+{
+	cursorBaseColor = cursorColor;
+	lineColor = cursorBaseColor.withAlpha(cursorBaseColor.getFloat()[3] * borderAlpha);
+	fillColor = cursorBaseColor.withAlpha(cursorBaseColor.getFloat()[3] * fillAlpha);
+}
+
 void PointableCursor::onFrame(const Controller & controller)
 {	
 	Pointable drawPointable = controller.frame().pointable(trackPointableId);
-	
+
 	if (drawPointable.isValid())
 	{
 		drawPoint = LeapHelper::FindScreenPoint(controller,drawPointable);

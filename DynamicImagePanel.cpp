@@ -72,28 +72,34 @@ ResourceData * DynamicImagePanel::selectResource(bool & undersized)
 	if (maxResolutionMode)
 	{
 		data = resourceMap.rbegin()->second;
+
+		if (data != NULL && data->resourceId.find("_max") != string::npos)
+			undersized = false;
 	}
 	else
 	{
 		for (auto it = resourceMap.begin(); it != resourceMap.end(); it++)
 		{
-			if (resourceMap.size() > 1 && it->first == resourceMap.rbegin()->first)
-			{
-				break;
-			}
+			//if (resourceMap.size() > 1 && it->first == resourceMap.rbegin()->first)
+			//{
+			//	break;
+			//}
 
 			data = it->second;
 
-			if (it->first >= currentArea)
+			if (it->first == currentArea)
 			{
 				undersized = false;
+				break;
+			}
+			else if (it->first > currentArea)
+			{
 				break;
 			}
 		}
 	}
 
-	if (data != NULL && data->resourceId.find("_max") != string::npos)
-		undersized = false;
+
 
 	return data;
 }
@@ -102,10 +108,13 @@ void DynamicImagePanel::resourceUpdated(ResourceData * data)
 {
 	bool undersized;
 	ResourceData * newResource = selectResource(undersized);
-	if (newResource != NULL && newResource != currentResource)
+	if (newResource != NULL && newResource != currentResource && newResource->TextureState == ResourceState::TextureLoaded)
 	{
-		if (currentResource != NULL)
-			currentResource->priority = 100;
+		for (auto it = resourceMap.begin(); it != resourceMap.end(); it++)
+		{
+			if (it->second != newResource)
+				it->second->priority = 100;
+		}
 
 		currentResource = newResource;
 		currentResource->priority = this->getDataPriority();
@@ -163,7 +172,7 @@ void DynamicImagePanel::fitPanelToBoundary(Vector targetPosition, float maxWidth
 
 void DynamicImagePanel::drawContent(Vector drawPosition, float drawWidth, float drawHeight)
 {		
-	if (currentResource != NULL && currentResource->TextureState == ResourceState::TextureLoaded && currentResource->textureId != NULL) // && currentTextureId != NULL)
+	if (currentResource != NULL && currentResource->TextureState == ResourceState::TextureLoaded && currentResource->textureId != NULL)
 	{
 		TexturePanel::drawTexture(currentResource->textureId,drawPosition,drawWidth,drawHeight);
 	}		
@@ -173,45 +182,47 @@ void DynamicImagePanel::drawContent(Vector drawPosition, float drawWidth, float 
 		{
 			if (currentResource == NULL)
 			{
-				loadAnimationColor = Colors::Green;
-				return;
+				loadAnimationColor = Colors::DarkRed;
+				drawLoadTimer(drawPosition,drawWidth,drawHeight);
 			}
-			
-			switch (currentResource->ImageState)
-			{		
-			case ResourceState::Empty:
-				loadAnimationColor = Colors::Purple;
-				break;
-			case ResourceState::ImageLoading:
-				loadAnimationColor = Colors::Blue;
-				break;
-			case ResourceState::ImageLoaded:
-				loadAnimationColor = Colors::LimeGreen;
-				break;
-			case ResourceState::ImageLoadError:
-				loadAnimationColor = Colors::Red;
-				break;
+			else
+			{			
+				switch (currentResource->ImageState)
+				{		
+				case ResourceState::Empty:
+					loadAnimationColor = Colors::Purple;
+					break;
+				case ResourceState::ImageLoading:
+					loadAnimationColor = Colors::Blue;
+					break;
+				case ResourceState::ImageLoaded:
+					loadAnimationColor = Colors::LimeGreen;
+					break;
+				case ResourceState::ImageLoadError:
+					loadAnimationColor = Colors::Red;
+					break;
+				}
+
+				drawLoadTimer(drawPosition,drawWidth,drawHeight/2.0f);
+
+				switch (currentResource->TextureState)
+				{		
+				case ResourceState::Empty:
+					loadAnimationColor = Colors::Magenta;
+					break;
+				case ResourceState::TextureLoading:
+					loadAnimationColor = Colors::HoloBlueBright;
+					break;
+				case ResourceState::TextureLoaded:
+					loadAnimationColor = (currentResource->textureId == NULL) ? Colors::Red : Colors::DarkGreen;
+					break;
+				case ResourceState::TextureLoadError:
+					loadAnimationColor = Colors::OrangeRed;
+					break;
+				}			
+
+				drawLoadTimer(drawPosition + Vector(0,drawHeight/2.0f,0),drawWidth,drawHeight/2.0f);
 			}
-
-			drawLoadTimer(drawPosition,drawWidth,drawHeight/2.0f);
-
-			switch (currentResource->TextureState)
-			{		
-			case ResourceState::Empty:
-				loadAnimationColor = Colors::Magenta;
-				break;
-			case ResourceState::TextureLoading:
-				loadAnimationColor = Colors::HoloBlueBright;
-				break;
-			case ResourceState::TextureLoaded:
-				loadAnimationColor = Colors::DarkGreen;
-				break;
-			case ResourceState::TextureLoadError:
-				loadAnimationColor = Colors::OrangeRed;
-				break;
-			}			
-
-			drawLoadTimer(drawPosition + Vector(0,drawHeight/2.0f,0),drawWidth,drawHeight/2.0f);
 		}
 		else
 		{

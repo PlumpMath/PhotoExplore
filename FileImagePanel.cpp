@@ -28,15 +28,37 @@ void FileImagePanel::prepareResource()
 	bool undersized;
 	ResourceData * newResource = selectResource(undersized);
 
-	if (newResource != NULL && (currentResource == NULL || (newResource->TextureState == ResourceState::TextureLoaded && !undersized)))
+	if (newResource != NULL)
 	{
-		if (currentResource != NULL)
-			currentResource->priority = 100;
+		
+		if (newResource != currentResource && newResource->TextureState == ResourceState::TextureLoaded)
+		{
+			//if (currentResource != NULL)
+			//	currentResource->priority = 100;
 
-		currentResource = newResource;
-		pictureSize = currentResource->imageSize;
+			for (auto it = resourceMap.begin(); it != resourceMap.end(); it++)
+			{
+				if (it->second != newResource)
+					it->second->priority = 100;
+			}
+
+			currentResource = newResource;
+			pictureSize = currentResource->imageSize;
+		}
+		else if (currentResource == NULL)
+		{
+			currentResource = newResource;
+			pictureSize = currentResource->imageSize;
+		}
+		
+		if (!undersized && newResource->priority != this->getDataPriority())
+		{
+			newResource->priority = this->getDataPriority();
+			ResourceManager::getInstance().updateResource(newResource);
+		}
 	}
-	else //if (newResource == NULL)
+
+	if (newResource == NULL || undersized) 
 	{
 		stringstream rs;
 		rs <<  fileNode->filePath.string();
@@ -91,6 +113,11 @@ void FileImagePanel::prepareResource()
 			ResourceData * loadingResource = ResourceManager::getInstance().loadResourceWithTransform(resourceId,fileNode->filePath.string(),dataPriority,this,tran);
 			resourceMap.insert(make_pair(loadingWidth,loadingResource));
 			Logger::stream("FileImagePanel","INFO") << "Loading transformed resource. Width = " << loadingWidth << ", ID = " << resourceId << endl;
+		}
+		else
+		{
+			resourceId = rs.str();
+			Logger::stream("FileImagePanel","ERRIR") << "Resource already exists. Width = " << loadingWidth << ", ID = " << resourceId << endl;
 		}
 	}
 

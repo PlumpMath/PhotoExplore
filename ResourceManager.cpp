@@ -206,7 +206,7 @@ void ResourceManager::updateTextureState(ResourceData * data, bool load)
 			}
 			break;		
 		case ResourceState::TextureLoading:
-			TextureLoader::getInstance().updateTask(data->resourceId,data->priority);
+			//TextureLoader::getInstance().updateTask(data->resourceId,data->priority);
 			break;
 		case ResourceState::TextureLoaded:
 			//nothing to do
@@ -222,8 +222,9 @@ void ResourceManager::updateTextureState(ResourceData * data, bool load)
 			//nothing to do
 			break;		
 		case ResourceState::TextureLoading:
-			TextureLoader::getInstance().cancelTask(data->resourceId);
-			data->TextureState = ResourceState::Empty;
+			//Wait until next time
+			//TextureLoader::getInstance().cancelTask(data->resourceId);
+			//data->TextureState = ResourceState::Empty;
 			break;
 		case ResourceState::TextureLoaded:
 
@@ -249,7 +250,7 @@ void ResourceManager::updateTextureState(ResourceData * data, bool load)
 
 void ResourceManager::updateImageState(ResourceData * data, bool load)
 {
-	if (load)
+	if (load && data->TextureState != ResourceState::TextureLoaded)
 	{
 		switch(data->ImageState)
 		{
@@ -334,6 +335,8 @@ void ResourceManager::cleanupCache(bool updateAll)
 	double textureCacheMaxSize = GlobalConfig::tree()->get<double>("ResourceCache.TextureCacheSize") * BytesToMB;
 	double imageCacheMaxSize = GlobalConfig::tree()->get<double>("ResourceCache.ImageCacheSize")* BytesToMB;
 	static bool debugLogging = GlobalConfig::tree()->get<bool>("ResourceCache.DebugLogging");
+	int debugLogSize = GlobalConfig::tree()->get<int>("ResourceCache.DebugLogSize");
+
 
 
 
@@ -413,7 +416,7 @@ void ResourceManager::cleanupCache(bool updateAll)
 				}
 			}
 		}
-		else if (imageCacheSize < imageCacheMaxSize)
+		else if (imageCacheSize < imageCacheMaxSize && data->TextureState != ResourceState::TextureLoaded)
 		{ 
 			if (debugLogging) changed += "(+I)";
 			loadedImages++;
@@ -450,7 +453,7 @@ void ResourceManager::cleanupCache(bool updateAll)
 			if (debugLogging) changed += " (+T)";
 		}
 
-		if (debugLogging)
+		if (debugLogging && i < debugLogSize)
 		{			
 			debugStream.setf( std::ios::fixed, std:: ios::floatfield );
 			debugStream << changed << "  IMG[" << data->ImageState << "] TEX[" << data->TextureState << "] \t\t SIZE[" << resourceSize/BytesToMB << "] \t\t P [" << data->priority << "] " << data->resourceId

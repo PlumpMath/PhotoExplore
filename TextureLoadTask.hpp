@@ -61,6 +61,7 @@ private:
 	cv::Mat cvImage;
 	int dataLoaded, state;
 	int loadedRows;
+	int taskId;
 	
 	unsigned char* loading_source;
 	GLubyte * loading_target;
@@ -92,7 +93,7 @@ private:
 	void copyBufferToTexture();
 
 	int MaxBytesPerFrame;
-	static int taskId;
+	static int GlobalTaskId;
 
 public:
 		

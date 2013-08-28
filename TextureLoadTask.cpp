@@ -13,7 +13,7 @@ using namespace LoadTaskState;
 
 //#define  MaxBytesPerFrame 1048576
 
-int TextureLoadTask::taskId = 0;
+int TextureLoadTask::GlobalTaskId = 0;
 
 #define TEXTURE_LOGGING true
 
@@ -34,7 +34,7 @@ TextureLoadTask::TextureLoadTask(std::string _resourceId, float _priority, cv::M
 	sourceBuffer = NULL;
 	textureInfo.textureId = NULL;
 	state = New;
-	taskId++;
+	taskId = GlobalTaskId++;
 }
 
 
@@ -262,9 +262,10 @@ void TextureLoadTask::copyMemoryToBuffer_async_start()
 	if(ptr && data)
 	{
 		state = LoadingBuffer;
+		Logger::stream("TextureLoadTask","DEBUG") << "Render thread: async_memory_copy - TexID = " << this->textureInfo.textureId << " bufferId = " << this->sourceBuffer << " taskId = " << this->taskId << endl;
 		boost::thread([this,data,ptr](){
 			this->active = true;
-			Logger::stream("TextureLoadTask","DEBUG") << "async_memory_copy - TexID = " << this->textureInfo.textureId << " bufferId = " << this->sourceBuffer << " taskId = " << this->taskId << endl;
+			Logger::stream("TextureLoadTask","DEBUG") << "Load thread: async_memory_copy - TexID = " << this->textureInfo.textureId << " bufferId = " << this->sourceBuffer << " taskId = " << this->taskId << endl;
 			memcpy(ptr,data,this->textureInfo.size);
 			this->active = false;
 		});		
@@ -282,6 +283,8 @@ void TextureLoadTask::copyMemoryToBuffer_async_update()
 {	
 	if (!active)
 	{
+		Logger::stream("TextureLoadTask","DEBUG") << "async_memory_update - TexID = " << this->textureInfo.textureId << " bufferId = " << this->sourceBuffer << " taskId = " << this->taskId << endl;
+
 		glBindBufferARB(GL_PIXEL_UNPACK_BUFFER_ARB, sourceBuffer);
 		glUnmapBufferARB(GL_PIXEL_UNPACK_BUFFER_ARB);
 		glBindBufferARB(GL_PIXEL_UNPACK_BUFFER_ARB,NULL);

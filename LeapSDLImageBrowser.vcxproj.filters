@@ -112,7 +112,7 @@
     <Filter Include="Header Files\Browser\Filesystem\DataView">
       <UniqueIdentifier>{5b60ab9a-70c8-4d5e-be01-5d8269a288c5}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Browser\FileSystem\DataView\Model">
+    <Filter Include="Source Files\Browser\FileSystem\Model">
       <UniqueIdentifier>{92a92fc5-4493-4037-9c9c-0dcacf32eae5}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -298,10 +298,10 @@
       <Filter>Source Files\Browser\Facebook\Model</Filter>
     </ClCompile>
     <ClCompile Include="FileNode.cpp">
-      <Filter>Source Files\Browser\FileSystem\DataView\Model</Filter>
+      <Filter>Source Files\Browser\FileSystem\Model</Filter>
     </ClCompile>
     <ClCompile Include="FileLoader.cpp">
-      <Filter>Source Files\Browser\FileSystem\DataView\Model</Filter>
+      <Filter>Source Files\Browser\FileSystem\Model</Filter>
     </ClCompile>
     <ClCompile Include="DynamicImagePanel.cpp">
       <Filter>Source Files\Browser\Common</Filter>
@@ -319,7 +319,7 @@
       <Filter>Source Files\Browser\Common</Filter>
     </ClCompile>
     <ClCompile Include="FileCursors.cpp">
-      <Filter>Source Files\Browser\FileSystem\DataView\Model</Filter>
+      <Filter>Source Files\Browser\FileSystem\Model</Filter>
     </ClCompile>
     <ClCompile Include="FileDetailView.cpp">
       <Filter>Source Files\Browser\FileSystem\DataView</Filter>
@@ -346,6 +346,9 @@
       <Filter>Source Files\Overlay</Filter>
     </ClCompile>
     <ClCompile Include="OpposingArrowCursor.cpp">
+      <Filter>Source Files\Overlay</Filter>
+    </ClCompile>
+    <ClCompile Include="PointableTouchCursor.cpp">
       <Filter>Source Files\Overlay</Filter>
     </ClCompile>
   </ItemGroup>

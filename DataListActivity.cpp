@@ -39,6 +39,22 @@ DataListActivity::~DataListActivity()
 
 }
 
+int DataListActivity::getRowCount()
+{
+	return this->rowCount;
+}
+
+void DataListActivity::setRowCount(int _rowCount)
+{
+	if (_rowCount > 0)
+	{
+		this->rowCount = _rowCount;
+		((FixedAspectGrid*)itemGroup)->setGridSize(cv::Size2i(0,rowCount));
+		this->lastUpdatePos = 100000;
+		this->layoutDirty = true;		
+	}
+}
+
 
 void DataListActivity::show(DataCursor * _cursor)
 {
@@ -201,6 +217,8 @@ void DataListActivity::updateLoading()
 	float itemWidth = (visibleSize.height/((float)rowCount));
 
 	int loadMore = 0;
+
+	currentRightBoundary =  (itemWidth * ceilf((float)(itemGroup->getChildren()->size())/(float)rowCount));	
 	float remainingPixels =  currentRightBoundary - rightBound;
 	if (remainingPixels < (itemWidth * 1.0f))
 	{

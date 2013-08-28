@@ -1,6 +1,7 @@
 #include "DirectoryView.hpp"
 #include "DirectoryPanel.hpp"
 #include "FileDataCursors.hpp"
+#include "InputEventHandler.hpp"
 
 using namespace FileSystem;
 
@@ -15,6 +16,24 @@ DirectoryView::DirectoryView() : DataListActivity(2)
 		this->imageDetailView->setVisible(false);
 		this->layoutDirty = true;		
 		this->resume();
+	});
+
+	InputEventHandler::getInstance().addKeyCallback([this](GLFWwindow * window, int key, int scancode, int action, int mods) -> bool {
+		
+		if (this->isVisible() && (this->childDirectory == NULL || !this->childDirectory->isVisible()))
+		{
+			if (key == GLFW_KEY_PAGE_DOWN && action == GLFW_RELEASE)
+			{
+				this->setRowCount(this->getRowCount() - 1);
+				return true;
+			} 
+			else if (key == GLFW_KEY_PAGE_UP && action == GLFW_RELEASE)
+			{
+				this->setRowCount(this->getRowCount() + 1);
+				return true;
+			}
+		}
+		return false;
 	});
 
 	addChild(imageDetailView);

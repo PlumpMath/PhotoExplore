@@ -41,7 +41,7 @@ private:
 public:
 	VectorCursor(std::vector<DataNode*> _data):
 		data(_data),
-		currentIndex(-1)
+		currentIndex(0)
 	{	
 
 	}

@@ -17,6 +17,17 @@ bool FixedAspectGrid::getInteriorMarginsOnly()
 {
 	return interiorMarginsOnly;
 }
+
+
+void FixedAspectGrid::setGridSize(cv::Size2i gridSize)
+{
+	this->gridDimensions = gridSize;
+}
+
+cv::Size2i  FixedAspectGrid::getGridSize()
+{
+	return gridDimensions;
+}
 	
 
 void FixedAspectGrid::measure(cv::Size2f & _measuredSize)
