@@ -58,33 +58,33 @@ public:
 		return result;
 	}
 
-	static Vector FindScreenPoint(const Controller & c, Pointable pointable, bool make2D = !false)
+	static Vector FindScreenPoint(const Controller & c, Pointable pointable)
+	{
+		return FindScreenPoint(c, pointable.stabilizedTipPosition());
+	}
+
+	static Vector FindScreenPoint(const Controller & c, Vector position)
 	{
 		Screen screen = c.locatedScreens()[0];
-		return FindScreenPoint(c, pointable, screen, make2D);
+		return FindScreenPoint(c,position, screen);
 	}
 
-	static Vector FindScreenPoint(const Controller & c, Pointable pointable, Screen &screen, bool make2D = !false)
+	static Vector FindScreenPoint(const Controller & c, Vector position, Screen &screen)
 	{
-		return FindScreenPoint(c,pointable.stabilizedTipPosition(),pointable.direction(),screen,make2D);
-	}
+		Vector screenPoint = FindNormalizedScreenPoint(c, position);
 
-	static Vector FindScreenPoint(const Controller & c, Vector position, Vector direction, Screen &screen, bool make2D = !false)
-	{
-		Vector screenPoint = FindNormalizedScreenPoint(c, position,direction, screen);
-
-		if (make2D)
-		{
-			float x = screen.widthPixels() * screenPoint.x;
-			float y = screen.heightPixels() * (1.0f - screenPoint.y);
-			return Vector(x, y, 0);
-		}
-		else
-		{
-			float x = screen.widthPixels() * screenPoint.x;
-			float y = screen.heightPixels() * screenPoint.y;
-			return Vector(x, y, 0);
-		}
+		//if (make2D)
+		//{
+		float x = screen.widthPixels() * screenPoint.x;
+		float y = screen.heightPixels() * (1.0f - screenPoint.y);
+		return Vector(x, y, 0);
+		//}
+		//else
+		//{
+		//	float x = screen.widthPixels() * screenPoint.x;
+		//	float y = screen.heightPixels() * screenPoint.y;
+		//	return Vector(x, y, 0);
+		//}
 	}
 
 	static Pointable FindClosestPointable(const Controller & controller, Hand hand)
@@ -103,7 +103,7 @@ public:
 		return closest;
 	}
 
-	static Vector FindNormalizedScreenPoint(const Controller & c, Vector position, Vector direction, Screen & screen)
+	static Vector FindNormalizedScreenPoint(const Controller & c, Vector position)
 	{
 		return c.frame().interactionBox().normalizePoint(position,false);
 	}
@@ -184,27 +184,24 @@ public:
 		return angle;
 	}
 
-	static std::vector<int> * SortFingers(Hand hand)
+	static vector<pair<Finger,float> > & GetOrderedFingers(Hand hand, bool isLeft = false)
 	{
-		std::multimap<float,int> sortMap;
+		vector<pair<Finger,float> > fingerAngles;
 
-		for (int i =0;i<hand.fingers().count();i++)
+		for (int i=0;i<hand.fingers().count();i++)
 		{
-			Finger finger = hand.fingers()[i];
-
-			float result = GetFingerTipAngle(hand, finger);
-			sortMap.insert(std::pair<float,int>(result,finger.id()));
+			Finger f = hand.fingers()[i];
+			fingerAngles.push_back(make_pair(f,LeapHelper::GetFingerTipAngle(hand,f)));
 		}
 
-		std::vector<int> * fingerList = new std::vector<int>();
-		auto keyIt = sortMap.begin();
+		std::sort(fingerAngles.begin(),fingerAngles.end(),[isLeft](const pair<Finger,float> & v0, const pair<Finger,float> & v1) -> bool {
+			if (isLeft)
+				return v1.second < v0.second;
+			else
+				return v0.second < v1.second;
+		});
 
-		for (; keyIt != sortMap.end();keyIt++)
-		{
-			fingerList->push_back((*keyIt).second);
-		}
-
-		return fingerList;
+		return fingerAngles;
 	}
 };
 #endif

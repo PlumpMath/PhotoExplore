@@ -484,6 +484,15 @@
 					"MinDistanceToMiddleFinger" : 35
 				}
 			}
+		},
+		"CircularAction" : 
+		{
+			"SteadyVelocity" : 100,
+			"DrawRadius" : 80,
+			"Color" :  {"R" : 0,"G" : 221,"B" : 255,"A" : 150},
+			"SphereRadiusThreshold" : 70,
+			"SphereRadiusRC" : 0.4,
+			"SphereRadiusMaxOffset" : 20
 		}
 	},
 	"Cursors" :

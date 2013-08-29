@@ -220,6 +220,7 @@
     <ClCompile Include="ArrowCursor.cpp" />
     <ClCompile Include="Button.cpp" />
     <ClCompile Include="Cefalopod.cpp" />
+    <ClCompile Include="CircularAction.cpp" />
     <ClCompile Include="Color.cpp" />
     <ClCompile Include="ColorPanel.cpp" />
     <ClCompile Include="DataListActivity.cpp" />
@@ -303,6 +304,7 @@
     <ClInclude Include="CefDownloadClient.h" />
     <ClInclude Include="CefFileBrowser.h" />
     <ClInclude Include="CefHelper.hpp" />
+    <ClInclude Include="CircularAction.hpp" />
     <ClInclude Include="ColorPanel.hpp" />
     <ClInclude Include="DataCursor.hpp" />
     <ClInclude Include="DataNode.hpp" />

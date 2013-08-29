@@ -71,7 +71,9 @@ void LeapInput::processInputEvents()
 	int flags = 0;
 
 	View * topView = (View*)topElement; //dynamic_cast<View*>(globalGestureListenerStack.top());
-	hit = topView->elementAtPoint((int)screenPoint.x,(int)screenPoint.y,flags);
+
+	if (topView != NULL)
+		hit = topView->elementAtPoint((int)screenPoint.x,(int)screenPoint.y,flags);
 	
 	if (hit != mouseHitLast)
 	{

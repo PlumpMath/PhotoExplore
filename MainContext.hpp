@@ -32,6 +32,8 @@
 #include "InputEventHandler.hpp"
 #include "LeapStatusOverlay.hpp"
 
+#include "CircularAction.hpp"
+
 #ifndef _WIN32
 #include <execinfo.h>
 #include <signal.h>
@@ -63,6 +65,7 @@ struct MainContext {
 	MainContext()
 	{
 		currentlyDrawing = false;
+		startScreen.setVisible(false);
 	}
 
 	#ifdef _WIN32
@@ -152,8 +155,9 @@ struct MainContext {
 			glBindFramebuffer(GL_FRAMEBUFFER, fbo[0]);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 			glMatrixMode( GL_MODELVIEW );	
-
-			startScreen.draw();
+			
+			if (startScreen.isVisible())
+				startScreen.draw();
 
 			for (int i=0;i<2;i++)
 			{
@@ -207,7 +211,8 @@ struct MainContext {
 
 			glMatrixMode( GL_MODELVIEW );			
 
-			startScreen.draw();
+			if (startScreen.isVisible())
+				startScreen.draw();
 		}
 		//End
 
@@ -381,7 +386,11 @@ struct MainContext {
 			controller.addListener(ShakeGestureDetector::getInstance());
 			controller.addListener(LeapDebug::getInstance());
 
-			LeapInput::getInstance()->setTopLevelElement(&startScreen);
+			//LeapInput::getInstance()->setTopLevelElement(&startScreen);
+
+			CircularAction circularAction; //= new CircularAction();
+
+			LeapDebug::getInstance().addDebugVisual(&circularAction);
 		
 			initCallbacks();		
 				

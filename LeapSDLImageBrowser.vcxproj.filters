@@ -351,6 +351,9 @@
     <ClCompile Include="PointableTouchCursor.cpp">
       <Filter>Source Files\Overlay</Filter>
     </ClCompile>
+    <ClCompile Include="CircularAction.cpp">
+      <Filter>Source Files\Overlay</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Types.h">
@@ -634,6 +637,9 @@
     </ClInclude>
     <ClInclude Include="NotchedWheel.hpp">
       <Filter>Header Files\NewPanel</Filter>
+    </ClInclude>
+    <ClInclude Include="CircularAction.hpp">
+      <Filter>Header Files\Overlay</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
