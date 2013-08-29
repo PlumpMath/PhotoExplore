@@ -190,12 +190,8 @@
 		"FileBrowser" : true,
 		"ImageDirectories" :
 		[ 
-			"C:\\Users\\Adam\\Pictures",		
-			"C:\\Users\\Adam\\Pictures\\pixiv-win",	
-			"C:\\Users\\Adam\\Pictures\\camera",
-			"G:\\JapanPics\\100Media"
-			//"/Users/adamskubel/Pictures",
-			//"/Users/adamskubel/Downloads" 
+			"/Users/adamskubel/Pictures",
+			"/Users/adamskubel/Downloads" 
 			
 		],
 		"RequestDelay" : 0 ,//ms
@@ -488,11 +484,12 @@
 		"CircularAction" : 
 		{
 			"SteadyVelocity" : 100,
-			"DrawRadius" : 80,
+			"DrawRadius" : 60,
 			"Color" :  {"R" : 0,"G" : 221,"B" : 255,"A" : 150},
 			"SphereRadiusThreshold" : 70,
 			"SphereRadiusRC" : 0.4,
-			"SphereRadiusMaxOffset" : 20
+			"SphereRadiusMaxOffset" : 20,
+			"TargetSphereRadius" : 70
 		}
 	},
 	"Cursors" :

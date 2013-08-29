@@ -57,6 +57,11 @@ int main(int argc, char * argv[]){
 	glfwInit();
 
 	GlobalConfig::getInstance().loadConfigFile("./config.json");
+//#ifdef _WIN32	
+//	GlobalConfig::getInstance().loadConfigFile("./win_config.json");
+//#else
+//	GlobalConfig::getInstance().loadConfigFile("./mac_config.json");
+//#endif
 
 	MainContext mainContext;
 	

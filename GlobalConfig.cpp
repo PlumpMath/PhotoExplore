@@ -36,11 +36,23 @@ void GlobalConfig::loadConfigFile(string path)
 	propertyFileLoaded = true;
 	inf.close();
 
-	if (tree()->get<bool>("Leap.PreferLeftHand"))
-	{
-		this->LeftHanded = true;
-	}
 }
+
+//void GlobalConfig::mergeConfigFile(string path)
+//{
+//	using boost::property_tree::ptree;
+//	
+//	std::ifstream inf;
+//	inf.open(path,std::ios::in);
+//	
+//	ptree newTree;
+//	
+//	boost::property_tree::read_json(inf,newTree);
+//	inf.close();
+//	
+//	
+//	
+//}
 
 boost::property_tree::ptree * GlobalConfig::tree()
 {

@@ -28,8 +28,10 @@ private:
 
 	float drawRadius,drawPitch, averageRadius;
 	Vector drawPoint;
+	
+	bool grasped;
 
-	map<int,float> fingerAngleMap;
+	map<int,float> fingerAngleMap, drawFingerAngles;
 	map<int,float> fingerErrorMap;
 
 	boost::mutex mutey;
