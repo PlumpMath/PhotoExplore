@@ -190,8 +190,9 @@
 		"FileBrowser" : true,
 		"ImageDirectories" :
 		[ 
-			"/Users/adamskubel/Pictures",
-			"/Users/adamskubel/Downloads" 
+			//"/Users/adamskubel/Pictures",
+			//"/Users/adamskubel/Downloads" 
+			"C:\\Users\\Adam\\Pictures\\pixiv-win"
 			
 		],
 		"RequestDelay" : 0 ,//ms
@@ -484,12 +485,25 @@
 		"CircularAction" : 
 		{
 			"SteadyVelocity" : 100,
-			"DrawRadius" : 60,
+			"InnerDrawRadius" : 40,
+			"OuterDrawRadius" : 60,
 			"Color" :  {"R" : 0,"G" : 221,"B" : 255,"A" : 150},
 			"SphereRadiusThreshold" : 70,
 			"SphereRadiusRC" : 0.4,
 			"SphereRadiusMaxOffset" : 20,
-			"TargetSphereRadius" : 70
+			"TargetSphereRadius" : 60,
+			"RadiusTolerance" : 5,
+			"ExitRadiusTolerance" : 15,
+			"LowerRadiusTolerance" : -10,
+			"LowerExitRadiusTolerance" : -25,
+			"VelocityScale" : -1500,
+			"MinFingerCount" : 3,
+			"MaxNonGraspedCount" : 1,
+			"Grasped" : 
+			{
+				"MinFingerCount" : 1,
+				"MaxNonGraspedCount" : 3
+			}			
 		}
 	},
 	"Cursors" :

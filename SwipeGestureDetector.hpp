@@ -11,6 +11,7 @@
 #include "Flywheel.h"
 #include "LeapDebug.h"
 #include <boost/thread/mutex.hpp>
+#include "CircularAction.hpp"
 
 using namespace Leap;
 
@@ -105,6 +106,9 @@ private:
 	boost::mutex flyWheelMutex;
 
 	Timer newWheelCooldown;
+
+	CircularAction * scrollKnob;
+
 
 
 public:

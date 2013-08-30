@@ -6,6 +6,7 @@
 #include <boost/property_tree/ptree.hpp>
 #include "SDLTimer.h"
 #include <boost/thread.hpp>
+#include "Flywheel.h"
 
 using namespace std;
 using namespace Leap;
@@ -34,13 +35,17 @@ private:
 	map<int,float> fingerAngleMap, drawFingerAngles;
 	map<int,float> fingerErrorMap;
 
+	Frame rotationStartFrame;
+	float startPitch;
+
 	boost::mutex mutey;
-
-
+	
 	boost::property_tree::ptree config;
 
 	vector<PointableCursor*> cursors;
 	int handId;
+
+	FlyWheel * flyWheel;
 
 
 	Vector getHandFingerDelta(const Controller & c, Finger f);
@@ -53,13 +58,16 @@ private:
 	void updateCursors(const Controller & controller);
 
 	void drawFingerOffsets(Vector center, Color lineColor, float radius, vector<pair<float,float> > & offsets);
-	void drawPolygon(Vector center, Color lineColor, Color fillColor, float radius, float angle);
+	void drawPolygon(Vector center, Color lineColor, Color fillColor, float innerRadius, float outerRadius, float startAngle, float endAngle);
 
 public:
 	CircularAction();
 
 	void draw();
 	void onFrame(const Controller & controller);	
+
+	float getValue();
+	bool isGrasped();
 
 };
 

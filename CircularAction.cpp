@@ -14,9 +14,14 @@ CircularAction::CircularAction()
 
 	for (int i=0; i < 5; i++)
 	{
-		cursors.push_back(new PointableCursor(40,Colors::PrettyPurple));
+		cursors.push_back(new PointableCursor(20,Colors::PrettyPurple));
 	}
 
+	flyWheel = new FlyWheel();
+	flyWheel->setMaxValue(Leap::PI*1000.0);
+	flyWheel->setMinValue(-Leap::PI*1000.0);
+	flyWheel->setTargetActive(false);
+	flyWheel->setTargetPosition(0);
 }
 
 
@@ -37,7 +42,8 @@ void CircularAction::draw()
 		if (state == Steadying)
 			fillAlpha = 0.1f;
 
-		float rad =config.get<float>("DrawRadius") + drawRadius;
+		float innerRad =config.get<float>("InnerDrawRadius");
+		float outerRad =config.get<float>("OuterDrawRadius");
 
 		vector<pair<float,float> > drawData;
 		
@@ -46,11 +52,16 @@ void CircularAction::draw()
 			float errorVal = fingerErrorMap[it->first];
 			drawData.push_back(make_pair(it->second,errorVal));
 		}
+
+		float drawAngle = flyWheel->getPosition()/1000.0;
+
+		float startAngle = -Leap::PI + drawAngle;
+		float endAngle = drawAngle;
 		
 		Color lineColor = (grasped) ? Colors::Lime : circleColor.withAlpha(1.0f);
-		drawPolygon(drawPoint,lineColor,circleColor.withAlpha(fillAlpha), rad,drawPitch);
+		drawPolygon(drawPoint,lineColor,circleColor.withAlpha(fillAlpha),innerRad,outerRad,startAngle,endAngle);
 
-		drawFingerOffsets(drawPoint+Vector(0,0,0.5f),circleColor.withAlpha(1.0f),rad,drawData);
+		drawFingerOffsets(drawPoint+Vector(0,0,0.5f),circleColor.withAlpha(1.0f),outerRad,drawData);
 	}
 	mutey.unlock();
 	//}
@@ -65,6 +76,16 @@ void CircularAction::setNewHand(Hand newHand)
 	drawPitch = 0;
 	grasped = false;
 
+}
+
+float CircularAction::getValue()
+{
+	return flyWheel->getCurrentPosition()/1000.0f;
+}
+
+bool CircularAction::isGrasped()
+{
+	return grasped;
 }
 
 float CircularAction::getHandFingerPitch(const Controller & controller, Finger f)
@@ -127,20 +148,54 @@ void CircularAction::updateErrorMap(const Controller & controller, Hand hand)
 	
 	fingerErrorMap.clear();
 	
-	Vector centroid = hand.sphereCenter();
+	Vector centroid = hand.stabilizedPalmPosition();// LeapHelper::FindNormalizedScreenPoint(controller,hand.stabilizedPalmPosition()); //hand.sphereCenter();
+	centroid.z = 0;
 	averageRadius = config.get<float>("TargetSphereRadius"); 
 
-	grasped = hand.fingers().count() >= 1;
+	float upperBound = (grasped) ? config.get<float>("ExitRadiusTolerance") : config.get<float>("RadiusTolerance");
+	float lowerBound = (grasped) ? config.get<float>("LowerExitRadiusTolerance") : config.get<float>("LowerRadiusTolerance");
+
+	int minFingerCount = (grasped) ? config.get<int>("Grasped.MinFingerCount") : config.get<int>("MinFingerCount");
+	int maxNonGraspedFingerCount = (grasped) ? config.get<int>("Grasped.MaxNonGraspedCount") : config.get<int>("MaxNonGraspedCount");
+
+	//grasped = hand.fingers().count() >= minFingerCount;
+
+	int graspCount = 0, nonGraspedCount = 0;
+	
 	for (int f = 0; f < hand.fingers().count(); f++)
 	{
 		Finger finger = hand.fingers()[f];
-		Vector p = finger.stabilizedTipPosition();//LeapHelper::FindNormalizedScreenPoint(controller,finger.stabilizedTipPosition());
+		Vector p = finger.stabilizedTipPosition(); //LeapHelper::FindNormalizedScreenPoint(controller,finger.stabilizedTipPosition());
+		p.z = 0;
 		
 		float errorVal = p.distanceTo(centroid) - averageRadius;
 		
 		fingerErrorMap.insert(make_pair(finger.id(),errorVal));
 		
-		grasped = grasped && errorVal < 10.0f;
+		if (errorVal < upperBound && errorVal > lowerBound)
+		{
+			graspCount++;
+		}
+		else
+		{
+			nonGraspedCount++;
+		}
+	}
+
+	grasped = graspCount >= minFingerCount && nonGraspedCount < maxNonGraspedFingerCount;
+		
+	if (grasped)
+	{
+		flyWheel->setTargetActive(false);
+		//drawPitch = hand.rotationAngle(rotationStartFrame,Vector::backward()) + startPitch;
+		flyWheel->overrideValue(drawPitch*1000.0);
+	}
+	else
+	{
+		flyWheel->setTargetActive(true);
+		drawPitch = flyWheel->getCurrentPosition() / 1000.0f;
+		flyWheel->setTargetPosition(0);
+		rotationStartFrame = frame;
 	}
 }
 
@@ -201,7 +256,6 @@ void CircularAction::updateRotateMap(const Controller & controller, Hand hand)
 		auto val = make_pair(finger.id(),getHandFingerPitch(controller,finger));
 		drawFingerAngles.insert(val);
 	}
-
 }
 
 
@@ -227,16 +281,18 @@ void CircularAction::onFrame(const Controller & controller)
 		
 		
 		if (hand.isValid())
-		{			
+		{	
 			updateErrorMap(controller,hand);
+			updateRotateMap(controller,hand);
 			
 			float newDrawRadius = hand.sphereRadius() - config.get<float>("SphereRadiusThreshold");
+			drawPoint = LeapHelper::FindScreenPoint(controller,hand.stabilizedPalmPosition()) + Vector(0,0,50);
 
 			drawRadius = LeapHelper::lowpass(drawRadius,newDrawRadius,config.get<float>("SphereRadiusRC"),sphereRadiusTimer.seconds());
 
 			drawRadius = max<float>(-config.get<float>("SphereRadiusMaxOffset"),drawRadius);
 			drawRadius = min<float>(config.get<float>("SphereRadiusMaxOffset"),drawRadius);
-
+			
 			updateCursors(controller);
 
 			switch (state)
@@ -246,16 +302,16 @@ void CircularAction::onFrame(const Controller & controller)
 				{
 					state = Rotating;
 					fingerAngleMap.clear();
-					updateRotateMap(controller,hand);
+					rotationStartFrame = frame;
 				}
 				else
+				{					
 					break;
+				}
 			case Rotating:
-				drawPoint = LeapHelper::FindScreenPoint(controller,hand.stabilizedPalmPosition());
-				if (grasped)
-					updateRotateMap(controller,hand);
-				else
+				if (!grasped)
 				{
+					//drawPitch = 0;
 					fingerAngleMap.clear();
 				}
 				break;
@@ -273,14 +329,14 @@ void CircularAction::onFrame(const Controller & controller)
 
 void CircularAction::drawFingerOffsets(Vector center, Color lineColor,float radius, vector<pair<float, float> > & offsets)
 {
-	float z1 = center.z;
+	//float z1 = center.z;
 	float angleOffset = -Leap::PI/2.0f;
-	float margin = 10;
 
-	glBindTexture( GL_TEXTURE_2D, NULL);
-	glLineWidth(8);
-	glTranslatef(drawPoint.x,drawPoint.y,0);
-	glBegin(GL_LINES);
+	
+	float upperBound = (grasped) ? config.get<float>("ExitRadiusTolerance") : config.get<float>("RadiusTolerance");
+	float lowerBound = (grasped) ? config.get<float>("LowerExitRadiusTolerance") : config.get<float>("LowerRadiusTolerance");
+
+	float margin = 10;
 	for (auto it = offsets.begin(); it != offsets.end(); it++)
 	{
 		float angle = it->first;
@@ -289,88 +345,79 @@ void CircularAction::drawFingerOffsets(Vector center, Color lineColor,float radi
 		
 		angle += angleOffset;
 
-		if (it->second < margin)
+		Color color = lineColor;
+		if (it->second < upperBound && it->second > lowerBound)
 		{
-			length = radius + margin;
-			start = radius - margin / 2.0f;
-			glColor4fv(Colors::Lime.withAlpha(0.8f).getFloat());
+			length = max<float>(length,radius + margin);
+			start = min<float>(start,radius - margin / 2.0f);
+			color = Colors::Lime.withAlpha(0.8f);
 		}
-		else
-		{
-			glColor4fv(lineColor.getFloat());			
-		}
-
-		
-		glVertex3f(cosf(angle)*start,sinf(angle)*start,z1);
-		glVertex3f(cosf(angle)*length,sinf(angle)*length,z1);
+		drawPolygon(center,Colors::Transparent,color,start,length,angle-Leap::PI*0.1f,angle+Leap::PI*0.1f);
 	}
-	glEnd();
-	glTranslatef(-drawPoint.x,-drawPoint.y,0);
-
 }
 
-void CircularAction::drawPolygon(Vector drawPoint, Color lineColor, Color fillColor, float radius, float totalAngle)
+void CircularAction::drawPolygon(Vector drawPoint, Color lineColor, Color fillColor, float innerRadius, float outerRadius, float startAngle, float endAngle)
 {
-	float drawWidth,drawHeight,z1;
-
-	float lineWidth = 2.0f;
-
-	z1 = drawPoint.z;
-
-	if (drawHeight == 0 || (drawPoint.x == 0 && drawPoint.y == 0))
+	float lineWidth = 1.0f, z1 = drawPoint.z;
+	if (outerRadius == 0)
 		return;
 
-	float vertices = 20;
+	float angleRange = endAngle - startAngle;
 
-	float anglePerVertex;
+	int vertices = ceilf(40 * angleRange/(Leap::PI*2.0f));
 
+	float anglePerVertex = angleRange/(float)vertices;
 	
-	anglePerVertex = (totalAngle)/vertices;
-
-
-	float angleOffset = 0; 
-
 	glColor4fv(fillColor.getFloat());
 	glBindTexture( GL_TEXTURE_2D, NULL);
 	glLineWidth(0);
+
 	glTranslatef(drawPoint.x,drawPoint.y,0);
-	glBegin(GL_POLYGON);
-	glVertex3f(0,0,z1);	
+	glBegin(GL_QUAD_STRIP);
 	for (float v=0;v<vertices;v++)
 	{
 		float angle = v*anglePerVertex;
-		angle += angleOffset;
-		glVertex3f(cosf(angle)*radius,sinf(angle)*radius,z1);
+		angle += startAngle;
+		glVertex3f(cosf(angle)*innerRadius,sinf(angle)*innerRadius,z1);
+		glVertex3f(cosf(angle)*outerRadius,sinf(angle)*outerRadius,z1);
 	}
 	glEnd();
 
 
-	anglePerVertex = (Leap::PI*2.0f)/vertices;
-
 	float alphaScale = lineColor.colorArray[3];
 
-	float lineWidths [] = {lineWidth*3.0f,lineWidth*2.0f,lineWidth};
+	if (alphaScale > 0)
+	{		
+		vertices = 40;
+		anglePerVertex = (Leap::PI*2.0f)/(float)vertices;
+
+		//float lineWidths [] = {lineWidth*3.0f,lineWidth*2.0f,lineWidth};
+
+		float radii [] = {outerRadius - 2.5f,outerRadius, outerRadius + 2.5f};
 	
-	float * lineColors [] = {
-		lineColor.withAlpha(.2f*alphaScale).getFloat(),
-		lineColor.withAlpha(.4f*alphaScale).getFloat(),
-		lineColor.withAlpha(1.0f*alphaScale).getFloat()
-	};
+		float * lineColors [] = {
+			Colors::Red.withAlpha(.2f*alphaScale).getFloat(),
+			lineColor.withAlpha(alphaScale).getFloat(),
+			Colors::Red.withAlpha(.2f*alphaScale).getFloat(),
+		};
 
-	for (int i=0; i < 3; i++)
-	{
-		glColor4fv(lineColors[i]);
-		glLineWidth(lineWidths[i]);
-
-		glBegin(GL_LINE_LOOP);
-		
-		for (float v=0;v<vertices;v++)
+		for (int lap = 0; lap < 2; lap++)
 		{
-			float angle = v*anglePerVertex;
-			angle += angleOffset;
-			glVertex3f(cosf(angle)*radius,sinf(angle)*radius,z1+ ((float)i * .1f));	
+			glBegin(GL_TRIANGLE_STRIP);		
+			for (float v=0;v<vertices;v++)
+			{
+				float angle = v*anglePerVertex;
+				angle += startAngle;
+
+				for (int i=0; i < 2; i++)
+				{
+					float rad = radii[i+lap];
+					glColor4fv(lineColors[i+lap]);
+					glVertex3f(cosf(angle)*rad,sinf(angle)*rad,z1+ ((float)i * .1f));	
+				}
+			}
+			glEnd();	
 		}
-		glEnd();	
 	}
 	glTranslatef(-drawPoint.x,-drawPoint.y,0);
 }

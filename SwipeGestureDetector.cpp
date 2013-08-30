@@ -18,7 +18,10 @@ SwipeGestureDetector::SwipeGestureDetector()
 	touchScrollingEnabled = true;
 	swipeScrollingEnabled = true;
 
+	scrollKnob = new CircularAction();
 	
+	LeapDebug::getInstance().addDebugVisual(scrollKnob);
+
 
 	InputEventHandler::getInstance().addScrollCallback([this](GLFWwindow * window, double xScroll, double yScroll) -> bool
 	{
@@ -538,13 +541,24 @@ void SwipeGestureDetector::onFrame(const Controller & controller)
 			return;
 		}
 
-		if (touchScrollingEnabled)
-			doTouchZoneScrolling(controller);
-	
-		if (swipeScrollingEnabled && state != TouchScrolling)
-			doGestureScrolling(controller);
 
-	
+		if (scrollKnob->isGrasped())
+		{
+			state = IdleState;
+			flyWheel->setVelocity(scrollKnob->getValue() * GlobalConfig::tree()->get<float>("Leap.CircularAction.VelocityScale"));
+		}
+		else if (abs(scrollKnob->getValue()) > 10)
+			flyWheel->setVelocity(0);
+		else
+		{
+			if (touchScrollingEnabled)
+				doTouchZoneScrolling(controller);
+
+			if (swipeScrollingEnabled && state != TouchScrolling)
+				doGestureScrolling(controller);
+		}
+
+
 		lastFrame = frame;
 		flyWheelMutex.unlock();
 	}

@@ -65,7 +65,7 @@ struct MainContext {
 	MainContext()
 	{
 		currentlyDrawing = false;
-		startScreen.setVisible(false);
+		//startScreen.setVisible(false);
 	}
 
 	#ifdef _WIN32
@@ -386,11 +386,11 @@ struct MainContext {
 			controller.addListener(ShakeGestureDetector::getInstance());
 			controller.addListener(LeapDebug::getInstance());
 
-			//LeapInput::getInstance()->setTopLevelElement(&startScreen);
+			LeapInput::getInstance()->setTopLevelElement(&startScreen);
 
-			CircularAction circularAction; //= new CircularAction();
+			//CircularAction circularAction; //= new CircularAction();
 
-			LeapDebug::getInstance().addDebugVisual(&circularAction);
+			//LeapDebug::getInstance().addDebugVisual(&circularAction);
 		
 			initCallbacks();		
 				
@@ -441,8 +441,11 @@ struct MainContext {
 				stringstream error;
 				error << "Unhandled exception during render loop :" << e.what();			
 				handleFatalError(error.str(),3);
-			}	
-
+			}		
+			
+			controller.removeListener(SwipeGestureDetector::getInstance());
+			controller.removeListener(ShakeGestureDetector::getInstance());
+			controller.removeListener(LeapDebug::getInstance());
 		}
 		catch( cv::Exception& e )
 		{
@@ -462,7 +465,6 @@ struct MainContext {
 			Logger::stream("MAIN","FATAL") << "Unhandled exception?? " << endl;
 			handleFatalError("Unhandled and unknown exception",3);
 		}
-
 
 		destroyGraphics();
 
