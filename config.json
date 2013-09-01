@@ -190,9 +190,9 @@
 		"FileBrowser" : true,
 		"ImageDirectories" :
 		[ 
-			//"/Users/adamskubel/Pictures",
-			//"/Users/adamskubel/Downloads" 
-			"C:\\Users\\Adam\\Pictures\\pixiv-win"
+			"/Users/adamskubel/Pictures"
+			//,"/Users/adamskubel/Downloads" 
+			//"C:\\Users\\Adam\\Pictures\\pixiv-win"
 			
 		],
 		"RequestDelay" : 0 ,//ms
@@ -491,19 +491,29 @@
 			"SphereRadiusThreshold" : 70,
 			"SphereRadiusRC" : 0.4,
 			"SphereRadiusMaxOffset" : 20,
-			"TargetSphereRadius" : 60,
-			"RadiusTolerance" : 5,
-			"ExitRadiusTolerance" : 15,
-			"LowerRadiusTolerance" : -10,
-			"LowerExitRadiusTolerance" : -25,
-			"VelocityScale" : -1500,
-			"MinFingerCount" : 3,
-			"MaxNonGraspedCount" : 1,
+			"TargetSphereRadius" : 40,
+			"VelocityScale" :
+			{
+				"Exponent" : 2,
+				"Scale" : -4000
+			},
+			"Open" :
+			{
+				"MinRadialError" : -35,
+				"MaxRadialError" : 5,
+				"MinFingerCount" : 3,
+				"MaxNonGraspedCount" : 1
+			},
 			"Grasped" : 
 			{
+				"MinRadialError" : -25,
+				"MaxRadialError" : 15,
 				"MinFingerCount" : 1,
 				"MaxNonGraspedCount" : 3
-			}			
+			},
+			"UsePalmCenter" : true,
+			"MaxAngle" : 45,
+			"MinAngle" : -45
 		}
 	},
 	"Cursors" :

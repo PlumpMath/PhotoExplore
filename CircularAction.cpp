@@ -18,8 +18,8 @@ CircularAction::CircularAction()
 	}
 
 	flyWheel = new FlyWheel();
-	flyWheel->setMaxValue(Leap::PI*1000.0);
-	flyWheel->setMinValue(-Leap::PI*1000.0);
+	flyWheel->setMaxValue(config.get<float>("MaxAngle")/Leap::RAD_TO_DEG*1000.0);
+	flyWheel->setMinValue(config.get<float>("MinAngle")/Leap::RAD_TO_DEG*1000.0);
 	flyWheel->setTargetActive(false);
 	flyWheel->setTargetPosition(0);
 }
@@ -148,15 +148,19 @@ void CircularAction::updateErrorMap(const Controller & controller, Hand hand)
 	
 	fingerErrorMap.clear();
 	
-	Vector centroid = hand.stabilizedPalmPosition();// LeapHelper::FindNormalizedScreenPoint(controller,hand.stabilizedPalmPosition()); //hand.sphereCenter();
+	bool usePalmPosition = config.get<bool>("UsePalmCenter");
+	
+	Vector centroid = (usePalmPosition) ? hand.stabilizedPalmPosition() : hand.sphereCenter();
+	
+	
 	centroid.z = 0;
 	averageRadius = config.get<float>("TargetSphereRadius"); 
 
-	float upperBound = (grasped) ? config.get<float>("ExitRadiusTolerance") : config.get<float>("RadiusTolerance");
-	float lowerBound = (grasped) ? config.get<float>("LowerExitRadiusTolerance") : config.get<float>("LowerRadiusTolerance");
+	float upperBound = (grasped) ? config.get<float>("Grasped.MaxRadialError") : config.get<float>("Open.MaxRadialError");
+	float lowerBound = (grasped) ? config.get<float>("Grasped.MinRadialError") : config.get<float>("Open.MinRadialError");
 
-	int minFingerCount = (grasped) ? config.get<int>("Grasped.MinFingerCount") : config.get<int>("MinFingerCount");
-	int maxNonGraspedFingerCount = (grasped) ? config.get<int>("Grasped.MaxNonGraspedCount") : config.get<int>("MaxNonGraspedCount");
+	int minFingerCount = (grasped) ? config.get<int>("Grasped.MinFingerCount") : config.get<int>("Open.MinFingerCount");
+	int maxNonGraspedFingerCount = (grasped) ? config.get<int>("Grasped.MaxNonGraspedCount") : config.get<int>("Open.MaxNonGraspedCount");
 
 	//grasped = hand.fingers().count() >= minFingerCount;
 
@@ -242,6 +246,9 @@ void CircularAction::updateRotateMap(const Controller & controller, Hand hand)
 			}
 		}
 	}
+	
+	drawPitch = min<float>(config.get<float>("MaxAngle")/Leap::RAD_TO_DEG,drawPitch);
+	drawPitch = max<float>(config.get<float>("MinAngle")/Leap::RAD_TO_DEG,drawPitch);
 		
 	drawFingerAngles.clear();
 	for (int f = 0; f < hand.fingers().count(); f++)
@@ -331,10 +338,9 @@ void CircularAction::drawFingerOffsets(Vector center, Color lineColor,float radi
 {
 	//float z1 = center.z;
 	float angleOffset = -Leap::PI/2.0f;
-
 	
-	float upperBound = (grasped) ? config.get<float>("ExitRadiusTolerance") : config.get<float>("RadiusTolerance");
-	float lowerBound = (grasped) ? config.get<float>("LowerExitRadiusTolerance") : config.get<float>("LowerRadiusTolerance");
+	float upperBound = (grasped) ? config.get<float>("Grasped.MaxRadialError") : config.get<float>("Open.MaxRadialError");
+	float lowerBound = (grasped) ? config.get<float>("Grasped.MinRadialError") : config.get<float>("Open.MinRadialError");
 
 	float margin = 10;
 	for (auto it = offsets.begin(); it != offsets.end(); it++)

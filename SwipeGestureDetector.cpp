@@ -541,11 +541,18 @@ void SwipeGestureDetector::onFrame(const Controller & controller)
 			return;
 		}
 
+		
+		float scaleVal = GlobalConfig::tree()->get<float>("Leap.CircularAction.VelocityScale.Scale");
+		int exponent = GlobalConfig::tree()->get<int>("Leap.CircularAction.VelocityScale.Exponent");
 
 		if (scrollKnob->isGrasped())
 		{
 			state = IdleState;
-			flyWheel->setVelocity(scrollKnob->getValue() * GlobalConfig::tree()->get<float>("Leap.CircularAction.VelocityScale"));
+			float s = sgn(scrollKnob->getValue());
+			
+			float e = pow(abs(scrollKnob->getValue()),exponent);
+			
+			flyWheel->setVelocity(s*scaleVal*e);
 		}
 		else if (abs(scrollKnob->getValue()) > 10)
 			flyWheel->setVelocity(0);
