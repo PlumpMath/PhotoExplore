@@ -71,6 +71,22 @@ void Color::addRGB(Color c)
 	}
 }
 
+
+Color Color::blendRGB(Color blendWith, float incomingAlpha)
+{
+	float a1 = 1.0f - incomingAlpha;
+	float a2 = incomingAlpha;
+	
+	Color result;
+	for (int i=0;i<3;i++)
+	{
+		result.colorArray[i] = colorArray[i]*a1 + blendWith.colorArray[i]*a2;
+	}
+	result.colorArray[3] = colorArray[3];
+	
+	return result;	
+}
+
 //int Color::asInteger()
 //{	
 //	int result = 0;

@@ -15,7 +15,7 @@ SwipeGestureDetector::SwipeGestureDetector()
 	((TextPanel*)infoText)->setTextAlignment(1);
 	state = IdleState;
 	currentScrollVelocity = 0;
-	touchScrollingEnabled = true;
+	touchScrollingEnabled = GlobalConfig::tree()->get<bool>("Leap.TouchScroll.Enabled");
 	swipeScrollingEnabled = true;
 
 	scrollKnob = new CircularAction();
@@ -542,14 +542,16 @@ void SwipeGestureDetector::onFrame(const Controller & controller)
 		}
 
 		
-		float scaleVal = GlobalConfig::tree()->get<float>("Leap.CircularAction.VelocityScale.Scale");
+		float peakVal = GlobalConfig::tree()->get<float>("Leap.CircularAction.VelocityScale.PeakVelocity");
+		float peakAngle = GlobalConfig::tree()->get<float>("Leap.CircularAction.VelocityScale.PeakAngle")/Leap::RAD_TO_DEG;
 		int exponent = GlobalConfig::tree()->get<int>("Leap.CircularAction.VelocityScale.Exponent");
-
+		
+		float scaleVal = peakVal/(pow(abs(peakAngle),exponent));
+		
 		if (scrollKnob->isGrasped())
 		{
 			state = IdleState;
 			float s = sgn(scrollKnob->getValue());
-			
 			float e = pow(abs(scrollKnob->getValue()),exponent);
 			
 			flyWheel->setVelocity(s*scaleVal*e);

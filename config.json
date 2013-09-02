@@ -379,7 +379,8 @@
 			}
 		},
 		"TouchScroll" : 
-		{	
+		{
+			"Enabled" : false,
 			"FrictionInduce" :
 			{	
 				"MaxTipVelocity" : 200.0,
@@ -491,29 +492,32 @@
 			"SphereRadiusThreshold" : 70,
 			"SphereRadiusRC" : 0.4,
 			"SphereRadiusMaxOffset" : 20,
-			"TargetSphereRadius" : 40,
+			"TargetSphereRadius" : 65,
 			"VelocityScale" :
 			{
-				"Exponent" : 2,
-				"Scale" : -4000
+				"Exponent" : 4,
+				"PeakVelocity" : -4000,
+				"PeakAngle" : 30
 			},
 			"Open" :
 			{
-				"MinRadialError" : -35,
+				"MaxTouchDist" : 10,
+				"MinRadialError" : -15,
 				"MaxRadialError" : 5,
 				"MinFingerCount" : 3,
 				"MaxNonGraspedCount" : 1
 			},
 			"Grasped" : 
 			{
-				"MinRadialError" : -25,
-				"MaxRadialError" : 15,
+				"MaxTouchDist" : 10,
+				"MinRadialError" : -35,
+				"MaxRadialError" : 20,
 				"MinFingerCount" : 1,
 				"MaxNonGraspedCount" : 3
 			},
-			"UsePalmCenter" : true,
-			"MaxAngle" : 45,
-			"MinAngle" : -45
+			"UsePalmCenter" : false,
+			"MaxAngle" : 25,
+			"MinAngle" : -25
 		}
 	},
 	"Cursors" :

@@ -39,8 +39,8 @@ public:
 
 	void addRGB(Color c);
 	
-	//int asInteger();
-
+	Color blendRGB(Color blendWith, float incomingAlpha);
+	
 	float idValue();
 
 	Color withAlpha(float _alpha);

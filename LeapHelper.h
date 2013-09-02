@@ -184,7 +184,7 @@ public:
 		return angle;
 	}
 
-	static vector<pair<Finger,float> > & GetOrderedFingers(Hand hand, bool isLeft = false)
+	static vector<pair<Finger,float> > GetOrderedFingers(Hand hand, bool isLeft = false)
 	{
 		vector<pair<Finger,float> > fingerAngles;
 
