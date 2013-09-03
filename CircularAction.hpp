@@ -7,6 +7,7 @@
 #include "SDLTimer.h"
 #include <boost/thread.hpp>
 #include "Flywheel.h"
+#include "Animation.h"
 
 using namespace std;
 using namespace Leap;
@@ -15,20 +16,12 @@ class CircularAction : public OverlayVisual {
 
 
 private:
-//	struct GraspedFinger {
-//		
-//		int fingerId;
-//		
-//		float radialError;
-//		bool isGrasped;
-//		
-//		
-//	};
-	
-	Color circleColor;
+	Color circleColor, circleInnerLineColor, circleOuterLineColor;
+	float innerLineWidth, outerLineWidth;
 	
 	enum State
 	{
+		Hidden = -1,
 		Idle = 0,
 		Rotating = 1,
 		Active = 2		
@@ -46,6 +39,8 @@ private:
 	int numGrasped;
 	int trackedFingerId;
 	float trackedOffset;
+	
+	DoubleAnimation outerRadiusAnimation,innerRadiusAnimation,outerRingAnimation;
 	
 	Vector knobHomePosition;
 	
@@ -73,12 +68,15 @@ private:
 	void updateErrorMap(const Controller & c, Hand hand);
 	void updateRotateMap(const Controller & c, Hand hand);
 	void updateRotation(const Controller & c, Hand hand);
+	
+	float getAverageKnobDistance(const Controller & controller, vector<pair<Finger,float> > & orderedFingers, Vector knobPosition);
 
 	void setNewHand(Hand newHand);
 	void updateCursors(const Controller & controller);
 
-	void drawFingerOffsets(Vector center, Color lineColor, float radius, vector<pair<float,float> > & offsets);
-	void drawPolygon(Vector drawPoint,Color fillColor, float innerRadius, float outerRadius, float startAngle, float endAngle);
+	void drawFingerOffsets(Vector center, Color lineColor, float radius, vector<pair<int,float> > & offsets);
+	
+	bool checkShowGesture(const Controller & controller, Hand hand);
 
 public:
 	CircularAction();

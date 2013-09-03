@@ -11,7 +11,7 @@
 	"Logging" : 
 	{
 		"File" : "photo_explorer.log",
-		"Enabled" : true
+		"Enabled" : false
 	},
 	"Typography" : 
 	{
@@ -486,34 +486,61 @@
 		"CircularAction" : 
 		{
 			"SteadyVelocity" : 100,
-			"InnerDrawRadius" : 40,
-			"OuterDrawRadius" : 60,
+			"InnerDrawRadius" : 70,
+			"OuterDrawRadius" : 110,
 			"Color" :  {"R" : 0,"G" : 221,"B" : 255,"A" : 150},
+			"InnerLineColor2" :  {"R" : 0,"G" : 221,"B" : 255,"A" : 100},
+			"OuterLineColor2" :  {"R" : 0,"G" : 221,"B" : 255,"A" : 0},
+			"OuterLineColor" :  {"R" : 0,"G" : 0,"B" : 255,"A" : 255},
+			"InnerLineColor" :  {"R" : 0,"G" : 0,"B" : 255,"A" : 255},
+			"OuterLineWidth" : 4,
+			"InnerLineWidth" : 2,
+			"Inner" :
+			{
+				"ShowAnimDuration" : 250
+			},
+			"ShowAnimDuration" : 600,
 			"SphereRadiusThreshold" : 70,
 			"SphereRadiusRC" : 0.4,
 			"SphereRadiusMaxOffset" : 20,
-			"TargetSphereRadius" : 65,
+			"TargetSphereRadius" : 50,
+			"KnobPickupRadius" : 250,
+			"KnobAngleRange" : 300,
+			"OuterRingGraspAnimDuration" : 250,
 			"VelocityScale" :
 			{
-				"Exponent" : 4,
+				"Exponent" : 3,
 				"PeakVelocity" : -4000,
-				"PeakAngle" : 30
+				"PeakAngle" : 25
+			},
+			"Hidden" :
+			{
+				"TouchDist" : 0,
+				"TapCount" : 4
 			},
 			"Open" :
 			{
+				"Hand" :
+				{
+					"MaxSphereRadius" : 200
+				},
 				"MaxTouchDist" : 10,
-				"MinRadialError" : -15,
+				"MinRadialError" : -30,
 				"MaxRadialError" : 5,
 				"MinFingerCount" : 3,
 				"MaxNonGraspedCount" : 1
 			},
 			"Grasped" : 
 			{
+				"Hand" :
+				{
+					"MaxSphereRadius" : 90
+				},
 				"MaxTouchDist" : 10,
-				"MinRadialError" : -35,
-				"MaxRadialError" : 20,
-				"MinFingerCount" : 1,
-				"MaxNonGraspedCount" : 3
+				"MinRadialError" : -450,
+				"MaxRadialError" : 200,
+				"MinFingerCount" : 0,
+				"MaxNonGraspedCount" : 30
 			},
 			"UsePalmCenter" : false,
 			"MaxAngle" : 25,

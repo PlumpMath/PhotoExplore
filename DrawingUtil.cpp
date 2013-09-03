@@ -7,8 +7,11 @@ void DrawingUtil::drawCircleLine(Vector drawPoint, Color lineColor, float lineWi
 	float z1 =drawPoint.z;
 	float angleRange = endAngle - startAngle;
 	
-	int vertices = ceilf(40 * angleRange/(Leap::PI*2.0f));
+	int vertices = ceilf(60 * angleRange/(Leap::PI*2.0f));
 	float anglePerVertex = angleRange/(float)vertices;
+	
+//	if (angleRange >= Leap::PI*2.0f)
+//		vertices++;
 	
 	float radii [] = {outerRadius - lineWidth*0.5f,outerRadius, outerRadius + lineWidth*0.5f};
 	float alphaScale = lineColor.colorArray[3];
@@ -23,9 +26,9 @@ void DrawingUtil::drawCircleLine(Vector drawPoint, Color lineColor, float lineWi
 	for (int lap = 0; lap < 2; lap++)
 	{
 		glBegin(GL_TRIANGLE_STRIP);
-		for (float v=0;v<vertices+1;v++)
+		for (int v=0;v<=vertices;v++)
 		{
-			float angle = v*anglePerVertex;
+			float angle = (float)v*anglePerVertex;
 			angle += startAngle;
 			
 			for (int i=0; i < 2; i++)
@@ -58,8 +61,8 @@ void DrawingUtil::drawCircleFill(Vector drawPoint,Color fillColor, float innerRa
 	glLineWidth(0);
 	
 	glTranslatef(drawPoint.x,drawPoint.y,0);
-	glBegin(GL_QUAD_STRIP);
-	for (float v=0;v<vertices;v++)
+	glBegin(GL_TRIANGLE_STRIP);
+	for (float v=0;v<=vertices;v++)
 	{
 		float angle = v*anglePerVertex;
 		angle += startAngle;
