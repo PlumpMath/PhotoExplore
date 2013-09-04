@@ -16,7 +16,7 @@ ImageDetailView::ImageDetailView()
 	skipAnimationNextLayout = false;
 
 	opposingCursor = new OpposingArrowCursor(PointableCursor::getDefaultSize(),Color(GlobalConfig::tree()->get_child("Cursors.PointColor")));
-	LeapDebug::getInstance().addDebugVisual(opposingCursor);
+	//LeapDebug::getInstance().addDebugVisual(opposingCursor);
 
 	scrollWheel->setNotchChangedListener([this](int currentNotch, int newNotch){
 
@@ -305,7 +305,7 @@ void ImageDetailView::layout(Vector position, cv::Size2f size)
 				{
 					dp->setAnimateOnLayout(false);
 				}
-				dp->fitPanelToBoundary(center+Vector(((float)i)*panelSpacing,0,0),panelSpacing,size.height*.8f, false);
+				dp->fitPanelToBoundary(center+Vector(((float)i)*panelSpacing,0,0),panelSpacing,size.height*.95f, false);
 				dp->setAnimateOnLayout(true);
 			}
 		}
@@ -327,8 +327,8 @@ void ImageDetailView::setVisible(bool _visible)
 
 	View::setVisible(_visible);
 
-	LeapInput::getInstance()->setCursorDrawEnabled(!_visible);
-	opposingCursor->setVisible(_visible);
+	//LeapInput::getInstance()->setCursorDrawEnabled(!_visible);
+	//opposingCursor->setVisible(_visible);
 
 
 	layoutDirty = true;

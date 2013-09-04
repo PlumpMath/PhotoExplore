@@ -83,7 +83,7 @@ private:
 
 	map<int,TrackedSwipe> swipeMap;
 
-	bool DrawingEnabled, touchScrollingEnabled, swipeScrollingEnabled;
+	bool DrawingEnabled, touchScrollingEnabled, swipeScrollingEnabled, knobScrollingEnabled;
 	int sampleCount;
 	int state;
 
@@ -96,6 +96,7 @@ private:
 	void doScrollWheelScrolling(double,double);
 	void doTouchZoneScrolling(const Controller & controller);
 	void doGestureScrolling(const Controller & controller);
+	void doKnobScrolling(const Controller & controller);
 
 	Vector startScrollScreenPoint;
 	double startScrollPos, currentScrollVelocity;
@@ -116,6 +117,7 @@ public:
 	const static int GestureScrolling = 1;
 	const static int TouchScrolling = 2;
 	const static int MouseScrolling = 3;
+	const static int KnobScrolling = 4;
 
 	void onFrame(const Controller & controller);
 	void draw();

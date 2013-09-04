@@ -14,7 +14,7 @@ LeapInput::LeapInput()
 	hitLastFrame = NULL;
 	topElement = NULL;
 	mouseHitLast = NULL;
-	drawNonDominant = false;
+	clickEnabled = true;
 	cursorDrawEnabled = true;
 }
 
@@ -26,6 +26,16 @@ void LeapInput::setCursorDrawEnabled(bool drawCursors)
 bool LeapInput::isCursorDrawEnabled()
 {
 	return this->cursorDrawEnabled;
+}
+
+void LeapInput::setClickEnabled(bool _clickEnabled)
+{
+	this->clickEnabled = _clickEnabled;
+}
+
+bool LeapInput::isClickEnabled()
+{
+	return this->clickEnabled;
 }
 
 
@@ -45,12 +55,8 @@ void LeapInput::processInputEvents()
 		float cursorDimension = (((float)GlobalConfig::ScreenWidth) / 2560.0f) *  GlobalConfig::tree()->get<float>("Overlay.BaseCursorSize");	
 
 		mouseVisual = new MouseCursor(cursorDimension,baseColor);
-		//mouseVisual->lineColor = Color(GlobalConfig::tree()->get_child("Leap.MouseInput.CursorVisual.LineColor"));
 		mouseVisual->lineWidth =GlobalConfig::tree()->get<float>("Leap.MouseInput.CursorVisual.LineWidth");
-		
-		LeapDebug::getInstance().addDebugVisual(mouseVisual);
-		
-		
+		LeapDebug::getInstance().addDebugVisual(mouseVisual);	
 		
 		InputEventHandler::getInstance().addMouseButtonCallback([this](GLFWwindow*window,int button,int action, int mods) -> bool {
 			
@@ -64,24 +70,21 @@ void LeapInput::processInputEvents()
 	double x,y;
 	glfwGetCursorPos(GraphicsContext::getInstance().MainWindow,&x,&y);
 
-
 	Pointable fakePointable;
 	LeapElement * hit = NULL;
 	Vector screenPoint = Vector(x,y,0);
 	int flags = 0;
 
-	View * topView = (View*)topElement; //dynamic_cast<View*>(globalGestureListenerStack.top());
-
+	View * topView = (View*)topElement;
+	
 	if (topView != NULL)
 		hit = topView->elementAtPoint((int)screenPoint.x,(int)screenPoint.y,flags);
 	
 	if (hit != mouseHitLast)
 	{
 		if (hit != NULL)	
-		{
 			hit->pointableEnter(fakePointable);
-		}
-
+		
 		if (mouseHitLast != NULL)
 			mouseHitLast->pointableExit(fakePointable);
 	}
@@ -90,15 +93,6 @@ void LeapInput::processInputEvents()
 
 
 	int mouseState = mouseButtonState[GLFW_MOUSE_BUTTON_1];
-	
-	//if (mouseState == GLFW_PRESS || mouseState == GLFW_REPEAT)
-	//{
-	//	mouseVisual->fillColor = clickColor;
-	//}
-	//else
-	//{		
-	//	mouseVisual->fillColor = baseColor;
-	//}
 
 	if (hit != NULL && hit->isClickable() && mouseState == GLFW_PRESS)
 	{
@@ -112,11 +106,6 @@ void LeapInput::processInputEvents()
 	else
 		mouseButtonState[GLFW_MOUSE_BUTTON_1] = GLFW_RELEASE;
 
-}
-
-void LeapInput::enableNonDominantCursor(bool _enable)
-{
-	this->drawNonDominant = _enable;
 }
 
 static int determineHandState(const Controller & controller, Frame frame, Hand hand)
@@ -184,7 +173,7 @@ void LeapInput::processFrame(const Controller & controller, Frame frame)
 
 	bool clicked = false;
 
-	if (hit != NULL )
+	if (hit != NULL && clickEnabled)
 	{		
 		hit->onFrame(controller);
 	

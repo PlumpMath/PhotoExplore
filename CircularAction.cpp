@@ -24,12 +24,14 @@ CircularAction::CircularAction()
 	innerLineWidth = config.get<float>("InnerLineWidth");
 	outerLineWidth = config.get<float>("OuterLineWidth");
 
-	for (int i=0; i < 5; i++)
-	{
-		cursors.push_back(new PointableTouchCursor(20,40,Colors::PrettyPurple));
-	}
+//	for (int i=0; i < 5; i++)
+//	{
+//		cursors.push_back(new PointableTouchCursor(20,40,Colors::PrettyPurple));
+//	}
 
 	flyWheel = new FlyWheel();
+	
+	releaseCountdown.start();
 	
 	minAngle = config.get<float>("MinAngle")/Leap::RAD_TO_DEG;
 	maxAngle = config.get<float>("MaxAngle")/Leap::RAD_TO_DEG;
@@ -43,13 +45,11 @@ CircularAction::CircularAction()
 
 void CircularAction::draw()
 {
-	//if (mutey.try_lock())
-	//{
-
 	mutey.lock();
 	
 	static float offset = -Leap::PI;
-	static float lineWidth = 2;
+	
+	float lowerBound = config.get<float>("Open.MinRadialError");
 	
 	float angularWidth = (config.get<float>("KnobAngleRange")/Leap::RAD_TO_DEG) - (maxAngle-minAngle);
 	float startAngle = offset + (Leap::PI-angularWidth)*0.5f;
@@ -72,21 +72,7 @@ void CircularAction::draw()
 	if (handId >= 0)
 	{		
 		nonGraspedRatio =  grasped*(5.0f - (float)numGrasped)/5.0f;
-				
-		HandModel * hm = HandProcessor::LastModel(handId);
-	
-		int fingerCount = 0;
-		for (auto it = orderedFingers.begin(); it != orderedFingers.end(); it++)
-		{
-			if (fingerErrorMap.count(it->first.id()))
-			{
-				int fingerIndex = fingerCount;
-				float errorVal = fingerErrorMap[it->first.id()];
-				drawData.push_back(make_pair(fingerIndex,errorVal));
-			}
-			fingerCount++;
-		}
-
+					
 		knobAngle = flyWheel->getPosition()/1000.0;
 		
 		knobAngle = max<float>(knobAngle,minAngle);
@@ -107,13 +93,15 @@ void CircularAction::draw()
 		}
 	}	
 		
-	if (state != Hidden)
+	if (state != Hidden || (innerRadiusAnimation.isRunning() && outerRadiusAnimation.isRunning()))
 	{		
-		DrawingUtil::drawCircleFill(drawPoint,circleColor,innerRad,outerRad,startAngle+knobAngle,endAngle+knobAngle);
+		DrawingUtil::drawCircleFill(drawPoint,circleColor.withAlpha(0.65f),circleColor.withAlpha(0.85f),innerRad,outerRad-outerLineWidth,startAngle+knobAngle,endAngle+knobAngle);
+		DrawingUtil::drawCircleFill(drawPoint,circleColor.withAlpha(0.85f),circleColor.withAlpha(0.0f),outerRad-outerLineWidth,outerRad+1,startAngle+knobAngle,endAngle+knobAngle);
+		
 		DrawingUtil::drawCircleFill(drawPoint+Vector(0,0,-1.0f),circleColor.withAlpha(0.1f),innerRad,outerRad,startAngle+minAngle,endAngle+maxAngle);
 				
-		if (!grasped && !drawData.empty())
-			drawFingerOffsets(drawPoint,circleColor.withAlpha(0.6f),outerRad,drawData);
+		if (!grasped)
+			drawFingerOffsets(drawPoint+Vector(0,0,0.5f),circleColor.withAlpha(0.6f),outerRad-outerLineWidth,drawData);
 		
 		DrawingUtil::drawCircleLine(drawPoint+Vector(0,0,0.5f),circleInnerLineColor,innerLineWidth,innerRad,startAngle+minAngle,endAngle+maxAngle);
 		DrawingUtil::drawCircleLine(drawPoint+Vector(0,0,1.5f),circleInnerLineColor2,innerLineWidth,innerRad+innerLineWidth*0.5f,0,Leap::PI*2.0f);
@@ -125,16 +113,10 @@ void CircularAction::draw()
 			if (outerRingAnimation.isRunning())
 			{
 				ringStart = Leap::PI - outerRingAnimation.getValue();
-				ringEnd = Leap::PI*2.0f + outerRingAnimation.getValue();
-				DrawingUtil::drawCircleLine(drawPoint+Vector(0,0,0.5f),circleOuterLineColor,2,outerRad,0,Leap::PI*2.0f);
-			}
+				ringEnd = Leap::PI*2.0f + outerRingAnimation.getValue();			}
 			
-			DrawingUtil::drawCircleLine(drawPoint+Vector(0,0,0.5f),circleOuterLineColor,outerLineWidth,outerRad,ringStart,ringEnd);
-		}
-		else
-		{
-			DrawingUtil::drawCircleLine(drawPoint+Vector(0,0,0.5f),circleOuterLineColor,2,outerRad,0,Leap::PI*2.0f);
-		}		
+			DrawingUtil::drawCircleLine(drawPoint+Vector(0,0,1.5f),circleOuterLineColor,outerLineWidth,outerRad,ringStart,ringEnd);
+		}	
 	}
 	
 	mutey.unlock();
@@ -147,35 +129,51 @@ void CircularAction::drawFingerOffsets(Vector center, Color lineColor,float radi
 	float anglePerFinger = Leap::PI*0.2f;
 	float offset = Leap::PI;
 	
-	for (auto it = offsets.begin(); it != offsets.end(); it++)
+//	for (auto it = offsets.begin(); it != offsets.end(); it++)
+//	{
+	
+	int fingerCount = 0;
+	for (auto it = orderedFingers.begin(); it != orderedFingers.end(); it++)
 	{
-		float errorVal = it->second;
-		float angle = offset + anglePerFinger*((float)it->first);
+		if (fingerErrorMap.count(it->first.id()))
+		{
+			int fingerIndex = fingerCount;
+			float errorVal = fingerErrorMap[it->first.id()];
+				
+			float angle = offset + anglePerFinger*((float)fingerCount);
+			
+			float fingerAlpha = abs(errorVal/120.0f);
+			fingerAlpha = min<float>(0.8f,fingerAlpha);
+			fingerAlpha = max<float>(0.2f,fingerAlpha);
+			
+			float length = max<float>(radius,radius + errorVal);
+			float start = radius;
+			Color color = lineColor.withAlpha(fingerAlpha);
+			
+			float lineWidth = outerLineWidth;
+			
+			if (errorVal < 0)
+				lineWidth += errorVal*-0.2f;
+			
+			
+			DrawingUtil::drawCircleFill(center,color,start,length,angle,angle+anglePerFinger);
+			DrawingUtil::drawCircleLine(center+Vector(0,0,0.5f),circleOuterLineColor,lineWidth,length,angle,angle+anglePerFinger);
+		}
 		
-		float fingerAlpha = abs(errorVal/120.0f);
-		fingerAlpha = min<float>(0.8f,fingerAlpha);
-		fingerAlpha = max<float>(0.2f,fingerAlpha);
-		
-		float length = radius + errorVal;
-		float start = radius;
-		Color color = lineColor.withAlpha(fingerAlpha);
-		
-		DrawingUtil::drawCircleFill(center,color,start,length,angle,angle+anglePerFinger);
-		DrawingUtil::drawCircleLine(center+Vector(0,0,0.5f),circleOuterLineColor,outerLineWidth,length,angle,angle+anglePerFinger);
-		
+		fingerCount++;
 	}
+		
+//	}
 }
 
 void CircularAction::setNewHand(Hand newHand)
 {
 	handId = newHand.id();
-	sphereRadiusTimer.start();
-	drawRadius = 0;
 	drawPitch = 0;
 	trackedFingerId = -1;
 	trackedOffset = 0;
 	grasped = false;
-
+	flyWheel->overrideValue(0);
 }
 
 float CircularAction::getValue()
@@ -185,7 +183,7 @@ float CircularAction::getValue()
 
 bool CircularAction::isGrasped()
 {
-	return grasped;
+	return state == Rotating || (state == PendingHide && grasped);
 }
 
 float CircularAction::getHandFingerPitch(const Controller & controller, Finger f)
@@ -203,31 +201,7 @@ Vector CircularAction::getHandFingerDelta(const Controller & controller, Finger 
 }
 
 void CircularAction::updateCursors(const Controller & controller)
-{	
-//	Frame frame = controller.frame();
-//
-//	Hand hand = frame.hand(handId);
-//	
-//	if (hand.isValid())
-//	{
-//		for (int f = 0; f < hand.fingers().count() && f < 5; f++)
-//		{
-//			Finger finger = hand.fingers()[f];
-//			int fingerId = finger.id();
-//			if (fingerId == trackedFingerId)
-//				cursors.at(f)->setColor(Colors::Red);
-//			else
-//				cursors.at(f)->setColor(Colors::PrettyPurple);
-//				
-//			cursors.at(f)->setPointable(finger);
-//		}
-//	}
-//
-//	for (auto it = cursors.begin(); it != cursors.end(); it++)
-//	{
-//		(*it)->onFrame(controller);
-//	}
-}
+{}
 
 
 void CircularAction::updateErrorMap(const Controller & controller, Hand hand)
@@ -348,14 +322,14 @@ void CircularAction::updateRotation(const Controller & controller, Hand hand)
 	if ((trackedFinger.isValid() && !intentFinger.isValid()) ||
 		(trackedFinger.isValid() && trackedFinger.id() == intentFinger.id()))
 	{
-		drawPitch = getHandFingerPitch(controller, trackedFinger);
-		
-		drawPitch = boundAngle(drawPitch) - trackedOffset;
+		drawPitch = boundAngle(getHandFingerPitch(controller, trackedFinger) - trackedOffset);
 		
 		drawPitch = min<float>(maxAngle,drawPitch);
 		drawPitch = max<float>(minAngle,drawPitch);
 		
-		//Logger::stream("CircularAction","INFO") << "Angle = " << getHandFingerPitch(controller, trackedFinger) * Leap::RAD_TO_DEG << " DP = " << drawPitch*Leap::RAD_TO_DEG << endl;
+//		Logger::stream("CircularAction","INFO") << "Angle = " << getHandFingerPitch(controller, trackedFinger) * Leap::RAD_TO_DEG
+//		<< " DP = " << drawPitch*Leap::RAD_TO_DEG
+//		<< " pID = " << trackedFinger.id() << endl;
 	}
 	else
 	{
@@ -366,17 +340,23 @@ void CircularAction::updateRotation(const Controller & controller, Hand hand)
 		
 		if (trackedFingerId >= 0)
 		{		
-			Finger lastFrameIntent = controller.frame(1).finger(intentFinger.id());
-					
-			if (!lastFrameIntent.isValid())
-				lastFrameIntent = intentFinger;
+			Finger newTrackedPrev = controller.frame(1).finger(trackedFingerId);
+			Finger newTracked = controller.frame().finger(trackedFingerId);
+							
+			if (!newTrackedPrev.isValid())
+				newTrackedPrev = newTracked;
 				
-			trackedOffset = getHandFingerPitch(controller, lastFrameIntent) - drawPitch;
+			trackedOffset = getHandFingerPitch(controller, newTrackedPrev) - drawPitch;
 			trackedOffset = boundAngle(trackedOffset);
 			
-			//Logger::stream("CircularAction","INFO") << "Transitioning pointable: DP = " << drawPitch*Leap::RAD_TO_DEG << " TrackedOffset=" << trackedOffset*Leap::RAD_TO_DEG << " NewAngle=" << getHandFingerPitch(controller, intentFinger)*Leap::RAD_TO_DEG << endl;
-			drawPitch = getHandFingerPitch(controller, intentFinger) - trackedOffset;
-			//Logger::stream("CircularAction","INFO") << "Transitioning pointable: NewDP = " << drawPitch*Leap::RAD_TO_DEG << endl;
+//			Logger::stream("CircularAction","INFO") << "Transitioning pointable: DP = " << drawPitch*Leap::RAD_TO_DEG
+//			<< " TrackedOffset=" << trackedOffset*Leap::RAD_TO_DEG
+//			<< " OldAngle = " << getHandFingerPitch(controller, newTrackedPrev)*Leap::RAD_TO_DEG
+//			<< " NewAngle=" << getHandFingerPitch(controller, newTracked)*Leap::RAD_TO_DEG
+//			<< " pID = " << newTracked.id() << endl;
+			
+			drawPitch = getHandFingerPitch(controller, newTracked) - trackedOffset;
+//			Logger::stream("CircularAction","INFO") << "Transitioning pointable: NewDP = " << drawPitch*Leap::RAD_TO_DEG << endl;
 			drawPitch = min<float>(maxAngle,drawPitch);
 			drawPitch = max<float>(minAngle,drawPitch);
 		}
@@ -402,25 +382,135 @@ float CircularAction::getAverageKnobDistance(const Controller & controller, vect
 	return averageDistance;
 }
 
+static bool checkClicked(const Controller & controller, Pointable p)
+{
+	Pointable pThis = controller.frame().pointable(p.id());
+	Pointable pLast = controller.frame(1).pointable(p.id());
+	
+	if (pLast.isValid())
+	{
+		if (pThis.touchDistance() > 0 && pLast.touchDistance() <= 0)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+static bool checkClicked(const Controller & controller, int pId)
+{
+	Pointable pThis = controller.frame().pointable(pId);
+	Pointable pLast = controller.frame(1).pointable(pId);
+	
+	if (pThis.isValid() && pLast.isValid())
+	{
+		if (pThis.touchDistance() > 0 && pLast.touchDistance() <= 0)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+static Vector constrainVector(Vector origin, Vector point, float maxDistance)
+{
+	if (origin.distanceTo(point) > maxDistance)
+	{
+		return origin + (point.normalized() * maxDistance);
+	}
+	else
+		return point;
+}
+
 bool CircularAction::checkShowGesture(const Controller & controller, Hand hand)
 {
-	Hand lastHand = controller.frame(1).hand(hand.id());
-	int tapCount = 0;
-	for (int f = 0; f < hand.fingers().count(); f++)
+	if (config.get<bool>("Show.CircleGesture.Enabled"))
 	{
-		Finger finger = hand.fingers()[f];
-		Finger lastFinger = lastHand.finger(finger.id());
-		
-		if (lastFinger.isValid())
+		GestureList gList = controller.frame().gestures();
+		for (int g = 0; g < gList.count(); g++)
 		{
-			if (finger.touchDistance() > 0 && lastFinger.touchDistance() <= 0)
+			Gesture gesture = gList[g];
+			
+			if (gesture.type() == Gesture::TYPE_CIRCLE && gesture.state() != Gesture::STATE_INVALID)
 			{
-				tapCount++;
+				CircleGesture cg = CircleGesture(gesture);
+				
+				if (cg.progress() > config.get<float>("Show.CircleGesture.MinProgress") &&
+					cg.radius() > config.get<float>("Show.CircleGesture.MinRadius") &&
+					cg.radius() < config.get<float>("Show.CircleGesture.MaxRadius"))
+				{
+					knobHomePosition = constrainVector(Vector(GlobalConfig::ScreenWidth/2.0f,GlobalConfig::ScreenHeight/2.0f,0),
+													   LeapHelper::FindScreenPoint(controller,cg.center()),800) + Vector(0,0,50);
+					return true;
+				}
 			}
 		}
 	}
 	
-	return tapCount >= 1 && hand.fingers().count() >= 4;
+	if (config.get<bool>("Show.MultiTap.Enabled"))
+	{	
+		Hand lastHand = controller.frame(1).hand(hand.id());
+		int tapCount = 0;
+		for (int f = 0; f < hand.fingers().count(); f++)
+		{
+			if (checkClicked(controller,hand.fingers()[f]))
+				tapCount++;
+		}
+		
+		if (tapCount >= config.get<int>("Show.MultiTap.MinTapCount") &&
+				hand.fingers().count() >= config.get<int>("Show.MultiTap.MinFingerCount"))
+		{			
+			knobHomePosition = constrainVector(Vector(GlobalConfig::ScreenWidth/2.0f,GlobalConfig::ScreenHeight/2.0f,0),
+											   LeapHelper::FindScreenPoint(controller,hand.stabilizedPalmPosition()),800) + Vector(0,0,50);
+			return true;
+		}
+	}	
+	return false;
+}
+
+void CircularAction::setState(int newState)
+{
+	static float startRad = config.get<float>("InnerDrawRadius") + (config.get<float>("OuterDrawRadius") - config.get<float>("InnerDrawRadius"))*0.5f;
+	
+	if (state != newState)
+	{
+		switch (newState)
+		{
+			case Idle:
+				releaseCountdown.start();
+				if (state == Hidden)
+				{				
+					innerRadiusAnimation = DoubleAnimation(0,config.get<float>("InnerDrawRadius"),config.get<int>("Inner.ShowAnimDuration"),NULL,false,false);
+					innerRadiusAnimation.start();
+					
+					outerRadiusAnimation = DoubleAnimation(0,config.get<float>("OuterDrawRadius"),config.get<int>("ShowAnimDuration"),NULL,false,false);
+					outerRadiusAnimation.start();
+				}
+				else if (state == Rotating)
+				{
+					releaseCountdown.countdown(config.get<int>("PointingReleaseTimeout"));
+				}
+				grasped = false;
+				break;
+			case Hidden:				
+				innerRadiusAnimation = DoubleAnimation(config.get<float>("InnerDrawRadius"),startRad,config.get<int>("HideAnimDuration"),NULL,false,false);
+				innerRadiusAnimation.start();
+				
+				outerRadiusAnimation = DoubleAnimation(config.get<float>("OuterDrawRadius"),startRad,config.get<int>("HideAnimDuration"),NULL,false,true);
+				outerRadiusAnimation.start();
+				break;
+			case PendingHide:
+				hideCountdown.countdown(config.get<int>("HideTimeout"));
+				break;
+			case PendingRelease:
+				releaseCountdown.countdown(config.get<int>("PointingReleaseTimeout"));
+				break;
+			default:
+				break;			
+		}
+
+		state = newState;
+	}
 }
 
 void CircularAction::onFrame(const Controller & controller)
@@ -442,8 +532,7 @@ void CircularAction::onFrame(const Controller & controller)
 			else
 				handId = -1;
 		}
-		
-		
+				
 		if (hand.isValid())
 		{	
 			updateErrorMap(controller,hand);
@@ -452,49 +541,77 @@ void CircularAction::onFrame(const Controller & controller)
 				updateRotation(controller,hand);
 			
 			orderedFingers = LeapHelper::GetOrderedFingers(hand);
-		
-			switch (state)
-			{
-			case Hidden:
-				if (checkShowGesture(controller, hand))
-				{
-					knobHomePosition = LeapHelper::FindScreenPoint(controller,hand.stabilizedPalmPosition()) + Vector(0,0,50);
-					drawPoint = knobHomePosition;
-					
-					innerRadiusAnimation = DoubleAnimation(10,config.get<float>("InnerDrawRadius"),config.get<int>("Inner.ShowAnimDuration"),NULL,false,true);
-					innerRadiusAnimation.start();
-					
-					float startRad = 0;
-					
-					outerRadiusAnimation = DoubleAnimation(startRad,config.get<float>("OuterDrawRadius"),config.get<int>("ShowAnimDuration"),NULL,false,true);
-					outerRadiusAnimation.start();
-					
-					state = Idle;
-				}
-				break;
-			case Idle:
-				if (grasped)
-				{
-					state = Rotating;
-				}
-				else
-				{
-					drawPoint = knobHomePosition;
-					break;
-				}
-			case Rotating:
-				if (grasped)
-					drawPoint =  knobHomePosition;
-				else
-					state = Idle;
-				break;
-			default:
-				break;
-			}
+			
 		}
 		else
-			state = Hidden;
+		{
+			if (state != Hidden)
+				setState(PendingHide);
+			
+			flyWheel->setTargetActive(true);
+			drawPitch = flyWheel->getCurrentPosition() / 1000.0f;
+			flyWheel->setTargetPosition(0);
+		}
 		
+		
+		
+		HandModel * hm = HandProcessor::LastModel(handId);
+		
+		switch (state)
+		{
+		case Hidden:
+			if (hand.isValid() && checkShowGesture(controller, hand))
+			{					
+				setState(Idle);
+			}
+			break;
+		case Idle:
+			if (releaseCountdown.elapsed())
+			{
+				setState(Hidden);
+			}
+			else if (hm->Pose == HandModel::Pointing && checkClicked(controller,hm->IntentFinger))
+			{
+				setState(PendingHide);
+			}
+			else if (grasped)
+			{
+				setState(Rotating);
+			}
+			break;
+		case PendingRelease:
+			if (!grasped || releaseCountdown.elapsed())
+			{
+				setState(Idle);
+			}
+			else if (grasped && hm->Pose != HandModel::Pointing)
+			{
+				setState(Rotating);
+			}
+			break;
+		case Rotating:
+			if (!grasped)
+				setState(Idle);
+			else if (hm->Pose == HandModel::Pointing && checkClicked(controller,hm->IntentFinger))
+			{
+				setState(PendingHide);
+			}
+//			else if (hm->Pose == HandModel::Pointing)
+//			{
+//				//setState(PendingRelease);
+//			}
+			break;
+		case PendingHide:
+			if (hideCountdown.elapsed())
+				setState(Hidden);
+			break;
+		default:
+			break;
+		}
+		
+		
+		drawPoint = knobHomePosition;
+				
 		mutey.unlock();
 	}
 }

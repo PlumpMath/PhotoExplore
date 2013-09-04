@@ -45,11 +45,8 @@ class LeapInput {
 	
 private:
 	stack<ActivityView*> globalGestureListenerStack;
-
-	set<int> processedGestures;
 	
 	map<int,int> mouseButtonState;
-	map<int,bool> keyState;
 
 	static LeapInput * instance;
 
@@ -72,7 +69,7 @@ private:
 		
 	InteractionState currentState;
 	
-	bool drawNonDominant, cursorDrawEnabled;
+	bool cursorDrawEnabled, clickEnabled;
 	
 	LeapElement * topElement;
 	
@@ -92,13 +89,13 @@ public:
 	void requestGlobalGestureFocus(ActivityView * globalListener);
 	void releaseGlobalGestureFocus(ActivityView * globalListener);
 
-	void enableNonDominantCursor(bool enable);
-
 	void setCursorDrawEnabled(bool drawCursors);
 	bool isCursorDrawEnabled();
-
+	
 	InteractionState getInteractionState();
 
+	void setClickEnabled(bool clickEnabled);
+	bool isClickEnabled();
 
 
 };

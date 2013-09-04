@@ -2,24 +2,15 @@
 #include <iostream>
 #include "SDLTimer.h"
 
-
 Timer::Timer()
-{   
-	PCFreq = 0.0;
-	CounterStart = 0;
+{
 	countdownTime = 0;
 }
 
-
 void Timer::start()
 {
-	LARGE_INTEGER li;
-	QueryPerformanceFrequency(&li);
-
-	PCFreq = double(li.QuadPart)/1000.0;
-
-	QueryPerformanceCounter(&li);
-	CounterStart = li.QuadPart;
+	countdownTime = 0;
+	startTime = boost::posix_time::microsec_clock::local_time();
 }
 
 void Timer::countdown(double ticks)
@@ -31,8 +22,8 @@ void Timer::countdown(double ticks)
 bool Timer::elapsed()
 {
 	if (countdownTime == 0)
-		return true;
-
+		return false;
+	
 	return millis() > countdownTime;
 }
 
@@ -46,18 +37,7 @@ double Timer::millis()
 	return get_ticks();
 }
 
-
 double Timer::get_ticks()
 {
-	LARGE_INTEGER li;
-	QueryPerformanceCounter(&li);
-	return double(li.QuadPart-CounterStart)/PCFreq;
-}
-
-
-double Timer::getTimestamp()
-{
-	LARGE_INTEGER li;
-	QueryPerformanceCounter(&li);
-	return double(li.QuadPart);
+	return (boost::posix_time::microsec_clock::local_time() - startTime).total_nanoseconds()/1000000.0;
 }

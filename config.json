@@ -11,7 +11,7 @@
 	"Logging" : 
 	{
 		"File" : "photo_explorer.log",
-		"Enabled" : false
+		"Enabled" : true
 	},
 	"Typography" : 
 	{
@@ -72,7 +72,7 @@
 	"DynamicImagePanel" :
 	{
 		"AnimateLayoutDuration" : 400,
-		"DebugLoading" : true,
+		"DebugLoading" : false,
 		"DebugPriority" : false
 	},	
 	"PanelBase" :
@@ -110,14 +110,14 @@
 	},
 	"ResourceCache" : 
 	{
-		"TextureCacheSize" : 256, 	//Megabytes
-		"ImageCacheSize" : 512, 	//Megabytes		
+		"TextureCacheSize" : 512, 	//Megabytes
+		"ImageCacheSize" : 768, 	//Megabytes
 		"MaxImageSize" : 30,			//Megabytes
 		"CacheGCFrequency" : 10000 ,//milliseconds		
 		"FullCacheGCFrequency" : 2000, //milliseconds
 		"TextureCacheGCCollectRatio" : 0.8,
 		"ImageCacheGCCollectRatio" : 0.8,
-		"DebugLogging" : true,
+		"DebugLogging" : false,
 		"DebugLogSize" : 100
 	},
 	"StatusOverlay" : 
@@ -190,8 +190,9 @@
 		"FileBrowser" : true,
 		"ImageDirectories" :
 		[ 
-			"/Users/adamskubel/Pictures"
-			//,"/Users/adamskubel/Downloads" 
+			"/Users/adamskubel/Pictures/LeapDemo/Pixiv"
+			,"/Users/adamskubel/Pictures/LeapDemo/Hubble Telescope - Top 100"
+			,"/Users/adamskubel/Pictures/LeapDemo/Solar Dynamics Observatory"
 			//"C:\\Users\\Adam\\Pictures\\pixiv-win"
 			
 		],
@@ -331,7 +332,7 @@
 						"PixelsPerClick" : 200,
 						"ScrollFriction" : 30
 					},
-					"TouchPad" : { "Scale" : 20.0, "ScrollPositionFilterRC" : 0 }
+					"TouchPad" : { "Scale" : 1, "ScrollPositionFilterRC" : 0 }
 
 				},
 				"Keyboard" : 
@@ -380,7 +381,7 @@
 		},
 		"TouchScroll" : 
 		{
-			"Enabled" : false,
+			"Enabled" : true,
 			"FrictionInduce" :
 			{	
 				"MaxTipVelocity" : 200.0,
@@ -488,13 +489,16 @@
 			"SteadyVelocity" : 100,
 			"InnerDrawRadius" : 70,
 			"OuterDrawRadius" : 110,
-			"Color" :  {"R" : 0,"G" : 221,"B" : 255,"A" : 150},
+			"Color" :  {"R" : 0,"G" : 221,"B" : 255,"A" : 255},
 			"InnerLineColor2" :  {"R" : 0,"G" : 221,"B" : 255,"A" : 100},
 			"OuterLineColor2" :  {"R" : 0,"G" : 221,"B" : 255,"A" : 0},
 			"OuterLineColor" :  {"R" : 0,"G" : 0,"B" : 255,"A" : 255},
 			"InnerLineColor" :  {"R" : 0,"G" : 0,"B" : 255,"A" : 255},
 			"OuterLineWidth" : 4,
-			"InnerLineWidth" : 2,
+			"InnerLineWidth" : 4,
+			"HideAnimDuration" : 350,
+			"HideTimeout" : 1000,
+			"PointingReleaseTimeout" : 5000,
 			"Inner" :
 			{
 				"ShowAnimDuration" : 250
@@ -544,7 +548,23 @@
 			},
 			"UsePalmCenter" : false,
 			"MaxAngle" : 25,
-			"MinAngle" : -25
+			"MinAngle" : -25,
+			"Show" :
+			{
+				"CircleGesture" :
+				{
+					"Enabled" : true,
+					"MinRadius" : 10,
+					"MaxRadius" : 110,
+					"MinProgress" : 1.5
+				},
+				"MultiTap":
+				{
+					"Enabled" : false,
+					"MinTapCount" : 1,
+					"MinFingerCount" : 4
+				}
+			}
 		}
 	},
 	"Cursors" :
@@ -556,7 +576,7 @@
 	},
 	"ImageDetailView" :
 	{		
-		"SpacingRatio" : 0.9,
+		"SpacingRatio" : 0.95,
 		"ResizeInteraction" :
 		{
 			"AllowSingleHand" : true,

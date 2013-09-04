@@ -190,9 +190,9 @@ void FlyWheel::flingWheel(double flingVelocity)
 	}
 }
 
-void FlyWheel::impartVelocity(double velocity)
+void FlyWheel::impartVelocity(double _velocity)
 {
-	this->velocity = velocity;
+	setVelocity(_velocity);
 }
 
 double FlyWheel::getVelocity()

@@ -46,6 +46,11 @@ void DrawingUtil::drawCircleLine(Vector drawPoint, Color lineColor, float lineWi
 
 void DrawingUtil::drawCircleFill(Vector drawPoint,Color fillColor, float innerRadius, float outerRadius, float startAngle, float endAngle)
 {
+	drawCircleFill(drawPoint,fillColor,fillColor,innerRadius,outerRadius,startAngle,endAngle);
+}
+
+void DrawingUtil::drawCircleFill(Vector drawPoint,Color innerColor, Color outerColor, float innerRadius, float outerRadius, float startAngle, float endAngle)
+{
 	float z1 = drawPoint.z;
 	if (outerRadius == 0)
 		return;
@@ -56,7 +61,6 @@ void DrawingUtil::drawCircleFill(Vector drawPoint,Color fillColor, float innerRa
 	
 	float anglePerVertex = angleRange/(float)vertices;
 	
-	glColor4fv(fillColor.getFloat());
 	glBindTexture( GL_TEXTURE_2D, NULL);
 	glLineWidth(0);
 	
@@ -66,7 +70,10 @@ void DrawingUtil::drawCircleFill(Vector drawPoint,Color fillColor, float innerRa
 	{
 		float angle = v*anglePerVertex;
 		angle += startAngle;
+		
+		glColor4fv(innerColor.getFloat());
 		glVertex3f(cosf(angle)*innerRadius,sinf(angle)*innerRadius,z1);
+		glColor4fv(outerColor.getFloat());
 		glVertex3f(cosf(angle)*outerRadius,sinf(angle)*outerRadius,z1);
 	}
 	glEnd();

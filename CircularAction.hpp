@@ -21,14 +21,17 @@ private:
 	
 	enum State
 	{
+		PendingHide = -2,
 		Hidden = -1,
 		Idle = 0,
 		Rotating = 1,
-		Active = 2		
+		Active = 2,
+		PendingRelease = 3
 	};
 
 	int state;
 	Timer sphereRadiusTimer;
+	Timer hideCountdown, releaseCountdown;
 
 	float drawRadius,drawPitch, averageRadius;
 	Vector drawPoint;
@@ -77,6 +80,8 @@ private:
 	void drawFingerOffsets(Vector center, Color lineColor, float radius, vector<pair<int,float> > & offsets);
 	
 	bool checkShowGesture(const Controller & controller, Hand hand);
+	
+	void setState(int newState);
 
 public:
 	CircularAction();

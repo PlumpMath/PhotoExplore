@@ -124,6 +124,7 @@ struct MainContext {
 
 		con.save();	
 		controller.enableGesture(Gesture::Type::TYPE_SWIPE);
+		controller.enableGesture(Gesture::Type::TYPE_CIRCLE);
 	}
 
 

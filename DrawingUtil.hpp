@@ -12,6 +12,9 @@ public:
 	
 	static void drawCircleFill(Leap::Vector drawPoint,Color fillColor, float innerRadius, float outerRadius, float startAngle, float endAngle);
 	
+	
+	static void drawCircleFill(Leap::Vector drawPoint,Color innerColor, Color outerColor, float innerRadius, float outerRadius, float startAngle, float endAngle);
+	
 };
 
 #endif

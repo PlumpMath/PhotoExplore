@@ -17,11 +17,10 @@ SwipeGestureDetector::SwipeGestureDetector()
 	currentScrollVelocity = 0;
 	touchScrollingEnabled = GlobalConfig::tree()->get<bool>("Leap.TouchScroll.Enabled");
 	swipeScrollingEnabled = true;
+	knobScrollingEnabled = true;
 
 	scrollKnob = new CircularAction();
-	
 	LeapDebug::getInstance().addDebugVisual(scrollKnob);
-
 
 	InputEventHandler::getInstance().addScrollCallback([this](GLFWwindow * window, double xScroll, double yScroll) -> bool
 	{
@@ -121,8 +120,6 @@ FlyWheel * SwipeGestureDetector::getFlyWheel()
 void SwipeGestureDetector::doScrollWheelScrolling(double xScroll, double yScroll)
 {
 	ptree swipeConfig = GlobalConfig::tree()->get_child("Leap.CustomGesture.Swipe.Mouse");
-	
-	
 	bool enabled = swipeConfig.get<bool>("Enabled");
 	bool wheelMode = false; 
 
@@ -522,6 +519,50 @@ void SwipeGestureDetector::doTouchZoneScrolling(const Controller & controller)
 
 }
 
+void SwipeGestureDetector::doKnobScrolling(const Controller & controller)
+{	
+	static float peakVal = GlobalConfig::tree()->get<float>("Leap.CircularAction.VelocityScale.PeakVelocity");
+	static float peakAngle = GlobalConfig::tree()->get<float>("Leap.CircularAction.VelocityScale.PeakAngle")/Leap::RAD_TO_DEG;
+	static int exponent = GlobalConfig::tree()->get<int>("Leap.CircularAction.VelocityScale.Exponent");
+	
+	static float scaleVal = peakVal/(pow(abs(peakAngle),exponent));
+	
+	if (state != KnobScrolling && scrollKnob->isGrasped())
+	{
+		state = KnobScrolling;
+		LeapInput::getInstance()->setClickEnabled(false);
+	}
+	
+	if (state == KnobScrolling)
+	{
+		if (scrollKnob->isGrasped())
+		{
+			float s = sgn(scrollKnob->getValue());
+			float e = pow(abs(scrollKnob->getValue()),exponent);
+			
+			float newVelocity = s*scaleVal*e;
+			
+			float currentVal = flyWheel->getCurrentPosition();
+			
+			if ((newVelocity < flyWheel->getVelocity() || currentVal < flyWheel->getMaxValue()) && currentVal > flyWheel->getMinValue())
+				flyWheel->setVelocity(newVelocity);
+			else if ((newVelocity > flyWheel->getVelocity() || currentVal > flyWheel->getMinValue()) && currentVal < flyWheel->getMaxValue())
+				flyWheel->setVelocity(newVelocity);
+			
+		}
+//		else if (abs(scrollKnob->getValue()) > 10)
+//			flyWheel->setVelocity(0);
+		else
+		{			
+			flyWheel->setVelocity(0);
+			LeapInput::getInstance()->setClickEnabled(true);
+			state = IdleState;
+		}
+	}
+}
+
+
+
 
 void SwipeGestureDetector::onFrame(const Controller & controller)
 {
@@ -540,25 +581,12 @@ void SwipeGestureDetector::onFrame(const Controller & controller)
 			flyWheelMutex.unlock();
 			return;
 		}
-
+	
 		
-		float peakVal = GlobalConfig::tree()->get<float>("Leap.CircularAction.VelocityScale.PeakVelocity");
-		float peakAngle = GlobalConfig::tree()->get<float>("Leap.CircularAction.VelocityScale.PeakAngle")/Leap::RAD_TO_DEG;
-		int exponent = GlobalConfig::tree()->get<int>("Leap.CircularAction.VelocityScale.Exponent");
-		
-		float scaleVal = peakVal/(pow(abs(peakAngle),exponent));
-		
-		if (scrollKnob->isGrasped())
-		{
-			state = IdleState;
-			float s = sgn(scrollKnob->getValue());
-			float e = pow(abs(scrollKnob->getValue()),exponent);
-			
-			flyWheel->setVelocity(s*scaleVal*e);
-		}
-		else if (abs(scrollKnob->getValue()) > 10)
-			flyWheel->setVelocity(0);
-		else
+		if (knobScrollingEnabled)
+			doKnobScrolling(controller);
+	
+		if (state != KnobScrolling)
 		{
 			if (touchScrollingEnabled)
 				doTouchZoneScrolling(controller);
@@ -566,7 +594,6 @@ void SwipeGestureDetector::onFrame(const Controller & controller)
 			if (swipeScrollingEnabled && state != TouchScrolling)
 				doGestureScrolling(controller);
 		}
-
 
 		lastFrame = frame;
 		flyWheelMutex.unlock();
