@@ -45,7 +45,7 @@ private:
 	
 	DoubleAnimation outerRadiusAnimation,innerRadiusAnimation,outerRingAnimation;
 	
-	Vector knobHomePosition;
+	Vector knobHomePosition, knobPlaneNormal, knobCenterPoint;
 	
 	map<int,float> fingerAngleMap, drawFingerAngles;
 	map<int,float> fingerErrorMap;

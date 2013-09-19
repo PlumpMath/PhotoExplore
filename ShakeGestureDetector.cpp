@@ -232,7 +232,7 @@ void ShakeGestureDetector::onFrame(const Controller & controller)
 	int minPointables = GlobalConfig::tree()->get<int>("Shake.MinimumPointables");
 	float minTouchDistance = GlobalConfig::tree()->get<float>("Shake.MinTouchDistance");
 
-	if (cooldownTimer.elapsed() && completedGestures.empty())
+	if ((!cooldownTimer.counting() || cooldownTimer.elapsed()) && completedGestures.empty())
 	{
 		for (int i = 0;i < frame.pointables().count();i++)
 		{				

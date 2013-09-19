@@ -128,10 +128,8 @@ void CircularAction::drawFingerOffsets(Vector center, Color lineColor,float radi
 {
 	float anglePerFinger = Leap::PI*0.2f;
 	float offset = Leap::PI;
-	
-//	for (auto it = offsets.begin(); it != offsets.end(); it++)
-//	{
-	
+	float targetRad = config.get<float>("TargetSphereRadius");
+		
 	int fingerCount = 0;
 	for (auto it = orderedFingers.begin(); it != orderedFingers.end(); it++)
 	{
@@ -154,7 +152,12 @@ void CircularAction::drawFingerOffsets(Vector center, Color lineColor,float radi
 			
 			if (errorVal < 0)
 				lineWidth += errorVal*-0.2f;
+						
+			Vector tipPoint = LeapHelper::GetXYCoords(it->first.stabilizedTipPosition() - knobCenterPoint,knobPlaneNormal);
 			
+			tipPoint *= (radius/targetRad);
+			tipPoint += center;
+			DrawingUtil::drawCircleLine(tipPoint+Vector(0,0,1.5f),Colors::Red,3,30,0,Leap::PI*2.0f);
 			
 			DrawingUtil::drawCircleFill(center,color,start,length,angle,angle+anglePerFinger);
 			DrawingUtil::drawCircleLine(center+Vector(0,0,0.5f),circleOuterLineColor,lineWidth,length,angle,angle+anglePerFinger);
@@ -162,8 +165,6 @@ void CircularAction::drawFingerOffsets(Vector center, Color lineColor,float radi
 		
 		fingerCount++;
 	}
-		
-//	}
 }
 
 void CircularAction::setNewHand(Hand newHand)
@@ -188,8 +189,11 @@ bool CircularAction::isGrasped()
 
 float CircularAction::getHandFingerPitch(const Controller & controller, Finger f)
 {
-	Vector delta = getHandFingerDelta(controller,f);
-	return atan2(delta.x,delta.y);
+//	Vector delta = getHandFingerDelta(controller,f);
+//	return atan2(delta.x,delta.y);
+	Vector _knobCenterPoint = f.hand().stabilizedPalmPosition();
+	//Vector _knobPlaneNormal = Vector(0,0,-1);
+	return LeapHelper::GetAngleOnPlane(f.stabilizedTipPosition() - _knobCenterPoint,Vector(0,1,1),knobPlaneNormal,Vector(0,0,0));
 }
 
 Vector CircularAction::getHandFingerDelta(const Controller & controller, Finger f)
@@ -210,12 +214,14 @@ void CircularAction::updateErrorMap(const Controller & controller, Hand hand)
 	
 	fingerErrorMap.clear();
 	
-	bool usePalmPosition = config.get<bool>("UsePalmCenter");
+	//bool usePalmPosition = config.get<bool>("UsePalmCenter");
 	
-	Vector centroid = (usePalmPosition) ? hand.stabilizedPalmPosition() : hand.sphereCenter();
+	//Vector centroid = (usePalmPosition) ? hand.stabilizedPalmPosition() : hand.sphereCenter();
+	
+	Vector centroid = knobCenterPoint;
 	
 	
-	centroid.z = 0;
+	//centroid.z = 0;
 	averageRadius = config.get<float>("TargetSphereRadius"); 
 
 	boost::property_tree::ptree stateConfig = (grasped) ? config.get_child("Grasped") : config.get_child("Open");
@@ -239,7 +245,7 @@ void CircularAction::updateErrorMap(const Controller & controller, Hand hand)
 		{
 			Finger finger = hand.fingers()[f];
 			Vector p = finger.stabilizedTipPosition();
-			p.z = 0;
+			//p.z = 0;
 			
 			float errorVal = p.distanceTo(centroid) - averageRadius;
 			
@@ -265,6 +271,9 @@ void CircularAction::updateErrorMap(const Controller & controller, Hand hand)
 		
 		outerRingAnimation = DoubleAnimation(0,Leap::PI/2.0,config.get<int>("OuterRingGraspAnimDuration"),NULL,false,false);
 		outerRingAnimation.start();
+		
+		knobPlaneNormal = hand.palmNormal();
+		knobCenterPoint = hand.stabilizedPalmPosition();
 	}
 		
 	if (grasped)
@@ -437,8 +446,13 @@ bool CircularAction::checkShowGesture(const Controller & controller, Hand hand)
 				
 				if (cg.progress() > config.get<float>("Show.CircleGesture.MinProgress") &&
 					cg.radius() > config.get<float>("Show.CircleGesture.MinRadius") &&
-					cg.radius() < config.get<float>("Show.CircleGesture.MaxRadius"))
+					cg.radius() < config.get<float>("Show.CircleGesture.MaxRadius") &&
+					cg.normal().angleTo(Vector(0,0,-1)) < config.get<float>("Show.CircleGesture.MaxZAngleOffset")/Leap::RAD_TO_DEG
+				)
 				{
+					knobCenterPoint = cg.center();
+					knobPlaneNormal = cg.normal();
+					
 					knobHomePosition = constrainVector(Vector(GlobalConfig::ScreenWidth/2.0f,GlobalConfig::ScreenHeight/2.0f,0),
 													   LeapHelper::FindScreenPoint(controller,cg.center()),800) + Vector(0,0,50);
 					return true;
@@ -604,6 +618,10 @@ void CircularAction::onFrame(const Controller & controller)
 		case PendingHide:
 			if (hideCountdown.elapsed())
 				setState(Hidden);
+			else if (grasped)
+				setState(Rotating);
+			else if (hand.isValid())
+				setState(Idle);
 			break;
 		default:
 			break;

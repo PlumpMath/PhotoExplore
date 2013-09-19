@@ -17,6 +17,7 @@ public:
 	double seconds();
 	double millis();
 	double get_ticks();
+	bool counting();
 };
 
 #endif

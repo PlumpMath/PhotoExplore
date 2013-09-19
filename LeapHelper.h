@@ -11,6 +11,31 @@
 
 using namespace Leap;
 
+struct Plane {
+	
+	Vector normal;
+	float planeConstant;
+	
+	Plane(Vector _normal, float _planeConstant) :
+		normal(_normal),
+		planeConstant(_planeConstant)
+	{
+		
+	}
+	
+	Plane(Vector _normal, Vector planePoint) :
+		normal(_normal)
+	{
+		planeConstant = GetPlaneConstant(normal,planePoint);
+	}
+	
+	static float GetPlaneConstant(Vector n, Vector p)
+	{
+		return -(n.x * p.x + n.y * p.y + p.z * n.z);
+	}
+	
+};
+
 class LeapHelper {
 
 public:
@@ -132,7 +157,17 @@ public:
 		Vector proj = point - (dist * hand.palmNormal());
 		return proj;
 	}
-
+	
+	static Vector GetPlaneProjection(Vector point, Vector planeNormal, float planeConstant)
+	{
+		Vector v = point;
+		float dist = v.dot(planeNormal) + planeConstant;
+		Vector proj = point - (dist * planeNormal);
+		return proj;
+	}
+	
+	
+	
 	static float GetHandPlaneConstant(Hand hand)
 	{
 		Vector n = hand.palmNormal();
@@ -164,6 +199,12 @@ public:
 		Vector v = GetHandPlaneProjection(hand.palmPosition() + hand.direction(), hand) - hand.palmPosition();
 		return (v / v.magnitude());
 	}
+	
+	static Vector ProjectOnHandPlane(Hand hand, Vector dir)
+	{
+		Vector v = GetHandPlaneProjection(hand.palmPosition() + dir, hand) - hand.palmPosition();
+		return (v / v.magnitude());
+	}
 
 
 	static float GetFingerTipAngle(Hand hand, Finger finger)
@@ -182,6 +223,38 @@ public:
 		angle *= sign;
 
 		return angle;
+	}
+	
+	static float GetAngleOnPlane(Vector p1, Vector p2, Vector planeNormal, Vector planePoint)
+	{
+		float pC = Plane::GetPlaneConstant(planeNormal,planePoint);
+		
+//		p0 = GetPlaneProjection(p0,planeNormal,pC);
+		p1 =  GetPlaneProjection(p1,planeNormal,pC);
+		p2 = GetPlaneProjection(p2,planeNormal,pC);
+		
+//		p1 -= p0;
+//		p2 -= p0;
+		
+		Vector cross = p2.cross(p1);
+				
+		float sign = sgn(planeNormal.dot(cross));
+		
+		float angle = p2.angleTo(p1);
+		angle *= sign;
+		
+		return angle;
+	}
+	
+	static Vector GetXYCoords(Vector point, Vector planeNormal)
+	{
+		point = GetPlaneProjection(point,planeNormal,0);
+		Vector xAxis = GetPlaneProjection(Vector(1,0,0),planeNormal,0).normalized();
+		Vector yAxis = GetPlaneProjection(Vector(0,1,1),planeNormal,0).normalized();
+		
+		Vector result = Vector(xAxis.dot(point),yAxis.dot(point),0);
+		
+		return result;
 	}
 
 	static vector<pair<Finger,float> > GetOrderedFingers(Hand hand, bool isLeft = false)

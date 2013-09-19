@@ -530,7 +530,7 @@ void SwipeGestureDetector::doKnobScrolling(const Controller & controller)
 	if (state != KnobScrolling && scrollKnob->isGrasped())
 	{
 		state = KnobScrolling;
-		LeapInput::getInstance()->setClickEnabled(false);
+		//LeapInput::getInstance()->setClickEnabled(false);
 	}
 	
 	if (state == KnobScrolling)

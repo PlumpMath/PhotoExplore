@@ -25,6 +25,14 @@ bool Timer::elapsed()
 		return false;
 	
 	return millis() > countdownTime;
+//	{
+//		countdownTime = 0;
+//		return true;
+//	}
+//	else
+//	{
+//		return false;
+//	}
 }
 
 double Timer::seconds()
@@ -40,4 +48,9 @@ double Timer::millis()
 double Timer::get_ticks()
 {
 	return (boost::posix_time::microsec_clock::local_time() - startTime).total_nanoseconds()/1000000.0;
+}
+
+bool Timer::counting()
+{
+	return countdownTime != 0;
 }

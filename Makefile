@@ -1,5 +1,5 @@
 CXX=g++-mp-4.5 
-CXXFLAGS=-m32 -w -g -std=c++0x 
+CXXFLAGS=-m32 -w -g -std=c++0x  -mmacosx-version-min=10.6 
 	
 LIB=Leap freetype json_spirit cef cef_dll_wrapper glfw3 GLEW opencv_core opencv_imgproc opencv_highgui opencv_video boost_date_time boost_thread boost_filesystem boost_system boost_regex NSHack
 LIB_PARAMS=$(foreach d,$(LIB),-l$d)
@@ -21,7 +21,7 @@ default: all
 all: $(SOURCES) $(EXECUTABLE)
 
 $(EXECUTABLE): $(OBJECTS)
-	$(CXX) -m32 -headerpad_max_install_names $(LIB_DIR_PARAMS) $(LIB_PARAMS) -framework IOKit -framework OpenGL -framework Cocoa -o $@ $(OBJECTS)
+	$(CXX) -m32 -headerpad_max_install_names -mmacosx-version-min=10.6 $(LIB_DIR_PARAMS) $(LIB_PARAMS) -framework IOKit -framework OpenGL -framework Cocoa -o $@ $(OBJECTS)
 
 clean:
 	rm -f $(OBJECTS) $(EXECUTABLE)

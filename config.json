@@ -187,7 +187,7 @@
 	"FakeDataMode" : 
 	{
 		"Enable" : false,
-		"FileBrowser" : true,
+		"FileBrowser" : false,
 		"ImageDirectories" :
 		[ 
 			"/Users/adamskubel/Pictures/LeapDemo/Pixiv"
@@ -252,7 +252,7 @@
 			"Results" : false,		//Log processed results to a CSV file
 			"OutputDir" : "."		//Directory to store CSV files in, relative to executable
 		},
-		"DebugDrawing" : false,	 	//Draw debug graphs on screen
+		"DebugDrawing" : true,	 	//Draw debug graphs on screen
 		"SampleCount" : 30,				//Number of samples to analyze at once
 		"CancelDirectional" : true, 	//Ignore movement in the direction the finger is pointing
 		"Disabled" : false, 					//Disable the shake completely (breaks most functionality)
@@ -381,7 +381,7 @@
 		},
 		"TouchScroll" : 
 		{
-			"Enabled" : true,
+			"Enabled" : false,
 			"FrictionInduce" :
 			{	
 				"MaxTipVelocity" : 200.0,
@@ -497,8 +497,8 @@
 			"OuterLineWidth" : 4,
 			"InnerLineWidth" : 4,
 			"HideAnimDuration" : 350,
-			"HideTimeout" : 1000,
-			"PointingReleaseTimeout" : 5000,
+			"HideTimeout" : 500,
+			"PointingReleaseTimeout" : 50000,
 			"Inner" :
 			{
 				"ShowAnimDuration" : 250
@@ -507,7 +507,7 @@
 			"SphereRadiusThreshold" : 70,
 			"SphereRadiusRC" : 0.4,
 			"SphereRadiusMaxOffset" : 20,
-			"TargetSphereRadius" : 50,
+			"TargetSphereRadius" : 70,
 			"KnobPickupRadius" : 250,
 			"KnobAngleRange" : 300,
 			"OuterRingGraspAnimDuration" : 250,
@@ -555,8 +555,9 @@
 				{
 					"Enabled" : true,
 					"MinRadius" : 10,
-					"MaxRadius" : 110,
-					"MinProgress" : 1.5
+					"MaxRadius" : 120,
+					"MinProgress" : 1.8,
+					"MaxZAngleOffset" : 90
 				},
 				"MultiTap":
 				{
